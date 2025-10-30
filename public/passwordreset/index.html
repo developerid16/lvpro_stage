@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="style/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style/custom-style.css">
+  <link rel="stylesheet" href="style/bootstrap-icons.css" />
+  <link rel="stylesheet" href="style/snackbar.min.css">
+  <link rel="stylesheet" href="style/bootstrap-icons.woff">
+  <title>Shilla</title>
+</head>
+
+<body>
+  <div class="hero">
+    <div class="text-center logo">
+      <div class="mobile_back d-none">
+        <a href="#" id="prevBtn" onclick="nextPrev(-1)"><img src="./resources/right_arrow.png" alt=""></a>
+      </div>
+      <a href="#">
+        <img src="./resources/Logo.png" alt="">
+      </a>
+    </div>
+    <div class="hero_container d-flex align-items-center justify-content-center">
+      <div class="hero_row">
+        <form id="regForm" class="step_form" action="/download-app.html">
+          <div class="tab">
+            <h1 class="title">Join Us On Our Next Exciting Phase!</h1>
+            <label for="">Pass ID:</label>
+            <div><input class="username_email" placeholder="Username or email address" id="email-input"></div>
+          </div>
+          <div class="tab otp_verification_setp">
+            <div class="text-center mobile_img">
+              <img src="./resources/mobile.png" alt="">
+            </div>
+            <div class="text-center contain">
+              <h5>OTP Verification</h5>
+              <p>Enter the OTP sent to your registered email</p>
+            </div>
+            <div class="d-flex otp_input" id="otp">
+              <input type="number" maxlength="1" id="otp_1" data-index="1"/>
+              <input type="number" maxlength="1" id="otp_2" data-index="2"/>
+              <input type="number" maxlength="1" id="otp_3" data-index="3"/>
+              <input type="number" maxlength="1" id="otp_4" data-index="4"/>
+              <input type="number" maxlength="1" id="otp_5" data-index="5"/>
+              <input type="number" maxlength="1" id="otp_6" data-index="6"/>
+            </div>
+            <div class="fields">
+              <label for="">New Password:<span>(8 Alphanumeric)</span></label>
+              <div class="position-relative">
+                <input type="password" class="pwd_input" placeholder="Enter Password" id="password">
+                <i class="bi-eye-slash" id="password-icon" onclick="toggleHideShow('password')"></i>
+                <span class="text-danger" id="password-span"></span>
+              </div>
+              <label for="">Reconfirm Password:<span>(8 Alphanumeric)</span></label>
+              <div class="position-relative">
+                <input type="password" placeholder="Reconfirm Password" id="confirm">
+                <i class="bi-eye-slash" id="confirm-icon" onclick="toggleHideShow('confirm')"></i>
+                <span class="text-danger" id="confirm-span"></span>
+
+              </div>
+            </div>
+          </div>
+          <div style="overflow:auto;">
+            <div class="step_btn">
+              <button type="button" class="d-none">Previous</button>
+              <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+            </div>
+          </div>
+          <!-- Circles which indicates the steps of the form: -->
+          <div class="form_steps">
+            <span class="step"></span>
+            <span class="step"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/jquery-3.5.1.min.js"></script>
+
+  <script src="js/main.js"></script>
+  <script src="js/snackbar.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+
+</html>

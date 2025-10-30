@@ -1,0 +1,245 @@
+  2023-08-09 14:44:54 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-09 14:44:54 Maatwebsite\Excel\Jobs\QueueImport ........ 40.26ms DONE
+  2023-08-09 14:44:54 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-09 14:44:54 Maatwebsite\Excel\Jobs\ReadChunk .......... 52.36ms FAIL
+  2023-08-09 14:45:35 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-09 14:45:35 Maatwebsite\Excel\Jobs\QueueImport ........ 42.86ms DONE
+  2023-08-09 14:45:35 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-09 14:45:35 Maatwebsite\Excel\Jobs\ReadChunk .......... 56.26ms FAIL
+  2023-08-10 04:18:24 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 04:18:24 Maatwebsite\Excel\Jobs\QueueImport ........ 46.87ms DONE
+  2023-08-10 04:18:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+array:10 [ // app/Imports/SalesImport.php:31
+  0 => "Day of Date"
+  1 => "System Time"
+  2 => "Loyalty"
+  3 => "Location"
+  4 => "Storage Location"
+  5 => "POS No"
+  6 => "Recpt Ref No"
+  7 => "SKU_Code"
+  8 => "Net Sales Anount(DOC)"
+  9 => "Quantity Purchased"
+]
+  2023-08-10 04:19:58 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 04:19:58 Maatwebsite\Excel\Jobs\ReadChunk .......... 29.38ms FAIL
+  2023-08-10 04:21:03 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 04:21:03 Maatwebsite\Excel\Jobs\QueueImport ........ 50.81ms DONE
+  2023-08-10 04:21:03 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 04:21:03 Maatwebsite\Excel\Jobs\ReadChunk .......... 57.38ms FAIL
+  2023-08-10 04:21:37 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 04:21:37 Maatwebsite\Excel\Jobs\QueueImport ........ 46.68ms DONE
+  2023-08-10 04:21:37 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 04:21:37 Maatwebsite\Excel\Jobs\ReadChunk .......... 62.09ms FAIL
+  2023-08-10 04:26:15 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 04:26:15 Maatwebsite\Excel\Jobs\QueueImport ........ 47.03ms DONE
+  2023-08-10 04:26:15 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 04:26:15 Maatwebsite\Excel\Jobs\ReadChunk .......... 56.80ms FAIL
+  2023-08-10 04:26:48 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 04:26:48 Maatwebsite\Excel\Jobs\QueueImport ........ 43.61ms DONE
+  2023-08-10 04:26:48 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 04:26:48 Maatwebsite\Excel\Jobs\ReadChunk .......... 53.54ms FAIL
+  2023-08-10 05:31:36 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 05:31:36 Maatwebsite\Excel\Jobs\QueueImport ........ 43.85ms DONE
+  2023-08-10 05:31:36 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 05:31:37 Maatwebsite\Excel\Jobs\ReadChunk ......... 314.43ms DONE
+  2023-08-10 05:31:37 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 05:31:37 Maatwebsite\Excel\Jobs\AfterImportJob ..... 19.68ms DONE
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\QueueImport ........ 43.44ms DONE
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\ReadChunk ......... 133.79ms DONE
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 05:33:10 Maatwebsite\Excel\Jobs\AfterImportJob ..... 19.73ms DONE
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\QueueImport ........ 44.20ms DONE
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\ReadChunk ......... 151.75ms DONE
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 06:27:52 Maatwebsite\Excel\Jobs\AfterImportJob ..... 20.57ms DONE
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\QueueImport ........ 42.14ms DONE
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\ReadChunk ......... 301.27ms DONE
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 06:32:29 Maatwebsite\Excel\Jobs\AfterImportJob ..... 18.18ms DONE
+  2023-08-10 06:34:33 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 06:34:33 Maatwebsite\Excel\Jobs\QueueImport ........ 42.44ms DONE
+  2023-08-10 06:34:33 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 06:34:34 Maatwebsite\Excel\Jobs\ReadChunk ......... 344.74ms DONE
+  2023-08-10 06:34:34 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 06:34:34 Maatwebsite\Excel\Jobs\AfterImportJob ..... 28.01ms DONE
+  2023-08-10 07:02:36 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 07:02:36 Maatwebsite\Excel\Jobs\QueueImport ........ 43.68ms DONE
+  2023-08-10 07:02:36 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 07:02:36 Maatwebsite\Excel\Jobs\ReadChunk .......... 61.95ms FAIL
+  2023-08-10 07:56:24 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 07:56:24 Maatwebsite\Excel\Jobs\QueueImport ........ 47.23ms DONE
+  2023-08-10 07:56:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 07:56:25 Maatwebsite\Excel\Jobs\ReadChunk ......... 313.80ms DONE
+  2023-08-10 07:56:25 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 07:56:25 Maatwebsite\Excel\Jobs\AfterImportJob ..... 20.18ms DONE
+  2023-08-10 08:06:10 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 08:06:10 Maatwebsite\Excel\Jobs\QueueImport ........ 42.66ms DONE
+  2023-08-10 08:06:10 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 08:06:11 Maatwebsite\Excel\Jobs\ReadChunk ......... 631.00ms DONE
+  2023-08-10 08:06:11 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 08:06:11 Maatwebsite\Excel\Jobs\AfterImportJob ..... 21.99ms DONE
+  2023-08-10 08:07:12 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 08:07:12 Maatwebsite\Excel\Jobs\QueueImport ........ 40.32ms DONE
+  2023-08-10 08:07:12 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 08:07:13 Maatwebsite\Excel\Jobs\ReadChunk ......... 438.78ms DONE
+  2023-08-10 08:07:13 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 08:07:13 Maatwebsite\Excel\Jobs\AfterImportJob ..... 17.68ms DONE
+  2023-08-10 08:11:24 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 08:11:24 Maatwebsite\Excel\Jobs\QueueImport ........ 44.91ms DONE
+  2023-08-10 08:11:24 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 08:11:25 Maatwebsite\Excel\Jobs\ReadChunk ......... 131.15ms DONE
+  2023-08-10 08:11:25 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 08:11:25 Maatwebsite\Excel\Jobs\AfterImportJob ..... 22.68ms DONE
+  2023-08-10 09:11:49 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:11:49 Maatwebsite\Excel\Jobs\QueueImport ........ 41.21ms DONE
+  2023-08-10 09:11:49 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:11:49 Maatwebsite\Excel\Jobs\ReadChunk .......... 52.23ms FAIL
+  2023-08-10 09:14:03 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:14:03 Maatwebsite\Excel\Jobs\QueueImport ........ 46.63ms DONE
+  2023-08-10 09:14:03 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:14:03 Maatwebsite\Excel\Jobs\ReadChunk .......... 88.49ms FAIL
+  2023-08-10 09:22:56 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:22:56 Maatwebsite\Excel\Jobs\QueueImport ........ 43.02ms DONE
+  2023-08-10 09:22:56 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:22:57 Maatwebsite\Excel\Jobs\ReadChunk ......... 463.70ms DONE
+  2023-08-10 09:22:57 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 09:22:57 Maatwebsite\Excel\Jobs\AfterImportJob ..... 18.30ms DONE
+  2023-08-10 09:45:07 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:45:07 Maatwebsite\Excel\Jobs\QueueImport ........ 38.08ms DONE
+  2023-08-10 09:45:07 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:45:08 Maatwebsite\Excel\Jobs\ReadChunk ......... 297.25ms DONE
+  2023-08-10 09:45:08 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 09:45:08 Maatwebsite\Excel\Jobs\AfterImportJob ..... 17.95ms DONE
+  2023-08-10 09:46:59 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:46:59 Maatwebsite\Excel\Jobs\QueueImport ........ 45.13ms DONE
+  2023-08-10 09:46:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:46:59 Maatwebsite\Excel\Jobs\ReadChunk .......... 56.17ms FAIL
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\QueueImport ........ 43.85ms DONE
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\ReadChunk ......... 121.13ms DONE
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 09:47:27 Maatwebsite\Excel\Jobs\AfterImportJob ..... 20.24ms DONE
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\QueueImport ........ 44.79ms DONE
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\ReadChunk ......... 118.81ms DONE
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 10:18:13 Maatwebsite\Excel\Jobs\AfterImportJob ..... 20.35ms DONE
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\QueueImport ........ 45.00ms DONE
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\ReadChunk ......... 284.45ms DONE
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 10:58:32 Maatwebsite\Excel\Jobs\AfterImportJob ..... 20.05ms DONE
+  2023-08-10 11:06:51 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 11:06:51 Maatwebsite\Excel\Jobs\QueueImport ........ 45.58ms DONE
+  2023-08-10 11:06:51 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 11:06:51 Maatwebsite\Excel\Jobs\ReadChunk .......... 57.70ms FAIL
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\QueueImport ........ 44.54ms DONE
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\ReadChunk ......... 113.00ms DONE
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-10 11:08:12 Maatwebsite\Excel\Jobs\AfterImportJob ..... 17.69ms DONE
+  2023-08-11 02:51:50 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:51:50 Maatwebsite\Excel\Jobs\QueueImport ........ 46.21ms DONE
+  2023-08-11 02:51:50 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:51:50 Maatwebsite\Excel\Jobs\ReadChunk .......... 70.43ms FAIL
+  2023-08-11 02:54:33 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:54:33 Maatwebsite\Excel\Jobs\QueueImport ........ 42.54ms DONE
+  2023-08-11 02:54:33 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:54:33 Maatwebsite\Excel\Jobs\ReadChunk .......... 66.71ms FAIL
+  2023-08-11 02:55:30 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:55:30 Maatwebsite\Excel\Jobs\QueueImport ........ 41.39ms DONE
+  2023-08-11 02:55:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:55:30 Maatwebsite\Excel\Jobs\ReadChunk .......... 61.01ms FAIL
+  2023-08-11 02:57:30 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:57:30 Maatwebsite\Excel\Jobs\QueueImport ........ 45.82ms DONE
+  2023-08-11 02:57:30 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:57:30 Maatwebsite\Excel\Jobs\ReadChunk .......... 62.93ms FAIL
+  2023-08-11 02:59:22 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:59:22 Maatwebsite\Excel\Jobs\QueueImport ........ 52.32ms DONE
+  2023-08-11 02:59:22 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:59:22 Maatwebsite\Excel\Jobs\ReadChunk .......... 66.49ms FAIL
+  2023-08-11 02:59:58 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 02:59:58 Maatwebsite\Excel\Jobs\QueueImport ........ 43.01ms DONE
+  2023-08-11 02:59:58 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 02:59:58 Maatwebsite\Excel\Jobs\ReadChunk .......... 60.15ms FAIL
+  2023-08-11 03:06:18 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 03:06:18 Maatwebsite\Excel\Jobs\QueueImport ........ 43.76ms DONE
+  2023-08-11 03:06:18 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 03:06:18 Maatwebsite\Excel\Jobs\ReadChunk .......... 64.85ms FAIL
+  2023-08-11 03:09:06 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 03:09:06 Maatwebsite\Excel\Jobs\QueueImport ........ 45.34ms DONE
+  2023-08-11 03:09:06 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 03:09:06 Maatwebsite\Excel\Jobs\ReadChunk .......... 72.25ms FAIL
+  2023-08-11 03:18:19 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 03:18:19 Maatwebsite\Excel\Jobs\QueueImport ........ 43.93ms DONE
+  2023-08-11 03:18:19 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 03:18:20 Maatwebsite\Excel\Jobs\ReadChunk .......... 61.85ms FAIL
+  2023-08-11 03:18:47 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 03:18:47 Maatwebsite\Excel\Jobs\QueueImport ........ 41.40ms DONE
+  2023-08-11 03:18:47 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 03:18:47 Maatwebsite\Excel\Jobs\ReadChunk .......... 63.51ms FAIL
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\QueueImport ........ 46.23ms DONE
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\ReadChunk ......... 498.41ms DONE
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-11 03:21:38 Maatwebsite\Excel\Jobs\AfterImportJob ..... 22.54ms DONE
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\QueueImport ........ 48.23ms DONE
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\ReadChunk ......... 299.79ms DONE
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-11 04:00:43 Maatwebsite\Excel\Jobs\AfterImportJob ..... 19.85ms DONE
+  2023-08-11 11:41:59 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 11:41:59 Maatwebsite\Excel\Jobs\QueueImport ........ 47.82ms DONE
+  2023-08-11 11:41:59 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 11:42:00 Maatwebsite\Excel\Jobs\ReadChunk ......... 322.26ms DONE
+  2023-08-11 11:42:00 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-11 11:42:00 Maatwebsite\Excel\Jobs\AfterImportJob ..... 21.26ms DONE
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\QueueImport ........ 45.82ms DONE
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\ReadChunk ......... 130.96ms DONE
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-11 11:51:55 Maatwebsite\Excel\Jobs\AfterImportJob ..... 17.94ms DONE
+  2023-08-14 07:58:23 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-14 07:58:23 Maatwebsite\Excel\Jobs\QueueImport ........ 44.12ms DONE
+  2023-08-14 07:58:23 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-14 07:58:24 Maatwebsite\Excel\Jobs\ReadChunk ......... 398.82ms DONE
+  2023-08-14 07:58:24 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-14 07:58:24 Maatwebsite\Excel\Jobs\AfterImportJob ..... 18.39ms DONE
+  2023-08-21 08:34:45 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-21 08:34:45 Maatwebsite\Excel\Jobs\QueueImport ........ 47.67ms DONE
+  2023-08-21 08:34:45 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-21 08:34:45 Maatwebsite\Excel\Jobs\ReadChunk ......... 114.53ms FAIL
+  2023-08-21 08:36:09 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-21 08:36:09 Maatwebsite\Excel\Jobs\QueueImport ........ 44.70ms DONE
+  2023-08-21 08:36:09 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-21 08:36:10 Maatwebsite\Excel\Jobs\ReadChunk ......... 867.50ms DONE
+  2023-08-21 08:36:10 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-21 08:36:10 Maatwebsite\Excel\Jobs\AfterImportJob ..... 21.87ms DONE
+  2023-08-22 02:19:12 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-22 02:19:12 Maatwebsite\Excel\Jobs\QueueImport ........ 41.64ms DONE
+  2023-08-22 02:19:12 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-22 02:19:12 Maatwebsite\Excel\Jobs\ReadChunk .......... 84.51ms FAIL
+  2023-08-22 02:47:42 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-22 02:47:42 Maatwebsite\Excel\Jobs\QueueImport ........ 57.50ms DONE
+  2023-08-22 02:47:42 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-22 02:47:42 Maatwebsite\Excel\Jobs\ReadChunk .......... 62.86ms FAIL
+  2023-08-22 05:10:48 Maatwebsite\Excel\Jobs\QueueImport ............. RUNNING
+  2023-08-22 05:10:48 Maatwebsite\Excel\Jobs\QueueImport ........ 47.50ms DONE
+  2023-08-22 05:10:48 Maatwebsite\Excel\Jobs\ReadChunk ............... RUNNING
+  2023-08-22 05:10:49 Maatwebsite\Excel\Jobs\ReadChunk ....... 1,148.78ms DONE
+  2023-08-22 05:10:49 Maatwebsite\Excel\Jobs\AfterImportJob .......... RUNNING
+  2023-08-22 05:10:49 Maatwebsite\Excel\Jobs\AfterImportJob ..... 21.03ms DONE

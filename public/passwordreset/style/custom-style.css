@@ -1,0 +1,549 @@
+@font-face {
+    font-family: HelveticaNeueLTPro-Bold;
+    src: url(/passwordreset/font/HelveticaNeueLTPro-Bd.otf);
+}
+@font-face {
+    font-family: HelveticaNeueLTPro-Light;
+    src: url(/passwordreset/font/HelveticaNeueLTPro-Lt.otf);
+}
+@font-face {
+    font-family: HelveticaNeueLTPro-Mediam;
+    src: url(/passwordreset/font/HelveticaNeueLTPro-Md.otf);
+}
+.hero {
+    background-image: url("/passwordreset/resources/hero_background.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+.hero .logo {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+}
+.hero .hero_container {
+    height: 100vh;
+    /* min-height: 1080px; */
+}
+.hero .hero_container .hero_row {
+    width: 649px;
+}
+/* Hide all steps by default: */
+.tab {
+    display: none;
+}
+.form_steps {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 60px;
+    margin: 0;
+    text-align: center;
+    line-height: 0;
+}
+.step {
+    height: 20px;
+    width: 20px;
+    margin: 0 14px;
+    background-color: #E89A87;
+    border: none;  
+    border-radius: 50%;
+    display: inline-block;
+}
+.step.active {
+    background-color: #DA4F44;
+}
+
+.title {
+    font-family: 'HelveticaNeueLTPro-Bold', sans-serif;
+    color: #000;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.1em; 
+    letter-spacing: 0.4px;
+    margin: 0 0 5px;
+}
+form.step_form label {
+    font-family: 'HelveticaNeueLTPro-Light', sans-serif;
+    color: #000;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 1.4em;
+    letter-spacing: 0.2px;
+}
+form.step_form input {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #C7A079;
+    background: #FFF;
+    padding: 9px 46px 4px 36px;
+    /* color: #808080; */
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Light', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 1.4em;
+    letter-spacing: 0.2px;
+    margin: 4px 0 0;
+    outline: none;
+    box-shadow: none;
+}
+  
+form.step_form input.username_email {
+    margin-bottom: 29px;
+}
+form.step_form .step_btn button {
+    width: 100%;
+    margin: 38px 0 0 0;
+    border-radius: 8px;
+    background: #DA4F44;
+    border: none;
+    outline: none;
+    color: #FFF;
+    font-family: 'HelveticaNeueLTPro-Mediam', sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 1.5em;
+    padding: 0;
+    padding: 11px 24px 11px 24px;
+}
+form.step_form .step_btn button:hover {
+    background: rgba(73, 67, 59, 1);
+}
+form.step_form .otp_verification_setp .mobile_img {
+    padding: 50px 0 0;
+}
+form.step_form .otp_verification_setp .contain {
+    /* margin: 40px 0 0; */
+    margin: 20px 0 0;
+}
+form.step_form .otp_verification_setp .contain h5 {
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Bold', sans-serif;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;    
+    margin: 0;
+}
+form.step_form .otp_verification_setp .contain p {
+    color: #000;
+    text-align: center;
+    font-family: 'HelveticaNeueLTPro-Light', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+    /* margin: 24px 0; */
+    margin: 20px 0;
+}
+form.step_form .otp_verification_setp .otp_input {
+    gap: 0 16.7px;
+}
+form.step_form .otp_verification_setp .otp_input input {
+    margin: 0;
+    border-radius: 8px;
+    border: 1.4px solid #B0B0B0;
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Bold', sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    height: 119px;
+    padding: 0 10px;
+    text-align: center;
+}
+form.step_form .otp_verification_setp .fields {
+    /* padding: 50px 0 0; */
+    padding: 20px 0 0;
+}
+form.step_form .otp_verification_setp .fields i {
+    position: absolute;
+    font-size: 20px;
+    line-height: 0;
+    top: 20px;
+    right: 16px;
+}
+form.step_form .otp_verification_setp .fields input.pwd_input {
+    /* margin-bottom: 30px; */
+    margin-bottom: 20px;
+}
+form.step_form .otp_verification_setp .fields label span {
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Light', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 1.4em;
+    letter-spacing: 0.2px;
+}
+
+.hero .hero_container .download_app_row .dar_check h5 {
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Bold', sans-serif;
+    font-size: 36px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    margin: 40px 0 24px;
+}
+.hero .hero_container .download_app_row .dar_check p {
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Light', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+    margin: 0;
+}
+.hero .hero_container .download_app_row .dar_now {
+    margin: 78px 0 0;
+}
+.hero .hero_container .download_app_row .dar_now h6 {
+    color: #000;
+    font-family: 'HelveticaNeueLTPro-Mediam', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0 0 32px;
+}
+.hero .hero_container .download_app_row .app_download {
+    gap: 32px;
+}
+@media only screen and (min-width: 1435px) and (max-width: 1685px) {
+    .hero .logo {
+        top: 0px;
+    }
+    .hero .logo img {
+        /* max-width: 79px; */
+        padding: 11px 0 0;
+    }
+    .hero .hero_container {
+        /* align-items: flex-start !important; */
+        /* padding: 86px 0 0; */
+    }
+    .hero .hero_container .hero_row {
+        /* padding: 50px 33px 0 33px; */
+    }
+    .title {
+        /* font-size: 32px; */
+        margin: 0 0 23px;
+    }
+    form.step_form label {
+        font-size: 16px;
+    }
+    form.step_form input {
+        padding: 16px 16px 12px 16px;
+        font-size: 16px;
+    }
+    form.step_form input.username_email {
+        margin-bottom: 0;
+    }
+    form.step_form .step_btn button {
+        margin: 20px 0 0 0;
+        font-size: 16px;
+        padding: 11.5px 24px 9.5px 24px;
+    }
+    .step {
+        height: 10px;
+        width: 10px;
+        margin: 0 4px;
+    }
+    .form_steps {
+        bottom: 11px;
+    }
+    form.step_form .otp_verification_setp .mobile_img {
+        padding: 0px 0 0;
+    }
+    form.step_form .otp_verification_setp .mobile_img img {
+        max-width: 104px;
+    }
+    form.step_form .otp_verification_setp .contain {
+        margin: 20px 0 0;
+    }
+    
+    form.step_form .otp_verification_setp .contain h5 {
+        /* font-size: 24px; */
+    }
+    form.step_form .otp_verification_setp .contain p {
+        font-size: 16px;
+        margin: 8px 0 20px;
+    }
+    form.step_form .otp_verification_setp .otp_input {
+        gap: 0 8px;
+        padding: 0 7.49px;
+    }
+    form.step_form .otp_verification_setp .otp_input input {
+        font-size: 24px;
+        height:75px;
+        padding: 0 10px;
+    }
+    form.step_form .otp_verification_setp .fields {
+        padding: 30px 0 0;
+    }
+    form.step_form .otp_verification_setp .fields label span {
+        font-size: 12px;
+    }
+    form.step_form .otp_verification_setp .fields input.pwd_input {
+        margin-bottom: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_check img {
+        max-width: 100px;
+    }
+    .hero .hero_container .download_app_row .dar_check h5 {
+        /* font-size: 24px; */
+        margin: 40px 0 8px;
+    }
+    .hero .hero_container .download_app_row .dar_check p {
+        font-size: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_now {
+        margin: 48px 0 0;
+    }
+    .hero .hero_container .download_app_row .dar_now h6 {
+        font-size: 16px;
+        margin: 0 0 22px;
+    }
+    .hero .hero_container .download_app_row .app_download {
+        gap: 22px;
+    }
+    .hero .hero_container .download_app_row .app_download img {
+        max-width: 169px;
+    }
+}
+@media only screen and (min-width: 1260px) and (max-width: 1434px) {
+    .hero .logo {
+        top: 0px;
+    }
+    .hero .logo img {
+        max-width: 100px;
+        padding: 11px 0 0;
+    }
+    .hero .hero_container {
+        /* align-items: flex-start !important; */
+        /* padding: 86px 0 0; */
+    }
+    .hero .hero_container .hero_row {
+        /* padding: 50px 33px 0 33px; */
+    }
+    .title {
+        font-size: 50px;
+        margin: 0 0 20px;
+    }
+    form.step_form label {
+        font-size: 16px;
+    }
+    form.step_form input {
+        padding: 16px 16px 12px 16px;
+        font-size: 16px;
+    }
+    form.step_form input.username_email {
+        margin-bottom: 0;
+    }
+    form.step_form .step_btn button {
+        margin: 20px 0 0 0;
+        font-size: 16px;
+        padding: 11.5px 24px 9.5px 24px;
+    }
+    .step {
+        height: 10px;
+        width: 10px;
+        margin: 0 4px;
+    }
+    .form_steps {
+        bottom: 11px;
+    }
+    form.step_form .otp_verification_setp .mobile_img {
+        padding: 0px 0 0;
+    }
+    form.step_form .otp_verification_setp .mobile_img img {
+        max-width: 75px;
+    }
+    form.step_form .otp_verification_setp .contain {
+        margin: 20px 0 0;
+    }
+    
+    form.step_form .otp_verification_setp .contain h5 {
+        font-size: 24px;
+    }
+    form.step_form .otp_verification_setp .contain p {
+        font-size: 16px;
+        margin: 8px 0 20px;
+    }
+    form.step_form .otp_verification_setp .otp_input {
+        gap: 0 8px;
+        padding: 0 7.49px;
+    }
+    form.step_form .otp_verification_setp .otp_input input {
+        font-size: 24px;
+        height:75px;
+        padding: 0 10px;
+    }
+    form.step_form .otp_verification_setp .fields {
+        padding: 20px 0 0;
+    }
+    form.step_form .otp_verification_setp .fields label span {
+        font-size: 12px;
+    }
+    form.step_form .otp_verification_setp .fields input.pwd_input {
+        margin-bottom: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_check img {
+        max-width: 100px;
+    }
+    .hero .hero_container .download_app_row .dar_check h5 {
+        /* font-size: 24px; */
+        margin: 40px 0 8px;
+    }
+    .hero .hero_container .download_app_row .dar_check p {
+        font-size: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_now {
+        margin: 48px 0 0;
+    }
+    .hero .hero_container .download_app_row .dar_now h6 {
+        font-size: 16px;
+        margin: 0 0 22px;
+    }
+    .hero .hero_container .download_app_row .app_download {
+        gap: 22px;
+    }
+    .hero .hero_container .download_app_row .app_download img {
+        max-width: 169px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .hero .logo {
+        top: 0px;
+    }
+    .hero .logo img {
+        max-width: 79px;
+        padding: 11px 0 0;
+    }
+    .hero .hero_container {
+        align-items: flex-start !important;
+        padding: 86px 0 0;
+    }
+    .hero .hero_container .hero_row {
+        padding: 50px 33px 0 33px;
+    }
+    .mobile_back {
+        display: block !important;
+        background: rgba(239, 233, 227, 1);
+        padding: 7px 15px;
+        text-align: left;
+        height: 41px;
+    }
+    .mobile_back img {
+        padding: 0 !important;
+    }
+    .title {
+        font-size: 32px;
+        margin: 0 0 23px;
+    }
+    form.step_form label {
+        font-size: 13px;
+    }
+    form.step_form input {
+        padding: 16px 16px 12px 16px;
+        font-size: 13px;
+    }
+    form.step_form input.username_email {
+        margin-bottom: 0;
+    }
+    form.step_form .step_btn button {
+        margin: 24px 0 0 0;
+        font-size: 18px;
+        padding: 11.5px 24px 9.5px 24px;
+    }
+    .step {
+        height: 10px;
+        width: 10px;
+        margin: 0 4px;
+    }
+    .form_steps {
+        bottom: 46px;
+    }
+    form.step_form .otp_verification_setp .mobile_img {
+        padding: 0px 0 0;
+    }
+    form.step_form .otp_verification_setp .mobile_img img {
+        max-width: 104px;
+    }
+    form.step_form .otp_verification_setp .contain {
+        margin: 40px 0 0;
+    }
+    
+    form.step_form .otp_verification_setp .contain h5 {
+        font-size: 24px;
+    }
+    form.step_form .otp_verification_setp .contain p {
+        font-size: 16px;
+        margin: 8px 0 24px;
+    }
+    form.step_form .otp_verification_setp .otp_input {
+        gap: 0 8px;
+        padding: 0 7.49px;
+    }
+    form.step_form .otp_verification_setp .otp_input input {
+        font-size: 20px;
+        height: 57.17px;
+        padding: 0 10px;
+    }
+    form.step_form .otp_verification_setp .fields {
+        padding: 36px 0 0;
+    }
+    form.step_form .otp_verification_setp .fields label span {
+        font-size: 10px;
+    }
+    form.step_form .otp_verification_setp .fields input.pwd_input {
+        margin-bottom: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_check img {
+        max-width: 100px;
+    }
+    .hero .hero_container .download_app_row .dar_check h5 {
+        font-size: 24px;
+        margin: 40px 0 8px;
+    }
+    .hero .hero_container .download_app_row .dar_check p {
+        font-size: 16px;
+    }
+    .hero .hero_container .download_app_row .dar_now {
+        margin: 48px 0 0;
+    }
+    .hero .hero_container .download_app_row .dar_now h6 {
+        font-size: 16px;
+        margin: 0 0 22px;
+    }
+    .hero .hero_container .download_app_row .app_download {
+        gap: 22px;
+    }
+    .hero .hero_container .download_app_row .app_download img {
+        max-width: 169px;
+    }
+    .hero {
+        background-image: url("/passwordreset/resources/hero_background_mobile.jpg");
+    }
+}
+
+.form_steps{
+    display: none;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

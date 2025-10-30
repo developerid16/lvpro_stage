@@ -1,0 +1,72 @@
+
+  2023-08-17 13:36:15 Running ['artisan' broadcast:notification] .. 299ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-17 13:36:17 Running ['artisan' broadcast:notification] .. 353ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-17 13:36:19 Running ['artisan' broadcast:notification] .. 297ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-17 13:36:23 Running ['artisan' broadcast:notification] .. 323ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:45:58 Running ['artisan' broadcast:notification] .. 290ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:00 Running ['artisan' broadcast:notification] .. 277ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:01 Running ['artisan' broadcast:notification] .. 286ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:05 Running ['artisan' broadcast:notification] .. 627ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:08 Running ['artisan' broadcast:notification]  1,102ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:12 Running ['artisan' broadcast:notification] .. 827ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:14 Running ['artisan' broadcast:notification] .. 310ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:16 Running ['artisan' broadcast:notification] .. 419ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:19 Running ['artisan' broadcast:notification] .. 259ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:21 Running ['artisan' broadcast:notification] .. 245ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:23 Running ['artisan' broadcast:notification] .. 281ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:25 Running ['artisan' broadcast:notification] .. 275ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:28 Running ['artisan' broadcast:notification] .. 246ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
+
+  2023-08-23 10:46:31 Running ['artisan' broadcast:notification] .. 249ms DONE
+  ⇂ '/usr/bin/php8.2' 'artisan' broadcast:notification > '/dev/null' 2>&1  
+
