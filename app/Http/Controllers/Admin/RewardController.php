@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -45,7 +46,7 @@ class RewardController extends Controller
     public function updateAutomatedReward(Request $request)
     {
 
-    
+
         $data = ContentManagement::whereIn('name', [
             "birthday_reward_limit",
             "birthday_reward_voucher",
@@ -66,8 +67,6 @@ class RewardController extends Controller
             $d->save();
         }
         return response()->json(['status' => 'success', 'message' => 'Data Updated Successfully']);
-
-
     }
     public function indexAutomatedReward(Request $request)
     {
@@ -87,9 +86,9 @@ class RewardController extends Controller
             "welcome_reward_push_noti",
             "welcome_reward_sms_noti",
         ])->pluck('value', 'name');
-        $this->layout_data['data']['welcome_reward_group'] = json_decode($this->layout_data['data']['welcome_reward_group'] ?:'[]',true);
- 
-        $this->layout_data['data']['birthday_reward_group'] = json_decode($this->layout_data['data']['birthday_reward_group']  ?:'[]',true);
+        $this->layout_data['data']['welcome_reward_group'] = json_decode($this->layout_data['data']['welcome_reward_group'] ?: '[]', true);
+
+        $this->layout_data['data']['birthday_reward_group'] = json_decode($this->layout_data['data']['birthday_reward_group']  ?: '[]', true);
         $this->layout_data['rewards'] = Reward::all();
         return view($this->view_file_path . "automated-index")->with($this->layout_data);
     }
@@ -166,7 +165,6 @@ class RewardController extends Controller
         $post_data = $this->validate($request, [
             'code'         => 'required|max:191|unique:rewards,code',
             'name'         => 'required|max:191',
-            'company_name' => 'required|max:191',
             'description'  => 'required|max:500',
             'term_of_use'  => 'required',
             // 'how_to_use' => 'required',
@@ -186,7 +184,6 @@ class RewardController extends Controller
             'labels'       => 'sometimes',
             'days'         => 'sometimes',
             'sku'          => 'sometimes',
-            'brand_name'   => 'sometimes',
             'parent_type'  => 'required',
             'end_time'     => 'sometimes|required_with:start_time',
             'countdown'    => 'sometimes',

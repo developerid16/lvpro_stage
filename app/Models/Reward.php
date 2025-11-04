@@ -10,12 +10,33 @@ class Reward extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'code', 'name', 'description', 'no_of_keys', 'quantity', 'start_date', 'end_date', 'image_1', 'image_2', 'status', 'total_redeemed', 'company_name', 'term_of_use', 'how_to_use', 'labels', 'is_featured', 'type', 'expiry_day', 'reward_type', 'amount', 'product_name', 'countdown', 'end_time', 'start_time', 'days', 'brand_name','sku', 'parent_type', 'image_3'
-
-
-
-
-
+        'code',
+        'name',
+        'description',
+        'no_of_keys',
+        'quantity',
+        'start_date',
+        'end_date',
+        'image_1',
+        'image_2',
+        'status',
+        'total_redeemed',
+        'term_of_use',
+        'how_to_use',
+        'labels',
+        'is_featured',
+        'type',
+        'expiry_day',
+        'reward_type',
+        'amount',
+        'product_name',
+        'countdown',
+        'end_time',
+        'start_time',
+        'days',
+        'sku',
+        'parent_type',
+        'image_3'
 
     ];
 
@@ -36,9 +57,8 @@ class Reward extends Model
     public function setDaysAttribute($value)
     {
         $this->attributes['days'] = null;
-        if($value){
+        if ($value) {
             $this->attributes['days'] = implode(',', $value);
-            
         }
     }
 

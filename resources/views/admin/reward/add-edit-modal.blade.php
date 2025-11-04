@@ -38,21 +38,8 @@
                                     placeholder="Enter SKU" value="{{ $data->sku ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="brand_name">Brand Name </label>
-                                <input id="brand_name" type="text" class="sh_dec form-control" name="brand_name"
-                                    placeholder="Enter Brand  Name" value="{{ $data->brand_name ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="name">Company Name <span
-                                        class="required-hash">*</span></label>
-                                <input id="company_name" type="text" class="sh_dec form-control" name="company_name"
-                                    placeholder="Enter company name" value="{{ $data->company_name ?? '' }}">
-                            </div>
-                        </div>
+                     
+                        
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
