@@ -17,6 +17,13 @@
         }
 
     @endphp
+    <style>
+        :root {
+            --cms-color:
+                {{ $color }}
+            ;
+        }
+    </style>
         <!-- App favicon -->
         <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.png')}}">
         @include('layouts.head-css')
