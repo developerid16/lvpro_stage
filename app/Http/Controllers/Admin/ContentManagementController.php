@@ -7,6 +7,7 @@ use App\Models\Tier;
 use Illuminate\Http\Request;
 use App\Models\ContentManagement;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class ContentManagementController extends Controller
 {
@@ -44,7 +45,7 @@ class ContentManagementController extends Controller
     public function applicationManagementSave(Request $request)
     {
 
-         $this->validate($request, [
+        $this->validate($request, [
             'maintenance_icon' => 'sometimes|image|mimes:png',
         ]);
 
@@ -86,13 +87,25 @@ class ContentManagementController extends Controller
     }
     public function notificationSettings()
     {
-        $this->layout_data['data'] = ContentManagement::whereIn('name', ['email_aph_expiry_noti_day', 'email_reward_expiry_noti_day', 'email_keys_expiry_noti_day', 'keys_expiry_noti_day', 'reward_expiry_noti_day', 'aph_expiry_noti_day','email_aph_expiry_noti_day_two', 'email_reward_expiry_noti_day_two', 'email_keys_expiry_noti_day_two', 'keys_expiry_noti_day_two', 'reward_expiry_noti_day_two', 'aph_expiry_noti_day_two',
-        'push_aph_expiry_noti_day',
-        'push_keys_expiry_noti_day',
-        'push_reward_expiry_noti_day',
-        'push_aph_expiry_noti_day_two',
-        'push_keys_expiry_noti_day_two',
-        'push_reward_expiry_noti_day_two'
+        $this->layout_data['data'] = ContentManagement::whereIn('name', [
+            'email_aph_expiry_noti_day',
+            'email_reward_expiry_noti_day',
+            'email_keys_expiry_noti_day',
+            'keys_expiry_noti_day',
+            'reward_expiry_noti_day',
+            'aph_expiry_noti_day',
+            'email_aph_expiry_noti_day_two',
+            'email_reward_expiry_noti_day_two',
+            'email_keys_expiry_noti_day_two',
+            'keys_expiry_noti_day_two',
+            'reward_expiry_noti_day_two',
+            'aph_expiry_noti_day_two',
+            'push_aph_expiry_noti_day',
+            'push_keys_expiry_noti_day',
+            'push_reward_expiry_noti_day',
+            'push_aph_expiry_noti_day_two',
+            'push_keys_expiry_noti_day_two',
+            'push_reward_expiry_noti_day_two'
         ])->pluck('value', 'name');
 
         return view($this->view_file_path . "notification")->with($this->layout_data);
@@ -115,7 +128,7 @@ class ContentManagementController extends Controller
 
         $post_data = $this->validate($request, $validateRule);
         // post_data
-        $data =  ContentManagement::whereIn('name', [ 'milestone_reward'])->get();
+        $data =  ContentManagement::whereIn('name', ['milestone_reward'])->get();
         foreach ($data as $d) {
             $keyData = $d['name'];
             $d->value = $request->$keyData;
@@ -178,14 +191,26 @@ class ContentManagementController extends Controller
     {
 
 
-        $data =  ContentManagement::whereIn('name', ['email_aph_expiry_noti_day', 'email_reward_expiry_noti_day', 'email_keys_expiry_noti_day', 'keys_expiry_noti_day', 'reward_expiry_noti_day', 'aph_expiry_noti_day','email_aph_expiry_noti_day_two', 'email_reward_expiry_noti_day_two', 'email_keys_expiry_noti_day_two', 'keys_expiry_noti_day_two', 'reward_expiry_noti_day_two', 'aph_expiry_noti_day_two',
-        'push_aph_expiry_noti_day',
-'push_keys_expiry_noti_day',
-'push_reward_expiry_noti_day',
-'push_aph_expiry_noti_day_two',
-'push_keys_expiry_noti_day_two',
-'push_reward_expiry_noti_day_two'
-        
+        $data =  ContentManagement::whereIn('name', [
+            'email_aph_expiry_noti_day',
+            'email_reward_expiry_noti_day',
+            'email_keys_expiry_noti_day',
+            'keys_expiry_noti_day',
+            'reward_expiry_noti_day',
+            'aph_expiry_noti_day',
+            'email_aph_expiry_noti_day_two',
+            'email_reward_expiry_noti_day_two',
+            'email_keys_expiry_noti_day_two',
+            'keys_expiry_noti_day_two',
+            'reward_expiry_noti_day_two',
+            'aph_expiry_noti_day_two',
+            'push_aph_expiry_noti_day',
+            'push_keys_expiry_noti_day',
+            'push_reward_expiry_noti_day',
+            'push_aph_expiry_noti_day_two',
+            'push_keys_expiry_noti_day_two',
+            'push_reward_expiry_noti_day_two'
+
         ])->get();
         foreach ($data as $d) {
             $keyData = $d['name'];
@@ -233,5 +258,53 @@ class ContentManagementController extends Controller
         $this->layout_data['data'] = ContentManagement::whereIn('name', ['dotsOptionsType', 'dotsOptionsColor', 'cornersSquareOptionsType', 'cornersSquareOptionsColor', 'backgroundOptionsColor', 'imageOptionsMargin', 'cornersDotOptionsType', 'QrImage'])->pluck('value', 'name');
 
         return view($this->view_file_path . "qr")->with($this->layout_data);
+    }
+    public function cmsSettingsUpdate(Request $request)
+    {
+
+
+        $this->validate($request, [
+            'QrImage' => 'sometimes|image|mimes:png',
+        ]);
+
+
+        // $data =  ContentManagement::whereIn('name', ['dotsOptionsType', 'dotsOptionsColor', 'cornersSquareOptionsType', 'cornersSquareOptionsColor', 'backgroundOptionsColor', 'imageOptionsMargin', 'cornersDotOptionsType'])->get();
+        // foreach ($data as $d) {
+        //     $keyData = $d['name'];
+        //     $d->value = $request->$keyData;
+        //     $d->save();
+        // }
+
+        $data = [];
+
+
+
+        // Clear config cache to reload environment variables
+
+        if ($request->hasFile('logo')) {
+            $imageName = 'logo-dark.png';
+            $request->logo->move(public_path('') . '/build/images', $imageName);
+        }
+        if ($request->hasFile('favicon')) {
+            $imageName = 'favicon.png';
+            $request->favicon->move(public_path('') . '/build/images', $imageName);
+        }
+        if ($request->CMScolor) {
+            ContentManagement::where('name', 'CMScolor')->update(
+                ['value' => $request->CMScolor]
+            );
+            Cache::forget('CMScolor');
+            Cache::put('CMScolor', $request->CMScolor);
+        }
+
+
+
+        return response()->json(['status' => 'success', 'message' => 'Data Updated Successfully']);
+    }
+    public function cmsSettings()
+    {
+        $this->layout_data['data'] = ContentManagement::whereIn('name', ['CMScolor',])->pluck('value', 'name');
+
+        return view($this->view_file_path . "cms")->with($this->layout_data);
     }
 }

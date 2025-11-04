@@ -23,11 +23,11 @@
                 <thead>
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75" data-width-unit="px" data-searchable="false">Sr. No.</th>
-                        <th data-field="unique_id" data-filter-control="input" data-sortable="true">APHID/Employment ID
+                        <th data-field="unique_id" data-filter-control="input" data-sortable="true">Unique ID
                         </th>
                         <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                         <th data-field="reward" data-filter-control="input" data-sortable="true" data-escape="true">Reward</th>
-                        <th data-field="key_use" data-filter-control="input" data-sortable="true">Key Use</th>
+                        <th data-field="key_use" data-filter-control="input" data-sortable="true">Amount</th>
                         <th data-field="created_at" data-sortable="true">Added Date</th>
                         <th data-field="expiry_date" data-sortable="true">Expiry Date</th>
                         <th data-field="status" data-filter-control="select" data-sortable="false" data-filter-data="var:statusDefault">Status</th>

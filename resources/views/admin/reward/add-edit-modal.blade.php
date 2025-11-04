@@ -83,10 +83,10 @@
                         <hr class="dashed">
                         <div class="col-12 col-md-4">
                             <div class="mb-3">
-                                <label class="sh_dec" for="no_of_keys">No of Keys <span
+                                <label class="sh_dec" for="no_of_keys"> Amount <span
                                         class="required-hash">*</span></label>
                                 <input id="no_of_keys" type="number" min="0" class="sh_dec form-control"
-                                    name="no_of_keys" placeholder="Enter No of Keys"
+                                    name="no_of_keys" placeholder="Enter Amount Of Reward"
                                     value="{{ $data->no_of_keys ?? '' }}">
                             </div>
                         </div>

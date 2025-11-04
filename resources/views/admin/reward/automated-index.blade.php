@@ -52,17 +52,17 @@
 
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="welcome_reward_group[]" id="welcome_APH"
-                                value="aph" @checked( in_array('aph',$data['welcome_reward_group']))>
-                            <label class="form-check-label" for="welcome_APH">
-                                APH
+                            <input class="form-check-input" type="checkbox" name="welcome_reward_group[]" id="welcome_male"
+                                value="Male" @checked( in_array('Male',$data['welcome_reward_group']))>
+                            <label class="form-check-label" for="welcome_male">
+                                Male
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="welcome_reward_group[]" id="welcome_aircrew"
-                                value="aircrew" @checked( in_array('aircrew',$data['welcome_reward_group']))>
-                            <label class="form-check-label" for="welcome_aircrew">
-                                Air Crew
+                            <input class="form-check-input" type="checkbox" name="welcome_reward_group[]" id="welcome_female"
+                                value="Female" @checked( in_array('Female',$data['welcome_reward_group']))>
+                            <label class="form-check-label" for="welcome_female">
+                                Female
                             </label>
                         </div>
                         <div class="form-check">
@@ -140,17 +140,17 @@
                         <label class="form-label sh_dec">Assign User Group</label>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="birthday_reward_group[]" id="birthday_APH"
-                                value="aph" @checked( in_array('aph',$data['birthday_reward_group']))>
-                            <label class="form-check-label" for="birthday_APH">
-                                APH
+                            <input class="form-check-input" type="checkbox" name="birthday_reward_group[]" id="birthday_male"
+                                value="Male" @checked( in_array('Male',$data['birthday_reward_group']))>
+                            <label class="form-check-label" for="birthday_male">
+                                Male
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="birthday_reward_group[]" id="birthday_aircrew"
-                                value="aircrew" @checked( in_array('aircrew',$data['birthday_reward_group']))>
-                            <label class="form-check-label" for="birthday_aircrew">
-                                Air Crew
+                            <input class="form-check-input" type="checkbox" name="birthday_reward_group[]" id="birthday_female"
+                                value="Female" @checked( in_array('Female',$data['birthday_reward_group']))>
+                            <label class="form-check-label" for="birthday_female">
+                                Female
                             </label>
                         </div>
                         <div class="form-check">

@@ -100,7 +100,7 @@
                                         <p class="mb-0">©
                                             <script>
                                                 document.write(new Date().getFullYear())
-                                            </script> TREX <br> Designed & Developed by TREX
+                                            </script> {{ config('app.name') }} <br> Designed & Developed by {{ config('app.name') }}
                                     </div>
                                 </div>
 

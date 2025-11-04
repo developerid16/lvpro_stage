@@ -27,7 +27,7 @@
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75" data-width-unit="px" data-searchable="false">Sr. No.</th>
                         <th data-field="code" data-filter-control="input" data-sortable="true" data-escape="true">Code</th>
                         <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
-                        <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">No of keys</th>
+                        <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
                         <th data-field="balance">Balance</th>
                         <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
                         <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>

@@ -51,7 +51,7 @@
 
                                                                     <div>
                                                                         <h4 class="font-size-16 text-primary">Abs1981</h4>
-                                                                        <p class="font-size-14 mb-0">- TREX User</p>
+                                                                        <p class="font-size-14 mb-0">- {{ config('app.name') }} User</p>
                                                                     </div>
                                                                 </div>
 
@@ -60,13 +60,13 @@
                                                             <div class="item">
                                                                 <div class="py-3">
                                                                     <p class="font-size-16 mb-4">" If Every Vendor on Envato
-                                                                        are as supportive as TREX, Development with
+                                                                        are as supportive as {{ config('app.name') }}, Development with
                                                                         be a nice experience. You guys are Wonderful. Keep
                                                                         us the good work. "</p>
 
                                                                     <div>
                                                                         <h4 class="font-size-16 text-primary">nezerious</h4>
-                                                                        <p class="font-size-14 mb-0">- TREX User</p>
+                                                                        <p class="font-size-14 mb-0">- {{ config('app.name') }} User</p>
                                                                     </div>
                                                                 </div>
 
@@ -100,7 +100,7 @@
 
                                         <div>
                                             <h5 class="text-primary">Register account</h5>
-                                            <p class="text-muted">Get your free TREX account now.</p>
+                                            <p class="text-muted">Get your free {{ config('app.name') }} account now.</p>
                                         </div>
 
                                         <div class="mt-4">
@@ -210,7 +210,7 @@
                                                 </div>
         
                                                 <div class="mt-4 text-center">
-                                                    <p class="mb-0">By registering you agree to the TREX <a href="#"
+                                                    <p class="mb-0">By registering you agree to the {{ config('app.name') }} <a href="#"
                                                             class="text-primary">Terms of Use</a></p>
                                                 </div>
                                             </form>
@@ -227,8 +227,8 @@
                                         <p class="mb-0">© <script>
                                                 document.write(new Date().getFullYear())
 
-                                            </script> TREX. Crafted with <i class="mdi mdi-heart text-danger"></i> by
-                                            TREX</p>
+                                            </script> {{ config('app.name') }}. Crafted with <i class="mdi mdi-heart text-danger"></i> by
+                                            {{ config('app.name') }}</p>
                                     </div>
                                 </div>
 

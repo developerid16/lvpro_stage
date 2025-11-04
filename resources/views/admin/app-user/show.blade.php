@@ -186,7 +186,7 @@
     </div>
 
 </div>
-<div class="row">
+{{-- <div class="row">
     <div class="col-xl-5">
         <div class="card">
             <form action="{{url('admin/keys-credit-debit')}}" method="POST">
@@ -296,7 +296,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 <div class="modal fade" id="changeDate" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">

@@ -6,7 +6,7 @@
 @component('components.breadcrumb')
 @slot('li_1') Admin
 @endslot
-@slot('title') Application Management @endslot
+@slot('title') Website Management @endslot
 @endcomponent
 
 
@@ -16,7 +16,7 @@
         <h4 class="card-title mb-0">Contact Us</h4>
 
     </div>--}}
-    <form action="{{url('admin/application-management/save')}}" id="form" enctype="multipart/form-data" method="POST">
+    <form action="{{url('admin/website-management/save')}}" id="form" enctype="multipart/form-data" method="POST">
         @csrf
         <div class="card-body">
 
@@ -74,7 +74,7 @@
 
 @section('script')
  <script>
-    var ModuleBaseUrl = "{{url('admin/application-management/save')}}";
+    var ModuleBaseUrl = "{{url('admin/website-management/save')}}";
      
 
   

@@ -209,16 +209,7 @@ class CampaignVoucherGroupController extends Controller
                 $isCheckBox = true;
                 $appUsers->orWhere('gender', 'Male');
             }
-            if ($request->has('aph') && $request->aph == 1) {
-                // only male are allowed to add
-                $isCheckBox = true;
-                $appUsers->orWhere('gender', 'Airport Pass Holder');
-            }
-            if ($request->has('aircrew') && $request->aircrew == 1) {
-                // only male are allowed to add
-                $appUsers->orWhere('gender', 'Aircrew');
-                $isCheckBox = true;
-            }
+           
             $checkUsers = $appUsers->pluck('id');
         }
 

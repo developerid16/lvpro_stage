@@ -47,7 +47,7 @@ Confirm Password
 
                                     <div>
                                         <h5 class="text-primary"> Confirm Password</h5>
-                                        <p class="text-muted">Re-Password with TREX.</p>
+                                        <p class="text-muted">Re-Password with {{ config('app.name') }}.</p>
                                     </div>
 
                                     <div class="mt-4">
@@ -83,7 +83,7 @@ Confirm Password
                                 <div class="mt-4 mt-md-5 text-center">
                                     <p class="mb-0">© <script>
                                             document.write(new Date().getFullYear())
-                                       </script> TREX <br> Designed & Developed by TREX
+                                       </script> {{ config('app.name') }} <br> Designed & Developed by {{ config('app.name') }}
                                 </div>
                             </div>
 

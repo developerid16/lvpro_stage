@@ -57,28 +57,7 @@
                 </h5>
                 <span class="text-muted text-info m-0">If You use any below option above selection not
                     applicable.</span>
-                <div class="col-2">
-                    <div>
-
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="APH" value="1" name="aph">
-                            <label class="form-check-label" for="APH">
-                                All APH User
-                            </label>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="col-2">
-
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="AirCrew" value="1" name="aircrew">
-                        <label class="form-check-label" for="AirCrew">
-                            All AirCrew User
-                        </label>
-                    </div>
-
-                </div>
+            
                 <div class="col-2">
 
                     <div class="form-check mb-3">

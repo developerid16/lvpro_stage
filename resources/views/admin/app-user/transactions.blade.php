@@ -18,7 +18,7 @@
                 <form action="{{ url('admin/app-user-transactions/'.$user->id, []) }}" method="get" class="mb-3">
                     <div class="row">
                        
-                        <div class="form-group col-3">
+                        {{-- <div class="form-group col-3">
                             <label for="exampleFormControlInput1">Transaction Type</label>
                             <select name="filter" class="form-select">
                                 <option value="" @selected(isset($filter['filter']) &&$filter['filter']=='' )>All
@@ -30,9 +30,9 @@
                                     &&$filter['filter']=='milestone' )>Other Rewards
                                 </option>
                                 <option value="purchased" @selected(isset($filter['filter'])
-                                    &&$filter['filter']=='purchased' )>Keys used</option>
+                                    &&$filter['filter']=='purchased' )>AMount used</option>
                             </select>
-                        </div>
+                        </div> --}}
                         <div class="form-group col-3">
                             <label for="exampleFormControlInput1">Order By</label>
                             <select name="sort" class="form-select">
@@ -59,7 +59,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Transaction Details</th>
-                                <th scope="row">Keys</th>
+                                <th scope="row">Amount</th>
                                 <th scope="row">Date</th>
 
                             </tr>
@@ -71,26 +71,12 @@
                             <tr>
 
                                 <td scope="col"> {{$data['text_original'] ?? ''}}
-                                    @if (isset($data['text_original']))
-                                    <br>
-                                    @endif
+                                    
                                     {{$data['text']}}
 
-                                    @if (isset($data['products']))
-                                    <br>
-                                    @foreach ($data['products'] as $product)
-                                    <br>
-
-                                    SKU: {{$product['sku']}} ({{$product['amount']}})
-
-                                    @endforeach
-                                    @endif
-                                    @if (isset($data['limit_reach']) && $data['limit_reach'] == 1 )
-                                    <br> <span class="text-danger">  User reached yearly limit.</span>
-                                   
-                                    @endif
+                                    
                                 </td>
-                                <td scope="col"> {{$data['type'] === 'negative' ? 'Keys Used:' : 'Keys Earned:' }} {{
+                                <td scope="col"> {{$data['type'] === 'negative' ? 'Amount Used:' : 'Amount Earned:' }} {{
                                     number_format($data['keys'] ?? '')}} </td>
 
 

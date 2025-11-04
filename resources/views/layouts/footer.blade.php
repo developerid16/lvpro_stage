@@ -2,11 +2,11 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-6 sh_dec_b">
-              ©  <script>document.write(new Date().getFullYear())</script>  TREX 
+              ©  <script>document.write(new Date().getFullYear())</script>  {{ config('app.name') }} 
             </div>
             <div class="col-sm-6 sh_dec">
                 <div class="text-sm-end d-none d-sm-block">
-                    Designed & Developed by TREX 
+                    Designed & Developed by {{ config('app.name') }} 
                 </div>
             </div>
         </div>

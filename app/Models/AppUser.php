@@ -45,13 +45,7 @@ class AppUser extends Authenticatable
     {
         return $this->hasMany(DeviceToken::class, 'user_id');
     }
-    public function getCompanyDataAttribute()
-    {
-        if ($this->user_type === "Aircrew") {
-            return AircrewCompany::find($this->company_id);
-        }
-        return PassholderCompany::find($this->company_id);
-    }
+   
     public function scopeAgedBetween($query, $start, $end = null)
     {
         if (is_null($end)) {

@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         //
         Paginator::useBootstrap();
 
-        URL::forceScheme('https');
+        // URL::forceScheme('https');   
         Schema::defaultStringLength(191);
         Queue::after(function (JobProcessed $event) {
 

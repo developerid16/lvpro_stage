@@ -27,6 +27,7 @@
         <div class="card-body">
             <div class="row">
 
+          
                 @method('PUT')
 
                 <div class="col-12">
@@ -89,7 +90,7 @@
                         </div>
 
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-4">
                             <div class="mb-3">
                                 <label class="sh_dec" for="status">Gender <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select " name="gender" id="gender" required>
@@ -109,42 +110,20 @@
                             <p class="text-danger">{{$message}}</p>
                             @enderror
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-4">
                             <div class="mb-3">
-                                <label class="sh_dec" for="title">Aphid === {{ $data->user_type }}<span
+                                <label class="sh_dec" for="title">Unique ID<span
                                         class="required-hash">*</span></label>
                                 <input id="unique_id" type="text" class="sh_dec form-control" name="unique_id"
-                                    placeholder="" value="{{ $data->unique_id ?? '' }}" required
-                                    @readonly($data->user_type === 'Aircrew')>
+                                    placeholder="" value="{{ $data->unique_id ?? '' }}" required readonly>
                             </div>
                             @error('unique_id')
                             <p class="text-danger">{{$message}}</p>
                             @enderror
                         </div>
-                        @if ($data->user_type === 'Airport Pass Holder')
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="title">Expiry Date</label>
-                                <input id="expiry_date" type="date" class="sh_dec form-control" name="expiry_date"
-                                    value="{{$data->expiry_date ?  $data->expiry_date->format('Y-m-d') : '' }}">
-                            </div>
-                            @error('date')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </div>
-                        @else
-                        <div class="mb-3">
-                            <label class="sh_dec" for="title">Aircrew Unique<span class="required-hash">*</span></label>
-                            <input id="aircrew_unique" type="text" class="sh_dec form-control" name="aircrew_unique"
-                                placeholder="Enter aircrew unique number" value="{{ $data->aircrew_unique ?? '' }}"
-                                required>
-                            @error('aircrew_unique')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </div>
-                        @endif
+                       
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-4">
                             <div class="mb-3">
                                 {{-- 'Active','Inactive','Blacklist','Expired','Awaiting Activation' --}}
                                 <label class="sh_dec" for="status">Status <span class="required-hash">*</span></label>
@@ -192,38 +171,8 @@
                             @enderror
                         </div>
 
-                        <div class="col-4">
-                            <label class="sh_dec" for="company_id">Company </label>
-                            <select class="sh_dec form-select select2" name="company_id" id="company_id">
-                                <option class="sh_dec" value="">Remove Selection
-                                </option>
-                                @foreach ($company as $item)
-                                <option class="sh_dec" value="{{$item->id}}" @selected($data->company_id == $item->id)
-                                    >{{$item->name . ' - ' . $item->code}}
-                                </option>
-                                @endforeach
-
-                            </select>
-                            @error('company_id')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </div>
-                        <div class="col-4">
-                            <label class="sh_dec" for="c_code">Company Name</label>
-                            <input id="c_name" type="text" class="sh_dec form-control" name="c_name"
-                                placeholder="Enter company name" value="{{ $data->c_name ?? '' }}">
-                            @error('c_name')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </div>
-                        <div class="col-4">
-                            <label class="sh_dec" for="c_code">Company Code</label>
-                            <input id="c_code" type="text" class="sh_dec form-control" name="c_code"
-                                placeholder="Enter company code" value="{{ $data->c_code ?? '' }}">
-                            @error('c_code')
-                            <p class="text-danger">{{$message}}</p>
-                            @enderror
-                        </div>
+                     
+                        
                         <div class="col-12 col-md-6 mt-3">
                             <div class="mb-3">
                                 <label class="sh_dec" for="title">New Password</label>

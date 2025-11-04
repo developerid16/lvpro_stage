@@ -379,7 +379,7 @@
                             <a class="dropdown-item" key="t-alerts" href="{{url('admin/content-management')}}">T&C/PDPA/Legal Privacy Policy</a>
                             @endcan
                             @can('app-management')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/application-management')}}">Application Management</a>
+                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/website-management')}}">Website Management</a>
                             @endcan
                             @can('app-content-management')
                             <a class="dropdown-item" key="t-alerts" href="{{url('admin/app-content-management')}}">Content Management</a>
@@ -484,12 +484,7 @@
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Referral Rate</span>
                     </a>
                     @endcan
-                       @canany(['sales-list'])
-                       <a class="nav-link  " href="{{url('/admin/sales')}}">
-                        <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Sales</span>
-                    </a>
-                    @endcan
-                    
+                 
                     @canany(['contact-us-list','notification-setting'])
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
@@ -560,6 +555,11 @@
             @can(['system-backup'])
             <a class="dropdown-item  " href="{{url('/admin/qr-setting')}}">
                 Qrcode Setting
+            </a>
+            @endcan
+            @can(['cms-setting'])
+            <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
+                CMS Setting
             </a>
             @endcan
 

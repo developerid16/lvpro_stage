@@ -102,7 +102,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('sales/retiveTransaction', [SalesController::class, 'retiveTransaction']);
     Route::post('sales/old-sales', [SalesController::class, 'oldSales']);
 
-    Route::resource('sales', SalesController::class);
+    // Route::resource('sales', SalesController::class);
     Route::get('apilogs/datatable', [APILogsController::class, 'datatable']);
     Route::resource('apilogs', APILogsController::class);
 
@@ -165,8 +165,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('app-content-management', [ContentManagementController::class, 'appIndex']);
     Route::post('app-content-management/save', [ContentManagementController::class, 'appUpdate'])->name('app-content-management.store');
 
-    Route::get('application-management', [ContentManagementController::class, 'applicationManagement']);
-    Route::post('application-management/save', [ContentManagementController::class, 'applicationManagementSave']);
+    Route::get('website-management', [ContentManagementController::class, 'applicationManagement']);
+    Route::post('website-management/save', [ContentManagementController::class, 'applicationManagementSave']);
 
     Route::get('learn-more-page', [ContentManagementController::class, 'learnIndex']);
     Route::post('learn-more-page', [ContentManagementController::class, 'learnUpdate'])->name('learn.store');
@@ -191,6 +191,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::get('qr-setting', [ContentManagementController::class, 'qrSettings']);
     Route::post('qr-setting/save', [ContentManagementController::class, 'qrSettingsUpdate'])->name('qr-setting.store');
+
+    Route::get('cms-setting', [ContentManagementController::class, 'cmsSettings']);
+    Route::post('cms-setting/save', [ContentManagementController::class, 'cmsSettingsUpdate'])->name('cms-setting.store');
 
     Route::post('user/search', [ReportController::class, 'userSearch']);
 

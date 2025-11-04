@@ -49,7 +49,7 @@
 
                                     <div>
                                         <h5 class="text-primary">Welcome Back !</h5>
-                                        <p class="text-muted">Sign in to continue to TREX.</p>
+                                        <p class="text-muted">Sign in to continue to {{ config('app.name') }}.</p>
                                     </div>
 
                                     <div class="mt-4">
@@ -108,7 +108,7 @@
                                 <div class="mt-4 mt-md-5 text-center">
                                     <p class="mb-0">© <script>
                                             document.write(new Date().getFullYear())
-                                        </script> TREX <br> Designed & Developed by TREX
+                                        </script> {{ config('app.name') }} <br> Designed & Developed by {{ config('app.name') }}
                                 </div>
                             </div>
 

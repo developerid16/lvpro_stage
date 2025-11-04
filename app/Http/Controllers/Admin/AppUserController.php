@@ -66,17 +66,14 @@ class AppUserController extends Controller
 
 
         foreach ($query['data']->get() as $key => $row) {
-            $row->setAppends(['company_data']);
             $final_data[$key]['sr_no'] = $key + 1;
-            $final_data[$key]['user_type'] = $row->user_type;
             $final_data[$key]['unique_id'] = $row->unique_id;
             $final_data[$key]['gender'] = $row->gender;
             $final_data[$key]['phone_number'] = $row->country_code . ' ' . $row->phone_number;
-            $final_data[$key]['date_of_birth'] =$row->date_of_birth ? $row->date_of_birth->format(config('shilla.date-format')) : '';
-            $final_data[$key]['created_at'] =$row->created_at ? $row->created_at->format(config('shilla.date-format')) : '';
+            $final_data[$key]['date_of_birth'] = $row->date_of_birth ? $row->date_of_birth->format(config('shilla.date-format')) : '';
+            $final_data[$key]['created_at'] = $row->created_at ? $row->created_at->format(config('shilla.date-format')) : '';
             $final_data[$key]['expiry_date'] = $row->expiry_date ? $row->expiry_date->format(config('shilla.date-format')) : '';
             $final_data[$key]['my_code'] = $row->my_code;
-            $final_data[$key]['company_name'] = $row->company_data->name ?? '';
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['email'] = $row->email;
             $final_data[$key]['status'] = $row->status;
@@ -119,14 +116,9 @@ class AppUserController extends Controller
     public function editUser($id)
     {
         $data = Appuser::findOrFail($id);
-        if ($data->user_type === 'Aircrew') {
-            $company =  AircrewCompany::where('status', 'Active')->orderBy('name')->get(['name', 'code', 'id']);
-        } else {
-            $company =  PassholderCompany::where('status', 'Active')->orderBy('name')->get(['name', 'code', 'id']);
-        }
 
         // dd( $data );
-        return view($this->view_file_path . "edit", compact('data', 'company'));
+        return view($this->view_file_path . "edit", compact('data',));
     }
 
     /**
@@ -146,37 +138,37 @@ class AppUserController extends Controller
         $lastYear = Carbon::now()->subDays(365);
         $rewards = UserPurchasedReward::with('reward')->where('user_id', $user->id)->whereDate('created_at', '>=', $lastYear)->get();
 
-        $keysData = collect([]);
+        // $keysData = collect([]);
 
-        $keysDebit =  KeyPassbookDebit::where([['user_id', $user->id]])->whereIn('type', ['admin'])->whereDate('created_at', '>=', $lastYear)->get();
+        // $keysDebit =  KeyPassbookDebit::where([['user_id', $user->id]])->whereIn('type', ['admin'])->whereDate('created_at', '>=', $lastYear)->get();
 
-        foreach ($keysDebit as $item) {
-            $keysData->push([
-                "keys" =>  $item->key_use,
+        // foreach ($keysDebit as $item) {
+        //     $keysData->push([
+        //         "keys" =>  $item->key_use,
 
-                "total" => 0,
-                'type' => 'Credit',
-                "meta_data" => $item->meta_data,
+        //         "total" => 0,
+        //         'type' => 'Credit',
+        //         "meta_data" => $item->meta_data,
 
-                "date" => $item->created_at
-            ]);
-        }
+        //         "date" => $item->created_at
+        //     ]);
+        // }
 
-        $keysCredit =  KeyPassbookCredit::where([['user_id', $user->id]])->whereIn('earn_way',  ['admin_credit'])->whereDate('created_at', '>=', $lastYear)->get();
-        foreach ($keysCredit as $item) {
-            $keysData->push([
-                "keys" =>  $item->no_of_key,
-                'type' => 'Debit',
-                "total" => 0,
-                "meta_data" => $item->meta_data,
-                "date" => $item->created_at
-            ]);
-        }
+        // $keysCredit =  KeyPassbookCredit::where([['user_id', $user->id]])->whereIn('earn_way',  ['admin_credit'])->whereDate('created_at', '>=', $lastYear)->get();
+        // foreach ($keysCredit as $item) {
+        //     $keysData->push([
+        //         "keys" =>  $item->no_of_key,
+        //         'type' => 'Debit',
+        //         "total" => 0,
+        //         "meta_data" => $item->meta_data,
+        //         "date" => $item->created_at
+        //     ]);
+        // }
 
-        $keysData = $keysData->sortBy([
-            ['date', 'desc'],
-        ]);
-        return view($this->view_file_path . "show", compact('user', 'rewards', 'keysData'));
+        // $keysData = $keysData->sortBy([
+        //     ['date', 'desc'],
+        // ]);
+        return view($this->view_file_path . "show", compact('user', 'rewards'));
     }
     public function userTransactions(string $id, Request $request)
     {
@@ -194,39 +186,7 @@ class AppUserController extends Controller
 
         $lastYear = Carbon::today()->subYears(2);
 
-        $sales = collect([]);
-        if ($request->filter && $request->filter === 'transactions') {
-            $sales = Sale::where('user_id', $id)->whereDate('date', '>=', $lastYear)->orderBy('date', 'desc')->selectRaw(' * , sum(sale_amount) as tot_sale_amount,sum(key_earn) as tot_key_earn,sum(limit_reach) as tot_limit_reach')->orderBy('system_time', 'desc')->groupBy('ref')->get();
-        } elseif (!$request->filter) {
-            $sales = Sale::where('user_id', $id)->whereDate('date', '>=', $lastYear)->orderBy('date', 'desc')->selectRaw(' * , sum(sale_amount) as tot_sale_amount,sum(key_earn) as tot_key_earn,sum(limit_reach) as tot_limit_reach')->orderBy('system_time', 'desc')->groupBy('ref')->get();
-        }
-
-
-        $allRecords = Sale::whereIn('ref', $sales->pluck('ref'))->get();
-        foreach ($sales as   $value) {
-            $saleProduct = $allRecords->where('ref', $value->ref);
-
-            $saleProduct->all();
-
-            $temp = [];
-            foreach ($saleProduct as $product) {
-                $temp[] = [
-                    'sku' => $product->sku,
-                    'amount' =>  numberFormat($product->sale_amount, true)
-                ];
-            }
-
-            $masterData->push([
-                "text" => "Receipt No: " . $value->ref,
-                "keys" => $value->tot_key_earn,
-                "total" =>  $value->tot_sale_amount,
-                "limit_reach" =>  $value->tot_limit_reach,
-                'type' => 'positive',
-                'products' => $temp,
-                'key_text'=>"Keys Earned:",
-                "date" => Carbon::createFromFormat('Y-m-d H:i:s', $value->date->format('Y-m-d') . ' ' . $value->system_time)
-            ]);
-        }
+ 
 
         // all purchase keys
         $uprs = [];
@@ -248,39 +208,7 @@ class AppUserController extends Controller
 
 
 
-        // get refund keys for
-        $refundSales = collect([]);
-        if ($request->filter && $request->filter === 'transactions') {
-            $refundSales = RefundSale::where('user_id', $id)->whereDate('date', '>=', $lastYear)->orderBy('date', 'desc')->selectRaw('*, sum(sale_amount) as tot_sale_amount,sum(key_earn) as tot_key_earn')->orderBy('system_time', 'desc')->groupBy('ref')->get();
-        } elseif (!$request->filter) {
-            $refundSales = RefundSale::where('user_id', $id)->whereDate('date', '>=', $lastYear)->orderBy('date', 'desc')->selectRaw('*, sum(sale_amount) as tot_sale_amount,sum(key_earn) as tot_key_earn')->orderBy('system_time', 'desc')->groupBy('ref')->get();
-        }
-        $allRecords = RefundSale::whereIn('ref', $refundSales->pluck('ref'))->get();
-      
-        foreach ($refundSales as   $item) {
-
-            $saleProduct = $allRecords->where('ref', $item->ref);
-  
-            $saleProduct->all();
-            $temp = [];
-            foreach ($saleProduct as $product) {
-                $temp[] = [
-                    'sku' => $product->sku,
-                    'amount' =>  numberFormat($product->sale_amount, true)
-                ];
-            }
-
-            $masterData->push([
-                "text" => "Receipt No: " . $item->ref,
-                "keys" => $item->tot_key_earn,
-                "text_original" => "Original Receipt No: " .  $item->org_rec_no,
-
-                "total" =>  $item->tot_sale_amount,
-                'type' => 'negative',
-                'products' => $temp,
-                "date" => Carbon::createFromFormat('Y-m-d H:i:s', $item->date->format('Y-m-d') . ' ' . $item->system_time)
-            ]);
-        }
+     
         //  foreach ($refundSales as $item) {
 
         //     $masterData->push([
@@ -293,80 +221,10 @@ class AppUserController extends Controller
         //     ]);
         // }
 
-        // takes only Admin
-        $keysDebit = [];
-        if ($request->filter && $request->filter === 'refund') {
-            $keysDebit =  KeyPassbookDebit::where([['user_id', $id]])->whereIn('type', ['admin', 'milestone_abandoned'])->whereDate('created_at', '>=', $lastYear)->get();
-        } elseif (!$request->filter) {
-            $keysDebit =  KeyPassbookDebit::where([['user_id', $id]])->whereIn('type', ['admin', 'milestone_abandoned'])->whereDate('created_at', '>=', $lastYear)->get();
-        }
+   
+ 
 
-        foreach ($keysDebit as $item) {
-            $masterData->push([
-                "text" => $item->type === 'milestone_abandoned' ? 'Milestone Void' : "Admin Credit Key - " . $item->meta_data,
-                "keys" =>  $item->key_use,
-                "total" => 0,
-                'type' => 'negative',
-                "date" => $item->created_at
-            ]);
-        }
-
-
-        // get all credit keys
-        $keysCredit = [];
-        if ($request->filter && $request->filter === 'referral') {
-            $keysCredit =  KeyPassbookCredit::where([['user_id', $id]])->where(function ($query) {
-                $query->where('earn_way',  'referral_bounce_earn')
-                    ->orWhere('earn_way',  'referral_bounce');
-            })->whereDate('created_at', '>=', $lastYear)->get();
-        } else   if ($request->filter && $request->filter === 'milestone') {
-            $keysCredit =  KeyPassbookCredit::where([['user_id', $id],])->whereIn('earn_way',  ['milestone_reached', 'referral_bounce_earn', 'referral_bounce'])->whereDate('created_at', '>=', $lastYear)->get();
-        } elseif (!$request->filter) {
-            $keysCredit =  KeyPassbookCredit::where([['user_id', $id], ['earn_way', '!=', 'spending_amount']])->whereDate('created_at', '>=', $lastYear)->get();
-        }
-
-
-        foreach ($keysCredit as $value) {
-
-            $type = '';
-            switch ($value->earn_way) {
-                case 'milestone_reached':
-                    # code...
-                    $type = "Milestone reached ($value->meta_data)";
-                    break;
-                case 'spending_amount':
-                    # code...
-                    $type = "Spending reached";
-
-                    break;
-                case 'referral_bounce_earn':
-                    # code...
-                    $type = "Referral";
-
-                    break;
-                case 'referral_bounce':
-                    $type = "Referral";
-                    # code...
-                    break;
-                case 'admin_credit':
-                    $type = "Admin Debit Key - " . $value->meta_data;
-                    # code...
-                    break;
-
-                default:
-                    # code...
-                    $type = "Earn";
-
-                    break;
-            }
-            $masterData->push([
-                "text" => $type,
-                "keys" =>  $value->no_of_key,
-                'type' => 'positive',
-                "total" => 0,
-                "date" => $value->created_at
-            ]);
-        }
+ 
         // User Purchess Logs
 
         $logs =   UserPurchasedRewardLogs::where([['user_id', $id], ['action', 'Expiry Date Change']])->whereDate('created_at', '>=', $lastYear)->get();
@@ -421,32 +279,26 @@ class AppUserController extends Controller
     public function update(Request $request,  $id)
     {
 
-       
+
         $user = AppUser::find($id);
-         // 'email' => 'regex:/^.+@.+$/i'.
+        // 'email' => 'regex:/^.+@.+$/i'.
         if ($user->user_type === 'Aircrew') {
             $post_data = $this->validate(
                 $request,
                 [
                     'name' => 'required',
                     'gender' => 'required',
-                    'aircrew_unique' => 'required',
-                    'company_id' => 'nullable',
                     'email' => "required|email|unique:app_users,email,$id",
                     'phone_number' => "required|numeric|unique:app_users,phone_number,$id",
                     'date_of_birth' => "required|date",
                     'country_code' => 'required',
-                    'c_name' => 'required_if:company_id,null',
-                    'c_code' => 'required_if:company_id,null',
+
                     'status' => 'required',
                     'blacklist_reason' => 'required_if:status,Inactive,Blacklist',
                     'password' => 'nullable|min:8',
                     'password_reason' => 'required_with:password',
                 ],
-                [
-                    'c_name.required_if' => 'Please enter a company name',
-                    'c_code.required_if' => 'Please enter a company code',
-                ]
+
             );
         } else {
             $post_data = $this->validate($request, [
@@ -456,21 +308,12 @@ class AppUserController extends Controller
                 'phone_number' => "required|numeric|unique:app_users,phone_number,$id",
                 'date_of_birth' => "required|date",
                 'country_code' => 'required',
-                'expiry_date' => 'sometimes|date',
-                'unique_id' => "required|unique:app_users,unique_id,$id|regex:/^S[a-zA-Z0-9]{7}$/",
-                'company_id' => 'sometimes',
-                'c_name' => 'required_if:company_id,null',
-                'c_code' => 'required_if:company_id,null',
+
                 'status' => 'required',
                 'blacklist_reason' => 'required_if:status,Inactive,Blacklist',
                 'password' => 'nullable|min:8',
                 'password_reason' => 'required_with:password',
 
-            ], [
-                'c_name.required_if' => 'Please enter a company name',
-                'unique_id.regex' => 'Please provide S with 7 digit.',
-                'unique_id.unique' => 'THis APH is already registered.',
-                'c_code.required_if' => 'Please enter a company code',
             ]);
         }
 
@@ -493,13 +336,13 @@ class AppUserController extends Controller
         }
         if (isset($post_data['password']) && $post_data['password']) {
             $post_data['password'] = Hash::make($request->password);
-            $post_data['password_reset'] = 1; 
+            $post_data['password_reset'] = 1;
         } else {
             unset($post_data['password']);
         }
- 
-         $user->update($post_data);
-          return redirect('admin/app-user');
+
+        $user->update($post_data);
+        return redirect('admin/app-user');
     }
 
     /**
