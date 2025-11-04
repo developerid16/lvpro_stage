@@ -5,24 +5,25 @@
             <div class="navbar-brand-box main_logo">
                 <a href="{{url('/')}}" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ URL::asset ('/build/images/logo-light-small.png') }}" alt="" height="22">
+                        <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ URL::asset ('/build/images/logo-dark.png') }}" alt="" height="50">
+                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
                     </span>
                 </a>
 
                 <a href="{{url('/')}}" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ URL::asset ('/build/images/logo-light-small.png') }}" alt="" height="50">
+                        <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="50">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ URL::asset ('/build/images/logo-light.png') }}" alt="" height="50">
+                        <img src="{{ URL::asset('/build/images/logo-light.png') }}" alt="" height="50">
                     </span>
                 </a>
             </div>
 
-            <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
+            <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light"
+                data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                 <i class="fa fa-fw fa-bars"></i>
             </button>
 
@@ -175,157 +176,179 @@
                                 <div class="col-sm-5">
                                     <div>
                                         <img src="{{ URL::asset ('/build/images/megamenu-img.png') }}" alt=""
-            class="img-fluid mx-auto d-block">
-        </div>
-    </div>
-    </div>
-    </div>
-    </div>
-
-    </div>
-    </div> --}}
-    </div>
-
-    <div class="d-flex">
-
-        <div class="dropdown d-inline-block d-lg-none ml-2">
-            <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="mdi mdi-magnify"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-search-dropdown">
-
-                <form class="p-3">
-                    <div class="form-group m-0">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="@lang('translation.Search')" aria-label="Search input">
-
-                            <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>s
+                                            class="img-fluid mx-auto d-block">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </form>
-            </div>
+
+                </div>
+            </div> --}}
         </div>
 
+        <div class="d-flex">
+
+            <div class="dropdown d-inline-block d-lg-none ml-2">
+                <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="mdi mdi-magnify"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                    aria-labelledby="page-header-search-dropdown">
+
+                    <form class="p-3">
+                        <div class="form-group m-0">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="@lang('translation.Search')"
+                                    aria-label="Search input">
+
+                                <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>s
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
 
 
 
 
 
-        <div class="dropdown d-inline-block">
-            {{-- <button type="button" class="btn header-item noti-icon waves-effect"
+
+            <div class="dropdown d-inline-block">
+                {{-- <button type="button" class="btn header-item noti-icon waves-effect"
                     id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                     aria-expanded="false">
                     <i class="bx bx-bell bx-tada"></i>
                     <span class="badge bg-danger rounded-pill">3</span>
                 </button> --}}
-            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0" aria-labelledby="page-header-notifications-dropdown">
-                <div class="p-3">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h6 class="m-0" key="t-notifications"> @lang('translation.Notifications') </h6>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#!" class="small" key="t-view-all"> @lang('translation.View_All')</a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                    aria-labelledby="page-header-notifications-dropdown">
+                    <div class="p-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0" key="t-notifications"> @lang('translation.Notifications') </h6>
+                            </div>
+                            <div class="col-auto">
+                                <a href="#!" class="small" key="t-view-all"> @lang('translation.View_All')</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div data-simplebar style="max-height: 230px;">
-                    <a href="" class="text-reset notification-item">
-                        <div class="d-flex">
-                            <div class="avatar-xs me-3">
-                                <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                    <i class="bx bx-cart"></i>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mt-0 mb-1" key="t-your-order">@lang('translation.Your_order_is_placed')
-                                </h6>
-                                <div class="font-size-12 text-muted">
-                                    <p class="mb-1" key="t-grammer">
-                                        @lang('translation.If_several_languages_coalesce_the_grammar')</p>
-                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                    <div data-simplebar style="max-height: 230px;">
+                        <a href="" class="text-reset notification-item">
+                            <div class="d-flex">
+                                <div class="avatar-xs me-3">
+                                    <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                        <i class="bx bx-cart"></i>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mt-0 mb-1" key="t-your-order">@lang('translation.Your_order_is_placed')
+                                    </h6>
+                                    <div class="font-size-12 text-muted">
+                                        <p class="mb-1" key="t-grammer">
+                                            @lang('translation.If_several_languages_coalesce_the_grammar')
+                                        </p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
+                                                key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                    <a href="" class="text-reset notification-item">
-                        <div class="d-flex">
-                            <img src="{{ URL::asset ('/build/images/users/avatar-3.jpg') }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                            <div class="flex-grow-1">
-                                <h6 class="mt-0 mb-1">@lang('translation.James_Lemire')</h6>
-                                <div class="font-size-12 text-muted">
-                                    <p class="mb-1" key="t-simplified">
-                                        @lang('translation.It_will_seem_like_simplified_English')</p>
-                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                        </a>
+                        <a href="" class="text-reset notification-item">
+                            <div class="d-flex">
+                                <img src="{{ URL::asset('/build/images/users/avatar-3.jpg') }}"
+                                    class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                <div class="flex-grow-1">
+                                    <h6 class="mt-0 mb-1">@lang('translation.James_Lemire')</h6>
+                                    <div class="font-size-12 text-muted">
+                                        <p class="mb-1" key="t-simplified">
+                                            @lang('translation.It_will_seem_like_simplified_English')
+                                        </p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
+                                                key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                    <a href="" class="text-reset notification-item">
-                        <div class="d-flex">
-                            <div class="avatar-xs me-3">
-                                <span class="avatar-title bg-success rounded-circle font-size-16">
-                                    <i class="bx bx-badge-check"></i>
-                                </span>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mt-0 mb-1" key="t-shipped">@lang('translation.Your_item_is_shipped')</h6>
-                                <div class="font-size-12 text-muted">
-                                    <p class="mb-1" key="t-grammer">
-                                        @lang('translation.If_several_languages_coalesce_the_grammar')</p>
-                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                        </a>
+                        <a href="" class="text-reset notification-item">
+                            <div class="d-flex">
+                                <div class="avatar-xs me-3">
+                                    <span class="avatar-title bg-success rounded-circle font-size-16">
+                                        <i class="bx bx-badge-check"></i>
+                                    </span>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mt-0 mb-1" key="t-shipped">@lang('translation.Your_item_is_shipped')</h6>
+                                    <div class="font-size-12 text-muted">
+                                        <p class="mb-1" key="t-grammer">
+                                            @lang('translation.If_several_languages_coalesce_the_grammar')
+                                        </p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
+                                                key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="" class="text-reset notification-item">
-                        <div class="d-flex">
-                            <img src="{{ URL::asset ('/build/images/users/avatar-4.jpg') }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                            <div class="flex-grow-1">
-                                <h6 class="mt-0 mb-1">@lang('translation.Salena_Layfield')</h6>
-                                <div class="font-size-12 text-muted">
-                                    <p class="mb-1" key="t-occidental">
-                                        @lang('translation.As_a_skeptical_Cambridge_friend_of_mine_occidental')</p>
-                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                        <a href="" class="text-reset notification-item">
+                            <div class="d-flex">
+                                <img src="{{ URL::asset('/build/images/users/avatar-4.jpg') }}"
+                                    class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                <div class="flex-grow-1">
+                                    <h6 class="mt-0 mb-1">@lang('translation.Salena_Layfield')</h6>
+                                    <div class="font-size-12 text-muted">
+                                        <p class="mb-1" key="t-occidental">
+                                            @lang('translation.As_a_skeptical_Cambridge_friend_of_mine_occidental')
+                                        </p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
+                                                key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="p-2 border-top d-grid">
-                    <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                        <i class="mdi mdi-arrow-right-circle me-1"></i> <span key="t-view-more">@lang('translation.View_More')</span>
-                    </a>
+                        </a>
+                    </div>
+                    <div class="p-2 border-top d-grid">
+                        <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
+                            <i class="mdi mdi-arrow-right-circle me-1"></i> <span
+                                key="t-view-more">@lang('translation.View_More')</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="dropdown d-inline-block">
-            <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img class="rounded-circle header-profile-user" src="{{ isset(Auth::user()->avatar) ? asset(Auth::user()->avatar) : asset('/build/images/users/avatar-1.jpg') }}" alt="Header Avatar">
-                <span class="d-none d-xl-inline-block ms-1" key="t-henry">{{ucfirst(Auth::user()->name)}}</span>
-                <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-end">
-                <!-- item-->
-                <a class="dropdown-item d-block" href="#" data-bs-toggle="modal" data-bs-target=".change-password"><i class="bx bx-wrench font-size-16 align-middle me-1"></i>
-                    <span key="t-settings">Change Password</span></a>
-                <a class="dropdown-item text-danger" href="javascript:void();" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span key="t-logout">@lang('translation.Logout')</span></a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img class="rounded-circle header-profile-user"
+                        src="{{ isset(Auth::user()->avatar) ? asset(Auth::user()->avatar) : asset('/build/images/users/avatar-1.jpg') }}"
+                        alt="Header Avatar">
+                    <span class="d-none d-xl-inline-block ms-1" key="t-henry">{{ucfirst(Auth::user()->name)}}</span>
+                    <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <!-- item-->
+                    <a class="dropdown-item d-block" href="#" data-bs-toggle="modal"
+                        data-bs-target=".change-password"><i class="bx bx-wrench font-size-16 align-middle me-1"></i>
+                        <span key="t-settings">Change Password</span></a>
+                    <a class="dropdown-item text-danger" href="javascript:void();"
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
+                            class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span
+                            key="t-logout">@lang('translation.Logout')</span></a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
             </div>
-        </div>
 
-        {{-- <div class="dropdown d-inline-block">
+            {{-- <div class="dropdown d-inline-block">
                 <button type="button" class="btn header-item noti-icon right-bar-toggle waves-effect">
                     <i class="bx bx-cog bx-spin"></i>
                 </button>
             </div> --}}
 
-    </div>
+        </div>
     </div>
 </header>
 
@@ -340,7 +363,7 @@
                     </a>
 
 
-                    @canany(['user-list', 'role-list','app-user-list','campaign-voucher-group-list'])
+                    @canany(['user-list', 'role-list', 'app-user-list', 'campaign-voucher-group-list'])
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
@@ -350,23 +373,24 @@
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
 
                             @can('role-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('/admin/roles')}}">Roles</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('/admin/roles')}}">Roles</a>
                             @endcan
                             @can('user-list')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
                             @endcan
                             @can(['app-user-list'])
-                            <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
+                                <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
                             @endcan
                             @can(['campaign-voucher-group-list'])
-                            <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/campaign-voucher-group')}}">Campaign Voucher Group</a>
+                                <a class="dropdown-item" key="t-dashboards"
+                                    href="{{url('/admin/campaign-voucher-group')}}">Campaign Voucher Group</a>
                             @endcan
 
                         </div>
                     </li>
 
                     @endcan
-                    @canany(['content-management','app-management', 'slider-list','about-app-banner-list','learn-more-page','faq-list','app-content-management'])
+                    @canany(['content-management', 'app-management', 'slider-list', 'about-app-banner-list', 'learn-more-page', 'faq-list', 'app-content-management'])
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
@@ -376,36 +400,41 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('content-management')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/content-management')}}">T&C/PDPA/Legal Privacy Policy</a>
+                                <a class="dropdown-item" key="t-alerts"
+                                    href="{{url('admin/content-management')}}">T&C/PDPA/Legal Privacy Policy</a>
                             @endcan
                             @can('app-management')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/website-management')}}">Website Management</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/website-management')}}">Website
+                                    Management</a>
                             @endcan
                             @can('app-content-management')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/app-content-management')}}">Content Management</a>
+                                <a class="dropdown-item" key="t-alerts"
+                                    href="{{url('admin/app-content-management')}}">Content Management</a>
                             @endcan
                             @can('slider-list')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/slider')}}">Advertisement
-                                Slider</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/slider')}}">Advertisement
+                                    Slider</a>
                             @endcan
                             @can('slider-list')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard
+                                    Popup</a>
                             @endcan
                             {{-- @can('about-app-banner-list')
                             <a class="dropdown-item" key="t-buttons" href="{{url('/admin/about-app-banner')}}">About App
-                            Banner</a>
+                                Banner</a>
                             @endcan --}}
                             @can('learn-more-page')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/learn-more-page')}}">Learn More Page</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/learn-more-page')}}">Learn More
+                                    Page</a>
                             @endcan
                             @can('faq-list')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/faq-category')}}">FAQ</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/faq-category')}}">FAQ</a>
                             @endcan
                         </div>
                     </li>
                     @endcan
 
-                    @canany(['reward-list','reward-redemption-pos','reward-redemption-cms'])
+                    @canany(['reward-list', 'reward-redemption-pos', 'reward-redemption-cms'])
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
@@ -414,45 +443,37 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('reward-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Rewards</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Rewards</a>
                             @endcan
                             @can('reward-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/automated-reward')}}">Automated Reward</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/automated-reward')}}">Automated
+                                    Reward</a>
                             @endcan
                             @can('reward-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward?type=campaign-voucher')}}">Rewards Campaign
-                                Voucher</a>
+                                <a class="dropdown-item" key="t-alerts"
+                                    href="{{url('admin/reward?type=campaign-voucher')}}">Rewards Campaign
+                                    Voucher</a>
                             @endcan
                             @can('reward-redemption-cms')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/redemption-reward')}}">Rewards Management CMS</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/redemption-reward')}}">Rewards
+                                    Management CMS</a>
 
                             @endcan
                             @can('reward-redemption-pos')
-                            <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-redemption-pos')}}">Rewards
-                                Redemption POS</a>
+                                <a class="dropdown-item" key="t-buttons"
+                                    href="{{url('/admin/reward-redemption-pos')}}">Rewards
+                                    Redemption POS</a>
                             @endcan
                         </div>
                     </li>
                     @endcan
-                    @canany(['aircrew-company-list','passholder-company-list'])
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Partner Management</span>
-                            <!-- <div class="arrow-down"></div> -->
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
-
-                            @can('aircrew-company-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/aircrew-company')}}">Aircrew Company</a>
-                            @endcan
-                            @can('passholder-company-list')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('admin/passholder-company')}}">Passholder Company</a>
-                            @endcan
-
-                        </div>
-                    </li>
+                 
+                    @canany(['aircrew-company-list'])
+                    <a class="nav-link  " href="{{url('/admin/partner-company')}}">
+                        <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Partner Management</span>
+                    </a>
                     @endcan
-                    @canany(['report-customer','report-sales','report-reward'])
+                    @canany(['report-customer', 'report-sales', 'report-reward'])
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Report</span>
@@ -461,31 +482,33 @@
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
 
                             @can('report-customer')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('/admin/report/customer')}}">Customer</a>
+                                <a class="dropdown-item" key="t-alerts"
+                                    href="{{url('/admin/report/customer')}}">Customer</a>
                             @endcan
                             @can('report-sales')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('/admin/report/sales')}}">Sales</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('/admin/report/sales')}}">Sales</a>
                             @endcan
                             @can('report-reward')
-                            <a class="dropdown-item" key="t-alerts" href="{{url('/admin/report/reward')}}">Redemption </a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('/admin/report/reward')}}">Redemption
+                                </a>
                             @endcan
 
                         </div>
                     </li>
                     @endcan
-                       @canany(['referral-rate'])
+                    @canany(['referral-rate'])
                     <a class="nav-link  " href="{{url('/admin/tiers')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Tier</span>
                     </a>
                     @endcan
 
-                       @canany(['referral-rate'])
+                    @canany(['referral-rate'])
                     <a class="nav-link  " href="{{url('/admin/referral-rate')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Referral Rate</span>
                     </a>
                     @endcan
-                 
-                    @canany(['contact-us-list','notification-setting'])
+
+                    @canany(['contact-us-list', 'notification-setting'])
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Others</span>
@@ -501,78 +524,80 @@
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="topnav-email">
                                     <a href="{{url('/admin/report/customer')}}" class="dropdown-item"
-                            key="t-tui-calendar">Customer</a>
-                            <a href="{{url('/admin/report/sales')}}" class="dropdown-item" key="t-full-calender">Sales</a>
-                            <a href="{{url('/admin/report/reward')}}" class="dropdown-item" key="t-full-calender">Reward</a>
-                        </div>
-            </div>--}}
+                                        key="t-tui-calendar">Customer</a>
+                                    <a href="{{url('/admin/report/sales')}}" class="dropdown-item"
+                                        key="t-full-calender">Sales</a>
+                                    <a href="{{url('/admin/report/reward')}}" class="dropdown-item"
+                                        key="t-full-calender">Reward</a>
+                                </div>
+                            </div>--}}
 
-            {{--@can(['tier-management'])
+                            {{--@can(['tier-management'])
                             <a class="dropdown-item  " href="{{url('/admin/tiers')}}">
-            Tier
-            </a>
-            @endcan
-            @can(['referral-rate'])
-            <a class="dropdown-item  " href="{{url('/admin/referral-rate')}}">
-                Referral Rate
-            </a>
-            @endcan
-            @can(['sales-list'])
-            <a class="dropdown-item  " href="{{url('/admin/sales')}}">
-                Sales
-            </a>
-            @endcan--}}
-            @can(['contact-us-list'])
-            <a class="dropdown-item  " href="{{url('/admin/contact-us')}}">
-                Contact Us Request
-            </a>
-            @endcan
-            @can(['contact-us-list'])
-            <a class="dropdown-item  " href="{{url('/admin/notification-setting')}}">
-                Notification Settings
-            </a>
-            @endcan
-            @can(['contact-us-list'])
-            <a class="dropdown-item  " href="{{url('/admin/broadcast')}}">
-                Broadcast
-            </a>
-            @endcan
-            @can(['apilogs-list'])
-            <a class="dropdown-item  " href="{{url('/admin/apilogs')}}">
-                POS API Log
-            </a>
-            @endcan
-            @can(['apilogs-list'])
-            <a class="dropdown-item  " href="{{url('/admin/apilogs-sorting')}}">
-                POS API Log Not Triggered
-            </a>
-            @endcan
-            @can(['apilogs-list'])
-            <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
-                Voucher Logs
-        </a>
-            @endcan
-            @can(['system-backup'])
-            <a class="dropdown-item  " href="{{url('/admin/qr-setting')}}">
-                Qrcode Setting
-            </a>
-            @endcan
-            @can(['cms-setting'])
-            <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
-                CMS Setting
-            </a>
-            @endcan
+                                Tier
+                            </a>
+                            @endcan
+                            @can(['referral-rate'])
+                            <a class="dropdown-item  " href="{{url('/admin/referral-rate')}}">
+                                Referral Rate
+                            </a>
+                            @endcan
+                            @can(['sales-list'])
+                            <a class="dropdown-item  " href="{{url('/admin/sales')}}">
+                                Sales
+                            </a>
+                            @endcan--}}
+                            @can(['contact-us-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/contact-us')}}">
+                                    Contact Us Request
+                                </a>
+                            @endcan
+                            @can(['contact-us-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/notification-setting')}}">
+                                    Notification Settings
+                                </a>
+                            @endcan
+                            @can(['contact-us-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/broadcast')}}">
+                                    Broadcast
+                                </a>
+                            @endcan
+                            @can(['apilogs-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/apilogs')}}">
+                                    POS API Log
+                                </a>
+                            @endcan
+                            @can(['apilogs-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/apilogs-sorting')}}">
+                                    POS API Log Not Triggered
+                                </a>
+                            @endcan
+                            @can(['apilogs-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
+                                    Voucher Logs
+                                </a>
+                            @endcan
+                            @can(['system-backup'])
+                                <a class="dropdown-item  " href="{{url('/admin/qr-setting')}}">
+                                    Qrcode Setting
+                                </a>
+                            @endcan
+                            @can(['cms-setting'])
+                                <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
+                                    CMS Setting
+                                </a>
+                            @endcan
 
-    </div>
-    </li>
-    @endcan
+                        </div>
+                    </li>
+                    @endcan
 
-      <a class="nav-link  " href="{{url('/admin/redeem-voucher')}}">
+                    <a class="nav-link  " href="{{url('/admin/redeem-voucher')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Redeem Voucher</span>
                     </a>
 
 
-    {{-- <li class="nav-item dropdown">
+                    {{-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps">@lang('translation.Apps')</span>
                             <div class="arrow-down"></div>
@@ -1022,14 +1047,15 @@
                         </div>
                     </li> --}}
 
-    </ul>
-</div>
-</nav>
-</div>
+                </ul>
+            </div>
+        </nav>
+    </div>
 </div>
 
 <!--  Change-Password example -->
-<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -1042,24 +1068,31 @@
                     <input type="hidden" value="{{ Auth::user()->id }}" id="data_id">
                     <div class="mb-3">
                         <label for="current_password">Current Password</label>
-                        <input id="current-password" type="password" class="form-control @error('current_password') is-invalid @enderror" name="current_password" autocomplete="current_password" placeholder="Enter Current Password" value="{{ old('current_password') }}">
+                        <input id="current-password" type="password"
+                            class="form-control @error('current_password') is-invalid @enderror" name="current_password"
+                            autocomplete="current_password" placeholder="Enter Current Password"
+                            value="{{ old('current_password') }}">
                         <div class="text-danger" id="current_passwordError" data-ajax-feedback="current_password"></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="newpassword">New Password</label>
-                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new_password" placeholder="Enter New Password">
+                        <input id="password" type="password"
+                            class="form-control @error('password') is-invalid @enderror" name="password"
+                            autocomplete="new_password" placeholder="Enter New Password">
                         <div class="text-danger" id="passwordError" data-ajax-feedback="password"></div>
                     </div>
 
                     <div class="mb-3">
                         <label for="userpassword">Confirm Password</label>
-                        <input id="password-confirm" type="password" class="form-control" name="password_confirmation" autocomplete="new_password" placeholder="Enter New Confirm password">
+                        <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
+                            autocomplete="new_password" placeholder="Enter New Confirm password">
                         <div class="text-danger" id="password_confirmError" data-ajax-feedback="password-confirm"></div>
                     </div>
 
                     <div class="mt-3 d-grid">
-                        <button class="btn btn-primary waves-effect waves-light UpdatePassword" data-id="{{ Auth::user()->id }}" type="submit">Update Password</button>
+                        <button class="btn btn-primary waves-effect waves-light UpdatePassword"
+                            data-id="{{ Auth::user()->id }}" type="submit">Update Password</button>
                     </div>
                 </form>
             </div>

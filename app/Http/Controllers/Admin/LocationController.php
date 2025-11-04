@@ -5,22 +5,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\PassholderCompany;
+use App\Models\Location;
+use App\Models\PartnerCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class PassholderCompanyController extends Controller
+class LocationController extends Controller
 {
 
     function __construct()
     {
 
-        $this->view_file_path = "admin.passholder-company.";
-        $permission_prefix = $this->permission_prefix = 'passholder-company';
+        $this->view_file_path = "admin.locations.";
+        $permission_prefix = $this->permission_prefix = 'locations';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Passholder Company',
-            'module_base_url' => url('admin/passholder-company')
+            'title' => 'Locations',
+            'module_base_url' => url('admin/locations')
         ];
 
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'store']]);
@@ -39,15 +40,16 @@ class PassholderCompanyController extends Controller
 
     public function datatable(Request $request)
     {
-        $query = PassholderCompany::query();
+        $query = Location::where('company_id', $request->company_id);
 
-        $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'code', 'status']);
+        $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'code', 'status', 'address']);
 
         $final_data = [];
         foreach ($query['data']->get() as $key => $row) {
             $final_data[$key]['sr_no'] = $key + 1;
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['code'] = $row->code;
+            $final_data[$key]['address'] = $row->address;
             $final_data[$key]['status'] = $row->status;
 
 
@@ -81,21 +83,24 @@ class PassholderCompanyController extends Controller
     public function store(Request $request)
     {
         $post_data = $this->validate($request, [
-            'code' => 'required|unique:users,email',
-            'name' => 'required|unique:users,phone',
+            'code' => 'required|unique:locations,code',
+            'name' => 'required|unique:locations,name',
+            'company_id' => 'required|exists:partner_companies,id',
+
+            'address' => 'required',
             'status' => 'required',
 
         ]);
 
-        PassholderCompany::create($post_data);
+        Location::create($post_data);
 
-        return response()->json(['status' => 'success', 'message' => 'Passholder Company Created Successfully']);
+        return response()->json(['status' => 'success', 'message' => 'Location Created Successfully']);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PassholderCompany $passholderCompany)
+    public function show(Location $locationsCompany)
     {
         //
     }
@@ -106,7 +111,8 @@ class PassholderCompanyController extends Controller
     public function edit($id)
     {
         //
-        $this->layout_data['data'] = PassholderCompany::find($id);
+        $this->layout_data['data'] = Location::find($id);
+        $this->layout_data['company_data'] = PartnerCompany::find($this->layout_data['data']->company_id);
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
@@ -119,13 +125,15 @@ class PassholderCompanyController extends Controller
     {
         //
         $post_data = $this->validate($request, [
-            "code" => "required|unique:users,email,$id",
-            "name" => "required|unique:users,phone,$id",
+            "code" => "required|unique:locations,code,$id",
+            "name" => "required|unique:locations,name,$id",
+            'address' => 'required',
+            'company_id' => 'required|exists:partner_companies,id',
             'status' => 'required',
 
         ]);
-        PassholderCompany::find($id)->update($post_data);
-        return response()->json(['status' => 'success', 'message' => 'Passholder Company Update Successfully']);
+        Location::find($id)->update($post_data);
+        return response()->json(['status' => 'success', 'message' => 'Location Update Successfully']);
     }
 
     /**
@@ -133,7 +141,7 @@ class PassholderCompanyController extends Controller
      */
     public function destroy($id)
     {
-        PassholderCompany::where('id', $id)->delete();
-        return response()->json(['status' => 'success', 'message' => 'Passholder Company Delete Successfully']);
+        Location::where('id', $id)->delete();
+        return response()->json(['status' => 'success', 'message' => 'Location Delete Successfully']);
     }
 }

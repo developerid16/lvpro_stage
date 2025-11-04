@@ -17,11 +17,11 @@ use App\Http\Controllers\Admin\DashboardPopupController;
 use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\Admin\BroadcastController;
 use App\Http\Controllers\Admin\AboutAppSliderController;
-use App\Http\Controllers\Admin\AircrewCompanyController;
+use App\Http\Controllers\Admin\PartnerCompanyController;
 use App\Http\Controllers\Admin\APILogsController;
 use App\Http\Controllers\Admin\RewardRedemptionController;
 use App\Http\Controllers\Admin\ContentManagementController;
-use App\Http\Controllers\Admin\PassholderCompanyController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Models\AppUser;
@@ -97,7 +97,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('contact-us/datatable', [ContactUsRequest::class, 'datatable']);
     Route::get('contact-us', [ContactUsRequest::class, 'index']);
     Route::get('contact-us/{id}/show', [ContactUsRequest::class, 'show']);
- 
+
     Route::get('sales/datatable', [SalesController::class, 'datatable']);
     Route::get('sales/retiveTransaction', [SalesController::class, 'retiveTransaction']);
     Route::post('sales/old-sales', [SalesController::class, 'oldSales']);
@@ -106,21 +106,23 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('apilogs/datatable', [APILogsController::class, 'datatable']);
     Route::resource('apilogs', APILogsController::class);
 
-    Route::get('apilogs-sorting/datatable', [APILogsController::class, 'datatableTriggerd']); 
+    Route::get('apilogs-sorting/datatable', [APILogsController::class, 'datatableTriggerd']);
     Route::get('apilogs-sorting', [APILogsController::class, 'indexTriggerd']);
 
     Route::get('voucherlogs/datatable', [APILogsController::class, 'datatableVoucherLogs']);
     Route::get('voucherlogs', [APILogsController::class, 'indexVoucher']);
 
-    Route::get('aircrew-company/datatable', [AircrewCompanyController::class, 'datatable']);
-    Route::resource('aircrew-company', AircrewCompanyController::class);
+    Route::get('partner-company/datatable', [PartnerCompanyController::class, 'datatable']);
+    Route::get('partner-company/{id}/locations', [PartnerCompanyController::class, 'locationsIndex']);
+    Route::resource('partner-company', PartnerCompanyController::class);
 
     Route::get('broadcast/datatable', [BroadcastController::class, 'datatable']);
     Route::post('broadcast/testing-template', [BroadcastController::class, 'broadcastTestingTemplate']);
     Route::resource('broadcast', BroadcastController::class);
 
-    Route::get('passholder-company/datatable', [PassholderCompanyController::class, 'datatable']);
-    Route::resource('passholder-company', PassholderCompanyController::class);
+    Route::get('locations/datatable', [LocationController::class, 'datatable']);
+    Route::resource('locations', LocationController::class);
+
     Route::get('faq/datatable', [FAQController::class, 'datatable']);
     Route::post('faq/up-down', [FAQController::class, 'upDownFaq']);
     Route::resource('faq', FAQController::class);
@@ -129,7 +131,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('faq-category', FAQCategoryController::class);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
     Route::resource('reward', RewardController::class);
-    
+
     Route::get('automated-reward', [RewardController::class, 'indexAutomatedReward']);
     Route::post('automated-reward-update', [RewardController::class, 'updateAutomatedReward']);
 
@@ -138,8 +140,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('campaign-voucher-assign/{id}', [CampaignVoucherGroupController::class, 'assignIndex']);
     Route::post('campaign-voucher-assign/{id}', [CampaignVoucherGroupController::class, 'assignStore']);
     Route::resource('campaign-voucher-group', CampaignVoucherGroupController::class);
-    
-    
+
+
     Route::get('redeem-voucher', [CampaignVoucherGroupController::class, 'redeemVoucher']);
     Route::post('redeem-voucher', [CampaignVoucherGroupController::class, 'redeemVoucherVerify']);
 
@@ -222,14 +224,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('email-ecb', function (Request $request) {
         sendNotification("Sub Title", "Title", '66b438d5-0cc5-4b4a-84a0-a97b0b954754');
 
-            dd("Push Noti");
+        dd("Push Noti");
 
         $date = Carbon\Carbon::createFromFormat('YmdHis', "20240629132602");
         $today = Carbon\Carbon::now();
         if ($date->gt($today)) {
             dd("GT");
-        }else{
-            
+        } else {
+
             dd("LT");
         }
 
@@ -273,7 +275,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
                 }
                 //TODO: here we need to reset his tire
             }
-        }                                                                                                                                                           
+        }
 
 
         // Now find the user dont spent anything but still get keys and they use that one or not 
@@ -352,21 +354,21 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
                 // first find the key we give user as un-wanted
 
 
-                $sales = Sale::whereDate('date', '<', '2024-09-01')->whereDate('created_at', '>=', "2024-09-01")->where([['user_id', $user],['batch_id','!=','31'],['batch_id','!=','30']])->groupBy('ref')
+                $sales = Sale::whereDate('date', '<', '2024-09-01')->whereDate('created_at', '>=', "2024-09-01")->where([['user_id', $user], ['batch_id', '!=', '31'], ['batch_id', '!=', '30']])->groupBy('ref')
                     ->selectRaw('*,sum(key_earn) as totalsale')
                     ->get();
                 $totalSpend = 0;
                 foreach ($sales as $key => $s) {
                     $totalSpend +=  floor((float)$s->totalsale);
                 }
-                $refundsales = RefundSale::whereDate('date', '<', '2024-09-01')->whereDate('created_at', '>=', "2024-09-01")->where([['user_id', $user],['batch_id','!=','31'],['batch_id','!=','30']])->groupBy('ref')
+                $refundsales = RefundSale::whereDate('date', '<', '2024-09-01')->whereDate('created_at', '>=', "2024-09-01")->where([['user_id', $user], ['batch_id', '!=', '31'], ['batch_id', '!=', '30']])->groupBy('ref')
                     ->selectRaw('*,sum(key_earn) as totalsale')
                     ->get();
                 foreach ($refundsales as $key => $s) {
                     $totalSpend -=  floor((float)$s->totalsale);
                 }
 
-                if($ak - $totalSpend < 0){
+                if ($ak - $totalSpend < 0) {
 
                     dump("call here $user total key used by "  . $debitskey->sum('key_use') . " available key " . $ak . " total-key earn user " . $totalSpend . " Remove key from available key" .  $ak - $totalSpend);
                 }

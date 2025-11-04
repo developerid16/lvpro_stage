@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AircrewCompany extends Model
+class Location extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'name',
         'code',
-
+        'company_id',
+        'address',
         'status',
 
     ];
