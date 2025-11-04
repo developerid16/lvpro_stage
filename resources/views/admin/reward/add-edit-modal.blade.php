@@ -38,8 +38,47 @@
                                     placeholder="Enter SKU" value="{{ $data->sku ?? '' }}">
                             </div>
                         </div>
-                     
-                        
+
+                        {{-- add company dropdown and based on this multiple location selection --}}
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="company_id">Company <span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select" name="company_id" id="company_id" @disabled(isset($data->id))>
+                                    <option value="">Select Company</option>
+                                    @if(isset($companies))
+                                        @foreach($companies as $company)
+                                            <option class="sh_dec" value="{{ $company->id }}"
+                                                {{ (isset($data->company_id) && $data->company_id == $company->id) ? 'selected' : '' }} >
+                                                {{ $company->name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                                <div class="sh_dec_s error" id="company_id_error"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="location_ids">Locations <span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select" name="location_ids[]" id="location_ids" multiple 
+                                        data-selected-locations="{{ isset($data->location_ids) ? json_encode($data->location_ids) : '[]' }}">
+                                    @if(isset($locations) && $locations->count() > 0)
+                                        <option value="">Select Locations</option>
+                                        @foreach($locations as $location)
+                                            <option class="sh_dec" value="{{ $location->id }}"
+                                                {{ (isset($data->location_ids) && in_array($location->id, $data->location_ids)) ? 'selected' : '' }}>
+                                                {{ $location->name }} ({{ $location->code }})
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        <option value="">Select Company First</option>
+                                    @endif
+                                </select>
+                                <div class="sh_dec_s error" id="location_ids_error"></div>
+                                <span class="text-muted sh_dec_s">Select multiple locations where this reward is available</span>
+                            </div>
+                        </div>
+
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">

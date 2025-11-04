@@ -130,6 +130,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('faq-category/up-down', [FAQCategoryController::class, 'upDownCategory']);
     Route::resource('faq-category', FAQCategoryController::class);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
+    Route::get('reward/locations-by-company', [RewardController::class, 'getLocationsByCompany']);
     Route::resource('reward', RewardController::class);
 
     Route::get('automated-reward', [RewardController::class, 'indexAutomatedReward']);

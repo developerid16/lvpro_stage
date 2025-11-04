@@ -78,6 +78,62 @@
 
         })
 
+        $(document).on("change", "#company_id", function() {
+            loadLocationsByCompany();
+        });
+
+        // Function to load locations by company
+        function loadLocationsByCompany() {
+            var companyId = $('#company_id').val();
+            var locationSelect = $('#location_ids');
+            var selectedLocations = [];
+            
+            try {
+                selectedLocations = JSON.parse(locationSelect.attr('data-selected-locations') || '[]');
+            } catch (e) {
+                selectedLocations = [];
+            }
+            
+            // Clear current options
+            locationSelect.empty();
+            locationSelect.append('<option value="">Loading...</option>');
+            
+            if (companyId) {
+                $.ajax({
+                    url: ModuleBaseUrl + 'locations-by-company',
+                    type: 'GET',
+                    data: { company_id: companyId },
+                    success: function(response) {
+                        locationSelect.empty();
+                        if (response.status === 'success' && response.locations.length > 0) {
+                            locationSelect.append('<option value="">Select Locations</option>');
+                            $.each(response.locations, function(index, location) {
+                                var isSelected = selectedLocations.includes(location.id.toString()) || selectedLocations.includes(location.id);
+                                var selectedAttr = isSelected ? ' selected' : '';
+                                locationSelect.append('<option value="' + location.id + '"' + selectedAttr + '>' + location.name + ' (' + location.code + ')</option>');
+                            });
+                        } else {
+                            locationSelect.append('<option value="">No locations available</option>');
+                        }
+                    },
+                    error: function() {
+                        locationSelect.empty();
+                        locationSelect.append('<option value="">Error loading locations</option>');
+                    }
+                });
+            } else {
+                locationSelect.empty();
+                locationSelect.append('<option value="">Select Company First</option>');
+            }
+        }
+
+        // Load locations when modal is opened if company is already selected
+        $(document).on('shown.bs.modal', '#AddModal, #EditModal', function () {
+            var companyId = $('#company_id').val();
+            if (companyId) {
+                loadLocationsByCompany();
+            }
+        });
 
         $(document).on("click", ".clear-time", function() {
             $("input[name='start_time']").val("");

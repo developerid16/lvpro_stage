@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ContentManagement;
+use App\Models\Location;
+use App\Models\PartnerCompany;
 use App\Models\Reward;
 use App\Models\UserPurchasedReward;
 use Carbon\Carbon;
@@ -37,6 +39,7 @@ class RewardController extends Controller
 
         $type                      = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
+        $this->layout_data['companies'] = PartnerCompany::where('status', 'Active')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -174,6 +177,9 @@ class RewardController extends Controller
             'amount'       => 'required_if:reward_type,0',
             'no_of_keys'   => 'required|numeric|min:0',
             'quantity'     => 'required|numeric|min:0',
+            'company_id'   => 'required|exists:partner_companies,id',
+            'location_ids' => 'required|array|min:1',
+            'location_ids.*' => 'exists:locations,id',
             'start_date'   => 'required|date|after_or_equal:' . date('Y-m-d'),
             'end_date'     => 'required_if:expiry_day,0|date|after_or_equal:' . $request->start_date,
             'expiry_day'   => 'required|numeric|min:' . $exd,
@@ -253,6 +259,14 @@ class RewardController extends Controller
     {
         $this->layout_data['data'] = Reward::find($id);
         $this->layout_data['type'] = $this->layout_data['data']->parent_type;
+        $this->layout_data['companies'] = PartnerCompany::where('status', 'Active')->get();
+
+        // Get locations for the selected company if available
+        if ($this->layout_data['data']->company_id) {
+            $this->layout_data['locations'] = Location::where('company_id', $this->layout_data['data']->company_id)
+                ->where('status', 'Active')
+                ->get();
+        }
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
@@ -274,6 +288,9 @@ class RewardController extends Controller
                 'description'  => 'required|max:500',
                 'no_of_keys'   => 'required|numeric|min:0',
                 'quantity'     => 'required|numeric|min:0',
+                'company_id'   => 'required|exists:partner_companies,id',
+                'location_ids' => 'required|array|min:1',
+                'location_ids.*' => 'exists:locations,id',
                 'start_date'   => 'required|date',
                 'end_date'     => 'required_if:expiry_day,0|date|after_or_equal:' . $request->start_date,
                 'expiry_day'   => 'required|numeric|min:' . $exd,
@@ -283,14 +300,12 @@ class RewardController extends Controller
                 'image_1'      => 'sometimes|image',
                 'image_2'      => 'sometimes|required|image',
                 'status'       => 'required',
-                'company_name' => 'required|max:191',
                 'term_of_use'  => 'required',
                 // 'how_to_use' => 'required',
                 'is_featured'  => 'required',
                 'labels'       => 'sometimes',
                 'days'         => 'sometimes',
                 'sku'          => 'sometimes',
-                'brand_name'   => 'sometimes',
                 'end_time'     => 'sometimes|required_with:start_time',
                 'countdown'    => 'sometimes',
                 'start_time'   => 'sometimes|required_with:end_time',
@@ -369,5 +384,24 @@ class RewardController extends Controller
     {
         Reward::where('id', $id)->delete();
         return response()->json(['status' => 'success', 'message' => 'Reward Delete Successfully']);
+    }
+
+    /**
+     * Get locations by company ID
+     */
+    public function getLocationsByCompany(Request $request)
+    {
+        $companyId = $request->get('company_id');
+
+        if (!$companyId) {
+            return response()->json(['status' => 'error', 'message' => 'Company ID is required']);
+        }
+
+        $locations = Location::where('company_id', $companyId)
+            ->where('status', 'Active')
+            ->select('id', 'name', 'code')
+            ->get();
+
+        return response()->json(['status' => 'success', 'locations' => $locations]);
     }
 }

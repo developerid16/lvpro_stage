@@ -36,7 +36,9 @@ class Reward extends Model
         'days',
         'sku',
         'parent_type',
-        'image_3'
+        'image_3',
+        'company_id',
+        'location_ids'
 
     ];
 
@@ -65,5 +67,38 @@ class Reward extends Model
     public function getDaysAttribute($value)
     {
         return array_filter(explode(",", $value));
+    }
+
+    public function setLocationIdsAttribute($value)
+    {
+        $this->attributes['location_ids'] = null;
+        if ($value && is_array($value)) {
+            $this->attributes['location_ids'] = json_encode(array_filter($value));
+        }
+    }
+
+    public function getLocationIdsAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    /**
+     * Get the company that owns the reward
+     */
+    public function company()
+    {
+        return $this->belongsTo(PartnerCompany::class, 'company_id');
+    }
+
+    /**
+     * Get the locations for this reward
+     */
+    public function locations()
+    {
+        $locationIds = $this->location_ids;
+        if (empty($locationIds)) {
+            return collect([]);
+        }
+        return Location::whereIn('id', $locationIds)->get();
     }
 }
