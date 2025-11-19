@@ -264,7 +264,8 @@ class ContentManagementController extends Controller
 
 
         $this->validate($request, [
-            'QrImage' => 'sometimes|image|mimes:png',
+            'logo' => 'sometimes|image|mimes:png',
+            'favicon' => 'sometimes|image|mimes:png',
         ]);
 
 

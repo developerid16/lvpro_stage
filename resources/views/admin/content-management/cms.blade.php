@@ -37,16 +37,19 @@
                                 </div>
                                 <img src="{{asset('build/images/logo-dark.png')}}" alt="" srcset="" height="100"
                                     width="100">
-                            </div>  
+                                <span class="text-muted sh_dec_s">Please upload a .png file</span>
+                            </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label sh_dec">Favicon Image </label>
                                 <div class="input-group">
                                     <input type="file" accept=".png" class="sh_dec form-control" name="favicon"
                                         onchange="imageChange(event)">
                                 </div>
-                                <img src="{{asset('build/images/favicon.png')}}" alt="" srcset="" height="100"
-                                    width="100">
-                            </div>  
+                                <img src="{{asset('build/images/favicon.png')}}" alt="" srcset="" height="100" width="100">
+                                <span class="text-muted sh_dec_s">Please upload a .png file</span>
+
+                            </div>
+
 
 
 
@@ -61,8 +64,7 @@
                     <div class="card-footer">
                         <button class="sh_btn btn btn-primary mt-3 save-btn" type="submit"><i class="mdi mdi-file"></i>
                             Save</button>
-                        <button class="btn btn-warning mt-3  " type="button" onclick="previewQRCode()">
-                            Click to Preview</button>
+
                     </div>
                 </form>
             </div>
