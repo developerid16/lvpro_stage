@@ -5,10 +5,10 @@
             <div class="navbar-brand-box">
                 <a href="index" class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="22">
+                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}?q={{ time() }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
+                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}?q={{ time() }}" alt="" height="50">
                     </span>
                 </a>
 

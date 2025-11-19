@@ -30,23 +30,21 @@
                             </div>
 
                             <div class="col-md-3 mb-3">
-                                <label class="form-label sh_dec">Logo </label>
+                                <label class="form-label sh_dec">Logo <span class="text-muted sh_dec_s">Please upload a .png file</span> </label>
                                 <div class="input-group">
                                     <input type="file" accept=".png" class="sh_dec form-control" name="logo"
                                         onchange="imageChange(event)">
                                 </div>
-                                <img src="{{asset('build/images/logo-dark.png')}}" alt="" srcset="" height="100"
+                                <img src="{{asset('build/images/logo-dark.png')}}?q={{ time() }}" alt="" srcset="" height="100"
                                     width="100">
-                                <span class="text-muted sh_dec_s">Please upload a .png file</span>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label sh_dec">Favicon Image </label>
+                                <label class="form-label sh_dec">Favicon Image <span class="text-muted sh_dec_s">Please upload a .png file</span> </label>
                                 <div class="input-group">
                                     <input type="file" accept=".png" class="sh_dec form-control" name="favicon"
                                         onchange="imageChange(event)">
                                 </div>
-                                <img src="{{asset('build/images/favicon.png')}}" alt="" srcset="" height="100" width="100">
-                                <span class="text-muted sh_dec_s">Please upload a .png file</span>
+                                <img src="{{asset('build/images/favicon.png')}}?q={{ time() }}" alt="" srcset="" height="100" width="100">
 
                             </div>
 

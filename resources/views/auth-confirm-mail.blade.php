@@ -16,9 +16,9 @@
                     <div class="col-lg-12">
                         <div class="text-center mb-5 text-muted">
                             <a href="index" class="d-block auth-logo">
-                                <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="20"
+                                <img src="{{ URL::asset('/build/images/logo-dark.png') }}?q={{ time() }}" alt="" height="20"
                                     class="auth-logo-dark mx-auto">
-                                <img src="{{ URL::asset('/build/images/logo-light.png') }}" alt="" height="20"
+                                <img src="{{ URL::asset('/build/images/logo-light.png') }}?q={{ time() }}" alt="" height="20"
                                     class="auth-logo-light mx-auto">
                             </a>
                             <p class="mt-3">Responsive Bootstrap 5 Admin Dashboard</p>
