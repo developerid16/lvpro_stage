@@ -7,6 +7,7 @@ use App\Models\ContentManagement;
 use App\Models\Location;
 use App\Models\PartnerCompany;
 use App\Models\Reward;
+use App\Models\Tier;
 use App\Models\UserPurchasedReward;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -37,9 +38,12 @@ class RewardController extends Controller
     public function index(Request $request)
     {
 
-        $type                      = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
+        $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
         $this->layout_data['companies'] = PartnerCompany::where('status', 'Active')->get();
+        $this->layout_data['tiers'] = Tier::all();
+
+
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -397,11 +401,23 @@ class RewardController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Company ID is required']);
         }
 
-        $locations = Location::where('company_id', $companyId)
-            ->where('status', 'Active')
-            ->select('id', 'name', 'code')
-            ->get();
 
-        return response()->json(['status' => 'success', 'locations' => $locations]);
+
+        $locations = Location::where('status', 'Active')
+            ->select('id', 'name', 'code');
+
+        if (is_array($companyId)) {
+            $locations = $locations->whereIn('company_id', $companyId);
+        } else {
+            $locations = $locations->where('company_id', $companyId);
+        }
+
+        $locations = $locations->get();
+
+        if ($request->type && $request->type == 'digital') {
+            return response()->json(['status' => 'success', 'html' => view($this->view_file_path . 'location-checkbox-d', ['locations' => $locations])->render(), 'locations' => $locations]);
+        }
+
+        return response()->json(['status' => 'success', 'html' => view($this->view_file_path . 'location-checkbox-p', ['locations' => $locations])->render(), 'locations' => $locations]);
     }
 }

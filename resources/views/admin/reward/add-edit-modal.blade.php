@@ -17,13 +17,7 @@
                         @method('PATCH')
                     @endif
                     <div class="row">
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="code">Code <span class="required-hash">*</span></label>
-                                <input id="code" type="text" class="sh_dec form-control" name="code"
-                                    placeholder="Enter code" value="{{ $data->code ?? '' }}">
-                            </div>
-                        </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Name <span class="required-hash">*</span></label>
@@ -31,171 +25,27 @@
                                     placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="sku">SKU </label>
-                                <input id="sku" type="text" class="sh_dec form-control" name="sku"
-                                    placeholder="Enter SKU" value="{{ $data->sku ?? '' }}">
-                            </div>
-                        </div>
-
-                        {{-- add company dropdown and based on this multiple location selection --}}
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="company_id">Company <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select" name="company_id" id="company_id" @disabled(isset($data->id))>
-                                    <option value="">Select Company</option>
-                                    @if(isset($companies))
-                                        @foreach($companies as $company)
-                                            <option class="sh_dec" value="{{ $company->id }}"
-                                                {{ (isset($data->company_id) && $data->company_id == $company->id) ? 'selected' : '' }} >
-                                                {{ $company->name }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                <div class="sh_dec_s error" id="company_id_error"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="location_ids">Locations <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select" name="location_ids[]" id="location_ids" multiple 
-                                        data-selected-locations="{{ isset($data->location_ids) ? json_encode($data->location_ids) : '[]' }}">
-                                    @if(isset($locations) && $locations->count() > 0)
-                                        <option value="">Select Locations</option>
-                                        @foreach($locations as $location)
-                                            <option class="sh_dec" value="{{ $location->id }}"
-                                                {{ (isset($data->location_ids) && in_array($location->id, $data->location_ids)) ? 'selected' : '' }}>
-                                                {{ $location->name }} ({{ $location->code }})
-                                            </option>
-                                        @endforeach
-                                    @else
-                                        <option value="">Select Company First</option>
-                                    @endif
-                                </select>
-                                <div class="sh_dec_s error" id="location_ids_error"></div>
-                                <span class="text-muted sh_dec_s">Select multiple locations where this reward is available</span>
-                            </div>
-                        </div>
-
-
-                        <div class="col-12 col-md-12">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="description">Description <span
-                                        class="required-hash">*</span></label>
-                                <textarea name="description" maxlength="500" class="sh_dec form-control" id="description" cols="15" rows="3">{{ $data->description ?? '' }}</textarea>
-
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-12">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="term_of_use">Terms & Conditions <span
-                                        class="required-hash">*</span></label>
-                                <textarea name="term_of_use" maxlength="5000" class="sh_dec form-control" id="term_of_use" cols="15"
-                                    rows="3">{{ $data->term_of_use ?? '' }}</textarea>
-
-                            </div>
-                        </div>
-                        {{-- <div class="col-12 col-md-12">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="how_to_use">How To Use <span
-                                        class="required-hash">*</span></label>
-                                <textarea name="how_to_use" maxlength="5000" class="sh_dec form-control" id="how_to_use"
-                                    cols="15" rows="3">{{ $data->how_to_use ?? '' }}</textarea>
-
-                    </div>
-            </div> --}}
-                        <hr class="dashed">
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="no_of_keys"> Amount <span
-                                        class="required-hash">*</span></label>
-                                <input id="no_of_keys" type="number" min="0" class="sh_dec form-control"
-                                    name="no_of_keys" placeholder="Enter Amount Of Reward"
-                                    value="{{ $data->no_of_keys ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="quantity">Quantity <span
-                                        class="required-hash">*</span></label>
-                                <input id="quantity" type="text" class="sh_dec form-control" name="quantity"
-                                    placeholder="Enter Quantity" value="{{ $data->quantity ?? '' }}">
-                                <span class="text-muted sh_dec_s">Add 0 for unlimited stock</span>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                @php $labels = [""] @endphp
-                                @if (isset($data) && $data->labels)
-                                    @foreach ($data->labels as $item)
-                                        @php
-                                            $labels[] = $item;
-
-                                        @endphp
-                                    @endforeach
-                                @endif
-                                <label class="sh_dec" for="labels">Labels </label>
-                                <input id="labels" type="text"
-                                    class="sh_dec form-control select2-tags"name="labels" placeholder="Enter labels"
-                                    value=" @php echo implode(",",$labels) @endphp "
-                                    data-value=" @php echo implode(",",$labels) @endphp ">
-                                {{-- <select name="labels[]" class="select2-tags form-control sh_dec" id="labels" multiple>
-                        @if (isset($data->labels))
-                        @foreach ($data->labels as $item)
-                        <option class="sh_dec" value="{{$item}}" selected>{{$item}}</option>
-
-                        @endforeach
-                        @endif
-                    </select> --}}
-                                <div class="sh_dec_s error" id="labels_error"></div>
-
-                            </div>
-                        </div>
-
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="reward_type"> Reward Type <span
                                         class="required-hash">*</span></label>
                                 <select class="sh_dec form-select reward_type " name="reward_type">
+                                    <option class="sh_dec" value="">Select Reward Type</option>
                                     <option class="sh_dec" value="0"
                                         {{ isset($data->reward_type) && $data->reward_type == '0' ? 'selected' : '' }}>
-                                        Cash</option>
+                                        Digital Voucher</option>
                                     <option class="sh_dec" value="1"
                                         {{ isset($data->reward_type) && $data->reward_type == '1' ? 'selected' : '' }}>
-                                        Product</option>
+                                        Physical Voucher</option>
                                 </select>
                                 <div class="sh_dec_s error" id="reward_type_error"></div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 reward-type-amount"
-                            @if (isset($data->reward_type) && $data->reward_type == 1) style="display:none" @endif>
-                            <div class="mb-3">
-                                <label class="sh_dec" for="amount">Amount <span
-                                        class="required-hash">*</span></label>
-                                <input id="amount" type="number" class="sh_dec form-control" name="amount"
-                                    placeholder="Enter Amount" value="{{ $data->amount ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6 reward-type-product"
-                            @if (!isset($data->reward_type)) style="display:none" @endif
-                            @if (isset($data->reward_type) && $data->reward_type == 0) style="display:none" @endif>
-                            <div class="mb-3">
-                                <label class="sh_dec" for="amount">Product Name <span
-                                        class="required-hash">*</span></label>
-                                <input id="product_name" type="text" class="sh_dec form-control"
-                                    name="product_name" placeholder="Enter Product Name"
-                                    value="{{ $data->product_name ?? '' }}">
-                            </div>
-                        </div>
-
-                        <hr class="dashed">
 
                         <div class="col-12 col-md-3">
                             <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_date">Start Date <span
+                                <label class="sh_dec" for="start_date">Publish Start Date <span
                                         class="required-hash">*</span></label>
                                 <input id="start_date" type="date"
                                     @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
@@ -203,201 +53,293 @@
                                     value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d') : '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_date">End Date</label>
+                                <label class="sh_dec" for="start_time">Start Time </label>
+                                <input id="start_time" type="time" @if (!isset($data->start_time))  @endif
+                                    class="form-control" name="start_time"
+                                    value="{{ isset($data->start_time) ? $data->start_time : '' }}">
+
+                                <div class="sh_dec_s error" id="start_error"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="end_date">Publish End Date</label>
                                 <input id="end_date" type="date"
                                     @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
                                     class="form-control" name="end_date"
                                     value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d') : '' }}">
-                                <span class="text-muted sh_dec_s">Leave Blank for no expiration</span>
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-5">
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="end_time">End Time </label>
+                                <input id="end_time" type="time" @if (!isset($data->end_time))  @endif
+                                    class="form-control" name="end_time"
+                                    value="{{ isset($data->end_time) ? $data->end_time : '' }}">
+                                <div class="sh_dec_s error" id="end_time_error"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="start_date">Sales Start Date <span
+                                        class="required-hash">*</span></label>
+                                <input id="start_date" type="date"
+                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
+                                    class="form-control" name="start_date"
+                                    value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="start_time">Start Time </label>
+                                <input id="start_time" type="time" @if (!isset($data->start_time))  @endif
+                                    class="form-control" name="start_time"
+                                    value="{{ isset($data->start_time) ? $data->start_time : '' }}">
+
+                                <div class="sh_dec_s error" id="start_error"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="end_date">Sales End Date</label>
+                                <input id="end_date" type="date"
+                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
+                                    class="form-control" name="end_date"
+                                    value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec" for="end_time">End Time </label>
+                                <input id="end_time" type="time" @if (!isset($data->end_time))  @endif
+                                    class="form-control" name="end_time"
+                                    value="{{ isset($data->end_time) ? $data->end_time : '' }}">
+                                <div class="sh_dec_s error" id="end_time_error"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-12 col-md-6 ">
                             <div class="mb-3">
-                                <label class="sh_dec" for="expiry_day">Purchases Expiry </label>
-                                <div class="input-group mb-2 mr-sm-2">
-                                    <div class="input-group-prepend">
-                                        <div class="sh_dec input-group-text">Days</div>
+                                <label class="sh_dec" for="amount">Usual Price <span
+                                        class="required-hash">*</span></label>
+                                <input id="amount" type="number" class="sh_dec form-control" name="amount"
+                                    placeholder="Enter Usual Price" value="{{ $data->amount ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="quantity">Maximum Order <span
+                                        class="required-hash">*</span></label>
+                                <input id="quantity" type="text" class="sh_dec form-control" name="quantity"
+                                    placeholder="Enter Maximum Order" value="{{ $data->quantity ?? '' }}">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-12 ">
+                            <div class="row">
+                                <div class="col-12">
+
+                                    <label class="sh_dec" for="amount"> <b> Tier Rates </b></label>
+                                </div>
+
+                                @foreach ($tiers as $tier)
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->name }}
+                                                Price <span class="required-hash">*</span></label>
+                                            <input id="tier_{{ $tier->id }}" type="number"
+                                                class="sh_dec form-control" name="tier_{{ $tier->id }}"
+                                                placeholder="Enter {{ $tier->name }} Price"
+                                                value="{{ isset($data->tier_rates[$tier->id]) ? $data->tier_rates[$tier->id] : '' }}">
+                                        </div>
                                     </div>
-                                    <input id="expiry_day" type="text" class="sh_dec form-control"
-                                        name="expiry_day" placeholder="Enter Days"
-                                        value="{{ $data->expiry_day ?? '' }}">
-                                </div>
-                                <span class="sh_dec_s text-muted">Add 0 for to use default expiration date of reward.
-                                </span>
-                                <br>
-                                <span class="sh_dec_s text-muted">if End Date is not provided then this filed is
-                                    required
-                                </span>
-
+                                @endforeach
 
                             </div>
                         </div>
-                        <div class="row @if ($type === 'campaign-voucher') d-none @endif">
-
-                            <div class="col-12 col-md-6">
-                                <div class="mb-3 sh_dec">
-                                    <label class="sh_dec" for="start_time">Start Time </label>
-                                    <input id="start_time" type="time" @if (!isset($data->start_time))  @endif
-                                        class="form-control" name="start_time"
-                                        value="{{ isset($data->start_time) ? $data->start_time : '' }}">
-                                    <div class="text-muted clear-time" style="cursor:pointer ">Click Here to remove
-                                        Start
-                                        and End Time</div>
-                                    <div class="sh_dec_s error" id="start_error"></div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <div class="mb-3 sh_dec">
-                                    <label class="sh_dec" for="end_time">End Time </label>
-                                    <input id="end_time" type="time" @if (!isset($data->end_time))  @endif
-                                        class="form-control" name="end_time"
-                                        value="{{ isset($data->end_time) ? $data->end_time : '' }}">
-                                    <div class="sh_dec_s error" id="end_time_error"></div>
-                                </div>
-
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <div class="form-group form-check mb-3 pt-3">
-                                    <input type="checkbox" name="countdown" value="1" class="form-check-input"
-                                        id="countdown"
-                                        {{ isset($data->countdown) && $data->countdown == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="countdown">Check for display Countdown on App
-                                        side </label>
-                                    <span class="sh_dec_s text-muted">Only applicable if End Date is provided.</span>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <div class="mb-3">
-                                    <label class="sh_dec" for="status">Days</label>
-                                    <select class="sh_dec form-select  select-multiple" name="days[]" id="days"
-                                        multiple style="width: 100%">
-                                        <option class="sh_dec" value="0"
-                                            {{ isset($data->days) && in_array(0, $data->days) ? 'selected' : '' }}>
-                                            Sunday</option>
-                                        <option class="sh_dec" value="1"
-                                            {{ isset($data->days) && in_array(1, $data->days) ? 'selected' : '' }}>
-                                            Monday</option>
-                                        <option class="sh_dec" value="2"
-                                            {{ isset($data->days) && in_array(2, $data->days) ? 'selected' : '' }}>
-                                            Tuesday</option>
-                                        <option class="sh_dec" value="3"
-                                            {{ isset($data->days) && in_array(3, $data->days) ? 'selected' : '' }}>
-                                            Wednesday</option>
-                                        <option class="sh_dec" value="4"
-                                            {{ isset($data->days) && in_array(4, $data->days) ? 'selected' : '' }}>
-                                            Thursday</option>
-                                        <option class="sh_dec" value="5"
-                                            {{ isset($data->days) && in_array(5, $data->days) ? 'selected' : '' }}>
-                                            Friday</option>
-                                        <option class="sh_dec" value="6"
-                                            {{ isset($data->days) && in_array(6, $data->days) ? 'selected' : '' }}>
-                                            Saturday</option>
-
-                                    </select>
-                                    <div class="sh_dec_s error" id="days_error"></div>
-                                    <span class="sh_dec_s text-muted">Leave for display all days. </span>
-                                </div>
-                            </div>
-                        </div>
-
 
                         <hr class="dashed">
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="image_1">Image for Rewards Catalog <span
-                                        class="required-hash">*</span> </label>
-                                <input id="image_1" type="file" accept="image/*" class="sh_dec form-control"
-                                    name="image_1" value="{{ $data->image_1 ?? '' }}">
-                                <span class="text-muted sh_dec_s">1000px x 750px</span>
-                            </div>
-                            @if (isset($data->image_1))
-                                <a href='{{ asset("images/$data->image_1") }}' data-lightbox='set-10'>
-                                    <img src='{{ asset("images/$data->image_1") }}' alt="" srcset=""
-                                        height="50" width="50">
-                                </a>
-                            @endif
-                        </div>
 
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="image_2">Image for Reward Detailed Page </label>
-                                <input id="image_2" type="file" accept="image/*" class="sh_dec form-control"
-                                    name="image_2" value="{{ $data->image_2 ?? '' }}">
-                                <span class="sh_dec_s text-muted">1000px x 750px</span>
-                            </div>
-                            @if (isset($data->image_2))
-                                <a href='{{ asset("images/$data->image_2") }}' data-lightbox='set-10'>
-                                    <img src='{{ asset("images/$data->image_2") }}' alt="" srcset=""
-                                        height="50" width="50">
-                                </a>
-                            @endif
-                        </div>
+                        <div class="col-12 physical-voucher-div  "
+                            @if (isset($data->reward_type) && $data->reward_type == '0') style="display:none;" @else style="display:none;" @endif>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="company_id">Merchant <span
+                                                class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select select2" name="company_id" id="company_id"
+                                            @disabled(isset($data->id)) multiple>
+                                            <option value="">Select Merchant</option>
+                                            @if (isset($companies))
+                                                @foreach ($companies as $company)
+                                                    <option class="sh_dec" value="{{ $company->id }}"
+                                                        {{ isset($data->company_id) && $data->company_id == $company->id ? 'selected' : '' }}>
+                                                        {{ $company->name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <div class="sh_dec_s error" id="company_id_error"></div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div id="locations">
 
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="status"> Status <span
-                                        class="required-hash">*</span></label>
-                                <select class="sh_dec form-select form-control " name="status">
-                                    <option class="sh_dec" value="Active"
-                                        {{ isset($data->status) && $data->status == 'Active' ? 'selected' : '' }}>
-                                        Active</option>
-                                    <option class="sh_dec" value="Disabled"
-                                        {{ isset($data->status) && $data->status == 'Disabled' ? 'selected' : '' }}>
-                                        Disabled</option>
-                                </select>
-                                <div class="sh_dec_s error" id="status_error"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4 @if ($type === 'campaign-voucher') d-none @endif">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="status"> To be featured in Homepage <span
-                                        class="required-hash">*</span></label>
-                                <select class="sh_dec form-select " name="is_featured" id="is_featured">
-                                    <option class="sh_dec" value="0"
-                                        {{ isset($data->is_featured) && $data->is_featured == '0' ? 'selected' : '' }}>
-                                        No</option>
-                                    <option class="sh_dec" value="1"
-                                        {{ isset($data->is_featured) && $data->is_featured == '1' ? 'selected' : '' }}>
-                                        Yes</option>
-                                </select>
-                                <div class="sh_dec_s error" id="is_featured_error"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4 is-featured-div"
-                            @if (isset($data->is_featured) && $data->is_featured == '1') style="display:block" @else  style="display:none" @endif>
-                            <div class="mb-3">
-                                <label class="sh_dec" for="image_3">Image for featured Homepage </label>
-                                <input id="image_3" type="file" accept="image/*" class="sh_dec form-control"
-                                    name="image_3" value="{{ $data->image_3 ?? '' }}">
-                                <span class="sh_dec_s text-muted">200px x 115px</span>
+                        <div class="col-12 digital-voucher-div"
+                            @if (isset($data->reward_type) && $data->reward_type == '0') style="display:none;" @else style="display:none;" @endif>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="company_id">Participating merchant <span
+                                                class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select" name="company_id" id="company_ids"
+                                            @disabled(isset($data->id))>
+                                            <option value="">Select merchant</option>
+                                            @if (isset($companies))
+                                                @foreach ($companies as $company)
+                                                    <option class="sh_dec" value="{{ $company->id }}"
+                                                        {{ isset($data->company_id) && $data->company_id == $company->id ? 'selected' : '' }}>
+                                                        {{ $company->name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        <div class="sh_dec_s error" id="company_id_error"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6" id="locations_for_digital">
+
+                                </div>
+
+                                <div class="col-1">
+                                    <button class="btn btn-icon btn-sm btn-primary" type="button"
+                                        onclick="moveSelectedLocation()">
+                                        <i class="mdi mdi-arrow-collapse-right"></i>
+                                    </button>
+                                </div>
+                                <div class="col-5">
+                                    <b>Selected Merchants</b>
+                                    <div id="selected_locations_for_digital">
+                                    </div>
+                                </div>
                             </div>
-                            @if (isset($data->image_3))
-                                <a href='{{ asset("images/$data->image_3") }}' data-lightbox='set-10'>
-                                    <img src='{{ asset("images/$data->image_3") }}' alt="" srcset=""
-                                        height="50" width="50">
-                                </a>
-                            @endif
+                            <hr class="dashed">
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="expiry_day">Voucher Validity </label>
+                                        <div class="input-group mb-2 mr-sm-2">
+                                            <div class="input-group-prepend">
+                                                <div class="sh_dec input-group-text">Days</div>
+                                            </div>
+                                            <input id="expiry_day" type="text" class="sh_dec form-control"
+                                                name="expiry_day" placeholder="Enter Days"
+                                                value="{{ $data->expiry_day ?? '' }}">
+                                        </div>
+                                        <span class="sh_dec_s text-muted">Add 0 for to use default expiration date of
+                                            reward.
+                                        </span>
+                                        <br>
+                                        <span class="sh_dec_s text-muted">if End Date is not provided then this field
+                                            is
+                                            required
+                                        </span>
+
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="clearing_method"> Clearing Method <span
+                                                class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select clearing_method " name="clearing_method"
+                                            id="clearing_method">
+
+                                            <option class="sh_dec" value="">Select Clearing Method</option>
+                                            <option class="sh_dec" value="0"
+                                                {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
+                                                QR</option>
+                                            <option class="sh_dec" value="1"
+                                                {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
+                                                Barcode </option>
+                                            <option class="sh_dec" value="1"
+                                                {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
+                                                Barcode </option>
+                                            <option class="sh_dec" value="2"
+                                                {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
+                                                Coov Code </option>
+                                            <option class="sh_dec" value="3"
+                                                {{ isset($data->clearing_method) && $data->clearing_method == '3' ? 'selected' : '' }}>
+                                                Participant & Merchant Redemption Code </option>
+                                        </select>
+                                        <div class="sh_dec_s error" id="inventory_type_error"></div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="inventory_type"> Inventory Type <span
+                                                class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select inventory_type " name="inventory_type"
+                                            id="inventory_type">
+                                            <option class="sh_dec" value="">Select Inventory Type</option>
+                                            <option class="sh_dec" value="0"
+                                                {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}>
+                                                Non-Merchant</option>
+                                            <option class="sh_dec" value="1"
+                                                {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}>
+                                                merchant </option>
+                                        </select>
+                                        <div class="sh_dec_s error" id="inventory_type_error"></div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+
+                                    <div class="mb-3 " id="InventoryQtyDiv">
+                                        <label class="sh_dec" for="inventory_qty"> Inventory Quantity <span
+                                                class="required-hash">*</span></label>
+                                        <input id="inventory_qty" type="number" class="sh_dec form-control"
+                                            name="inventory_qty" placeholder="Enter Inventory Quantity"
+                                            value="{{ $data->inventory_qty ?? '' }}">
+                                    </div>
+                                    <div class="mb-3" id="InventoryFileDiv">
+                                        <label class="sh_dec" for="file">File <span
+                                                class="required-hash">*</span> </label>
+                                        <input id="file" type="file" class="sh_dec form-control"
+                                            name="file" value="{{ $data->file ?? '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 ">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="voucher_value">Voucher Value <span
+                                                class="required-hash">*</span></label>
+                                        <input id="voucher_value" type="number" class="sh_dec form-control"
+                                            name="voucher_value" placeholder="Enter Voucher Value"
+                                            value="{{ $data->voucher_value ?? '' }}" onchange="voucherValueChange()">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 ">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="voucher_set">Voucher set <span
+                                                class="required-hash">*</span></label>
+                                        <input id="voucher_set" type="number" class="sh_dec form-control"
+                                            name="voucher_set" placeholder="Enter Voucher set"
+                                            value="{{ $data->voucher_set ?? '' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-
-                        {{-- <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="status"> Type <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select col-12" name="type" id="type">
-                                    <option class="sh_dec" value="0" {{ (isset($data->type) && $data->type == '0') ?
-                                        'selected' : '' }} >Shilla Rewards Catalog - Redemption Voucher</option>
-            <option class="sh_dec" value="1" {{ (isset($data->type) && $data->type ==
-                                        '1') ? 'selected' : '' }}>Shilla Campaign - Membership Ewallet Voucher:
-            </option>
-            </select>
-            <div class="sh_dec_s error" id="type_error"></div>
-        </div>
-    </div> --}}
-
 
                     </div>
                     <div class="row">
