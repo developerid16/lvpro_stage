@@ -101,4 +101,10 @@ class Reward extends Model
         }
         return Location::whereIn('id', $locationIds)->get();
     }
+
+    public function rewardDates()
+    {
+        return $this->hasMany(\App\Models\RewardDates::class);
+    }
+
 }

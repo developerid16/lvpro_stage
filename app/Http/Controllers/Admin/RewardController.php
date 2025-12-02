@@ -7,11 +7,15 @@ use App\Models\ContentManagement;
 use App\Models\Location;
 use App\Models\PartnerCompany;
 use App\Models\Reward;
+use App\Models\RewardDates;
 use App\Models\Tier;
 use App\Models\UserPurchasedReward;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class RewardController extends Controller
 {
@@ -170,27 +174,27 @@ class RewardController extends Controller
         $exd       = ! isset($request->end_date) ? 1 : 0;
         $ed        = $request->start_date ? Carbon::createFromFormat('Y-m-d', $request->start_date)->format(config('shilla.date-format')) : '';
         $post_data = $this->validate($request, [
-            'code'         => 'required|max:191|unique:rewards,code',
             'name'         => 'required|max:191',
+            'code'         => 'required|max:191|unique:rewards,code',
             'description'  => 'required|max:500',
-            'term_of_use'  => 'required',
+            // 'term_of_use'  => 'required',
             // 'how_to_use' => 'required',
-            'is_featured'  => 'required',
+            // 'is_featured'  => 'required',
+            // 'no_of_keys'   => 'required|numeric|min:0',
+            // 'location_ids' => 'required|array|min:1',
+            // 'location_ids.*' => 'exists:locations,id',
+            // 'start_date'   => 'required|date|after_or_equal:' . date('Y-m-d'),
+            // 'status'       => 'required',
+            // 'image_1'      => 'required|image',
             'reward_type'  => 'required',
-            'product_name' => 'required_if:reward_type,1',
+            // 'product_name' => 'required_if:reward_type,1',
             'amount'       => 'required_if:reward_type,0',
-            'no_of_keys'   => 'required|numeric|min:0',
             'quantity'     => 'required|numeric|min:0',
-            'company_id'   => 'required|exists:partner_companies,id',
-            'location_ids' => 'required|array|min:1',
-            'location_ids.*' => 'exists:locations,id',
-            'start_date'   => 'required|date|after_or_equal:' . date('Y-m-d'),
+            // 'company_id'   => 'required|exists:partner_companies,id',
             'end_date'     => 'required_if:expiry_day,0|date|after_or_equal:' . $request->start_date,
-            'expiry_day'   => 'required|numeric|min:' . $exd,
-            'image_1'      => 'required|image',
+            // 'expiry_day'   => 'required|numeric|min:' . $exd,
             'image_2'      => 'sometimes|required|image',
             'image_3'      => 'sometimes|image|required_if:is_featured,1',
-            'status'       => 'required',
             'labels'       => 'sometimes',
             'days'         => 'sometimes',
             'sku'          => 'sometimes',
@@ -224,15 +228,15 @@ class RewardController extends Controller
         if (! isset($post_data['days']) || ! $post_data['days']) {
             $post_data['days'] = null;
         }
-        if (! $post_data['end_date']) {
-            $post_data['end_date'] = null;
-        }
-        if (! $post_data['end_time']) {
-            $post_data['end_time'] = null;
-        }
-        if (! $post_data['start_time']) {
-            $post_data['start_time'] = null;
-        }
+        // if (! $post_data['end_date']) {
+        //     $post_data['end_date'] = null;
+        // }
+        // if (! $post_data['end_time']) {
+        //     $post_data['end_time'] = null;
+        // }
+        // if (! $post_data['start_time']) {
+        //     $post_data['start_time'] = null;
+        // }
         $post_data['labels'] = [];
 
         if ($request->labels) {
@@ -243,7 +247,57 @@ class RewardController extends Controller
             }
         }
 
-        Reward::create($post_data);
+        $reward = Reward::create($post_data);
+
+        
+        $locationsDigital = $request->input('locations_digital', []);
+        
+        foreach ($locationsDigital as $locId => $locData) {
+            // only store when checkbox selected
+            // if (empty($locData['selected'])) {
+            //     continue;
+            // }
+            
+            // validate per-location fields (customize rules as needed)
+            $validator = Validator::make($locData, [
+                'publish_start_date' => 'nullable|date',
+                'publish_start_time' => 'nullable|date_format:H:i',
+                'publish_end_date'   => 'nullable|date|after_or_equal:publish_start_date',
+                'publish_end_time'   => 'nullable|date_format:H:i',
+                'sales_start_date'   => 'nullable|date',
+                'sales_start_time'   => 'nullable|date_format:H:i',
+                'sales_end_date'     => 'nullable|date|after_or_equal:sales_start_date',
+                'sales_end_time'     => 'nullable|date_format:H:i',
+            ], [
+                'publish_end_date.after_or_equal' => "Publish End Date must be after Publish Start Date for location {$locId}",
+                'sales_end_date.after_or_equal' => "Sales End Date must be after Sales Start Date for location {$locId}",
+            ]);
+            
+            if ($validator->fails()) {
+                DB::rollBack();
+                throw new ValidationException($validator);
+            }
+            
+            // prepare data to insert
+            $detailData = [
+                'publish_start_date' => $locData['publish_start_date'] ?? null,
+                'publish_start_time' => $locData['publish_start_time'] ?? null,
+                'publish_end_date'   => $locData['publish_end_date'] ?? null,
+                'publish_end_time'   => $locData['publish_end_time'] ?? null,
+                'sales_start_date'   => $locData['sales_start_date'] ?? null,
+                'sales_start_time'   => $locData['sales_start_time'] ?? null,
+                'sales_end_date'     => $locData['sales_end_date'] ?? null,
+                'sales_end_time'     => $locData['sales_end_time'] ?? null,
+                
+            ];
+
+            // upsert into reward_location_details (avoids duplicate unique key errors)
+            RewardDates::UpdateOrCreate(
+                ['reward_id' => $reward->id, 'merchant_id' => (int)$locId],
+                $detailData
+            );
+        }
+
 
         return response()->json(['status' => 'success', 'message' => 'Reward Created Successfully']);
     }
@@ -262,15 +316,39 @@ class RewardController extends Controller
     public function edit(string $id)
     {
         $this->layout_data['data'] = Reward::find($id);
-        $this->layout_data['type'] = $this->layout_data['data']->parent_type;
+        $data = $this->layout_data['data']; // <- fix: create local $data used below
+        $this->layout_data['type'] = $data->parent_type;
         $this->layout_data['companies'] = PartnerCompany::where('status', 'Active')->get();
 
         // Get locations for the selected company if available
-        if ($this->layout_data['data']->company_id) {
-            $this->layout_data['locations'] = Location::where('company_id', $this->layout_data['data']->company_id)
-                ->where('status', 'Active')
-                ->get();
+        if ($data->company_id) {
+            $this->layout_data['locations'] = Location::where('company_id', $data->company_id)
+                ->where('status', 'Active')->get();
         }
+
+        $this->layout_data['tiers'] = Tier::all();
+
+        $existingLocationsData = [];
+
+        // build existingLocationsData keyed by location_id
+        if (isset($data->id)) {
+            $details = RewardDates::where('reward_id', $data->id)->get(); // your model name
+            foreach ($details as $d) {
+                $existingLocationsData[$d->location_id] = [
+                    'publish_start_date' => $d->publish_start_date,
+                    'publish_start_time' => $d->publish_start_time,
+                    'publish_end_date'   => $d->publish_end_date,
+                    'publish_end_time'   => $d->publish_end_time,
+                    'sales_start_date'   => $d->sales_start_date,
+                    'sales_start_time'   => $d->sales_start_time,
+                    'sales_end_date'     => $d->sales_end_date,
+                    'sales_end_time'     => $d->sales_end_time,
+                    'selected'           => 1,
+                ];
+            }
+        }
+
+        $this->layout_data['existingLocationsData'] = $existingLocationsData;
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);

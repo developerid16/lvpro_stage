@@ -159,10 +159,11 @@
                         </td>
 
 
-                        <td>{{$item->referral ? $item->referral->byuser->name : 'ND'}}</td>
-                        <td>{{$item->referral ? $item->referral->byuser->unique_id : 'ND'}}</td>
-                        <td>{{$item->referral ? $item->referral->created_at->format(config('shilla.date-format')) : 'ND'}}</td>
-                        <td>{{$item->referral ? $item->referral->status : 'ND'}}</td>
+                        <td>{{ ($item->referral && $item->referral->byuser) ? $item->referral->byuser->name : 'ND' }}</td>
+                        <td>{{ ($item->referral && $item->referral->byuser) ? $item->referral->byuser->unique_id : 'ND' }}</td>
+                        <td>{{ $item->referral ? $item->referral->created_at->format(config('shilla.date-format')) : 'ND' }}</td>
+                        <td>{{ $item->referral ? $item->referral->status : 'ND' }}</td>
+
 
 
 

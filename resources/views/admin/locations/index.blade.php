@@ -1,5 +1,9 @@
 @extends('layouts.master-layouts')
-
+<style>
+    .page-title-box {
+        padding-bottom: 0px !important;
+    }
+</style>
 @section('title') Location Management @endsection
 @section('content')
 
@@ -7,6 +11,7 @@
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
 @slot('title')  Manage {{ $company_data->name }} Locations @endslot
+{{-- @slot('title')  Manage Disney Locations @endslot --}}
 @endcomponent
 
 
@@ -33,6 +38,7 @@
                         <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
                         <th data-field="code" data-filter-control="input" data-sortable="true">Code</th>
                         <th data-field="address" data-filter-control="input" data-sortable="true">Address</th>
+                        <th data-field="lease_duration" data-filter-control="input" data-sortable="true">Lease Durations</th>
                         <th data-field="status" data-filter-control="select" data-sortable="false">Status</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
@@ -54,12 +60,32 @@
     var ModuleBaseUrl = "{{ $module_base_url }}/";
     var DataTableUrl = ModuleBaseUrl+"datatable";
     function ajaxRequest(params) {
-        params.data.company_id = "{{ $company_data->id }}";
+        params.data.company_id = "{{$company_data->id}}";
         $.get(DataTableUrl + '?' + $.param(params.data)).then(function (res) {
             $('.fixed-table-body .fixed-table-loading').removeClass('open');
             params.success(res)
         })
     }
+
+    $(function(){
+        // target the first h4 inside .page-title-box
+        var $h4 = $('.page-title-box').first();
+
+        if ($h4.length) {
+            // only insert if we don't already have the marker right after the h4
+            if (!$h4.next().hasClass('page-merchant')) {
+            // create the small element and insert it after the h4 (so it appears below the h4 and before the next element)
+            $('<small class="page-merchant">(Participating Merchat)</small>')
+                .css({
+                'display': 'block',       // force it on its own line
+                'font-size': '0.8em',     // small font
+                'color': '#666',          // subtle color
+                'margin-top': '4px'       // spacing
+                })
+                .insertAfter($h4);
+            }
+        }
+    });
 
   
 </script>

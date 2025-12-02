@@ -357,3 +357,15 @@ tspan {
   .select2-container--open{
         top:-8% !important
     } */
+
+.page-merchant{
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 4px;
+  padding-bottom: 24px;
+}
+
+.location-date-block{
+    margin-bottom: 10px;
+}

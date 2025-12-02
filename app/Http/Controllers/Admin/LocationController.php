@@ -50,6 +50,7 @@ class LocationController extends Controller
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['code'] = $row->code;
             $final_data[$key]['address'] = $row->address;
+            $final_data[$key]['lease_duration'] =  ($row->start_date && $row->end_date) ? $row->start_date . ' / ' . $row->end_date : '';
             $final_data[$key]['status'] = $row->status;
 
 
@@ -89,6 +90,8 @@ class LocationController extends Controller
 
             'address' => 'required',
             'status' => 'required',
+            'start_date' => 'nullable',
+            'end_date' => 'nullable',
 
         ]);
 
@@ -110,7 +113,10 @@ class LocationController extends Controller
      */
     public function edit($id)
     {
-        //
+        
+         $this->layout_data = [
+            'title' => 'Participating Merchant',
+        ];
         $this->layout_data['data'] = Location::find($id);
         $this->layout_data['company_data'] = PartnerCompany::find($this->layout_data['data']->company_id);
 
@@ -130,8 +136,11 @@ class LocationController extends Controller
             'address' => 'required',
             'company_id' => 'required|exists:partner_companies,id',
             'status' => 'required',
+            'start_date' => 'nullable',
+            'end_date' => 'nullable',
 
         ]);
+        
         Location::find($id)->update($post_data);
         return response()->json(['status' => 'success', 'message' => 'Location Update Successfully']);
     }

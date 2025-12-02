@@ -176,9 +176,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('email-log', [EmailLogController::class, 'index']);
     Route::post('email-log', [EmailLogController::class, 'store']);
     Route::get('email-log/datatable', [EmailLogController::class, 'datatable']);
-    Route::get('tiers', [TierController::class, 'index']);
+
+    // inside admin route group OR top-level, depending on your app
+    Route::get('tiers/datatable', [TierController::class, 'datatable'])->name('admin.tiers.datatable');
+    Route::resource('tiers', TierController::class);
     Route::post('tiers/update', [TierController::class, 'update'])->name('tiers.update');
     Route::post('tiers-milestone/save', [TierController::class, 'milestoneSave'])->name('tiers.milestone.save');
+
     Route::get('report/customer', [ReportController::class, 'customerIndex']);
     Route::get('report/sales', [ReportController::class, 'sales']);
     Route::get('report/sales-download', [ReportController::class, 'salesReportDownload']);

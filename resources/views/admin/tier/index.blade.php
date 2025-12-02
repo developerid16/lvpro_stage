@@ -1,16 +1,12 @@
 @extends('layouts.master-layouts')
-<style>
-    .page-title-box {
-        padding-bottom: 0px !important;
-    }
-</style>
+
 @section('title') Partner Company @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Partner Management @endslot
+@slot('title') Tier Management @endslot
 @endcomponent
 
 
@@ -32,11 +28,11 @@
                 data-filter-control="true" data-show-columns-toggle-all="false">
                 <thead>
                     <tr>
-                        <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
-                            data-width-unit="px" data-searchable="false">Sr. No.</th>
-                        <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
-                        <th data-field="code" data-filter-control="input" data-sortable="true">Code</th>
-                        <th data-field="status" data-filter-control="select" data-sortable="false">Status</th>
+                        <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"  data-width-unit="px" data-searchable="false">Sr. No.</th>
+                        <th data-field="alias_name" data-filter-control="input" data-sortable="true">Alias Name</th>
+                        <th data-field="tier_name" data-filter-control="input" data-sortable="true">Safra's Tier Name</th>
+                        <th data-field="created_at" data-filter-control="input" data-sortable="false">Created Date & Time</th>
+                        <th data-field="updated_at" data-filter-control="input" data-sortable="false">Last Updated Date & Time</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
                 </thead>
@@ -47,7 +43,7 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
-@include('admin.partner-company.add-edit-modal')
+@include('admin.tier.add-edit-modal')
 @endcan
 <!-- end modal -->
 @endsection
@@ -61,28 +57,8 @@
             $('.fixed-table-body .fixed-table-loading').removeClass('open');
             params.success(res)
         })
-    }
-
-  
-    $(function(){
-        // target the first h4 inside .page-title-box
-        var $h4 = $('.page-title-box').first();
-
-        if ($h4.length) {
-            // only insert if we don't already have the marker right after the h4
-            if (!$h4.next().hasClass('page-merchant')) {
-            // create the small element and insert it after the h4 (so it appears below the h4 and before the next element)
-            $('<small class="page-merchant">(Merchat)</small>')
-                .css({
-                'display': 'block',       // force it on its own line
-                'font-size': '0.8em',     // small font
-                'color': '#666',          // subtle color
-                'margin-top': '4px'       // spacing
-                })
-                .insertAfter($h4);
-            }
-        }
-    });
+    } 
+   
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection

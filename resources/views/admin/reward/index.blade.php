@@ -294,6 +294,181 @@
 
 
         });
+
+
+        $(document).ready(function() {
+            
+            //add participating  merchant multi location
+            // helper to build the date block HTML for a given location id
+            function buildDateBlock(locationId) {
+                return `
+                <div class="location-date-block mt-2" data-location-id="${locationId}" style="padding:10px; border:1px dashed #e0e0e0;">
+                    <div class="row">
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Publish Start Date <span class="required-hash">*</span></label>
+                        <input type="date" class="form-control" name="locations_digital[${locationId}][publish_start_date]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Start Time</label>
+                        <input type="time" class="form-control" name="locations_digital[${locationId}][publish_start_time]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Publish End Date</label>
+                        <input type="date" class="form-control" name="locations_digital[${locationId}][publish_end_date]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">End Time</label>
+                        <input type="time" class="form-control" name="locations_digital[${locationId}][publish_end_time]">
+                        </div>
+                    </div>
+
+                    <!-- Sales fields -->
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Sales Start Date <span class="required-hash">*</span></label>
+                        <input type="date" class="form-control" name="locations_digital[${locationId}][sales_start_date]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Start Time</label>
+                        <input type="time" class="form-control" name="locations_digital[${locationId}][sales_start_time]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">Sales End Date</label>
+                        <input type="date" class="form-control" name="locations_digital[${locationId}][sales_end_date]">
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-3">
+                        <div class="mb-3 sh_dec">
+                        <label class="sh_dec">End Time</label>
+                        <input type="time" class="form-control" name="locations_digital[${locationId}][sales_end_time]">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            // toggle date block when checkbox changes
+            $(document).on('change', '.locations_digital_checkbox', function() {
+                var $cb = $(this);
+                var locId = $cb.data('location-id');
+                // the row wrapper — adapt to your markup: the checkbox lives inside a .row.mb-2
+                var $row = $cb.closest('.row.mb-2');
+
+                if ($cb.is(':checked')) {
+                // avoid duplicating if already present
+                if ($row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
+                    // insert date block *after* this row (so it appears right below the checkbox row)
+                    $row.after(buildDateBlock(locId));
+                } else {
+                    // if exists but hidden, just show
+                    $row.next('.location-date-block[data-location-id="'+locId+'"]').show();
+                }
+                } else {
+                // remove/hide the block when unchecked
+                var $block = $row.next('.location-date-block[data-location-id="'+locId+'"]');
+                if ($block.length) {
+                    // clear inputs (optional) then remove
+                    $block.find('input').val('');
+                    $block.remove();
+                }
+                }
+            });
+
+            // If some checkboxes are pre-checked on page load, show their blocks
+            $('.locations_digital_checkbox:checked').each(function() {
+                var $cb = $(this);
+                var locId = $cb.data('location-id');
+                var $row = $cb.closest('.row.mb-2');
+                if ($row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
+                $row.after(buildDateBlock(locId));
+                // optionally populate existing values if you have them (you can fill inputs server-side)
+                }
+            });        
+
+            // add multiple for merchant
+        
+            $(function() {
+             
+
+                // Checkbox toggle logic
+                $(document).on('change', '.form-check-input[name^="locations"][name$="[selected]"]', function() {
+
+                    var $cb = $(this);
+                    var row = $cb.closest('.row.mb-2');
+
+                    // extract location ID from name="locations[1][selected]"
+                    var name = $cb.attr('name');
+                    var match = name.match(/locations\[(\d+)\]/);
+                    if (!match) return;
+                    var locId = match[1];
+
+                    if ($cb.is(':checked')) {
+
+                        // If block not exists -> append after row
+                        if (row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
+
+                            // existing data if edit mode
+                            var values = (typeof existingLocationsData !== 'undefined' && existingLocationsData[locId])
+                                            ? existingLocationsData[locId]
+                                            : {};
+
+                            row.after(buildDateBlock(locId, values));
+
+                        } else {
+                            // show if hidden
+                            row.next('.location-date-block[data-location-id="'+locId+'"]').show();
+                        }
+
+                    } else {
+                        // remove block
+                        row.next('.location-date-block[data-location-id="'+locId+'"]').remove();
+                    }
+                });
+
+
+                // On page load — show blocks for already checked locations (edit mode)
+                $('.form-check-input[name^="locations"][name$="[selected]"]:checked').each(function() {
+
+                    var $cb = $(this);
+                    var row = $cb.closest('.row.mb-2');
+
+                    var match = $cb.attr('name').match(/locations\[(\d+)\]/);
+                    if (!match) return;
+                    var locId = match[1];
+
+                    var values = (typeof existingLocationsData !== 'undefined' && existingLocationsData[locId])
+                                    ? existingLocationsData[locId]
+                                    : {};
+
+                    if (row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
+                        row.after(buildDateBlock(locId, values));
+                    }
+                });
+
+            });
+
+    });
     </script>
+   
+
+
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

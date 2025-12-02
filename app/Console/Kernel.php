@@ -5,6 +5,9 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
+// import your command class
+use App\Console\Commands\DisableExpiredLocations;
+
 class Kernel extends ConsoleKernel
 {
     /**
@@ -13,7 +16,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        // list command classes here
+        DisableExpiredLocations::class,
     ];
 
     /**
@@ -25,9 +29,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        \Log::info("schedule");
 
-        
         $schedule->command('reward:expired')->dailyAt('23:55');
         $schedule->command('delete:oldreport')->dailyAt('00:01');
         $schedule->command('customer:report')->dailyAt('01:00');
@@ -35,8 +37,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('broadcast:notification')->everyMinute();
         $schedule->command('spent:reset')->yearlyOn(9, 1, '00:02');
         $schedule->command('key:expiry')->yearlyOn(12, 1, '00:02');
-
-
+        $schedule->command('locations:disable-expired')->daily();
     }
 
     /**

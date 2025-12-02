@@ -44,11 +44,27 @@
                                 <label class="sh_dec" for="status">Status<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select" name="status">
                                     <option class="sh_dec" value="Active" {{ (isset($data->status) && $data->status == 'Active') ?
-    'selected' : '' }}>Active</option>
-                                    <option class="sh_dec" value="Disabled" {{ (isset($data->status) && $data->status ==
-    'Disabled') ? 'selected' : '' }}>Disabled</option>
+                                        'selected' : '' }}>Active</option>
+                                                                        <option class="sh_dec" value="Disabled" {{ (isset($data->status) && $data->status ==
+                                        'Disabled') ? 'selected' : '' }}>Disabled</option>
                                 </select>
                                 <div class="sh_dec_s error" id="status_error"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="start_date">Start Date<span class="required-hash"></span></label>
+                                <input id="start_date" type="date" class="sh_dec form-control" name="start_date"
+                                     value="{{ $data->start_date ?? '' }}">
+                                <div class="sh_dec_s error" id="start_date_error"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="end_date">End Date<span class="required-hash"></span></label>
+                                <input id="end_date" type="date" class="sh_dec form-control" name="end_date"
+                                     value="{{ $data->end_date ?? '' }}">
+                                <div class="sh_dec_s error" id="end_date_error"></div>
                             </div>
                         </div>
                     </div>

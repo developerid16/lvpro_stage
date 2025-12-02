@@ -393,11 +393,11 @@
                     @canany(['content-management', 'app-management', 'slider-list', 'about-app-banner-list', 'learn-more-page', 'faq-list', 'app-content-management'])
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                        {{-- <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content / Ad
                                 Management</span>
                             <!-- <div class="arrow-down"></div> -->
-                        </a>
+                        </a> --}}
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('content-management')
                                 <a class="dropdown-item" key="t-alerts"
@@ -497,15 +497,15 @@
                     </li>
                     @endcan
                     @canany(['referral-rate'])
-                    <a class="nav-link  " href="{{url('/admin/tiers')}}">
+                    {{-- <a class="nav-link  " href="{{url('/admin/tiers')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Tier</span>
-                    </a>
+                    </a> --}}
                     @endcan
 
                     @canany(['referral-rate'])
-                    <a class="nav-link  " href="{{url('/admin/referral-rate')}}">
+                    {{-- <a class="nav-link  " href="{{url('/admin/referral-rate')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Referral Rate</span>
-                    </a>
+                    </a> --}}
                     @endcan
 
                     @canany(['contact-us-list', 'notification-setting'])
@@ -585,6 +585,11 @@
                             @can(['cms-setting'])
                                 <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
                                     CMS Setting
+                                </a>
+                            @endcan
+                            @can(['tier'])
+                                <a class="dropdown-item  " href="{{url('/admin/tiers')}}">
+                                    Tier Management
                                 </a>
                             @endcan
 

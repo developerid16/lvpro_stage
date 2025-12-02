@@ -15,6 +15,8 @@ class Location extends Model
         'company_id',
         'address',
         'status',
+        'start_date',
+        'end_date'
 
     ];
 }

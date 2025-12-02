@@ -20,6 +20,13 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
+                                <label class="sh_dec" for="code">Code <span class="required-hash">*</span></label>
+                                <input id="code" type="text" class="sh_dec form-control" name="code"
+                                    placeholder="Enter code" value="{{ $data->code ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
                                 <label class="sh_dec" for="name">Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name"
                                     placeholder="Enter name" value="{{ $data->name ?? '' }}">
@@ -42,89 +49,16 @@
                                 <div class="sh_dec_s error" id="reward_type_error"></div>
                             </div>
                         </div>
-
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_date">Publish Start Date <span
-                                        class="required-hash">*</span></label>
-                                <input id="start_date" type="date"
-                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
-                                    class="form-control" name="start_date"
-                                    value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d') : '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_time">Start Time </label>
-                                <input id="start_time" type="time" @if (!isset($data->start_time))  @endif
-                                    class="form-control" name="start_time"
-                                    value="{{ isset($data->start_time) ? $data->start_time : '' }}">
-
-                                <div class="sh_dec_s error" id="start_error"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_date">Publish End Date</label>
-                                <input id="end_date" type="date"
-                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
-                                    class="form-control" name="end_date"
-                                    value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d') : '' }}">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
+                                <input id="description" type="text" class="sh_dec form-control" name="description"
+                                    placeholder="Enter description" value="{{ $data->description ?? '' }}">
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_time">End Time </label>
-                                <input id="end_time" type="time" @if (!isset($data->end_time))  @endif
-                                    class="form-control" name="end_time"
-                                    value="{{ isset($data->end_time) ? $data->end_time : '' }}">
-                                <div class="sh_dec_s error" id="end_time_error"></div>
-                            </div>
 
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_date">Sales Start Date <span
-                                        class="required-hash">*</span></label>
-                                <input id="start_date" type="date"
-                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
-                                    class="form-control" name="start_date"
-                                    value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d') : '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_time">Start Time </label>
-                                <input id="start_time" type="time" @if (!isset($data->start_time))  @endif
-                                    class="form-control" name="start_time"
-                                    value="{{ isset($data->start_time) ? $data->start_time : '' }}">
-
-                                <div class="sh_dec_s error" id="start_error"></div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_date">Sales End Date</label>
-                                <input id="end_date" type="date"
-                                    @if (!isset($data->start_date)) min="{{ date('Y-m-d') }}" @endif
-                                    class="form-control" name="end_date"
-                                    value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d') : '' }}">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_time">End Time </label>
-                                <input id="end_time" type="time" @if (!isset($data->end_time))  @endif
-                                    class="form-control" name="end_time"
-                                    value="{{ isset($data->end_time) ? $data->end_time : '' }}">
-                                <div class="sh_dec_s error" id="end_time_error"></div>
-                            </div>
-
-                        </div>
-
+                        
                         <div class="col-12 col-md-6 ">
                             <div class="mb-3">
                                 <label class="sh_dec" for="amount">Usual Price <span
@@ -219,7 +153,7 @@
                                         <div class="sh_dec_s error" id="company_id_error"></div>
                                     </div>
                                 </div>
-                                <div class="col-6" id="locations_for_digital">
+                                <div class="col-12" id="locations_for_digital">
 
                                 </div>
 
