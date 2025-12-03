@@ -26,6 +26,34 @@ $(document).ready(function () {
             },
             error: function (response) {
                 show_errors(response.responseJSON.errors);
+                 $('.location-error').remove();
+                $('.location-date-block').css('border-color', '#e0e0e0');
+
+                let errors = response.responseJSON.errors;
+
+                $.each(errors, function (field, errorList) {
+
+                    errorList.forEach(errorMsg => {
+
+                        // Extract location id
+                        let match = errorMsg.match(/location (\d+)/);
+
+                        if (match) {
+                            let locationId = match[1];
+
+                            let block = $('.location-date-block[data-location-id="' + locationId + '"]');
+
+                            // highlight the whole block
+                            block.css('border-color', 'red');
+
+                            // append error below the block
+                            block.append(`
+                                <div class="text-danger mt-1 location-error">${errorMsg}</div>
+                            `);
+                        }
+                    });
+                });
+                
             }
         });
     });

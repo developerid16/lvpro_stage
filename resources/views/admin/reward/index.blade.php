@@ -48,10 +48,10 @@
                             <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Duration</th>
-                            <th data-field="image">Image</th>
+                            <th data-field="image">File</th>
                             <th data-field="created_at">Created On</th>
 
-                            <th data-field="status" data-filter-control="select" data-sortable="false">Status</th>
+                            {{-- <th data-field="status" data-filter-control="select" data-sortable="false">Status</th> --}}
 
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
                         </tr>
@@ -255,11 +255,10 @@
 
 
             // Load locations when modal is opened if company is already selected
-            $(document).on('shown.bs.modal', '#AddModal, #EditModal', function() {
-                var companyId = $('#company_id').val();
-                if (companyId) {
-                    loadLocationsByCompany();
-                }
+           $(document).on('shown.bs.modal', '#AddModal, #EditModal', function () {
+
+                initRewardModal();
+                
             });
 
             $(document).on("click", ".clear-time", function() {
@@ -297,6 +296,8 @@
 
 
         $(document).ready(function() {
+           
+
             
             //add participating  merchant multi location
             // helper to build the date block HTML for a given location id
@@ -464,6 +465,8 @@
                 });
 
             });
+
+
 
     });
     </script>

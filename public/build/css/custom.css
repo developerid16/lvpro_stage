@@ -369,3 +369,6 @@ tspan {
 .location-date-block{
     margin-bottom: 10px;
 }
+.d-none{
+    display: none !important;
+}

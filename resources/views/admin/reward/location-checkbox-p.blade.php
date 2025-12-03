@@ -13,7 +13,7 @@
             </div>
         </div>
     @endforeach
-    <div>
+    <div class="method">
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">

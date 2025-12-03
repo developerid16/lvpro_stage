@@ -9,8 +9,7 @@
             <div class="col-md-5">
                 <label class="form-label">{{ $location->name.' ('.$location->code.')' }}</label>
             </div>
-
         </div>
     @endforeach
-
+    <div class="method"></div>
 </div>

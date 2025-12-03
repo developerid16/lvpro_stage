@@ -10,6 +10,7 @@ class RewardDates extends Model
 
     protected $fillable = [
         'reward_id',
+        'qty',
         'merchant_id',
         'publish_start_date',
         'publish_start_time',

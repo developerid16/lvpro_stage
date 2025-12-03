@@ -38,7 +38,13 @@ class Reward extends Model
         'parent_type',
         'image_3',
         'company_id',
-        'location_ids'
+        'location_ids',
+        'clearing_method',
+        'inventory_type',
+        'inventory_qty',
+        'voucher_value',
+        'voucher_set',
+        'csvFile'
 
     ];
 
@@ -106,5 +112,11 @@ class Reward extends Model
     {
         return $this->hasMany(\App\Models\RewardDates::class);
     }
+
+    public function tierRates()
+    {
+        return $this->hasMany(RewardTierRate::class);
+    }
+
 
 }

@@ -8,6 +8,8 @@ use App\Models\Location;
 use App\Models\PartnerCompany;
 use App\Models\Reward;
 use App\Models\RewardDates;
+use App\Models\RewardTierRate;
+use App\Models\RewardVoucher;
 use App\Models\Tier;
 use App\Models\UserPurchasedReward;
 use Carbon\Carbon;
@@ -16,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 
 class RewardController extends Controller
 {
@@ -125,9 +128,20 @@ class RewardController extends Controller
 
             $final_data[$key]['redeemed'] = number_format(UserPurchasedReward::where([['status', 'Redeemed'], ['reward_id', $row->id]])->count());
 
-            $duration = $row->start_date->format(config('shilla.date-format'));
+            $duration = $row->created_at->format(config('shilla.date-format'));
 
-            $final_data[$key]['image'] = "<a href='" . asset("images/$row->image_1") . "' data-lightbox='set-$row->id'> <img src='" . asset("images/$row->image_1") . "' class='avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle' data-lightbox='lightbox' alt='img'></a>";
+            if (!empty($row->csvFile)) {
+
+                $csvUrl = asset("rewardvoucher/$row->csvFile");
+                $icon   = asset("build/images/csv-icon.png");
+
+                $final_data[$key]['image'] = "
+                    <a href='$csvUrl' target='_blank'>
+                        <img src='$icon' 
+                            class='avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle' 
+                            alt='CSV File'>
+                    </a>";
+            }
 
             if ($row->end_date) {
                 $duration .= ' to ' . $row->end_date->format(config('shilla.date-format'));
@@ -147,8 +161,8 @@ class RewardController extends Controller
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
             // if ($type === 'campaign-voucher') {
-            $url = url("admin/campaign-voucher-assign/$row->id");
-            $action .= "<a href='$url' title='Assign voucher to users.' ><i class='mdi mdi-card text-info action-icon font-size-18'></i></a>";
+            // $url = url("admin/campaign-voucher-assign/$row->id");
+            // $action .= "<a href='$url' title='Assign voucher to users.' ><i class='mdi mdi-card text-info action-icon font-size-18'></i></a>";
             // }
             $final_data[$key]['action'] = $action . "</div>";
         }
@@ -171,133 +185,175 @@ class RewardController extends Controller
      */
     public function store(Request $request)
     {
-        $exd       = ! isset($request->end_date) ? 1 : 0;
-        $ed        = $request->start_date ? Carbon::createFromFormat('Y-m-d', $request->start_date)->format(config('shilla.date-format')) : '';
+        DB::beginTransaction();
+
+        // FIRST → validate main reward fields
+        $exd = !isset($request->end_date) ? 1 : 0;
+
         $post_data = $this->validate($request, [
-            'name'         => 'required|max:191',
             'code'         => 'required|max:191|unique:rewards,code',
-            'description'  => 'required|max:500',
-            // 'term_of_use'  => 'required',
-            // 'how_to_use' => 'required',
-            // 'is_featured'  => 'required',
-            // 'no_of_keys'   => 'required|numeric|min:0',
-            // 'location_ids' => 'required|array|min:1',
-            // 'location_ids.*' => 'exists:locations,id',
-            // 'start_date'   => 'required|date|after_or_equal:' . date('Y-m-d'),
-            // 'status'       => 'required',
-            // 'image_1'      => 'required|image',
+            'name'         => 'required|max:191',
             'reward_type'  => 'required',
-            // 'product_name' => 'required_if:reward_type,1',
+            'description'  => 'required|max:500',
             'amount'       => 'required_if:reward_type,0',
             'quantity'     => 'required|numeric|min:0',
-            // 'company_id'   => 'required|exists:partner_companies,id',
-            'end_date'     => 'required_if:expiry_day,0|date|after_or_equal:' . $request->start_date,
-            // 'expiry_day'   => 'required|numeric|min:' . $exd,
+            'company_id'   => 'required|array|min:1',
+            'company_id.*' => 'exists:partner_companies,id',
             'image_2'      => 'sometimes|required|image',
             'image_3'      => 'sometimes|image|required_if:is_featured,1',
             'labels'       => 'sometimes',
             'days'         => 'sometimes',
             'sku'          => 'sometimes',
             'parent_type'  => 'required',
-            'end_time'     => 'sometimes|required_with:start_time',
             'countdown'    => 'sometimes',
-            'start_time'   => 'sometimes|required_with:end_time',
-        ], [
-            'end_date.after_or_equal' => 'End date must be a date after ' . $ed,
-            'end_date.required_if'    => 'End date must be a provided when the Purchases Expiry is set to 0',
+            'expiry_day'   => 'required_if:reward_type,0|numeric|min:' . $exd,
+            'clearing_method'=> 'required_if:reward_type,0',
+            'inventory_type'=> 'required_if:reward_type,0',
+            'csvFile' => 'required_if:inventory_type,1|mimes:csv,xls,xlsx',
+            'inventory_qty'=> 'required_if:inventory_type,0',
+            'voucher_value'=> 'required_if:reward_type,0',
+            'voucher_set'  => 'required_if:reward_type,0',
         ]);
 
-        if ($request->hasFile('image_1')) {
-            $imageName = time() . rand() . '.' . $request->image_1->extension();
-            $request->image_1->move(public_path('images'), $imageName);
-            $post_data['image_1'] = $imageName;
-        }
-        if ($request->hasFile('image_2')) {
-            $imageName = time() . rand() . '.' . $request->image_2->extension();
-            $request->image_2->move(public_path('images'), $imageName);
-            $post_data['image_2'] = $imageName;
-        }
-        if ($request->hasFile('image_3')) {
-            $imageName = time() . rand() . '.' . $request->image_3->extension();
-            $request->image_3->move(public_path('images'), $imageName);
-            $post_data['image_3'] = $imageName;
-        }
-        if (! isset($post_data['countdown'])) {
-            $post_data['countdown'] = null;
-        }
-        if (! isset($post_data['days']) || ! $post_data['days']) {
-            $post_data['days'] = null;
-        }
-        // if (! $post_data['end_date']) {
-        //     $post_data['end_date'] = null;
-        // }
-        // if (! $post_data['end_time']) {
-        //     $post_data['end_time'] = null;
-        // }
-        // if (! $post_data['start_time']) {
-        //     $post_data['start_time'] = null;
-        // }
-        $post_data['labels'] = [];
+        // SECOND → validate ALL location date blocks BEFORE creating reward
+        $locationsDigital = $request->input('locations_digital', []);
 
-        if ($request->labels) {
+        foreach ($locationsDigital as $locId => $locData) {
 
-            $labelsArr = json_decode($request->labels, true);
-            foreach ($labelsArr as $key => $value) {
-                $post_data['labels'][] = $value['value'];
+           $validator = Validator::make($locData, [
+                'publish_start_date' => 'required|date',
+                'publish_start_time' => 'required',
+                'publish_end_date'   => 'nullable|date|after_or_equal:publish_start_date',
+                'publish_end_time'   => 'nullable',
+
+                'sales_start_date'   => 'required|date',
+                'sales_start_time'   => 'required',
+                'sales_end_date'     => 'nullable|date|after_or_equal:sales_start_date',
+                'sales_end_time'     => 'nullable',
+            ], [
+
+                // Required fields — with location ID
+                'publish_start_date.required' => "Publish Start Date is required for location {$locId}",
+                'publish_start_time.required' => "Publish Start Time is required for location {$locId}",
+                'sales_start_date.required'   => "Sales Start Date is required for location {$locId}",
+                'sales_start_time.required'   => "Sales Start Time is required for location {$locId}",
+
+                // Invalid date formats (optional but clearer)
+                'publish_start_time.date_format' => "Invalid Publish Start Time format at location {$locId}",
+                'publish_end_time.date_format'   => "Invalid Publish End Time format at location {$locId}",
+                'sales_start_time.date_format'   => "Invalid Sales Start Time format at location {$locId}",
+                'sales_end_time.date_format'     => "Invalid Sales End Time format at location {$locId}",
+
+                // After-or-equal rules
+                'publish_end_date.after_or_equal' => "Publish End Date must be after Publish Start Date for location {$locId}",
+                'sales_end_date.after_or_equal'   => "Sales End Date must be after Sales Start Date for location {$locId}",
+            ]);
+
+
+            if ($validator->fails()) {
+                return response()->json([
+                    "message" => "Validation Failed",
+                    "errors"  => $validator->errors()
+                ], 422);
             }
         }
 
+       $post_data['company_id'] = implode(',', array_unique($request->company_id));
+
+
+        // THIRD → now create the reward (safe now)
         $reward = Reward::create($post_data);
 
-        
-        $locationsDigital = $request->input('locations_digital', []);
-        
+        // Save location dates
         foreach ($locationsDigital as $locId => $locData) {
-            // only store when checkbox selected
-            // if (empty($locData['selected'])) {
-            //     continue;
-            // }
-            
-            // validate per-location fields (customize rules as needed)
-            $validator = Validator::make($locData, [
-                'publish_start_date' => 'nullable|date',
-                'publish_start_time' => 'nullable|date_format:H:i',
-                'publish_end_date'   => 'nullable|date|after_or_equal:publish_start_date',
-                'publish_end_time'   => 'nullable|date_format:H:i',
-                'sales_start_date'   => 'nullable|date',
-                'sales_start_time'   => 'nullable|date_format:H:i',
-                'sales_end_date'     => 'nullable|date|after_or_equal:sales_start_date',
-                'sales_end_time'     => 'nullable|date_format:H:i',
-            ], [
-                'publish_end_date.after_or_equal' => "Publish End Date must be after Publish Start Date for location {$locId}",
-                'sales_end_date.after_or_equal' => "Sales End Date must be after Sales Start Date for location {$locId}",
-            ]);
-            
-            if ($validator->fails()) {
-                DB::rollBack();
-                throw new ValidationException($validator);
-            }
-            
-            // prepare data to insert
-            $detailData = [
-                'publish_start_date' => $locData['publish_start_date'] ?? null,
-                'publish_start_time' => $locData['publish_start_time'] ?? null,
-                'publish_end_date'   => $locData['publish_end_date'] ?? null,
-                'publish_end_time'   => $locData['publish_end_time'] ?? null,
-                'sales_start_date'   => $locData['sales_start_date'] ?? null,
-                'sales_start_time'   => $locData['sales_start_time'] ?? null,
-                'sales_end_date'     => $locData['sales_end_date'] ?? null,
-                'sales_end_time'     => $locData['sales_end_time'] ?? null,
-                
-            ];
 
-            // upsert into reward_location_details (avoids duplicate unique key errors)
-            RewardDates::UpdateOrCreate(
+            RewardDates::updateOrCreate(
                 ['reward_id' => $reward->id, 'merchant_id' => (int)$locId],
-                $detailData
+                [
+                    'publish_start_date' => $locData['publish_start_date'] ?? null,
+                    'publish_start_time' => $this->normalizeTime($locData['publish_start_time'] ?? null),
+                    'publish_end_date'   => $locData['publish_end_date'] ?? null,
+                    'publish_end_time'   => $this->normalizeTime($locData['publish_end_time'] ?? null),
+                    'sales_start_date'   => $locData['sales_start_date'] ?? null,
+                    'sales_start_time'   => $this->normalizeTime($locData['sales_start_time'] ?? null),
+                    'sales_end_date'     => $locData['sales_end_date'] ?? null,
+                    'sales_end_time'     => $this->normalizeTime($locData['sales_end_time'] ?? null),
+                    'qty'     => $locData['inventory_qty'] ?? null,
+                ]
+            );
+        }
+        $locationsPhysical = $request->input('locations', []);
+
+        //add indventory qty in location table
+        foreach ($locationsPhysical as $locId => $locData) {
+
+            if (!isset($locData['selected'])) {
+                continue; // skip unchecked
+            }
+
+            RewardDates::updateOrCreate(
+                ['reward_id' => $reward->id, 'merchant_id' => (int) $locId],
+                [
+                    'qty' => $locData['inventory_qty'] ?? 0
+                ]
             );
         }
 
+        // Save tier rates
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'tier_')) {
+
+                $tierId = str_replace('tier_', '', $key);
+
+                RewardTierRate::updateOrCreate(
+                    [
+                        'reward_id' => $reward->id,
+                        'tier_id' => $tierId
+                    ],
+                    [
+                        'price' => $value
+                    ]
+                );
+            }
+        }
+
+        // --------------- CSV UPLOAD (ONLY FOR inventory_type = 1) ---------------
+        if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+
+            $file = $request->file('csvFile');
+
+            // Save file in public path
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('rewardvoucher'), $filename);
+
+            // Store file name in DB
+            $reward->csvFile = $filename;
+            $reward->save();
+
+            // Read file (CSV / Excel)
+            $rows = Excel::toArray([], public_path('rewardvoucher/' . $filename));
+
+            $sheet = $rows[0]; // always first sheet
+
+            foreach ($sheet as $row) {
+
+                $code = trim($row[0] ?? '');
+
+                if ($code === '' || strtolower($code) === 'code') {
+                    continue; // skip header + empty rows
+                }
+
+                RewardVoucher::create([
+                    'reward_id' => $reward->id,
+                    'code'      => $code,
+                    'is_used'   => 0
+                ]);
+            }
+        }
+
+
+
+        DB::commit();
 
         return response()->json(['status' => 'success', 'message' => 'Reward Created Successfully']);
     }
@@ -310,153 +366,264 @@ class RewardController extends Controller
         abort(404);
     }
 
+    function normalizeTime($time)
+    {
+        if (!$time) return null;
+        return substr($time, 0, 5);  // Keep only "HH:MM"
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        $this->layout_data['data'] = Reward::find($id);
-        $data = $this->layout_data['data']; // <- fix: create local $data used below
+        $this->layout_data['data'] = Reward::with(['rewardDates', 'tierRates'])->find($id);
+        $data = $this->layout_data['data'];
+
         $this->layout_data['type'] = $data->parent_type;
         $this->layout_data['companies'] = PartnerCompany::where('status', 'Active')->get();
 
-        // Get locations for the selected company if available
-        if ($data->company_id) {
-            $this->layout_data['locations'] = Location::where('company_id', $data->company_id)
-                ->where('status', 'Active')->get();
-        }
+        // --- FIX: handle multiple company IDs ---
+        $companyIds = [];
 
-        $this->layout_data['tiers'] = Tier::all();
-
-        $existingLocationsData = [];
-
-        // build existingLocationsData keyed by location_id
-        if (isset($data->id)) {
-            $details = RewardDates::where('reward_id', $data->id)->get(); // your model name
-            foreach ($details as $d) {
-                $existingLocationsData[$d->location_id] = [
-                    'publish_start_date' => $d->publish_start_date,
-                    'publish_start_time' => $d->publish_start_time,
-                    'publish_end_date'   => $d->publish_end_date,
-                    'publish_end_time'   => $d->publish_end_time,
-                    'sales_start_date'   => $d->sales_start_date,
-                    'sales_start_time'   => $d->sales_start_time,
-                    'sales_end_date'     => $d->sales_end_date,
-                    'sales_end_time'     => $d->sales_end_time,
-                    'selected'           => 1,
-                ];
+        if (!empty($data->company_id)) {
+            if (is_array($data->company_id)) {
+                $companyIds = $data->company_id;
+            } else {
+                $companyIds = explode(',', $data->company_id);
             }
         }
 
-        $this->layout_data['existingLocationsData'] = $existingLocationsData;
+        // Load ALL locations for all selected companies
+        $this->layout_data['locations'] = Location::whereIn('company_id', $companyIds)
+            ->where('status', 'Active')
+            ->get();
 
+        $this->layout_data['tiers'] = Tier::all();
+
+        // --- Existing location details ---
+        $existingLocationsData = [];
+
+        $details = RewardDates::where('reward_id', $data->id)->get();
+
+        foreach ($details as $d) {
+            $existingLocationsData[$d->merchant_id] = [
+                'publish_start_date' => $d->publish_start_date,
+                'publish_start_time' => $d->publish_start_time,
+                'publish_end_date'   => $d->publish_end_date,
+                'publish_end_time'   => $d->publish_end_time,
+                'sales_start_date'   => $d->sales_start_date,
+                'sales_start_time'   => $d->sales_start_time,
+                'sales_end_date'     => $d->sales_end_date,
+                'sales_end_time'     => $d->sales_end_time,
+                'qty'     => $d->qty,
+                'selected'           => 1,
+            ];
+        }
+
+
+        $this->layout_data['existingLocationsData'] = $existingLocationsData ?? [];
+        $this->layout_data['selectedCompanies'] = $companyIds ?? [];
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
     }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        $exd = ! isset($request->end_date) ? 1 : 0;
-        $ed  = $request->start_date ? Carbon::createFromFormat('Y-m-d', $request->start_date)->format(config('shilla.date-format')) : '';
+        DB::beginTransaction();
 
-        $post_data = $this->validate(
-            $request,
-            [
-                'code'         => 'required|max:191|unique:rewards,code,' . $id,
-                'name'         => 'required|max:191',
-                'description'  => 'required|max:500',
-                'no_of_keys'   => 'required|numeric|min:0',
-                'quantity'     => 'required|numeric|min:0',
-                'company_id'   => 'required|exists:partner_companies,id',
-                'location_ids' => 'required|array|min:1',
-                'location_ids.*' => 'exists:locations,id',
-                'start_date'   => 'required|date',
-                'end_date'     => 'required_if:expiry_day,0|date|after_or_equal:' . $request->start_date,
-                'expiry_day'   => 'required|numeric|min:' . $exd,
-                'reward_type'  => 'required',
-                'product_name' => 'required_if:reward_type,1',
-                'amount'       => 'required_if:reward_type,0',
-                'image_1'      => 'sometimes|image',
-                'image_2'      => 'sometimes|required|image',
-                'status'       => 'required',
-                'term_of_use'  => 'required',
-                // 'how_to_use' => 'required',
-                'is_featured'  => 'required',
-                'labels'       => 'sometimes',
-                'days'         => 'sometimes',
-                'sku'          => 'sometimes',
-                'end_time'     => 'sometimes|required_with:start_time',
-                'countdown'    => 'sometimes',
-                'start_time'   => 'sometimes|required_with:end_time',
-            ],
-            [
-                'end_date.after_or_equal' => 'End date must be a date after ' . $ed,
-                'end_date.required_if'    => 'End date must be a provided when the Purchases Expiry is set to 0',
+        $reward = Reward::findOrFail($id);
 
-            ]
-        );
+        // -------------------------------
+        // VALIDATION (same as store)
+        // -------------------------------
+        $post_data = $this->validate($request, [
+            'code'         => 'required|max:191|unique:rewards,code,' . $id,
+            'name'         => 'required|max:191',
+            'reward_type'  => 'required',
+            'description'  => 'required|max:500',
+            'amount'       => 'required_if:reward_type,0',
+            'quantity'     => 'required|numeric|min:0',
+            'company_id'   => 'required|array|min:1',
+            'company_id.*' => 'exists:partner_companies,id',
+            'image_2'      => 'sometimes|required|image',
+            'image_3'      => 'sometimes|image|required_if:is_featured,1',
+            'labels'       => 'sometimes',
+            'days'         => 'sometimes',
+            'sku'          => 'sometimes',
+            'parent_type'  => 'required',
+            'countdown'    => 'sometimes',
+            'expiry_day'   => 'required_if:reward_type,0|numeric',
+            'clearing_method'=> 'required_if:reward_type,0',
+            'inventory_type'=> 'required_if:reward_type,0',
+            'csvFile'=> 'required_if:inventory_type,1',
+            'inventory_qty'=> 'required_if:inventory_type,0',
+            'voucher_value'=> 'required_if:reward_type,0',
+            'voucher_set'  => 'required_if:reward_type,0',
+        ]);
 
-        $rd = Reward::find($id);
-        if ($request->hasFile('image_1')) {
-            $imageName = time() . rand() . '.' . $request->image_1->extension();
-            $request->image_1->move(public_path('images'), $imageName);
-            $post_data['image_1'] = $imageName;
-            try {
-                unlink(public_path("images/$rd->image_1"));
-            } catch (\Throwable $th) {
-                //throw $th;
+        // -----------------------------------
+        // VALIDATE DIGITAL LOCATION BLOCKS
+        // -----------------------------------
+
+        $post_data['company_id'] = implode(',', array_unique($request->company_id));
+
+
+        // Normalize all digital location times BEFORE validation
+        $locationsDigital = $request->input('locations_digital', []);        
+
+        foreach ($locationsDigital as $locId => $locData) {
+
+            $validator = Validator::make(
+                $locData,
+                [
+                    'publish_start_date' => 'required|date',
+                    'publish_start_time' => 'required',
+
+                    'publish_end_date'   => 'nullable|date|after_or_equal:publish_start_date',
+                    'publish_end_time'   => 'nullable',
+
+                    'sales_start_date'   => 'required|date',
+                    'sales_start_time'   => 'required',
+
+                    'sales_end_date'     => 'nullable|date|after_or_equal:sales_start_date',
+                    'sales_end_time'     => 'nullable',
+                ],
+                [
+                    // Custom messages with location ID
+                    'publish_start_date.required' => "Publish Start Date is required for location {$locId}",
+                    'publish_start_time.required' => "Publish Start Time is required for location {$locId}",
+                    'sales_start_date.required'   => "Sales Start Date is required for location {$locId}",
+                    'sales_start_time.required'   => "Sales Start Time is required for location {$locId}",
+
+                    'publish_start_time.date_format' => "Invalid Publish Start Time format at location {$locId}",
+                    'publish_end_time.date_format'   => "Invalid Publish End Time format at location {$locId}",
+                    'sales_start_time.date_format'   => "Invalid Sales Start Time format at location {$locId}",
+                    'sales_end_time.date_format'     => "Invalid Sales End Time format at location {$locId}",
+
+                    'publish_end_date.after_or_equal' => "Publish End Date must be after Publish Start Date for location {$locId}",
+                    'sales_end_date.after_or_equal'   => "Sales End Date must be after Sales Start Date for location {$locId}",
+                ]
+            );
+
+            if ($validator->fails()) {
+                return response()->json([
+                    "message" => "Validation Failed",
+                    "errors"  => $validator->errors()
+                ], 422);
             }
         }
-        if ($request->hasFile('image_2')) {
-            $imageName = time() . rand() . '.' . $request->image_2->extension();
-            $request->image_2->move(public_path('images'), $imageName);
-            $post_data['image_2'] = $imageName;
-            try {
-                unlink(public_path("images/$rd->image_2"));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
+
+        $post_data['company_id'] = implode(',', $request->company_id);
+
+        // Null cleanup
+        $post_data['expiry_day']   = $post_data['expiry_day'] ?? null;
+        $reward->update($post_data);
+
+        // ----------------------------------
+        // SAVE DIGITAL LOCATIONS
+        // ----------------------------------
+        foreach ($locationsDigital as $locId => $locData) {
+
+            RewardDates::updateOrCreate(
+                ['reward_id' => $reward->id, 'merchant_id' => (int)$locId],
+                [
+                    'publish_start_date' => $locData['publish_start_date'] ?? null,
+                    'publish_start_time' => $locData['publish_start_time'] ?? null,
+                    'publish_end_date'   => $locData['publish_end_date'] ?? null,
+                    'publish_end_time'   => $locData['publish_end_time'] ?? null,
+                    'sales_start_date'   => $locData['sales_start_date'] ?? null,
+                    'sales_start_time'   => $locData['sales_start_time'] ?? null,
+                    'sales_end_date'     => $locData['sales_end_date'] ?? null,
+                    'sales_end_time'     => $locData['sales_end_time'] ?? null,
+                    'qty'                => $locData['inventory_qty'] ?? null,
+                ]
+            );
         }
-        if ($request->hasFile('image_3')) {
-            $imageName = time() . rand() . '.' . $request->image_3->extension();
-            $request->image_3->move(public_path('images'), $imageName);
-            $post_data['image_3'] = $imageName;
-            try {
-                unlink(public_path("images/$rd->image_3"));
-            } catch (\Throwable $th) {
-                //throw $th;
+
+
+        $locationsPhysical = $request->input('locations', []);
+
+        foreach ($locationsPhysical as $locId => $locData) {
+
+            if (!isset($locData['selected'])) {
+                continue; // skip unchecked
+            }
+
+            RewardDates::updateOrCreate(
+                ['reward_id' => $reward->id, 'merchant_id' => (int) $locId],
+                [
+                    'qty' => $locData['inventory_qty'] ?? 0
+                ]
+            );
+        }
+      
+        // ----------------------------------
+        // TIER RATES
+        // ----------------------------------
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'tier_')) {
+                $tierId = str_replace('tier_', '', $key);
+
+                RewardTierRate::updateOrCreate(
+                    [
+                        'reward_id' => $reward->id,
+                        'tier_id' => $tierId
+                    ],
+                    ['price' => $value]
+                );
             }
         }
 
-        if (! isset($post_data['countdown'])) {
-            $post_data['countdown'] = null;
-        }
-        if (! isset($post_data['days']) || ! $post_data['days']) {
-            $post_data['days'] = null;
-        }
-        if (! $post_data['end_date']) {
-            $post_data['end_date'] = null;
-        }
-        if (! $post_data['end_time']) {
-            $post_data['end_time'] = null;
-        }
-        if (! $post_data['start_time']) {
-            $post_data['start_time'] = null;
-        }
-        $post_data['labels'] = [];
+        // ------------------ CSV UPDATE LOGIC ------------------
+        if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
-        if ($request->labels) {
+            // 1️⃣ DELETE OLD FILE (if exists)
+            if (!empty($reward->csvFile)) {
+                $oldPath = public_path('rewardvoucher/' . $reward->csvFile);
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
 
-            $labelsArr = json_decode($request->labels, true);
-            foreach ($labelsArr as $key => $value) {
-                $post_data['labels'][] = $value['value'];
+            RewardVoucher::where('reward_id', $reward->id)->delete();
+
+            $file = $request->file('csvFile');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('rewardvoucher'), $filename);
+
+            $reward->csvFile = $filename;
+            $reward->save();
+
+            $path = public_path('rewardvoucher/' . $filename);
+            $rows = \Maatwebsite\Excel\Facades\Excel::toArray([], $path);
+
+            $sheet = $rows[0];
+
+            foreach ($sheet as $row) {
+
+                $code = trim($row[0] ?? '');
+
+                if ($code === '' || strtolower($code) === 'code') {
+                    continue; // skip header and blank rows
+                }
+
+                RewardVoucher::create([
+                    'reward_id' => $reward->id,
+                    'code'      => $code,
+                    'is_used'   => 0
+                ]);
             }
         }
-        $rd->update($post_data);
-        return response()->json(['status' => 'success', 'message' => 'Reward Update Successfully']);
+
+
+        DB::commit();
+
+        return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully']);
     }
 
     /**
@@ -479,23 +646,40 @@ class RewardController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Company ID is required']);
         }
 
+        // 🔥 FIX HERE — convert JSON string to array if needed
+        if (is_string($companyId)) {
+            $decoded = json_decode($companyId, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $companyId = $decoded;
+            }
+        }
 
+        // 🔥 Always ensure it's array
+        if (!is_array($companyId)) {
+            $companyId = [$companyId];
+        }
 
+        // Now this ALWAYS works
         $locations = Location::where('status', 'Active')
-            ->select('id', 'name', 'code');
+            ->whereIn('company_id', $companyId)
+            ->select('id', 'name', 'code')
+            ->get();
 
-        if (is_array($companyId)) {
-            $locations = $locations->whereIn('company_id', $companyId);
-        } else {
-            $locations = $locations->where('company_id', $companyId);
+        if ($request->type == 'digital') {
+            return response()->json([
+                'status' => 'success',
+                'html' => view($this->view_file_path . 'location-checkbox-d', ['locations' => $locations])->render(),
+                'locations' => $locations
+            ]);
         }
 
-        $locations = $locations->get();
-
-        if ($request->type && $request->type == 'digital') {
-            return response()->json(['status' => 'success', 'html' => view($this->view_file_path . 'location-checkbox-d', ['locations' => $locations])->render(), 'locations' => $locations]);
-        }
-
-        return response()->json(['status' => 'success', 'html' => view($this->view_file_path . 'location-checkbox-p', ['locations' => $locations])->render(), 'locations' => $locations]);
+        return response()->json([
+            'status' => 'success',
+            'html' => view($this->view_file_path . 'location-checkbox-p', ['locations' => $locations])->render(),
+            'locations' => $locations
+        ]);
     }
+
+    
+    
 }

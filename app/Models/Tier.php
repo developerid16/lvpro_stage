@@ -31,4 +31,9 @@ class Tier extends Model
 
         return asset("images/$this->image");
     }
+    public function rewardRates()
+    {
+        return $this->hasMany(RewardTierRate::class);
+    }
+
 }
