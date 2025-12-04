@@ -19,7 +19,7 @@ class Tier extends Model
             $builder->orderBy('t_order', 'asc');
         });
     }
-    protected $fillable = ['alias_name','tier_name', 'instore_multiplier', 'isc_multiplier', 'spend_amount', 't_order', 'detail', 'image'];
+    protected $fillable = ['tier_id','alias_name','tier_name', 'instore_multiplier', 'isc_multiplier', 'spend_amount', 't_order', 'detail', 'image'];
 
 
     public function milestones(): HasMany

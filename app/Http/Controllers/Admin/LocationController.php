@@ -9,7 +9,7 @@ use App\Models\Location;
 use App\Models\PartnerCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Carbon\Carbon;
 class LocationController extends Controller
 {
 
@@ -140,6 +140,15 @@ class LocationController extends Controller
             'end_date' => 'nullable',
 
         ]);
+
+        if (!empty($post_data['end_date'])) {
+            $endDate = Carbon::parse($post_data['end_date'])->endOfDay();
+
+            if ($endDate->lt(now())) {
+                // Force disable if end_date passed
+                $post_data['status'] = 'Disabled';
+            }
+        }
         
         Location::find($id)->update($post_data);
         return response()->json(['status' => 'success', 'message' => 'Location Update Successfully']);

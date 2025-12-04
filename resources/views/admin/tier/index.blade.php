@@ -29,6 +29,7 @@
                 <thead>
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"  data-width-unit="px" data-searchable="false">Sr. No.</th>
+                        <th data-field="tier_id" data-filter-control="input" data-sortable="true">Tier Id</th>
                         <th data-field="alias_name" data-filter-control="input" data-sortable="true">Alias Name</th>
                         <th data-field="tier_name" data-filter-control="input" data-sortable="true">Safra's Tier Name</th>
                         <th data-field="created_at" data-filter-control="input" data-sortable="false">Created Date & Time</th>

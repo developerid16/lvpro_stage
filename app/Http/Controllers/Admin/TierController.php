@@ -57,6 +57,7 @@ class TierController extends Controller
         
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id', // <-- replace with your actual custom Tier ID column name
+            'tier_id', // <-- replace with actual Safra tier name column (or 'tier_name' if that's it)
             'tier_name', // <-- replace with actual Safra tier name column (or 'tier_name' if that's it)
             'alias_name',
             'created_at',
@@ -77,6 +78,7 @@ class TierController extends Controller
 
             $tierIdentifier = $row->id ?? $row->id; // replace tier_identifier if different
             $safraTierName  = $row->tier_name ?? $row->tier_name ?? ''; // replace column name if needed
+            $tierId  = $row->tier_id ?? $row->tier_id ?? ''; // replace column name if needed
             $aliasName      = $row->alias_name ?? '';
 
             $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i') : '';
@@ -98,6 +100,7 @@ class TierController extends Controller
 
             $final_data[$i] = [
                 'sr_no'            => $index,
+                'tier_id'       => $tierId,        // Alias Name column
                 'alias_name'       => $aliasName,        // Alias Name column
                 'tier_name'  => $safraTierName,    // Safra's Tier Name column
                 'created_at'       => $createdAt,
@@ -132,6 +135,7 @@ class TierController extends Controller
     public function store(Request $request)
     {
          $post_data = $this->validate($request, [
+            'tier_id' => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
             'alias_name' => 'required',
             'tier_name' => 'required',
 
@@ -169,6 +173,7 @@ class TierController extends Controller
     {
          //
         $post_data = $this->validate($request, [
+            'tier_id' => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
             "alias_name" => "required",
             "tier_name" => "required",
 
@@ -177,27 +182,7 @@ class TierController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Tier Update Successfully']);
     }
     function milestoneSave(Request $request)
-    {
-//         $tm = TierMilestone::orderBy('max', 'desc')->first();
-//         $limit = 1000000;
-
-//         $now  = $tm->max;
-
-// while ($now < $limit) {
-
-//             $tp  = $now + 500;
-//     TierMilestone::create([
-//         'name' => "$" . number_format($tp),
-//         'amount' => $tp,
-//         'type' =>  "key",
-//         'tier_id' => 1,
-//         'no_of_keys' => 500, 
-//         'reward_id' =>  null,
-//         'min' => $now + 1,
-//         'max' => $now + 500, 
-//     ]);
-//             $now += 500;
-// }
+    {         
         return redirect('admin/tiers');
     }
 
