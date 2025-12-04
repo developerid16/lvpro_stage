@@ -75,7 +75,7 @@
             // only insert if we don't already have the marker right after the h4
             if (!$h4.next().hasClass('page-merchant')) {
             // create the small element and insert it after the h4 (so it appears below the h4 and before the next element)
-            $('<small class="page-merchant">(Participating Merchat)</small>')
+            $('<small class="page-merchant">(Participating Merchant)</small>')
                 .css({
                 'display': 'block',       // force it on its own line
                 'font-size': '0.8em',     // small font
