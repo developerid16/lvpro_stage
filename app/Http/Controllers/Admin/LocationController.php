@@ -147,6 +147,8 @@ class LocationController extends Controller
             if ($endDate->lt(now())) {
                 // Force disable if end_date passed
                 $post_data['status'] = 'Disabled';
+            }else{
+                 $post_data['status'] = 'Active';
             }
         }
         
