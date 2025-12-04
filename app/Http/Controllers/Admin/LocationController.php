@@ -50,7 +50,10 @@ class LocationController extends Controller
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['code'] = $row->code;
             $final_data[$key]['address'] = $row->address;
-            $final_data[$key]['lease_duration'] =  ($row->start_date && $row->end_date) ? $row->start_date . ' / ' . $row->end_date : '';
+            $final_data[$key]['lease_duration'] = ($row->start_date && $row->end_date)
+                                                    ? \Carbon\Carbon::parse($row->start_date)->format('d-m-Y') . ' / ' .
+                                                    \Carbon\Carbon::parse($row->end_date)->format('d-m-Y')
+                                                    : '';
             $final_data[$key]['status'] = $row->status;
 
 

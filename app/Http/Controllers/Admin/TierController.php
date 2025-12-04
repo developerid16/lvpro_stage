@@ -81,8 +81,9 @@ class TierController extends Controller
             $tierId  = $row->tier_id ?? $row->tier_id ?? ''; // replace column name if needed
             $aliasName      = $row->alias_name ?? '';
 
-            $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i') : '';
-            $updatedAt = $row->updated_at ? $row->updated_at->format('d-m-Y h:i') : '';
+            $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i:s A') : '';
+            $updatedAt = $row->updated_at ? $row->updated_at->format('d-m-Y h:i:s A') : '';
+
 
             // actions
             $action = "<div class='d-flex gap-3'>";

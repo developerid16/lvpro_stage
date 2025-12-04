@@ -68,7 +68,7 @@ class BroadcastController extends Controller
         foreach ($query['data']->get() as $key => $row) {
             $final_data[$key]['sr_no'] = $key + 1;
             $final_data[$key]['title'] = $row->title;
-            $final_data[$key]['date'] = $row->date_of_publish->format(config('shilla.date-format') . ' H:i:s');
+            $final_data[$key]['date'] = $row->date_of_publish->format(config('shilla.date-format') . ' H:i:s A');
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
             $final_data[$key]['status'] = $row->status;
