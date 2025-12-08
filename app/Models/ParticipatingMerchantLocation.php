@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class ParticipatingMerchantLocation extends Model
+{
+    use HasFactory;
+
+
+    protected $table = 'participating_merchant_location';
+
+    protected $fillable = [
+        'name',
+        'start_date',
+        'end_date',
+        'code',
+        'participating_merchant_id',
+        'club_location_id',
+        'status',
+    ];
+
+    // Relations
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class);
+    }
+
+    public function clubLocation()
+    {
+        return $this->belongsTo(ClubLocation::class);
+    }
+
+}

@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') Partner Company @endsection
+@section('title') Merchant @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Tier Management @endslot
+@slot('title') Merchant Management @endslot
 @endcomponent
 
 
@@ -29,8 +29,8 @@
                 <thead>
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"  data-width-unit="px" data-searchable="false">Sr. No.</th>
-                        <th data-field="tier_name" data-filter-control="input" data-sortable="true">Name</th>
-                        <th data-field="code" data-filter-control="input" data-sortable="true">Code</th>
+                        <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
+                        <th data-field="logo" data-filter-control="input" data-sortable="true">Logo</th>
                         <th data-field="status" data-filter-control="input" data-sortable="true">Status</th>
                         <th data-field="created_at" data-filter-control="input" data-sortable="false">Created Date & Time</th>
                         <th data-field="updated_at" data-filter-control="input" data-sortable="false">Last Updated Date & Time</th>
@@ -44,7 +44,7 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
-@include('admin.tier.add-edit-modal')
+@include('admin.merchant.add-edit-modal')
 @endcan
 <!-- end modal -->
 @endsection
@@ -59,6 +59,17 @@
             params.success(res)
         })
     } 
+
+    $(document).on('change', '#logo', function (e) {
+        let file = this.files[0];
+
+        if (!file) return;
+
+        let preview = document.getElementById('logo_preview');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    });
+
    
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>

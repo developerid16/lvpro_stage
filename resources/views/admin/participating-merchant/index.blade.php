@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') Partner Company @endsection
+@section('title') Participating Merchant @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Tier Management @endslot
+@slot('title') Participating Merchant Management @endslot
 @endcomponent
 
 
@@ -29,8 +29,7 @@
                 <thead>
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"  data-width-unit="px" data-searchable="false">Sr. No.</th>
-                        <th data-field="tier_name" data-filter-control="input" data-sortable="true">Name</th>
-                        <th data-field="code" data-filter-control="input" data-sortable="true">Code</th>
+                        <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
                         <th data-field="status" data-filter-control="input" data-sortable="true">Status</th>
                         <th data-field="created_at" data-filter-control="input" data-sortable="false">Created Date & Time</th>
                         <th data-field="updated_at" data-filter-control="input" data-sortable="false">Last Updated Date & Time</th>
@@ -44,7 +43,7 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
-@include('admin.tier.add-edit-modal')
+@include('admin.participating-merchant.add-edit-modal')
 @endcan
 <!-- end modal -->
 @endsection
@@ -58,8 +57,7 @@
             $('.fixed-table-body .fixed-table-loading').removeClass('open');
             params.success(res)
         })
-    } 
-   
+    }    
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection

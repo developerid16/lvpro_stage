@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ContentManagementController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
+use App\Http\Controllers\Admin\ClubLocationController;
 use App\Models\AppUser;
 use App\Models\UserTier;
 use App\Models\KeyPassbookCredit;
@@ -35,6 +36,9 @@ use App\Models\RefundSale;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\EmailLogController;
+use App\Http\Controllers\Admin\MerchantController;
+use App\Http\Controllers\Admin\ParticipatingMerchantController;
+use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Mail\BroadcastEmail;
 
 /*
@@ -494,4 +498,25 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
             dd($emilChunk, $emilChunk[0]);
         }
     });
+
+    //8-12-25
+    
+    Route::get('merchants/datatable', [MerchantController::class, 'datatable'])->name('admin.merchants.datatable');
+    Route::resource('merchants', MerchantController::class);
+    
+    Route::get('merchant/{merchant}/club-location', [ClubLocationController::class, 'index'])->name('admin.club-location.index');
+    Route::get('club-location/datatable', [ClubLocationController::class, 'datatable'])->name('admin.club-location.datatable');
+    Route::resource('club-location', ClubLocationController::class);
+    
+    Route::get('participating-merchant/datatable', [ParticipatingMerchantController::class, 'datatable'])->name('admin.participating-merchant.datatable');
+    Route::resource('participating-merchant', ParticipatingMerchantController::class);
+    
+    Route::get('participating-merchant/{merchant}/location', [ParticipatingMerchantLocationController::class, 'index'])->name('admin.location.index');
+    Route::get('participating-merchant/{merchant}/location/create',[ParticipatingMerchantLocationController::class, 'create'])->name('admin.location.create');
+Route::get(
+    'participating-merchant-location/datatable',
+    [ParticipatingMerchantLocationController::class, 'datatable']
+)->name('participating-merchant-location.datatable');
+    Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
+    
 });

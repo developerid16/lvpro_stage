@@ -8,25 +8,27 @@
             </div>
             <div class="modal-body">
                 <form class="z-index-1" method="POST" action="javascript:void(0)"
-                    id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? ''}}">
+                    id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" 
+                    data-id="{{ $data->id ?? ''}}">
+
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
+
+                    <!-- ADD THIS LINE -->
+                    <input type="hidden" name="merchant_id" value="{{ $merchant_id }}">
+
                     <div class="row">
-                        <div class="col-12 col-md-4">
+                        
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="code">Code<span class="required-hash">*</span></label>
-                                <input id="code" type="text" class="sh_dec form-control" name="code" placeholder="Enter Code"
-                                    value="{{ $data->code ?? '' }}">
+                                <label class="sh_dec" for="name">Name<span class="required-hash">*</span></label>
+                                <input id="name" type="text" class="sh_dec form-control" name="name" 
+                                    placeholder="Enter Name"
+                                    value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="tier_name">Name<span class="required-hash">*</span></label>
-                                <input id="tier_name" type="text" class="sh_dec form-control" name="tier_name" placeholder="Enter Name"
-                                    value="{{ $data->tier_name ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4">
+
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="status">Status<span class="required-hash">*</span></label>
 
@@ -38,10 +40,10 @@
                                 <div class="sh_dec_s error" id="status_error"></div>
                             </div>
                         </div>
-                       
-                    </div>
-                    <div class="row">
 
+                    </div>
+
+                    <div class="row">
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset"
                                 onclick="remove_errors()">Reset</button>
@@ -52,7 +54,9 @@
                     </div>
 
                 </form>
+
             </div>
         </div>
     </div>
 </div>
+
