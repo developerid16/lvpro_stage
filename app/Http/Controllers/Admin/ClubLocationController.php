@@ -67,6 +67,9 @@ class ClubLocationController extends Controller
                 'action' => "<div class='d-flex gap-3'>" .
                                 "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
                                     <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                                </a>
+                                <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                                    <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
                                 </a>" .                               
                             "</div>",
             ];

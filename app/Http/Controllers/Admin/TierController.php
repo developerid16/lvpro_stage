@@ -54,27 +54,31 @@ class TierController extends Controller
             $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i:s A') : '';
             $updatedAt = $row->updated_at ? $row->updated_at->format('d-m-Y h:i:s A') : '';
 
-            // -------------------------
             // ACTION BUTTONS
-            // -------------------------
             $action = "<div class='d-flex gap-3'>";
 
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
-            }          
+                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}' title='Edit'>
+                                <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                            </a>";
+            }
+
+            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}' title='Delete'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
+            }
 
             $action .= "</div>";
 
-
-
             $final_data[$i] = [
-                'sr_no'     => $index,
-                'tier_name'      => $row->tier_name,
-                'code'      => $row->code,
-                'status'    => $row->status,
-                'created_at'=> $createdAt,
-                'updated_at'=> $updatedAt,
-                'action'    => $action,
+                'sr_no'      => $index,
+                'tier_name'  => $row->tier_name,
+                'code'       => $row->code,
+                'status'     => $row->status,
+                'created_at' => $createdAt,
+                'updated_at' => $updatedAt,
+                'action'     => $action,
             ];
 
             $i++;

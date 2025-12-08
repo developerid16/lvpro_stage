@@ -84,10 +84,17 @@ class ParticipatingMerchantLocationController extends Controller
                 'status'       => $row->status,
                 'created_at'   => optional($row->created_at)->format('d-m-Y H:i:s'),
                 'updated_at'   => optional($row->updated_at)->format('d-m-Y H:i:s'),
-                'action'       =>
-                    "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
-                        <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                    </a>",
+
+                'action' =>
+                    "<div class='d-flex gap-3'>
+                        <a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
+                            <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                        </a>
+
+                        <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                        </a>
+                    </div>",
             ];
 
             $i++;
@@ -98,6 +105,7 @@ class ParticipatingMerchantLocationController extends Controller
             'count' => $result['count'] ?? $rows->count(),
         ];
     }
+
 
     /* -----------------------------------------------------
      * CREATE MODAL

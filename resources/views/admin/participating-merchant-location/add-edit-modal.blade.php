@@ -30,17 +30,20 @@
                             <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}">
                         </div>
 
-                        <div class="col-12 col-md-6">
+                       <div class="col-12 col-md-6">
                             <label>Start Date*</label>
-                            <input type="datetime-local" name="start_date" class="form-control"
+                            <input type="datetime-local" name="start_date" id="start_date"
+                                class="form-control"
                                 value="{{ isset($data->start_date) ? date('Y-m-d\TH:i', strtotime($data->start_date)) : '' }}">
                         </div>
 
                         <div class="col-12 col-md-6">
                             <label>End Date*</label>
-                            <input type="datetime-local" name="end_date" class="form-control"
+                            <input type="datetime-local" name="end_date" id="end_date"
+                                class="form-control"
                                 value="{{ isset($data->end_date) ? date('Y-m-d\TH:i', strtotime($data->end_date)) : '' }}">
                         </div>
+
 
                         <div class="col-12 col-md-6">
                             <label>Participating Merchant*</label>
@@ -91,3 +94,27 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    let start = document.getElementById("start_date");
+    let end   = document.getElementById("end_date");
+
+    // Disable end date until start date selected
+    if (!start.value) {
+        end.disabled = true;
+    }
+
+    start.addEventListener("change", function () {
+        if (start.value) {
+            end.disabled = false;
+            end.min = start.value; // prevent selecting earlier date
+        } else {
+            end.disabled = true;
+            end.value = "";
+        }
+    });
+
+});
+</script>

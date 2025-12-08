@@ -71,7 +71,11 @@ class MerchantController extends Controller
             $action .= "<a href='" . url('admin/merchant/' . $row->id . '/club-location') . "' 
             class=''>
                 <i class='mdi mdi-map-marker-multiple text-primary action-icon font-size-18'></i>
-            </a>";
+            </a>
+             <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                        </a>";
+            
 
 
             $action .= "</div>";
