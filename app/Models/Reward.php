@@ -10,41 +10,34 @@ class Reward extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [
-        'code',
+        'voucher_image',
         'name',
         'description',
-        'no_of_keys',
-        'quantity',
-        'start_date',
-        'end_date',
-        'image_1',
-        'image_2',
-        'status',
-        'total_redeemed',
         'term_of_use',
         'how_to_use',
-        'labels',
-        'is_featured',
-        'type',
-        'expiry_day',
+        'merchant_id',
         'reward_type',
-        'amount',
-        'product_name',
-        'countdown',
-        'end_time',
-        'start_time',
-        'days',
-        'sku',
-        'parent_type',
-        'image_3',
-        'company_id',
-        'location_ids',
-        'clearing_method',
-        'inventory_type',
-        'inventory_qty',
-        'voucher_value',
-        'voucher_set',
-        'csvFile'
+        'usual_price',
+        'publish_start_date',
+        'publish_start_time',
+        'publish_end_date',
+        'publish_end_time',
+        'sales_start_date',
+        'sales_start_time',
+        'sales_end_date',
+        'sales_end_time',
+        'max_quantity',
+        'low_stock_1',
+        'low_stock_2',
+        'friendly_url',
+        'category_id',
+        'club_classification_id',
+        'fabs_category_id',
+        'smc_classification_id',
+        'ax_item_code',
+        'publish_independent',
+        'publish_inhouse',
+        'send_reminder',       
 
     ];
 
@@ -116,6 +109,11 @@ class Reward extends Model
     public function tierRates()
     {
         return $this->hasMany(RewardTierRate::class);
+    }
+
+    public function rewardLocations()
+    {
+        return $this->hasMany(RewardLocation::class);
     }
 
 

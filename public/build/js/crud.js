@@ -13,7 +13,8 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                if (response.status === 'success') {
+                
+                if (response.status == 'success') {
                     show_message(response.status, response.message);
                     $("#AddModal").modal('hide');
                     $("#add_frm").trigger("reset");
@@ -26,34 +27,8 @@ $(document).ready(function () {
             },
             error: function (response) {
                 show_errors(response.responseJSON.errors);
-                 $('.location-error').remove();
-                $('.location-date-block').css('border-color', '#e0e0e0');
-
-                let errors = response.responseJSON.errors;
-
-                $.each(errors, function (field, errorList) {
-
-                    errorList.forEach(errorMsg => {
-
-                        // Extract location id
-                        let match = errorMsg.match(/location (\d+)/);
-
-                        if (match) {
-                            let locationId = match[1];
-
-                            let block = $('.location-date-block[data-location-id="' + locationId + '"]');
-
-                            // highlight the whole block
-                            block.css('border-color', 'red');
-
-                            // append error below the block
-                            block.append(`
-                                <div class="text-danger mt-1 location-error">${errorMsg}</div>
-                            `);
-                        }
-                    });
-                });
-                
+                 $(".error").html(""); // clear previous errors
+              
             }
         });
     });
@@ -67,20 +42,15 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                console.log('response', response);
+                 savedLocations = response.savedLocations;
+                 console.log(savedLocations,'savedLocations');
                 $("body").append(response.html);
                 $("#EditModal .select2").select2({
                     dropdownParent: $("#EditModal .modal-content")
                 });
-                console.log('as');
                 $("#EditModal .select-multiple").chosen({
-                    // dropdownParent: $("#EditModal .modal-content")
                 });
-                // $("#EditModal .select2-tags").select2({
-                //     dropdownParent: $("#EditModal .modal-content"),
-                //     tags: true,
-
-                // });
+              
 
                 var input = document.querySelector('#EditModal .select2-tags')
                 var tagify = new Tagify(input, {
@@ -188,4 +158,5 @@ $(document).ready(function () {
             }
         });
     })
+
 });

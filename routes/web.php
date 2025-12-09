@@ -134,7 +134,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('faq-category/up-down', [FAQCategoryController::class, 'upDownCategory']);
     Route::resource('faq-category', FAQCategoryController::class);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
-    Route::get('reward/locations-by-company', [RewardController::class, 'getLocationsByCompany']);
+    Route::get('/reward/get-locations/{merchant_id}', [RewardController::class, 'getMerchantLocations']);
+
     Route::resource('reward', RewardController::class);
 
     Route::get('automated-reward', [RewardController::class, 'indexAutomatedReward']);
@@ -513,10 +514,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     
     Route::get('participating-merchant/{merchant}/location', [ParticipatingMerchantLocationController::class, 'index'])->name('admin.location.index');
     Route::get('participating-merchant/{merchant}/location/create',[ParticipatingMerchantLocationController::class, 'create'])->name('admin.location.create');
-Route::get(
-    'participating-merchant-location/datatable',
-    [ParticipatingMerchantLocationController::class, 'datatable']
-)->name('participating-merchant-location.datatable');
+    Route::get(
+        'participating-merchant-location/datatable', [ParticipatingMerchantLocationController::class, 'datatable'] )->name('participating-merchant-location.datatable');
     Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
     
 });

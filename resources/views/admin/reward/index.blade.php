@@ -38,8 +38,7 @@
                         <tr>
                             <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
-                            <th data-field="code" data-filter-control="input" data-sortable="true" data-escape="true">Code
-                            </th>
+                          
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name
                             </th>
                             <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
@@ -48,7 +47,7 @@
                             <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Duration</th>
-                            <th data-field="image">File</th>
+                            <th data-field="image">Image</th>
                             <th data-field="created_at">Created On</th>
 
                             {{-- <th data-field="status" data-filter-control="select" data-sortable="false">Status</th> --}}
@@ -81,397 +80,116 @@
                 $('.fixed-table-body .fixed-table-loading').removeClass('open');
                 params.success(res)
             })
-        }
+        }  
+       
+        // Show live preview on file select
+        $(document).on("change", "#voucher_image", function () {
+            let preview = $("#voucher_image_preview");
+            let file = this.files[0];
 
-        function voucherValueChange() {
-            var vv = $('#voucher_value').val();
-            var amount = $('#amount').val();
-            if(vv < 1 || amount < 1){
-                $('#voucher_set').val(0);
-                return;
-            }
-            $('#voucher_set').val(Math.floor(amount / vv));
-        }
-        // Function to load locations by company
-        function loadLocationsByCompany() {
-            var companyId = $('#company_id').val();
-            var locations = $('#locations');
-            var selectedLocations = [];
+            if (file) {
+                let reader = new FileReader();
 
+                reader.onload = function (e) {
+                    preview.attr("src", e.target.result).show();
+                };
 
-            locations.empty();
-
-
-            if (companyId) {
-                $.ajax({
-                    url: ModuleBaseUrl + 'locations-by-company',
-                    type: 'GET',
-                    data: {
-                        company_id: companyId,
-                        type: 'physical'
-                    },
-                    success: function(response) {
-                        if (response.status === 'success' && response.locations.length > 0) {
-                            locations.html(response.html);
-                        } else {
-
-                            // locationSelect.append('<option value="">No locations available</option>');
-                        }
-                    },
-                    error: function() {
-                        //  locationSelect.empty();
-                        // locationSelect.append('<option value="">Error loading locations</option>');
-                    }
-                });
+                reader.readAsDataURL(file);
             } else {
-                // locationSelect.empty();
-                // locationSelect.append('<option value="">Select Company First</option>');
+                // When user clears the file input
+                preview.attr("src", "").hide();
             }
-        }
+        });       
 
-        function loadLocationsByCompanyForDigital() {
-            var companyId = $('#company_ids').val();
-            var locations = $('#locations_for_digital');
-            var selectedLocations = [];
+        $('.reward_type').on('change', function () {
+            let type = $(this).val();
+            console.log(type,'type');
 
-
-            locations.empty();
-
-
-            if (companyId) {
-                $.ajax({
-                    url: ModuleBaseUrl + 'locations-by-company',
-                    type: 'GET',
-                    data: {
-                        company_id: companyId,
-                        type: 'digital'
-                    },
-                    success: function(response) {
-                        if (response.status === 'success' && response.locations.length > 0) {
-                            locations.html(response.html);
-                        } else {
-
-                            // locationSelect.append('<option value="">No locations available</option>');
-                        }
-                    },
-                    error: function() {
-                        //  locationSelect.empty();
-                        // locationSelect.append('<option value="">Error loading locations</option>');
-                    }
-                });
+            if (type == "1") {
+                $("#physical").show(); // show physical fields
+                $("#location_section").show(); // also show location section
             } else {
-                // locationSelect.empty();
-                // locationSelect.append('<option value="">Select Company First</option>');
+                $("#physical").hide();
+                $("#location_section").hide();
+                $("#location_wrapper").html("");
             }
-        }
-
-        function moveSelectedLocation() {
-
-            var selectedLocations = [];
-            $('.locations_digital_checkbox:checked').each(function() {
-                selectedLocations.push({
-                    value: $(this).val(),
-                    id: $(this).attr('data-location-id'),
-                    name: $(this).attr('data-location')
-                });
-            });
-            if (selectedLocations.length > 0) {
-
-                if (digitalMerChants.some(e => e.id === $('#company_ids').val())) {
-                    // Update existing merchant entry
-
-                    digitalMerChants.forEach(function(merchant) {
-                        if (merchant.id === $('#company_ids').val()) {
-                            merchant.locations = selectedLocations;
-                        }
-                    });
-                } else {
-                    // Add new merchant entry
-                    digitalMerChants.push({
-                        name: $('#company_ids option:selected').text(),
-                        id: $('#company_ids').val(),
-                        locations: selectedLocations
-                    })
-                }
-            }
-            $('#selected_locations_for_digital').empty();
-            digitalMerChants.forEach(function(merchant, merchantIndex) {
-                var merchantDiv = $('<div>').addClass('mb-3');
-                var merchantLabel = $('<label>').text(merchant.name).addClass('form-label');
-                merchantDiv.append(merchantLabel);
-                merchant.locations.forEach(function(location, locationIndex) {
-                    var locationP = $('<p>').addClass('d-flex align-items-center justify-content-between')
-                        .html(
-                            '<span>' + location.name + '</span>' +
-                            '<i class="mdi mdi-delete text-danger remove-location" style="cursor: pointer;" data-merchant-id="' +
-                            merchant.id + '" data-location-id="' + location.id + '"></i>'
-                        );
-
-                    merchantDiv.append(locationP);
-                });
-                $('#selected_locations_for_digital').append(merchantDiv);
-            });
-        }
-        $(function() {
-            $(document).on("change", ".reward_type", function() {
-                var reward_type = $(this).val();
-                if (reward_type == 1) {
-                    $('.physical-voucher-div').show();
-                    $('.digital-voucher-div').hide();
-                } else {
-                    $('.physical-voucher-div').hide();
-                    $('.digital-voucher-div').show();
-                    $('#InventoryFileDiv').hide();
-                    $('#InventoryQtyDiv').hide();
-
-                }
-
-            })
-            $(document).on("change", ".inventory_type", function() {
-                var type = $(this).val();
-                if (type == 0) {
-                    $('#InventoryQtyDiv').show();
-                    $('#InventoryFileDiv').hide();
-                } else {
-                    $('#InventoryQtyDiv').hide();
-                    $('#InventoryFileDiv').show();
-                }
-
-            })
-            $(document).on("change", "#is_featured", function() {
-                $('.is-featured-div').toggle()
-
-
-            })
-
-            $(document).on("change", "#company_id", function() {
-                loadLocationsByCompany();
-            });
-
-            $(document).on("change", "#company_ids", function() {
-                loadLocationsByCompanyForDigital();
-            });
-
-
-
-            // Load locations when modal is opened if company is already selected
-           $(document).on('shown.bs.modal', '#AddModal, #EditModal', function () {
-
-                initRewardModal();
-                
-            });
-
-            $(document).on("click", ".clear-time", function() {
-                $("input[name='start_time']").val("");
-                $("input[name='end_time']").val("");
-            })
-
-            $(document).on("click", ".remove-location", function() {
-                var merchantId = $(this).data('merchant-id');
-                var locationId = $(this).data('location-id');
-
-                // Uncheck the corresponding checkbox
-                $('.locations_digital_checkbox[data-location-id="' + locationId + '"]').prop('checked',
-                    false);
-
-                digitalMerChants.forEach(function(merchant) {
-                    if (merchant.id == merchantId) {
-                        console.log(merchant.id == merchantId);
-                        merchant.locations = merchant.locations.filter(function(location) {
-                            return location.id != locationId;
-                        });
-                    }
-                });
-
-
-                digitalMerChants = digitalMerChants.filter(function(merchant) {
-                    return merchant.locations.length > 0;
-                });
-                moveSelectedLocation();
-            })
-
-
-
         });
 
 
-        $(document).ready(function() {
-           
+        $('#merchant_id').on('change', function () {
+            let merchantId = $(this).val();
+            let rewardType = $('.reward_type').val();
 
-            
-            //add participating  merchant multi location
-            // helper to build the date block HTML for a given location id
-            function buildDateBlock(locationId) {
-                return `
-                <div class="location-date-block mt-2" data-location-id="${locationId}" style="padding:10px; border:1px dashed #e0e0e0;">
-                    <div class="row">
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Publish Start Date <span class="required-hash">*</span></label>
-                        <input type="date" class="form-control" name="locations_digital[${locationId}][publish_start_date]">
-                        </div>
-                    </div>
+            $("#location_wrapper").html("");
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Start Time</label>
-                        <input type="time" class="form-control" name="locations_digital[${locationId}][publish_start_time]">
-                        </div>
-                    </div>
+            if (rewardType == "1" && merchantId) {
+                $("#location_section").show();
+                loadLocations(merchantId);
+            } else {
+                $("#location_section").hide();
+            }
+        });
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Publish End Date</label>
-                        <input type="date" class="form-control" name="locations_digital[${locationId}][publish_end_date]">
-                        </div>
-                    </div>
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">End Time</label>
-                        <input type="time" class="form-control" name="locations_digital[${locationId}][publish_end_time]">
-                        </div>
-                    </div>
+        function loadLocations(merchantId) {
+            $("#location_wrapper").html("");
 
-                    <!-- Sales fields -->
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Sales Start Date <span class="required-hash">*</span></label>
-                        <input type="date" class="form-control" name="locations_digital[${locationId}][sales_start_date]">
-                        </div>
-                    </div>
+            $.ajax({
+                url: "{{ url('admin/reward/get-locations') }}/" + merchantId,
+                type: "GET",
+                success: function (res) {
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Start Time</label>
-                        <input type="time" class="form-control" name="locations_digital[${locationId}][sales_start_time]">
-                        </div>
-                    </div>
+                    if (res.status === 'success') {
+                        let html = '';
+                        let i = 1;
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">Sales End Date</label>
-                        <input type="date" class="form-control" name="locations_digital[${locationId}][sales_end_date]">
-                        </div>
-                    </div>
+                        html += `<label class="sh_dec"><b>Locations</b></label>`;
+                        res.locations.forEach(loc => {
+                            html += `
+                            <div id="location_wrapper">
+                                <div class="location-box row align-items-center py-2 mb-2" style="border-bottom:1px solid #ddd;">
 
-                    <div class="col-12 col-md-3">
-                        <div class="mb-3 sh_dec">
-                        <label class="sh_dec">End Time</label>
-                        <input type="time" class="form-control" name="locations_digital[${locationId}][sales_end_time]">
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                `;
+                                    <div class="col-md-4 col-12">
+                                        <label class=" mb-0 me-3"><span class="fw-bold">Location ${i}:</span> ${loc.name}</label>
+                                        <input type="checkbox" name="locations[${loc.id}][selected]" value="1">
+                                    </div>
+
+                                    <div class="col-md-6 col-12 mt-2 mt-md-0 d-flex">
+                                        <label class="mb-1 me-3 pt-2">Inventory Qty</label>
+                                        <input type="number" class="form-control"
+                                            name="locations[${loc.id}][inventory_qty]"
+                                            placeholder="Enter Qty" style="max-width:200px">
+                                    </div>
+
+                                </div>
+                                </div>
+                            `;
+                            i++;
+                        });
+
+                        $("#location_section").html(html);
+                    }
+                }
+            });
+        }
+
+        $(document).on('shown.bs.modal','#EditModal', function () {
+            const $modal = $(this);
+
+            function togglePhysicalSectionInModal() {
+                const val = $modal.find('.reward_type').val();
+                if (val === undefined) return;
+                $modal.find('#physical').toggle(val == "1");
             }
 
-            // toggle date block when checkbox changes
-            $(document).on('change', '.locations_digital_checkbox', function() {
-                var $cb = $(this);
-                var locId = $cb.data('location-id');
-                // the row wrapper — adapt to your markup: the checkbox lives inside a .row.mb-2
-                var $row = $cb.closest('.row.mb-2');
+            // bind change (scoped to this modal)
+            $modal.find('.reward_type').off('change.togglePhysical').on('change.togglePhysical', togglePhysicalSectionInModal);
 
-                if ($cb.is(':checked')) {
-                // avoid duplicating if already present
-                if ($row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
-                    // insert date block *after* this row (so it appears right below the checkbox row)
-                    $row.after(buildDateBlock(locId));
-                } else {
-                    // if exists but hidden, just show
-                    $row.next('.location-date-block[data-location-id="'+locId+'"]').show();
-                }
-                } else {
-                // remove/hide the block when unchecked
-                var $block = $row.next('.location-date-block[data-location-id="'+locId+'"]');
-                if ($block.length) {
-                    // clear inputs (optional) then remove
-                    $block.find('input').val('');
-                    $block.remove();
-                }
-                }
-            });
+            // initial toggle for edit mode
+            togglePhysicalSectionInModal();
+        });
 
-            // If some checkboxes are pre-checked on page load, show their blocks
-            $('.locations_digital_checkbox:checked').each(function() {
-                var $cb = $(this);
-                var locId = $cb.data('location-id');
-                var $row = $cb.closest('.row.mb-2');
-                if ($row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
-                $row.after(buildDateBlock(locId));
-                // optionally populate existing values if you have them (you can fill inputs server-side)
-                }
-            });        
-
-            // add multiple for merchant
-        
-            $(function() {
-             
-
-                // Checkbox toggle logic
-                $(document).on('change', '.form-check-input[name^="locations"][name$="[selected]"]', function() {
-
-                    var $cb = $(this);
-                    var row = $cb.closest('.row.mb-2');
-
-                    // extract location ID from name="locations[1][selected]"
-                    var name = $cb.attr('name');
-                    var match = name.match(/locations\[(\d+)\]/);
-                    if (!match) return;
-                    var locId = match[1];
-
-                    if ($cb.is(':checked')) {
-
-                        // If block not exists -> append after row
-                        if (row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
-
-                            // existing data if edit mode
-                            var values = (typeof existingLocationsData !== 'undefined' && existingLocationsData[locId])
-                                            ? existingLocationsData[locId]
-                                            : {};
-
-                            row.after(buildDateBlock(locId, values));
-
-                        } else {
-                            // show if hidden
-                            row.next('.location-date-block[data-location-id="'+locId+'"]').show();
-                        }
-
-                    } else {
-                        // remove block
-                        row.next('.location-date-block[data-location-id="'+locId+'"]').remove();
-                    }
-                });
-
-
-                // On page load — show blocks for already checked locations (edit mode)
-                $('.form-check-input[name^="locations"][name$="[selected]"]:checked').each(function() {
-
-                    var $cb = $(this);
-                    var row = $cb.closest('.row.mb-2');
-
-                    var match = $cb.attr('name').match(/locations\[(\d+)\]/);
-                    if (!match) return;
-                    var locId = match[1];
-
-                    var values = (typeof existingLocationsData !== 'undefined' && existingLocationsData[locId])
-                                    ? existingLocationsData[locId]
-                                    : {};
-
-                    if (row.next('.location-date-block[data-location-id="'+locId+'"]').length === 0) {
-                        row.after(buildDateBlock(locId, values));
-                    }
-                });
-
-            });
-
-
-
-    });
+       
     </script>
-   
-
-
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

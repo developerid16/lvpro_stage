@@ -1,336 +1,125 @@
  @php
-    $existingLocationsData = $existingLocationsData ?? [];
-    $selectedCompanies = $selectedCompanies ?? (isset($data->company_id) ? explode(',', $data->company_id) : []);
     $data = $data ?? null;
 @endphp
-<script>   
-    function initRewardModal() {
-        const existingLocationsData = @json($existingLocationsData);
-        const selectedCompanies     = @json($selectedCompanies);
-        const rewardType            = @json($data->reward_type ?? '');
-        const inventoryType         = @json($data->inventory_type ?? '');
-        toggleRewardType(rewardType);
-        toggleInventory(inventoryType);
-       
 
-        // Init Select2 inside modal
-        $('#{{ isset($data->id) ? "EditModal" : "AddModal" }} .select2').select2({
-            dropdownParent: $('#{{ isset($data->id) ? "EditModal" : "AddModal" }}')
-        });
 
-        // -------------------
-        // Reward Type Toggle
-        // -------------------
-        function toggleRewardType(type) {
+<script>
+    $(document).on('shown.bs.modal', '#EditModal', function () {
 
-            $(".digital-voucher-div, .physical-voucher-div").removeAttr("style");
-
-            if (type == "0") {
-                $(".digital-voucher-div").removeClass("d-none");
-                $(".physical-voucher-div").addClass("d-none");
-
-                loadLocationsDigital(true);
-
-            } else if (type == "1") {
-                $(".physical-voucher-div").removeClass("d-none");
-                $(".digital-voucher-div").addClass("d-none");
-
-                loadLocationsPhysical(true);
-            }
+        let rewardType = $('#EditModal .reward_type').val();
+        let merchantId = $('#EditModal #merchant_id').val();
+        let modal = $(this).closest('.modal');
+        if (rewardType == "1" && merchantId) {
+            $("#EditModal #physical").show();
+            $("#EditModal #location_section").show();
+            editLoadLocations(modal, merchantId); // will use savedLocations variable inside modal
         }
+    });
 
+    // 1️⃣ Handle reward type change
+    $(document).on('change', '.reward_type', function () {
 
-        $(".reward_type").on("change", function () {
-            toggleRewardType($(this).val());
-        });
+        let modal = $(this).closest('.modal');
 
-        // -------------------------
-        // Inventory (File / Qty)
-        // -------------------------
-       
+        let type = $(this).val();
+        let merchantId = modal.find('#merchant_id').val();
 
-        function toggleInventory(type) {
-            if (type == 0) {
-                $(".InventoryQtyDiv").removeClass("d-none");
-                $(".InventoryFileDiv").addClass("d-none");
-            } 
-            else if (type == 1) {
-                $(".InventoryQtyDiv").addClass("d-none");
-                $(".InventoryFileDiv").removeClass("d-none");
-            } 
-        }
+        let physical = modal.find('#physical');
+        let locationSection = modal.find('#location_section');
+        let locationWrapper = modal.find('#location_wrapper');
 
+        if (type === "1") {
+            physical.show();
+            locationSection.show();
 
-        $(".inventory_type").on("change", function () {
-            toggleInventory($(this).val());
-        });
-
-        // -------------------------
-        // Load Locations Digital
-        // -------------------------
-        function loadLocationsDigital(isEdit=false) {
-
-            let modal = $("#EditModal");   // ensure we target the edit modal only
-            let ids = modal.find("#company_ids").select2('val');
-
-            if (!ids || ids.length === 0) return;
-
-            $.ajax({
-                url: ModuleBaseUrl + "locations-by-company",
-                type: "GET",
-                data: { company_id: JSON.stringify(ids), type: "digital" },
-                traditional: true,
-                success: function (response) {
-                    modal.find("#locations_for_digital").html(response.html);
-                    if (isEdit) applyEditLocationSelections(existingLocationsData, 'digital');
-                }
-            });
-        }
-
-        // -------------------------
-        // Load Locations Physical
-        // -------------------------
-        function loadLocationsPhysical(isEdit = false) {
-
-            let modal = $("#EditModal");   // ensure we target the edit modal only
-            let ids = modal.find("#company_id").select2('val');
-
-            console.log("Selected:", ids);
-
-            if (!ids || ids.length === 0) return;
-
-            $.ajax({
-                url: ModuleBaseUrl + "locations-by-company",
-                type: "GET",
-                data: { company_id: JSON.stringify(ids),  type: "physical" },
-                traditional: true,
-                success: function (response) {
-
-                    console.log("Response:", response);
-
-                    // ⭐ append into correct modal, not global DOM
-                    modal.find("#locations").html(response.html);
-
-                    if (isEdit) {
-                        applyEditLocationSelections(existingLocationsData,'physical');
-                    }
-                }
-            });
-        }
-
-
-        // --------------------------------------------------------
-        // APPLY EXISTING LOCATION DATE BLOCKS (EDIT MODE)
-        // --------------------------------------------------------
-        function applyEditLocationSelections(existingLocationsData,type) {
-            if (!existingLocationsData || Object.keys(existingLocationsData).length === 0) {
-                return;
+            if (merchantId) {
+                editLoadLocations(modal, merchantId);
             }
 
-            Object.keys(existingLocationsData).forEach(function (locId) {
-
-                let data = existingLocationsData[locId];
-                var checkbox = '';
-                // 1️⃣ Locate checkbox
-                if(type == 'physical'){
-                     checkbox = $(`input[name="locations[${locId}][selected]"]`);
-                }
-                else if(type == 'digital'){
-                     checkbox = $(`input[name="locations_digital[${locId}][selected]"]`);
-                }
-
-                if (checkbox.length) {
-                    checkbox.prop("checked", true);
-                } else {
-                    console.log("Checkbox NOT found for location " + locId);
-                    return;
-                }
-
-                // 2️⃣ Locate parent row
-                let row = checkbox.closest(".row.mb-2");
-
-                // 3️⃣ Fill inventory qty (PHYSICAL voucher)
-                if (data.qty !== undefined) {
-                    let qtyInput = $(`input[name="locations[${locId}][inventory_qty]"]`);
-                    qtyInput.val(data.qty);
-                }
-
-                // 4️⃣ Append date block (DIGITAL)
-                if (row.length && data.publish_start_date !== undefined) {
-                    row.after(buildPrefilledDateBlock(locId, data));
-                }
-            });
+        } else {
+            physical.hide();
+            locationSection.hide();
+            locationWrapper.html("");
         }
+    });
 
-        function buildPrefilledDateBlock(locationId, values) {
-            return `
-        <div class="location-date-block mt-2" data-location-id="${locationId}"
-            style="padding:10px; border:1px dashed #e0e0e0;">
 
-            <div class="row">
+    // 2️⃣ Handle merchant change
+    $(document).on('change', '#merchant_id', function () {
 
-                <div class="col-md-3 mb-3">
-                    <label>Publish Start Date *</label>
-                    <input type="date" class="form-control"
-                        name="locations_digital[${locationId}][publish_start_date]"
-                        value="${values.publish_start_date ?? ''}">
-                </div>
+        let modal = $(this).closest('.modal');
+        let merchantId = $(this).val();
+        let rewardType = modal.find('.reward_type').val();
 
-                <div class="col-md-3 mb-3">
-                    <label>Publish Start Time *</label>
-                    <input type="time" class="form-control"
-                        name="locations_digital[${locationId}][publish_start_time]"
-                        value="${values.publish_start_time ?? ''}">
-                </div>
+        let locationSection = modal.find('#location_section');
+        let locationWrapper = modal.find('#location_wrapper');
 
-                <div class="col-md-3 mb-3">
-                    <label>Publish End Date</label>
-                    <input type="date" class="form-control"
-                        name="locations_digital[${locationId}][publish_end_date]"
-                        value="${values.publish_end_date ?? ''}">
-                </div>
+        locationWrapper.html("");
 
-                <div class="col-md-3 mb-3">
-                    <label>Publish End Time</label>
-                    <input type="time" class="form-control"
-                        name="locations_digital[${locationId}][publish_end_time]"
-                        value="${values.publish_end_time ?? ''}">
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Sales Start Date *</label>
-                    <input type="date" class="form-control"
-                        name="locations_digital[${locationId}][sales_start_date]"
-                        value="${values.sales_start_date ?? ''}">
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Sales Start Time *</label>
-                    <input type="time" class="form-control"
-                        name="locations_digital[${locationId}][sales_start_time]"
-                        value="${values.sales_start_time ?? ''}">
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Sales End Date</label>
-                    <input type="date" class="form-control"
-                        name="locations_digital[${locationId}][sales_end_date]"
-                        value="${values.sales_end_date ?? ''}">
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <label>Sales End Time</label>
-                    <input type="time" class="form-control"
-                        name="locations_digital[${locationId}][sales_end_time]"
-                        value="${values.sales_end_time ?? ''}">
-                </div>
-
-            </div>
-        </div>`;
+        if (rewardType == "1" && merchantId) {
+            locationSection.show();
+            editLoadLocations(modal, merchantId);
+        } else {
+            locationSection.hide();
         }
-    
-        $(document).on("change", "#EditModal #company_id", function () {
-            loadLocationsByCompanySearch();
+    });
+
+
+    // 3️⃣ Unified loader (Add + Edit)
+    function editLoadLocations(modal, merchantId) {
+
+        modal.find('#location_wrapper').html("");
+
+        $.ajax({
+            url: "{{ url('admin/reward/get-locations') }}/" + merchantId,
+            type: "GET",
+            success: function (res) {
+
+                if (res.status !== 'success') return;
+
+                let html = `<label class="sh_dec"><b>Locations</b></label>`;
+                html += `<div id="location_wrapper">`;
+
+                let i = 1;
+
+                res.locations.forEach(loc => {
+
+                    // Add Mode → savedLocations empty
+                    // Edit Mode → savedLocations contains stored qty
+                    let isChecked = savedLocations[loc.id] ? 'checked' : '';
+                    let qtyValue = savedLocations[loc.id] ?? '';
+
+                    html += `
+                        <div class="location-box row align-items-center py-2 mb-2" style="border-bottom:1px solid #ddd;">
+
+                            <div class="col-md-4 col-12">
+                                <label class="mb-0 me-3">
+                                    <span class="fw-bold">Location ${i}:</span> ${loc.name}
+                                </label>
+                                <input type="checkbox" name="locations[${loc.id}][selected]" value="1" ${isChecked}>
+                            </div>
+
+                            <div class="col-md-6 col-12 mt-2 d-flex">
+                                <label class="mb-1 me-3 pt-2">Inventory Qty</label>
+                                <input type="number" class="form-control"
+                                    name="locations[${loc.id}][inventory_qty]"
+                                    value="${qtyValue}"
+                                    placeholder="Enter Qty" style="max-width:200px">
+                            </div>
+
+                        </div>
+                    `;
+
+                    i++;
+                });
+
+                html += `</div>`;
+
+                modal.find('#location_section').html(html);
+            }
         });
-
-        $(document).on("change", "#EditModal #company_ids", function () {
-            loadLocationsByCompanyForDigitalSearch();
-        });
-
-        function loadLocationsByCompanySearch() {
-
-            let modal = $("#EditModal");
-            let container = modal.find("#locations");
-            let methodBlock = container.find(".method"); // ⭐ FINAL BLOCK
-            let companyId = modal.find("#company_id").select2("val");
-
-            if (!companyId || companyId.length === 0) return;
-
-            $.ajax({
-                url: ModuleBaseUrl + "locations-by-company",
-                type: "GET",
-                data: { companyId: JSON.stringify(ids), type: "physical" },
-                traditional: true,
-                success: function (response) {
-
-                    let temp = $("<div>").html(response.html);
-
-                    temp.find(".row.mb-2").each(function () {
-
-                        let newRow = $(this);
-                        let newLocId = getLocationId(newRow);
-                        if (!newLocId) return;
-
-                        // Check if already exists
-                        let exists = container.find(`input[name="locations[${newLocId}][selected]"]`).length > 0;
-
-                        if (!exists) {
-                            methodBlock.before(newRow); // ⭐ insert above `.method`
-                        }
-                    });
-                }
-            });
-        }
-
-        function getLocationId(row) {
-            let checkbox = row.find("input[type='checkbox'][name^='locations']");
-            if (!checkbox.length) return null;
-
-            let name = checkbox.attr("name"); // locations[1][selected]
-            let match = name.match(/locations\[(\d+)\]/);
-
-            return match ? match[1] : null;
-        }
-      
-        function loadLocationsByCompanyForDigitalSearch() {
-
-            let modal = $("#EditModal");
-            let container = modal.find("#locations_for_digital");
-            let methodBlock = container.find(".method"); 
-            let companyId = modal.find("#company_ids").select2("val");
-
-            if (!companyId || companyId.length === 0) return;
-
-            $.ajax({
-                url: ModuleBaseUrl + "locations-by-company",
-                type: "GET",
-                data: { company_id: companyId, type: "digital" },
-                traditional: true,
-                success: function (response) {
-
-                    let temp = $("<div>").html(response.html);
-
-                    temp.find(".row.mb-2").each(function () {
-
-                        let newRow = $(this);
-                        let newLocId = getDigitalLocationId(newRow);
-                        if (!newLocId) return;
-
-                        // Check if already exists
-                        let exists = container.find(`input[name="locations_digital[${newLocId}][selected]"]`).length > 0;
-
-                        if (!exists) {
-                            methodBlock.before(newRow);
-                        }
-                    });
-                }
-            });
-        }
-
-        function getDigitalLocationId(row) {
-            let checkbox = row.find("input[type='checkbox'][name^='locations_digital']");
-            if (!checkbox.length) return null;
-
-            let name = checkbox.attr("name"); // locations_digital[3][selected]
-            let match = name.match(/locations_digital\[(\d+)\]/);
-
-            return match ? match[1] : null;
-        }
-
     }
 
-    $(".InventoryQtyDiv").addClass("d-none");
-    $(".InventoryFileDiv").addClass("d-none");   
 </script>
 
 
@@ -355,278 +144,288 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="code">Code <span class="required-hash">*</span></label>
-                                <input id="code" type="text" class="sh_dec form-control" name="code"
-                                    placeholder="Enter code" value="{{ $data->code ?? '' }}">
+                                <label class="sh_dec" for="voucher_image">Voucher Image <span class="required-hash">*</span></label>
+
+                                <input id="voucher_image" type="file" class="sh_dec form-control"
+                                    name="voucher_image" accept=".png,.jpg,.jpeg">
+
+                                <span class="text-secondary">(316 px X 140 px)</span>
+                                <!-- 🔥 PREVIEW IMAGE -->
+                                <img id="voucher_image_preview"
+                                    src="{{ isset($data->voucher_image) ? asset('reward_images/'.$data->voucher_image) : '' }}"
+                                    style="max-width:50px; margin-top:10px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
                             </div>
+
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Name <span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name"
-                                    placeholder="Enter name" value="{{ $data->name ?? '' }}">
+                                <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
+                                <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-4">
                             <div class="mb-3">
-                                <label class="sh_dec" for="reward_type"> Reward Type <span
-                                        class="required-hash">*</span></label>
-                                <select class="sh_dec form-select reward_type " name="reward_type">
-                                    <option class="sh_dec" value="">Select Reward Type</option>
-                                    <option class="sh_dec" value="0"
-                                        {{ isset($data->reward_type) && $data->reward_type == '0' ? 'selected' : '' }}>
-                                        Digital Voucher</option>
-                                    <option class="sh_dec" value="1"
-                                        {{ isset($data->reward_type) && $data->reward_type == '1' ? 'selected' : '' }}>
-                                        Physical Voucher</option>
-                                </select>
-                                <div class="sh_dec_s error" id="reward_type_error"></div>
+                                <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
+                                <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
+                                <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
+                                <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
-                                <input id="description" type="text" class="sh_dec form-control" name="description"
-                                    placeholder="Enter description" value="{{ $data->description ?? '' }}">
+                                <label class="sh_dec" for="reward_type">Voucher Type <span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select reward_type" name="reward_type">
+                                    <option class="sh_dec" value="">Select Voucher Type</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->reward_type) && $data->reward_type == '0' ? 'selected' : '' }}> Digital Voucher</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->reward_type) && $data->reward_type == '1' ? 'selected' : '' }}> Physical Voucher</option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="merchant_id">Merchant <span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select" name="merchant_id" id="merchant_id">
+                                    <option value="">Select Merchant</option>
+                                    @if (isset($merchants))                                        
+                                        @foreach ($merchants as $merchant)
+                                            <option value="{{ $merchant->id }}" {{ isset($data) && $data->merchant_id == $merchant->id ? 'selected' : '' }}>
+                                                {{ $merchant->name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>                                
+                            </div>
+                        </div>
+
+                        <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
+                        <div id="location_date_container" class="col-12 mt-3">
+                            <label class="sh_dec"><b>Date & Time</b></label>
+
+                            <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
+                                
+                                <div class="row">
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Publish Start Date <span class="required-hash">*</span></label>
+                                            <input type="date" class="form-control" name="publish_start_date" value="{{ $data->publish_start_date ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Start Time</label>
+                                            <input type="time" class="form-control"name="publish_start_time" value="{{ $data->publish_start_time ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Publish End Date</label>
+                                            <input type="date" class="form-control"  name="publish_end_date" value="{{ $data->publish_end_date ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">End Time</label>
+                                            <input type="time" class="form-control"  name="publish_end_time" value="{{ $data->publish_end_time ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <!-- Sales fields -->
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Sales Start Date <span class="required-hash">*</span></label>
+                                            <input type="date" class="form-control"  name="sales_start_date" value="{{ $data->sales_start_date ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Start Time</label>
+                                            <input type="time" class="form-control" name="sales_start_time" value="{{ $data->sales_start_time ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">Sales End Date</label>
+                                            <input type="date" class="form-control"  name="sales_end_date" value="{{ $data->sales_end_date ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec">End Time</label>
+                                            <input type="time" class="form-control"   name="sales_end_time" value="{{ $data->sales_end_time ?? '' }}"> 
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-12 col-md-6 ">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="usual_price">Usual Price($) <span class="required-hash">*</span></label>
+                                <input id="usual_price" type="number" class="sh_dec form-control" name="usual_price"  placeholder="Enter Usual Price" value="{{ $data->usual_price ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="max_quantity">Maximum<span class="required-hash">*</span></label>
+                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Order" value="{{ $data->max_quantity ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-12 ">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="sh_dec" for="amount"> <b> Tier Rates </b></label>
+                                </div>
+                                @foreach ($tiers as $key => $tier)
+                                    <div class="col-6">
+                                        <div class="mb-3">
+                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="required-hash">*</span></label>
+                                            <input id="tier_{{ $tier->id }}" type="number" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"   value="{{ isset($data->tierRates[$key]['price']) ? $data->tierRates[$key]['price'] : '' }}">
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div id="location_section" style="display:none;">
+                            
+                        </div>
+
+                        <div id="physical" style="display:none;">
+
+                            <!-- Low Stock Reminder -->
+                            <div class="row align-items-center mb-3">
+                                <label class="sh_dec"><b>Low Stock Reminder Threshold</b></label>
+
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control"
+                                        name="low_stock_1"  placeholder="Reminder 1"   value="{{ $data->low_stock_1 ?? '' }}">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control"  name="low_stock_2"    placeholder="Reminder 2"   value="{{ $data->low_stock_2 ?? '' }}">
+                                </div>
+                            </div>
+
+                            <!-- Friendly URL -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Friendly URL Name</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control"   name="friendly_url" readonly    value="{{ $data->friendly_url ?? '' }}">
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Category</label>
+                                <div class="col-md-6">
+                                    <select class="form-select" name="category_id" readonly>
+                                        <option value="">Select Category</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Club Classification -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Club Classification Type</label>
+                                <div class="col-md-6">
+                                    <select class="form-select" name="club_classification_id" readonly>
+                                        <option value="">Select</option>
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- FABS Category -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">FABS Categories</label>
+                                <div class="col-md-6">
+                                    <select class="form-select" name="fabs_category_id" readonly>
+                                        <option value="">Select</option>                                     
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- SMC Classification -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">SMC Classification Type</label>
+                                <div class="col-md-6">
+                                    <select class="form-select" name="smc_classification_id" readonly>
+                                        <option value="">Select</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- AX Item Code -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">AX Item Code</label>
+                                <div class="col-md-6">
+                                    <input type="text" name="ax_item_code" class="form-control" readonly  value="{{ $data->ax_item_code ?? '' }}">
+                                </div>
+                            </div>
+
+                            <!-- Publish Channel -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Publish Channel</label>
+
+                                <div class="col-md-3">
+                                    <label>
+                                        <input type="checkbox" name="publish_independent" value="1" {{ isset($data) && $data->publish_independent ? 'checked' : '' }}>
+                                        Independent
+                                    </label>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label>
+                                        <input type="checkbox" name="publish_inhouse" value="1" {{ isset($data) && $data->publish_inhouse ? 'checked' : '' }}>
+                                        In-House
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Send Reminder -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Send Reminder</label>
+
+                                <div class="col-md-3">
+                                    <label>
+                                        <input type="checkbox" name="send_reminder" value="1"  {{ isset($data) && $data->send_reminder ? 'checked' : '' }}>
+                                        Reminder
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
 
 
                         
-                        <div class="col-12 col-md-6 ">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="amount">Usual Price <span
-                                        class="required-hash">*</span></label>
-                                <input id="amount" type="number" class="sh_dec form-control" name="amount"
-                                    placeholder="Enter Usual Price" value="{{ $data->amount ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="quantity">Maximum Order <span
-                                        class="required-hash">*</span></label>
-                                <input id="quantity" type="text" class="sh_dec form-control" name="quantity"
-                                    placeholder="Enter Maximum Order" value="{{ $data->quantity ?? '' }}">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-12 ">
-                            <div class="row">
-                                <div class="col-12">
-
-                                    <label class="sh_dec" for="amount"> <b> Tier Rates </b></label>
-                                </div>
-
-                                @foreach ($tiers as $key => $tier)
-                                    <div class="col-6">
-                                        <div class="mb-3">
-                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}
-                                                Price <span class="required-hash">*</span></label>
-                                            <input id="tier_{{ $tier->id }}" type="number"
-                                                class="sh_dec form-control" name="tier_{{ $tier->id }}"
-                                                placeholder="Enter {{ $tier->tier_name }} Price"
-                                                value="{{ isset($data->tierRates[$key]['price']) ? $data->tierRates[$key]['price'] : '' }}">
-                                        </div>
-                                    </div>
-                                @endforeach
-
-                            </div>
-                        </div>
-
-                        <hr class="dashed">
-
-                        <div class="col-12 physical-voucher-div d-none">
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="company_id">Merchant <span
-                                                class="required-hash">*</span></label>
-                                        <select class="sh_dec form-select select2" name="company_id[]" id="company_id"
-                                             multiple>
-                                            <option value="">Select Merchant</option>
-                                            @if (isset($companies))
-                                              
-                                                @foreach ($companies as $company)
-                                                    <option class="sh_dec" value="{{ $company->id }}"
-                                                        @if(in_array($company->id, $selectedCompanies)) selected @endif>
-                                                        {{ $company->name }}
-                                                    </option>
-                                                @endforeach
-
-                                            @endif
-                                        </select>
-                                        <div class="sh_dec_s error" id="company_id_error"></div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div id="locations">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-12 digital-voucher-div d-none">
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="company_id">Participating merchant <span class="required-hash">*</span></label>
-                                        <select class="sh_dec form-select select2" name="company_id[]" id="company_ids" multiple>
-                                        {{-- <select class="sh_dec form-select select2" name="company_id[]" id="company_ids" @disabled(isset($data->id)) multiple></select> --}}
-                                            <option value="">Select merchant</option>
-                                            @if (isset($companies))
-                                              
-                                                @foreach ($companies as $company)
-                                                    <option class="sh_dec" value="{{ $company->id }}"
-                                                        @if(in_array($company->id, $selectedCompanies)) selected @endif>
-                                                        {{ $company->name }}
-                                                    </option>
-                                                @endforeach
-
-                                            @endif
-                                        </select>
-                                        <div class="sh_dec_s error" id="company_id_error"></div>
-                                    </div>
-                                </div>
-                                <div class="col-12" id="locations_for_digital">
-                                </div>  
-                            </div>
-                            <hr class="dashed">
-
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="expiry_day">Voucher Validity </label>
-                                        <div class="input-group mb-2 mr-sm-2">
-                                            <div class="input-group-prepend">
-                                                <div class="sh_dec input-group-text">Days</div>
-                                            </div>
-                                            <input id="expiry_day" type="text" class="sh_dec form-control"
-                                                name="expiry_day" placeholder="Enter Days"
-                                                value="{{ $data->expiry_day ?? '' }}">
-                                        </div>
-                                        <span class="sh_dec_s text-muted">Add 0 for to use default expiration date of
-                                            reward.
-                                        </span>
-                                        <br>
-                                        <span class="sh_dec_s text-muted">if End Date is not provided then this field
-                                            is
-                                            required
-                                        </span>
-
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="clearing_method"> Clearing Method <span
-                                                class="required-hash">*</span></label>
-                                        <select class="sh_dec form-select clearing_method " name="clearing_method"
-                                            id="clearing_method">
-
-                                            <option class="sh_dec" value="">Select Clearing Method</option>
-                                            <option class="sh_dec" value="0"
-                                                {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
-                                                QR</option>
-                                            <option class="sh_dec" value="1"
-                                                {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
-                                                Barcode </option>
-                                            <option class="sh_dec" value="1"
-                                                {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
-                                                Barcode </option>
-                                            <option class="sh_dec" value="2"
-                                                {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
-                                                Coov Code </option>
-                                            <option class="sh_dec" value="3"
-                                                {{ isset($data->clearing_method) && $data->clearing_method == '3' ? 'selected' : '' }}>
-                                                Participant & Merchant Redemption Code </option>
-                                        </select>
-                                        <div class="sh_dec_s error" id="clearing_method_error"></div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_type"> Inventory Type <span
-                                                class="required-hash">*</span></label>
-                                        <select class="sh_dec form-select inventory_type " name="inventory_type"
-                                            id="inventory_type">
-                                            <option class="sh_dec" value="">Select Inventory Type</option>
-                                            <option class="sh_dec" value="0"
-                                                {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}>
-                                                Non-Merchant</option>
-                                            <option class="sh_dec" value="1"
-                                                {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}>
-                                                merchant </option>
-                                        </select>
-                                        <div class="sh_dec_s error" id="inventory_type_error"></div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6">
-
-                                    <div class="mb-3 InventoryQtyDiv" id="InventoryQtyDiv">
-                                        <label class="sh_dec" for="inventory_qty"> Inventory Quantity <span
-                                                class="required-hash">*</span></label>
-                                        <input id="inventory_qty" type="number" class="sh_dec form-control"
-                                            name="inventory_qty" placeholder="Enter Inventory Quantity"
-                                            value="{{ $data->inventory_qty ?? '' }}">
-                                    </div>
-                                    <div class="mb-3 InventoryFileDiv" id="InventoryFileDiv">
-                                        <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>
-
-                                        
-                                        {{-- File input (used for uploading replacement) --}}
-                                        <input id="csvFile" 
-                                        type="file" 
-                                        class="sh_dec form-control" 
-                                        name="csvFile" 
-                                        accept=".csv,.xls,.xlsx">
-                                        {{-- If file exists, show file name + link --}}
-                                        @if(!empty($data->csvFile))
-                                            <div class="mb-2">
-                                                <strong>Current File:</strong>
-                                                <a href="{{ asset('rewardvoucher/' . $data->csvFile) }}" 
-                                                target="_blank" 
-                                                class="text-primary">
-                                                    {{ $data->csvFile }}
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                </div>
-                                <div class="col-12 col-md-6 ">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_value">Voucher Value <span
-                                                class="required-hash">*</span></label>
-                                        <input id="voucher_value" type="number" class="sh_dec form-control"
-                                            name="voucher_value" placeholder="Enter Voucher Value"
-                                            value="{{ $data->voucher_value ?? '' }}" onchange="voucherValueChange()">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-md-6 ">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_set">Voucher set <span
-                                                class="required-hash">*</span></label>
-                                        <input id="voucher_set" type="number" class="sh_dec form-control"
-                                            name="voucher_set" placeholder="Enter Voucher set"
-                                            value="{{ $data->voucher_set ?? '' }}" readonly>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                     <div class="row">
-
                         <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset"
-                                onclick="remove_errors()">Reset</button>
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
                         </div>
                         <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light"
-                                type="submit">Submit</button>
+                            <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>
                         </div>
                     </div>
 
@@ -635,4 +434,5 @@
         </div>
     </div>
 </div>
+
 
