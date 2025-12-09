@@ -293,12 +293,20 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
 
+                $path = public_path('reward_images');
+
+                // Create directory if not exists
+                if (!is_dir($path)) {
+                    mkdir($path, 0775, true);
+                }
+
                 $file = $request->file('voucher_image');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('reward_images'), $filename);
+                $file->move($path, $filename);
 
                 $validated['voucher_image'] = $filename;
             }
+
 
 
             /* ---------------------------------------------------
