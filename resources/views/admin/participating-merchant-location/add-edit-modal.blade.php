@@ -30,7 +30,7 @@
                             <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}">
                         </div>
 
-                       <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-6">
                             <label>Start Date*</label>
                             <input type="datetime-local" name="start_date" id="start_date"
                                 class="form-control"
@@ -94,27 +94,3 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-    let start = document.getElementById("start_date");
-    let end   = document.getElementById("end_date");
-
-    // Disable end date until start date selected
-    if (!start.value) {
-        end.disabled = true;
-    }
-
-    start.addEventListener("change", function () {
-        if (start.value) {
-            end.disabled = false;
-            end.min = start.value; // prevent selecting earlier date
-        } else {
-            end.disabled = true;
-            end.value = "";
-        }
-    });
-
-});
-</script>

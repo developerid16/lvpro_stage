@@ -469,9 +469,9 @@
                     @endcan
                  
                     @canany(['aircrew-company-list'])
-                    <a class="nav-link  " href="{{url('/admin/partner-company')}}">
+                    {{-- <a class="nav-link  " href="{{url('/admin/partner-company')}}">
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Partner Management</span>
-                    </a>
+                    </a> --}}
                     @endcan
                   
 

@@ -69,6 +69,9 @@ class ParticipatingMerchantController extends Controller
             // Participating Merchant Location Redirect
             $action .= "<a href='" . url('admin/participating-merchant/' . $row->id . '/location') . "'>
                 <i class='mdi mdi-map-marker-multiple text-primary action-icon font-size-18'></i>
+            </a>
+            <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
             </a>";
 
             $action .= "</div>";
