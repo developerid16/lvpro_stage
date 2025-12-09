@@ -38,6 +38,7 @@ class Reward extends Model
         'publish_independent',
         'publish_inhouse',
         'send_reminder',       
+        'hide_quantity',       
 
     ];
 

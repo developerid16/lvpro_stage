@@ -221,59 +221,75 @@
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Publish Start Date <span class="required-hash">*</span></label>
-                                            <input type="date" class="form-control" name="publish_start_date" value="{{ $data->publish_start_date ?? '' }}">
+                                            <input type="datetime-local" 
+                                                class="form-control"
+                                                name="publish_start"
+                                                value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
+
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-md-3">
+                                    {{-- <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Start Time</label>
                                             <input type="time" class="form-control"name="publish_start_time" value="{{ $data->publish_start_time ?? '' }}">
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Publish End Date</label>
-                                            <input type="date" class="form-control"  name="publish_end_date" value="{{ $data->publish_end_date ?? '' }}">
+                                            <input type="datetime-local"
+                                                class="form-control"
+                                                name="publish_end"
+                                                value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
+
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-md-3">
+                                    {{-- <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">End Time</label>
                                             <input type="time" class="form-control"  name="publish_end_time" value="{{ $data->publish_end_time ?? '' }}">
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Sales fields -->
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Sales Start Date <span class="required-hash">*</span></label>
-                                            <input type="date" class="form-control"  name="sales_start_date" value="{{ $data->sales_start_date ?? '' }}">
+                                            <input type="datetime-local" 
+                                                class="form-control"
+                                                name="sales_start"
+                                                value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
+
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-md-3">
+                                    {{-- <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Start Time</label>
                                             <input type="time" class="form-control" name="sales_start_time" value="{{ $data->sales_start_time ?? '' }}">
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">Sales End Date</label>
-                                            <input type="date" class="form-control"  name="sales_end_date" value="{{ $data->sales_end_date ?? '' }}">
+                                            <input type="datetime-local"
+                                                class="form-control"
+                                                name="sales_end"
+                                                value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
+
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-md-3">
+                                    {{-- <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec">End Time</label>
                                             <input type="time" class="form-control"   name="sales_end_time" value="{{ $data->sales_end_time ?? '' }}"> 
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                 </div>
                             </div>
@@ -288,8 +304,8 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum<span class="required-hash">*</span></label>
-                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Order" value="{{ $data->max_quantity ?? '' }}">
+                                <label class="sh_dec" for="max_quantity">Maximum Quantity<span class="required-hash">*</span></label>
+                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-12 ">
@@ -313,18 +329,29 @@
                         </div>
 
                         <div id="physical" style="display:none;">
-
+                            <label for="">Clearing Method: CSO Issuance</label>
                             <!-- Low Stock Reminder -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Hide Quantity</label>
+                                <div class="col-md-3">
+                                    <label>
+                                        <input type="checkbox" name="hide_quantity" value="1"  {{ isset($data) && $data->hide_quantity ? 'checked' : '' }}>
+                                        Hide Quantity
+                                    </label>
+                                </div>
+                            </div>
                             <div class="row align-items-center mb-3">
                                 <label class="sh_dec"><b>Low Stock Reminder Threshold</b></label>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
+                                    <label class="sh_dec">Low Stock Reminder 1</label>
                                     <input type="number" class="form-control"
-                                        name="low_stock_1"  placeholder="Reminder 1"   value="{{ $data->low_stock_1 ?? '' }}">
+                                        name="low_stock_1"  placeholder="Low Stock Reminder 1"   value="{{ $data->low_stock_1 ?? '' }}">
                                 </div>
 
-                                <div class="col-md-3">
-                                    <input type="number" class="form-control"  name="low_stock_2"    placeholder="Reminder 2"   value="{{ $data->low_stock_2 ?? '' }}">
+                                <div class="col-md-4">
+                                    <label class="sh_dec">Low Stock Reminder 2</label>
+                                    <input type="number" class="form-control"  name="low_stock_2"    placeholder="Low Stock Reminder 2"   value="{{ $data->low_stock_2 ?? '' }}">
                                 </div>
                             </div>
 
@@ -407,12 +434,12 @@
 
                             <!-- Send Reminder -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Send Reminder</label>
+                                <label class="col-md-3 fw-bold">Send Collection Reminder</label>
 
                                 <div class="col-md-3">
                                     <label>
                                         <input type="checkbox" name="send_reminder" value="1"  {{ isset($data) && $data->send_reminder ? 'checked' : '' }}>
-                                        Reminder
+                                        Collection Reminder
                                     </label>
                                 </div>
                             </div>

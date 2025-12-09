@@ -207,8 +207,8 @@ class RewardController extends Controller
                 'usual_price'   => 'required|numeric|min:0',
                 'max_quantity'  => 'required|integer|min:0',
 
-                'publish_start_date' => 'required|date',
-                'sales_start_date'   => 'required|date',
+                'publish_start' => 'required',
+                'sales_start'   => 'required',
             ];
 
             /* ---------------------------------------------------
@@ -225,6 +225,7 @@ class RewardController extends Controller
             if ($request->reward_type == 1) {
 
                 $rules = array_merge($rules, [
+                    'hide_quantity'      => 'nullable|boolean',
                     'low_stock_1'      => 'required|integer|min:0',
                     'low_stock_2'      => 'required|integer|min:0',
 
@@ -308,6 +309,26 @@ class RewardController extends Controller
             }
 
 
+            if ($request->publish_start) {
+                $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
+                $validated['publish_start_time'] = date('H:i:s', strtotime($request->publish_start));
+            }
+
+            if ($request->publish_end) {
+                $validated['publish_end_date'] = date('Y-m-d', strtotime($request->publish_end));
+                $validated['publish_end_time'] = date('H:i:s', strtotime($request->publish_end));
+            }
+
+            if ($request->sales_start) {
+                $validated['sales_start_date'] = date('Y-m-d', strtotime($request->sales_start));
+                $validated['sales_start_time'] = date('H:i:s', strtotime($request->sales_start));
+            }
+
+            if ($request->sales_end) {
+                $validated['sales_end_date'] = date('Y-m-d', strtotime($request->sales_end));
+                $validated['sales_end_time'] = date('H:i:s', strtotime($request->sales_end));
+            }
+
 
             /* ---------------------------------------------------
             * 7) CREATE REWARD
@@ -326,16 +347,17 @@ class RewardController extends Controller
                 'max_quantity'       => $validated['max_quantity'],
 
                 'publish_start_date' => $validated['publish_start_date'],
-                'publish_start_time' => $request->publish_start_time,
-                'publish_end_date'   => $request->publish_end_date,
-                'publish_end_time'   => $request->publish_end_time,
+                'publish_start_time' => $validated['publish_start_time'],
+                'publish_end_date'   => $validated['publish_end_date'],
+                'publish_end_time'   => $validated['publish_end_time'],
 
                 'sales_start_date'   => $validated['sales_start_date'],
-                'sales_start_time'   => $request->sales_start_time,
-                'sales_end_date'     => $request->sales_end_date,
-                'sales_end_time'     => $request->sales_end_time,
+                'sales_start_time'   => $validated['sales_start_time'],
+                'sales_end_date'     => $validated['sales_end_date'],
+                'sales_end_time'     => $validated['sales_end_time'],
 
                 // physical-only fields
+                'hide_quantity'            => $request->hide_quantity,
                 'low_stock_1'            => $request->low_stock_1,
                 'low_stock_2'            => $request->low_stock_2,
 
@@ -488,8 +510,8 @@ class RewardController extends Controller
                 'usual_price'   => 'required|numeric|min:0',
                 'max_quantity'  => 'required|integer|min:0',
 
-                'publish_start_date' => 'required|date',
-                'sales_start_date'   => 'required|date',
+                'publish_start' => 'required',
+                'sales_start'   => 'required',
             ];
 
             /* --- TIER VALIDATION --- */
@@ -589,6 +611,26 @@ class RewardController extends Controller
             }
 
 
+            if ($request->publish_start) {
+                $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
+                $validated['publish_start_time'] = date('H:i:s', strtotime($request->publish_start));
+            }
+
+            if ($request->publish_end) {
+                $validated['publish_end_date'] = date('Y-m-d', strtotime($request->publish_end));
+                $validated['publish_end_time'] = date('H:i:s', strtotime($request->publish_end));
+            }
+
+            if ($request->sales_start) {
+                $validated['sales_start_date'] = date('Y-m-d', strtotime($request->sales_start));
+                $validated['sales_start_time'] = date('H:i:s', strtotime($request->sales_start));
+            }
+
+            if ($request->sales_end) {
+                $validated['sales_end_date'] = date('Y-m-d', strtotime($request->sales_end));
+                $validated['sales_end_time'] = date('H:i:s', strtotime($request->sales_end));
+            }
+
 
             /* ---------------------------------------------------
             * 5) UPDATE REWARD
@@ -607,16 +649,17 @@ class RewardController extends Controller
                 'max_quantity'       => $validated['max_quantity'],
 
                 'publish_start_date' => $validated['publish_start_date'],
-                'publish_start_time' => $request->publish_start_time,
-                'publish_end_date'   => $request->publish_end_date,
-                'publish_end_time'   => $request->publish_end_time,
+                'publish_start_time' => $validated['publish_start_time'],
+                'publish_end_date'   => $validated['publish_end_date'],
+                'publish_end_time'   => $validated['publish_end_time'],
 
                 'sales_start_date'   => $validated['sales_start_date'],
-                'sales_start_time'   => $request->sales_start_time,
-                'sales_end_date'     => $request->sales_end_date,
-                'sales_end_time'     => $request->sales_end_time,
+                'sales_start_time'   => $validated['sales_start_time'],
+                'sales_end_date'     => $validated['sales_end_date'],
+                'sales_end_time'     => $validated['sales_end_time'],
 
                 // Physical fields
+                'hide_quantity'            => $request->hide_quantity,
                 'low_stock_1'        => $request->low_stock_1,
                 'low_stock_2'        => $request->low_stock_2,
                 'friendly_url'       => $request->friendly_url,
