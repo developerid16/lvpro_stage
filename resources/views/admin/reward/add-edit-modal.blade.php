@@ -9,6 +9,8 @@
         let rewardType = $('#EditModal .reward_type').val();
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
+        console.log(merchantId, rewardType);
+        
         if (rewardType == "1" && merchantId) {
             $("#EditModal #physical").show();
             $("#EditModal #location_section").show();

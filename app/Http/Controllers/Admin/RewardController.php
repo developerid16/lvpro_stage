@@ -547,16 +547,39 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
 
-                if ($reward->voucher_image && file_exists(public_path('reward_images/' . $reward->voucher_image))) {
-                    unlink(public_path('reward_images/' . $reward->voucher_image));
+                $uploadPath = public_path('reward_images');
+
+                // Ensure directory exists
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0775, true);
                 }
 
+                // Ensure directory is writable
+                if (!is_writable($uploadPath)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Upload directory is not writable: reward_images'
+                    ], 500);
+                }
+
+                // Delete old image (ignore errors)
+                if (!empty($reward->voucher_image)) {
+                    $oldFile = $uploadPath . '/' . $reward->voucher_image;
+
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile); // <-- the @ prevents warning if permission denied
+                    }
+                }
+
+                // Upload new image
                 $file = $request->file('voucher_image');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('reward_images'), $filename);
+
+                $file->move($uploadPath, $filename);
 
                 $validated['voucher_image'] = $filename;
             }
+
 
 
             /* ---------------------------------------------------
