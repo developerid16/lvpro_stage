@@ -372,3 +372,6 @@ tspan {
 .d-none{
     display: none !important;
 }
+.font-12{
+    font-size: 12px !important;
+}

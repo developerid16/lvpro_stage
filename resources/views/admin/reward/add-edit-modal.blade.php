@@ -1,8 +1,6 @@
  @php
     $data = $data ?? null;
 @endphp
-
-
 <script>
     $(document).on('shown.bs.modal', '#EditModal', function () {
 
@@ -80,35 +78,41 @@
                 if (res.status !== 'success') return;
 
                 let html = `<label class="sh_dec"><b>Locations</b></label>`;
-                html += `<div id="location_wrapper">`;
+                html += `<div id="location_wrapper" class="row gx-3 gy-3">`;   // UPDATED wrapper
 
                 let i = 1;
 
                 res.locations.forEach(loc => {
 
-                    // Add Mode → savedLocations empty
-                    // Edit Mode → savedLocations contains stored qty
                     let isChecked = savedLocations[loc.id] ? 'checked' : '';
                     let qtyValue = savedLocations[loc.id] ?? '';
 
                     html += `
-                        <div class="location-box row align-items-center py-2 mb-2" style="border-bottom:1px solid #ddd;">
+                        <div class="col-md-6 col-12">
+                            <div class="location-box d-flex align-items-center p-2"
+                                        style="border:1px solid #e9e9e9; border-radius:6px;">
 
-                            <div class="col-md-4 col-12">
-                                <label class="mb-0 me-3">
-                                    <span class="fw-bold">Location ${i}:</span> ${loc.name}
-                                </label>
-                                <input type="checkbox" name="locations[${loc.id}][selected]" value="1" ${isChecked}>
+                                <div class="d-flex align-items-center me-auto">
+                                    <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
+                                        <span class="fw-bold">Location ${i}:</span> ${loc.name}
+                                    </label>
+                                    <input type="checkbox" 
+                                        name="locations[${loc.id}][selected]" 
+                                        value="1" ${isChecked} class="form-check-input">
+                                </div>
+
+                                <div class="d-flex align-items-center ms-3">
+                                    <label class="mb-0 me-2 font-12">Inventory Qty</label>
+                                    <input type="number" 
+                                        class="form-control"
+                                        name="locations[${loc.id}][inventory_qty]"
+                                        value="${qtyValue}"
+                                        placeholder="Qty"
+                                        style="max-width:100px">
+                                </div>
+
+
                             </div>
-
-                            <div class="col-md-6 col-12 mt-2 d-flex">
-                                <label class="mb-1 me-3 pt-2">Inventory Qty</label>
-                                <input type="number" class="form-control"
-                                    name="locations[${loc.id}][inventory_qty]"
-                                    value="${qtyValue}"
-                                    placeholder="Enter Qty" style="max-width:200px">
-                            </div>
-
                         </div>
                     `;
 
@@ -118,13 +122,13 @@
                 html += `</div>`;
 
                 modal.find('#location_section').html(html);
+
             }
+                
         });
     }
 
 </script>
-
-
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -211,7 +215,7 @@
                         </div>
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
-                        <div id="location_date_container" class="col-12 mt-3">
+                        <div id="location_date_container" class="col-12">
                             <label class="sh_dec"><b>Date & Time</b></label>
 
                             <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
@@ -220,81 +224,33 @@
 
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Publish Start Date <span class="required-hash">*</span></label>
-                                            <input type="datetime-local" 
-                                                class="form-control"
-                                                name="publish_start"
-                                                value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
-
+                                            <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
+                                            <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
-
-                                    {{-- <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Start Time</label>
-                                            <input type="time" class="form-control"name="publish_start_time" value="{{ $data->publish_start_time ?? '' }}">
-                                        </div>
-                                    </div> --}}
-
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Publish End Date</label>
-                                            <input type="datetime-local"
-                                                class="form-control"
-                                                name="publish_end"
-                                                value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
-
+                                            <label class="sh_dec font-12">Publish End Date & Time</label>
+                                            <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
                                         </div>
                                     </div>
-
-                                    {{-- <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">End Time</label>
-                                            <input type="time" class="form-control"  name="publish_end_time" value="{{ $data->publish_end_time ?? '' }}">
-                                        </div>
-                                    </div> --}}
 
                                     <!-- Sales fields -->
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Sales Start Date <span class="required-hash">*</span></label>
-                                            <input type="datetime-local" 
-                                                class="form-control"
-                                                name="sales_start"
-                                                value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
-
+                                            <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
+                                            <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
-
-                                    {{-- <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Start Time</label>
-                                            <input type="time" class="form-control" name="sales_start_time" value="{{ $data->sales_start_time ?? '' }}">
-                                        </div>
-                                    </div> --}}
-
                                     <div class="col-12 col-md-3">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">Sales End Date</label>
-                                            <input type="datetime-local"
-                                                class="form-control"
-                                                name="sales_end"
-                                                value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
-
+                                            <label class="sh_dec font-12">Sales End Date & Time</label>
+                                            <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
-
-                                    {{-- <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec">End Time</label>
-                                            <input type="time" class="form-control"   name="sales_end_time" value="{{ $data->sales_end_time ?? '' }}"> 
-                                        </div>
-                                    </div> --}}
-
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="col-12 col-md-6 ">
                             <div class="mb-3">
@@ -314,7 +270,7 @@
                                     <label class="sh_dec" for="amount"> <b> Tier Rates </b></label>
                                 </div>
                                 @foreach ($tiers as $key => $tier)
-                                    <div class="col-6">
+                                    <div class="col-4">
                                         <div class="mb-3">
                                             <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="required-hash">*</span></label>
                                             <input id="tier_{{ $tier->id }}" type="number" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"   value="{{ isset($data->tierRates[$key]['price']) ? $data->tierRates[$key]['price'] : '' }}">
@@ -324,40 +280,42 @@
                             </div>
                         </div>
 
-                        <div id="location_section" style="display:none;">
+                        <!--Merchant Locations-->
+                        <div id="location_section" class="mt-2 mb-2" style="display:none;">
                             
                         </div>
 
-                        <div id="physical" style="display:none;">
-                            <label for="">Clearing Method: CSO Issuance</label>
+                        <!--Physical-->
+                        <div id="physical" style="display:none;margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
                             <!-- Low Stock Reminder -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Hide Quantity</label>
+                                <label class="col-md-4 fw-bold">Hide Quantity</label>
                                 <div class="col-md-3">
                                     <label>
-                                        <input type="checkbox" name="hide_quantity" value="1"  {{ isset($data) && $data->hide_quantity ? 'checked' : '' }}>
-                                        Hide Quantity
+                                        <input type="checkbox" name="hide_quantity" value="1"  {{ isset($data) && $data->hide_quantity ? 'checked' : '' }} class="form-check-input">
+                                        <span class="mt-1">Hide Quantity</span>
                                     </label>
                                 </div>
                             </div>
+                            <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label>
                             <div class="row align-items-center mb-3">
-                                <label class="sh_dec"><b>Low Stock Reminder Threshold</b></label>
+                                <label class="col-md-4 fw-bold">Low Stock Reminder Threshold</label>
 
-                                <div class="col-md-4">
-                                    <label class="sh_dec">Low Stock Reminder 1</label>
-                                    <input type="number" class="form-control"
-                                        name="low_stock_1"  placeholder="Low Stock Reminder 1"   value="{{ $data->low_stock_1 ?? '' }}">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="sh_dec">Low Stock Reminder 2</label>
-                                    <input type="number" class="form-control"  name="low_stock_2"    placeholder="Low Stock Reminder 2"   value="{{ $data->low_stock_2 ?? '' }}">
-                                </div>
+                                <div class="col-md-6 d-flex">
+                                    <div class="me-3">
+                                        <label class="sh_dec">Low Stock Reminder 1</label>
+                                        <input type="number" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
+                                    </div>
+                                    <div>
+                                        <label class="sh_dec">Low Stock Reminder 2</label>
+                                        <input type="number" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
+                                    </div>
+                                </div>                               
                             </div>
 
                             <!-- Friendly URL -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Friendly URL Name</label>
+                                <label class="col-md-4 fw-bold">Friendly URL Name</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"   name="friendly_url" readonly    value="{{ $data->friendly_url ?? '' }}">
                                 </div>
@@ -365,7 +323,7 @@
 
                             <!-- Category -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Category</label>
+                                <label class="col-md-4 fw-bold">Category</label>
                                 <div class="col-md-6">
                                     <select class="form-select" name="category_id" readonly>
                                         <option value="">Select Category</option>
@@ -375,7 +333,7 @@
 
                             <!-- Club Classification -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Club Classification Type</label>
+                                <label class="col-md-4 fw-bold">Club Classification Type</label>
                                 <div class="col-md-6">
                                     <select class="form-select" name="club_classification_id" readonly>
                                         <option value="">Select</option>
@@ -386,7 +344,7 @@
 
                             <!-- FABS Category -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">FABS Categories</label>
+                                <label class="col-md-4 fw-bold">FABS Categories</label>
                                 <div class="col-md-6">
                                     <select class="form-select" name="fabs_category_id" readonly>
                                         <option value="">Select</option>                                     
@@ -397,7 +355,7 @@
 
                             <!-- SMC Classification -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">SMC Classification Type</label>
+                                <label class="col-md-4 fw-bold">SMC Classification Type</label>
                                 <div class="col-md-6">
                                     <select class="form-select" name="smc_classification_id" readonly>
                                         <option value="">Select</option>
@@ -407,7 +365,7 @@
 
                             <!-- AX Item Code -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">AX Item Code</label>
+                                <label class="col-md-4 fw-bold">AX Item Code</label>
                                 <div class="col-md-6">
                                     <input type="text" name="ax_item_code" class="form-control" readonly  value="{{ $data->ax_item_code ?? '' }}">
                                 </div>
@@ -415,18 +373,18 @@
 
                             <!-- Publish Channel -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Publish Channel</label>
+                                <label class="col-md-4 fw-bold">Publish Channel</label>
 
                                 <div class="col-md-3">
                                     <label>
-                                        <input type="checkbox" name="publish_independent" value="1" {{ isset($data) && $data->publish_independent ? 'checked' : '' }}>
+                                        <input type="checkbox" name="publish_independent" value="1" {{ isset($data) && $data->publish_independent ? 'checked' : '' }} class="form-check-input">
                                         Independent
                                     </label>
                                 </div>
 
                                 <div class="col-md-3">
                                     <label>
-                                        <input type="checkbox" name="publish_inhouse" value="1" {{ isset($data) && $data->publish_inhouse ? 'checked' : '' }}>
+                                        <input type="checkbox" name="publish_inhouse" value="1" {{ isset($data) && $data->publish_inhouse ? 'checked' : '' }} class="form-check-input">
                                         In-House
                                     </label>
                                 </div>
@@ -434,20 +392,17 @@
 
                             <!-- Send Reminder -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Send Collection Reminder</label>
+                                <label class="col-md-4 fw-bold">Send Collection Reminder</label>
 
                                 <div class="col-md-3">
                                     <label>
-                                        <input type="checkbox" name="send_reminder" value="1"  {{ isset($data) && $data->send_reminder ? 'checked' : '' }}>
+                                        <input type="checkbox" name="send_reminder" value="1"  {{ isset($data) && $data->send_reminder ? 'checked' : '' }} class="form-check-input">
                                         Collection Reminder
                                     </label>
                                 </div>
                             </div>
 
-                        </div>
-
-
-                        
+                        </div>                        
                     </div>
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">

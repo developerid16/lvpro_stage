@@ -140,35 +140,53 @@
                 success: function (res) {
 
                     if (res.status === 'success') {
+
                         let html = '';
                         let i = 1;
 
                         html += `<label class="sh_dec"><b>Locations</b></label>`;
+
+                        // Wrapper ONLY ONCE
+                        html += `<div id="location_wrapper" class="row gx-3 gy-3">`;
+
                         res.locations.forEach(loc => {
+
                             html += `
-                            <div id="location_wrapper">
-                                <div class="location-box row align-items-center py-2 mb-2" style="border-bottom:1px solid #ddd;">
+                                <div class="col-md-6 col-12">
+                                    <div class="location-box d-flex align-items-center p-2"
+                                        style="border:1px solid #e9e9e9; border-radius:6px;">
 
-                                    <div class="col-md-4 col-12">
-                                        <label class=" mb-0 me-3"><span class="fw-bold">Location ${i}:</span> ${loc.name}</label>
-                                        <input type="checkbox" name="locations[${loc.id}][selected]" value="1">
+                                        <div class="d-flex align-items-center me-auto">
+                                            <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
+                                                <span class="fw-bold">Location ${i}:</span> ${loc.name}
+                                            </label>
+                                            <input type="checkbox" 
+                                                name="locations[${loc.id}][selected]" 
+                                                value="1" 
+                                                class="form-check-input">
+                                        </div>
+
+                                        <div class="d-flex align-items-center ms-3">
+                                            <label class="mb-0 me-2 font-12">Inventory Qty</label>
+                                            <input type="number"
+                                                class="form-control"
+                                                name="locations[${loc.id}][inventory_qty]"
+                                                placeholder="Qty"
+                                                style="max-width:100px">
+                                        </div>
+
                                     </div>
-
-                                    <div class="col-md-6 col-12 mt-2 mt-md-0 d-flex">
-                                        <label class="mb-1 me-3 pt-2">Inventory Qty</label>
-                                        <input type="number" class="form-control"
-                                            name="locations[${loc.id}][inventory_qty]"
-                                            placeholder="Enter Qty" style="max-width:200px">
-                                    </div>
-
-                                </div>
                                 </div>
                             `;
+
                             i++;
                         });
 
+                        html += `</div>`; // close row wrapper
+
                         $("#location_section").html(html);
                     }
+
                 }
             });
         }
