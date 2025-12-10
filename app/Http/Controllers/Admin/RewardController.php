@@ -239,16 +239,32 @@ class RewardController extends Controller
                 // max qty for physical
                 $rules['max_quantity_physical'] = 'required|integer|min:1';
 
-                // locations must exist
+                // must send at least one location
                 $rules['locations'] = 'required|array|min:1';
 
-                // inventory qty required only when location selected
+                $hasSelectedLocation = false;
+
                 foreach ($request->locations ?? [] as $locId => $locData) {
+
                     if (isset($locData['selected'])) {
+                        $hasSelectedLocation = true;
+
+                        // inventory is required ONLY when selected
                         $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
                     }
                 }
+
+                // If no checkbox selected → throw SAME error format as digital
+                if (!$hasSelectedLocation) {
+                    return response()->json([
+                        "status" => "error",
+                        "errors" => [
+                            "locations" => ["Please select at least one location."]
+                        ]
+                    ], 422);
+                }
             }
+
 
             /* ---------------------------------------------------
             * 4) DIGITAL VALIDATION
@@ -640,15 +656,34 @@ class RewardController extends Controller
                     'send_reminder'       => 'required|boolean',
                 ];
 
-                // Locations array must exist
+                // must send at least one location
                 $rules['locations'] = 'required|array|min:1';
 
+                $hasSelectedLocation = false;
+
                 foreach ($request->locations ?? [] as $locId => $locData) {
+
                     if (isset($locData['selected'])) {
+                        $hasSelectedLocation = true;
+
+                        // inventory is required ONLY when selected
                         $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
                     }
                 }
+
+                // If no checkbox selected → throw SAME error format as digital
+                if (!$hasSelectedLocation) {
+                    return response()->json([
+                        "status" => "error",
+                        "errors" => [
+                            "locations" => ["Please select at least one location."]
+                        ]
+                    ], 422);
+                }
             }
+
+
+            
 
             /* ---------------------------------------------------
             * 4) DIGITAL VALIDATION
