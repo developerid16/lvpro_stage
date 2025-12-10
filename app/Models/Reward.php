@@ -38,13 +38,24 @@ class Reward extends Model
         'publish_independent',
         'publish_inhouse',
         'send_reminder',       
-        'hide_quantity',       
-
+        'hide_quantity', 
+         
+        'max_order',     
+        'location_text',     
+        'participating_merchant_id',     
+        'voucher_validity',  
+        'inventory_qty',
+        'inventory_type',
+        'voucher_value' ,  
+        'voucher_set' ,  
+        'clearing_method' ,  
+        'csvFile'
     ];
 
     protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'voucher_validity' => 'date',
     ];
 
     public function setLabelsAttribute($value)
@@ -115,6 +126,10 @@ class Reward extends Model
     public function rewardLocations()
     {
         return $this->hasMany(RewardLocation::class);
+    }
+    public function participatingLocations()
+    {
+        return $this->hasMany(ParticipatingLocations::class);
     }
 
 

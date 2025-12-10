@@ -12,8 +12,7 @@ $(document).ready(function () {
             data: form_data,
             processData: false,
             contentType: false,
-            success: function (response) {
-                
+            success: function (response) {                
                 if (response.status == 'success') {
                     show_message(response.status, response.message);
                     $("#AddModal").modal('hide');
@@ -25,10 +24,22 @@ $(document).ready(function () {
                 }
                 remove_errors();
             },
+
             error: function (response) {
+                $(".error").html(""); // clear previous errors
+                $("#participating_merchant_locations_error").html("");
+                $("#locations_error").html("");
+
+                if (response.status == "error") {
+                    if (response.errors?.participating_merchant_locations) {
+                        $("#participating_merchant_locations_error") .html(response.errors.participating_merchant_locations[0]);
+                    }
+                    if (response.errors?.locations) {
+                        $("#locations_error") .html(response.errors.locations[0]);
+                    }
+                    return;
+                }              
                 show_errors(response.responseJSON.errors);
-                 $(".error").html(""); // clear previous errors
-              
             }
         });
     });
@@ -42,8 +53,10 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                 savedLocations = response.savedLocations;
-                 console.log(savedLocations,'savedLocations');
+                savedLocations = response.savedLocations;
+                participatingLocations = response.participatingLocations;
+                console.log(participatingLocations,'participatingLocations');
+                
                 $("body").append(response.html);
                 $("#EditModal .select2").select2({
                     dropdownParent: $("#EditModal .modal-content")

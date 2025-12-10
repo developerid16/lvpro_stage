@@ -3,20 +3,32 @@
 @endphp
 <script>
     $(document).on('shown.bs.modal', '#EditModal', function () {
-
         let rewardType = $('#EditModal .reward_type').val();
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
-        console.log(merchantId, rewardType);
-        
+        $(".max_order").hide();
+        $("#common_section").show();
+        console.log(rewardType,'reward_type');
+        console.log(merchantId,'merchantId');
         if (rewardType == "1" && merchantId) {
+            
+            $(".max_order").hide(); // also show location section
+            $(".max_qty").show(); // also show location section
             $("#EditModal #physical").show();
             $("#EditModal #location_section").show();
+
             editLoadLocations(modal, merchantId); // will use savedLocations variable inside modal
+        }
+        if (rewardType == "0") {
+            $(".max_qty").hide(); // also show location section
+            $(".max_order").show(); // also show location section
+            $("#EditModal #digital").show();
+            $("#EditModal #location_section").show();
+            editToggleInventoryFields(modal);
+            editToggleClearingFields(modal);
         }
     });
 
-    // 1️⃣ Handle reward type change
     $(document).on('change', '.reward_type', function () {
 
         let modal = $(this).closest('.modal');
@@ -43,8 +55,7 @@
         }
     });
 
-
-    // 2️⃣ Handle merchant change
+    //physical reward
     $(document).on('change', '#merchant_id', function () {
 
         let modal = $(this).closest('.modal');
@@ -64,8 +75,6 @@
         }
     });
 
-
-    // 3️⃣ Unified loader (Add + Edit)
     function editLoadLocations(modal, merchantId) {
 
         modal.find('#location_wrapper').html("");
@@ -119,13 +128,119 @@
                     i++;
                 });
 
-                html += `</div>`;
+                html += `</div><div id="locations_error" class="text-danger mt-1"></div>`;
 
                 modal.find('#location_section').html(html);
 
             }
                 
         });
+    }
+
+    //Digital Reward
+    $(document).on("change", ".clearing_method", function () {
+        let modal = $(this).closest(".modal");
+        editToggleClearingFields(modal);
+        editToggleInventoryFields(modal);
+    });
+
+    function editParticipatingMerchantLocations(modal, merchantId) {
+        modal.find('#participating_location_wrapper').html("");
+        $.ajax({
+            url: "{{ url('admin/reward/get-participating-merchant-locations') }}/" + merchantId,
+            type: "GET",
+            success: function (res) {
+
+                if (res.status === 'success') {
+
+                    let html = '';
+                    let i = 1;
+
+                    html += `<label class="sh_dec"><b>Participating Merchant Outlets</b></label>`;
+                    html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
+
+                    res.locations.forEach(loc => {
+
+                        let isChecked = participatingLocations.includes(loc.id) ? 'checked' : '';
+                        console.log(participatingLocations,'participatingLocations');
+                        
+
+                        html += `
+                            <div class="col-md-4 col-12">
+                                <div class="location-box d-flex align-items-center p-2"
+                                    style="border:1px solid #e9e9e9; border-radius:6px;">
+
+                                    <div class="d-flex align-items-center me-auto">
+                                        <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
+                                            <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                        </label>
+                                        
+                                        <input type="checkbox" 
+                                            name="participating_merchant_locations[${loc.id}][selected]" 
+                                            value="1"
+                                            class="form-check-input"
+                                            ${isChecked}>
+                                    </div>
+
+                                </div>
+                            </div>
+                        `;
+
+                        i++;
+                    });
+
+                    html += `</div><div id="participating_merchant_locations_error" class="text-danger mt-1"></div>`;
+                    modal.find('#participating_merchant_location').html(html);
+                }
+            }
+
+        });
+    }
+
+    function editToggleInventoryFields(modal) {
+        let type = modal.find('.inventory_type').val();
+
+        let fileField = modal.find('.file');
+        let qtyField  = modal.find('.inventory_qty');
+
+        if (type === "1") {
+            fileField.show();
+            qtyField.hide();
+            qtyField.find("input").val(""); // clear
+        } else if (type === "0") {
+            qtyField.show();
+            fileField.hide();
+            fileField.find("input").val(""); // clear
+        } else {
+            // nothing selected → hide both
+            fileField.hide();
+            qtyField.hide();
+        }
+    }
+
+    function editToggleClearingFields(modal) {
+        let method = modal.find('.clearing_method').val();
+
+        let locationField = modal.find('.location_text');
+        let merchantField = modal.find('.participating_merchant');
+
+        // Hide both first
+        locationField.hide();
+        merchantField.hide();
+        $("#participating_merchant_location").hide();
+        if (["0", "1", "3"].includes(method)) {
+            // QR, Barcode, External Link → show LOCATION
+            locationField.show();
+            merchantField.hide();
+        } 
+        else if (["2"].includes(method)) {
+            $("#EditModal #participating_merchant_location").show();
+            let participatingMerchantId = $('#EditModal #participating_merchant_id').val();
+            editParticipatingMerchantLocations(modal, participatingMerchantId); // will use savedLocations variable inside modal
+            // External Code OR Merchant Code → show PARTICIPATING MERCHANT
+            merchantField.show();
+            locationField.hide();
+        }
     }
 
 </script>
@@ -258,12 +373,20 @@
                                 <input id="usual_price" type="number" class="sh_dec form-control" name="usual_price"  placeholder="Enter Usual Price" value="{{ $data->usual_price ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
+
+                        <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
                                 <label class="sh_dec" for="max_quantity">Maximum Quantity<span class="required-hash">*</span></label>
-                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
+                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity_physical"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
+                        <div class="col-12 col-md-6 max_order">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="max_order">Maximum Order<span class="required-hash">*</span></label>
+                                <input id="max_order" type="number" class="sh_dec form-control" name="max_order"   placeholder="Enter Maximum Order" value="{{ $data->max_order ?? '' }}">
+                            </div>
+                        </div>
+
                         <div class="col-12 col-md-12 ">
                             <div class="row">
                                 <div class="col-12">
@@ -284,10 +407,132 @@
                         <div id="location_section" class="mt-2 mb-2" style="display:none;">
                             
                         </div>
+                        <div id="physical" >
 
-                        <!--Physical-->
-                        <div id="physical" style="display:none;margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
-                            <!-- Low Stock Reminder -->
+                            {{-- <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="max_quantity_physical">Maximum Quantity <span class="required-hash">*</span></label>
+                                        <input id="max_quantity_physical" type="number" class="sh_dec form-control"
+                                            name="max_quantity_physical" placeholder="Enter Maximum Quantity"
+                                            value="{{ $data->max_quantity ?? '' }}">
+                                    </div>
+                                </div>
+                            </div> --}}
+
+                        </div>
+
+                        <div id="digital" style="display:none; margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
+
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="max_quantity">Maximum Quantity<span class="required-hash">*</span></label>
+                                        <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity_digital"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="voucher_validity">Voucher Validity<span class="required-hash">*</span></label>
+                                        <input id="voucher_validity" type="date"  class="sh_dec form-control"  name="voucher_validity" value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="inventory_type">Inventory Type<span class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select inventory_type" name="inventory_type">
+                                            <option class="sh_dec" value="">Select Voucher Type</option>
+                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
+                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 file" style="display: none">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
+                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".csv,.xls">
+
+                                        @if(isset($data->csvFile))
+                                            <div class="mt-2">
+                                                <a href="{{ asset('reward_voucher/'.$data->csvFile) }}" target="_blank" class="text-primary">
+                                                    {{ $data->csvFile }}
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 inventory_qty" style="display: none">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    
+                                        <input id="inventory_qty" type="number"  placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="voucher_value">Voucher Value<span class="required-hash">*</span></label>    
+                                        <input id="voucher_value" type="number"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="voucher_set">Voucher Set<span class="required-hash">*</span></label>    
+                                        <input id="voucher_set" type="number"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="clearing_method">Clearing Menthods<span class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
+
+                                            <option class="sh_dec" value="">Select Clearing Method</option>
+                                            <option class="sh_dec" value="0" {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
+                                                QR
+                                            </option>                                            
+                                            <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
+                                                Barcode 
+                                            </option>
+                                            <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
+                                                External Code 
+                                            </option>
+                                            <option class="sh_dec" value="3" {{ isset($data->clearing_method) && $data->clearing_method == '3' ? 'selected' : '' }}>
+                                                External Link 
+                                            </option>
+                                            <option class="sh_dec" value="4" {{ isset($data->clearing_method) && $data->clearing_method == '4' ? 'selected' : '' }}>
+                                                Merchant Code 
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 location_text" style="display: none">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="location_text">Location<span class="required-hash">*</span></label>    
+                                        <input id="location_text" type="text" class="sh_dec form-control"   name="location_text"> 
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 participating_merchant" style="display: none">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
+                                        <select class="sh_dec form-select" name="participating_merchant_id" id="participating_merchant_id">
+                                            <option value="">Select Participating Merchant</option>
+                                            @if (isset($participating_merchants))                                        
+                                                @foreach ($participating_merchants as $merchant)
+                                                    <option value="{{ $merchant->id }}" {{ isset($data) && $data->participating_merchant_id == $merchant->id ? 'selected' : '' }}>
+                                                        {{ $merchant->name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>                                
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div id="participating_merchant_location" class="mt-2 mb-2" style="display:none;"> 
+                            </div>
+
+                        </div>
+
+                        <div id="common_section" style="margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
+
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Hide Quantity</label>
                                 <div class="col-md-3">
@@ -402,6 +647,7 @@
                                 </div>
                             </div>
 
+                            <!-- All other common fields here -->
                         </div>                        
                     </div>
                     <div class="row">
