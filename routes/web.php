@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EvoucherController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Mail\BroadcastEmail;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +55,18 @@ use App\Mail\BroadcastEmail;
 */
 
 Auth::routes();
+Route::any('/sso-callback', function () {
 
+    // Log all incoming data
+    Log::info('SSO Callback Request', [
+        'method'  => request()->method(),
+        'headers' => request()->headers->all(),
+        'payload' => request()->all(),
+        'raw'     => request()->getContent()
+    ]);
+
+    return response()->json(true);
+});
 
 //Update User Details
 Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class, 'updateProfile'])->name('updateProfile');
@@ -518,5 +531,11 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get(
         'participating-merchant-location/datatable', [ParticipatingMerchantLocationController::class, 'datatable'] )->name('participating-merchant-location.datatable');
     Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
+
+
+    Route::get('evoucher/datatable', [EvoucherController::class, 'datatable']);
+    Route::resource('evoucher', EvoucherController::class);
+
+    
     
 });

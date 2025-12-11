@@ -13,6 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
-        'admin/image-upload-editor'
+        'admin/image-upload-editor',
+        'sso-callback',
+        '*/sso-callback',
     ];
 }
