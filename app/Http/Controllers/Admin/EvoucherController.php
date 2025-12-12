@@ -193,7 +193,7 @@ class EvoucherController extends Controller
             }
 
             // External code + Merchant code → merchant + locations required
-            if (in_array($request->clearing_method, [2])) {
+            if ($request->clearing_method == 2) {
                 $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
@@ -291,7 +291,7 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if (in_array($request->clearing_method, [2,4]) &&
+            if ($request->clearing_method == 2 &&
                 $request->participating_merchant_locations) {
 
                 foreach ($request->participating_merchant_locations as $locId => $locData) {
@@ -451,7 +451,7 @@ class EvoucherController extends Controller
                 $rules['location_text'] = 'required|string';
             }
 
-            if (in_array($request->clearing_method, [2])) {
+            if ($request->clearing_method == 2) {
                 $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
