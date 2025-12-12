@@ -467,7 +467,7 @@ class RewardController extends Controller
             * DIGITAL: SAVE PARTICIPATING MERCHANT LOCATIONS
             * ---------------------------------------------------*/
             if ($request->reward_type == 0 
-                && in_array($request->clearing_method, [2,4])
+                && $request->clearing_method == 2 
                 && $request->participating_merchant_locations) {
 
                 foreach ($request->participating_merchant_locations as $locId => $locData) {
