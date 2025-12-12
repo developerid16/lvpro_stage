@@ -435,7 +435,7 @@
                                 @if (isset($category))                                        
                                     @foreach ($category as $cat)
                                         <option value="{{ $cat->id }}" {{ isset($data) && $data->category_id == $cat->id ? 'selected' : '' }}>
-                                            {{ $merchant->name }}
+                                            {{ $cat->name }}
                                         </option>
                                     @endforeach
                                 @endif
