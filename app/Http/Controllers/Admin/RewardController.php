@@ -296,7 +296,7 @@ class RewardController extends Controller
                 }
 
                 // external code / merchant code (needs locations)
-                if (in_array($request->clearing_method, [2])) {
+                if ($request->clearing_method == 2) {
                     $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
                     $rules['participating_merchant_locations'] = 'required|array|min:1';
@@ -705,7 +705,7 @@ class RewardController extends Controller
                     }
                 }
 
-                if (in_array($request->clearing_method, [2])) {
+               if ($request->clearing_method == 2) {
 
                     $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
