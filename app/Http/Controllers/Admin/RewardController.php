@@ -906,7 +906,7 @@ class RewardController extends Controller
             /* ----------------------------------
          * DIGITAL → UPDATE PARTICIPATING MERCHANT OUTLETS
          * ---------------------------------- */
-        if ($reward->reward_type == 0 && in_array($request->clearing_method, [2,4])) {
+        if ($reward->reward_type == 0 && $request->clearing_method == 2) {
 
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
 
