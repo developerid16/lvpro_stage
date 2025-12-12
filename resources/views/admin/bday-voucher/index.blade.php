@@ -22,7 +22,7 @@
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
            
             @can("$permission_prefix-create")
-            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>
+            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
             @endcan
         </div>
 
@@ -600,6 +600,32 @@
             });
         });
 
+         function resetFormById() {
+        let modal = $('#AddModal').closest(".modal");
+       
+        $(".max_order").hide();
+        $("#common_section").hide();
+        $("#voucher_image_preview").hide();
+        $("#location_section").hide();
+        let form = document.getElementById('add_frm');
+        if (!form) return;
+
+        // BASIC RESET
+        form.reset();
+
+        // CLEAR FILE INPUTS
+        form.querySelectorAll('input[type="file"]').forEach(file => {
+            file.value = '';
+        });
+
+       
+
+        // OPTIONAL: hide error messages
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    }
+
+   
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection
