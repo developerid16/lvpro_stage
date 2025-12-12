@@ -439,11 +439,19 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
-                            <!-- <div class="arrow-down"></div> -->
                         </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('reward-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Rewards</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
+                            @endcan
+                            @can('evoucher-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">Digital Voucher</a>
+                            @endcan
+                            @can('evoucher-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
+                            @endcan
+                            @can('bday-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/bday-voucher')}}">Birthday-Voucher</a>
                             @endcan
                             @can('reward-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/automated-reward')}}">Automated

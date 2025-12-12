@@ -289,7 +289,7 @@
 
                                 <td>{{$loop->iteration}}</td>
 
-                                <td>{{$item->reward->name}}</td>
+                                <td>{{$item->reward->name ?? ''}}</td>
                                 <td>
                                     {{number_format($item->count)}}
                                 </td>

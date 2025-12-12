@@ -29,6 +29,22 @@
         }
     });
 
+     $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
+
+        $(this).find("#participating_merchant_id").on("change", function () {
+
+            let merchantId = $(this).val();
+            let modal      = $(this).closest('.modal'); 
+
+            if (merchantId) {
+                modal.find("#participating_merchant_location").show();
+                editParticipatingMerchantLocations(modal,merchantId);
+            } else {
+                modal.find("#participating_merchant_location").hide();
+            }
+        });
+    });
+
     $(document).on('change', '.reward_type', function () {
 
         let modal = $(this).closest('.modal');
@@ -273,7 +289,7 @@
                                 <span class="text-secondary">(316 px X 140 px)</span>
                                 <!-- 🔥 PREVIEW IMAGE -->
                                 <img id="voucher_image_preview"
-                                    src="{{ isset($data->voucher_image) ? asset('reward_images/'.$data->voucher_image) : '' }}"
+                                    src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}"
                                     style="max-width:50px; margin-top:10px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
                             </div>
 
@@ -450,7 +466,7 @@
                                 <div class="col-12 col-md-6 file" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".csv,.xls">
+                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlxs,.xls">
 
                                         @if(isset($data->csvFile))
                                             <div class="mt-2">
@@ -562,7 +578,7 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Friendly URL Name</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"   name="friendly_url" readonly    value="{{ $data->friendly_url ?? '' }}">
+                                    <input type="text" class="form-control"   name="friendly_url"    value="{{ $data->friendly_url ?? '' }}">
                                 </div>
                             </div>
 
@@ -570,8 +586,15 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Category</label>
                                 <div class="col-md-6">
-                                    <select class="form-select" name="category_id" readonly>
+                                    <select class="form-select" name="category_id">
                                         <option value="">Select Category</option>
+                                        @if (isset($category))                                        
+                                            @foreach ($category as $cat)
+                                                <option value="{{ $cat->id }}" {{ isset($data) && $data->category_id == $cat->id ? 'selected' : '' }}>
+                                                    {{ $merchant->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                             </div>

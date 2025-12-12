@@ -49,7 +49,13 @@ class Reward extends Model
         'voucher_value' ,  
         'voucher_set' ,  
         'clearing_method' ,  
-        'csvFile'
+        'csvFile',
+        'type',
+        'direct_utilization',
+        'category_id',
+        'month',
+        'club_location'
+        
     ];
 
     protected $casts = [

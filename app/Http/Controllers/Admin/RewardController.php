@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\ClubLocation;
 use App\Models\ContentManagement;
 use App\Models\Location;
@@ -54,6 +55,7 @@ class RewardController extends Controller
         $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['category'] = Category::get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['tiers'] = Tier::all();
 
@@ -91,7 +93,6 @@ class RewardController extends Controller
     {
 
         $this->layout_data['data'] = ContentManagement::whereIn('name', [
-
             "birthday_reward_limit",
             "birthday_reward_voucher",
             "birthday_reward_group",
@@ -115,7 +116,7 @@ class RewardController extends Controller
     public function datatable(Request $request)
     {
         $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
-        $query = Reward::where('parent_type', $type);
+        $query = Reward::where('type', '0');
 
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
@@ -138,7 +139,7 @@ class RewardController extends Controller
 
             if (!empty($row->voucher_image)) {
 
-                $csvUrl = asset("reward_images/$row->voucher_image");
+                $csvUrl = asset("uploads/image/$row->voucher_image");
                 $icon   = asset("build/images/csv-icon.png");
 
                 $final_data[$key]['image'] = "
@@ -204,7 +205,8 @@ class RewardController extends Controller
                 'description'        => 'required|string',
                 'term_of_use'        => 'required|string',
                 'how_to_use'         => 'required|string',
-
+                'friendly_url'     => 'nullable',
+                'category_id'     => 'nullable',
                 'merchant_id'        => 'required|exists:merchants,id',
                 'reward_type'        => 'required|in:0,1',
 
@@ -328,7 +330,7 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
 
-                $path = public_path('reward_images');
+                $path = public_path('uploads/image');
 
                 // Create directory if not exists
                 if (!is_dir($path)) {
@@ -370,6 +372,7 @@ class RewardController extends Controller
             $maxQty = $request->reward_type == 0  ? $request->max_quantity_digital  : $request->max_quantity_physical;
 
             $reward = Reward::create([
+                'type'               => '0',
                 'voucher_image'      => $validated['voucher_image'],
                 'name'               => $validated['name'],
                 'description'        => $validated['description'],
@@ -483,31 +486,24 @@ class RewardController extends Controller
                 }
             }
 
+            /* ---------------------------------------------------
+            * XLSX / CSV UPLOAD (merchant inventory)
+            * ---------------------------------------------------*/
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
+                $filename = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('uploads/csv'), $filename);
 
-                // Save file
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $filePath = public_path('reward_voucher/' . $filename);
-                $file->move(public_path('reward_voucher'), $filename);
+                $reward->csvFile = $filename;
+                $reward->save();
 
-                // Clean file content to UTF-8 (fixes iconv error)
-                $content = file_get_contents($filePath);
+                $filePath = public_path('uploads/csv/'.$filename);
 
-                $cleanContent = mb_convert_encoding(
-                    $content,
-                    'UTF-8',
-                    'UTF-8, ISO-8859-1, WINDOWS-1252'
-                );
+                // READ XLSX OR CSV SAFELY
+                $rows = Excel::toArray([], $filePath);
 
-                // Write cleaned content to temp file
-                $tmp = tmpfile();
-                fwrite($tmp, $cleanContent);
-                rewind($tmp);
-
-                // Parse CSV manually (no Excel reader needed)
-                while (($row = fgetcsv($tmp)) !== false) {
+                foreach ($rows[0] as $row) {
 
                     $code = trim($row[0] ?? '');
 
@@ -516,17 +512,12 @@ class RewardController extends Controller
                     }
 
                     RewardVoucher::create([
+                        'type'      => '0',
                         'reward_id' => $reward->id,
                         'code'      => $code,
                         'is_used'   => 0
                     ]);
                 }
-
-                fclose($tmp);
-
-                // save file reference
-                $reward->csvFile = $filename;
-                $reward->save();
             }
 
 
@@ -579,7 +570,7 @@ class RewardController extends Controller
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
         $this->layout_data['tiers'] = Tier::all();
-
+        $this->layout_data['category'] = Category::get();
         // 👉 Build simple array: [location_id => inventory_qty]
         $this->layout_data['savedLocations'] = $reward ? $reward->rewardLocations->pluck('inventory_qty','location_id')  : [];
         $this->layout_data['participatingLocations'] = $reward ? $reward->participatingLocations->pluck('location_id')  : [];
@@ -623,7 +614,8 @@ class RewardController extends Controller
                 'how_to_use'    => 'required|string',
 
                 'merchant_id'   => 'required|exists:merchants,id',
-
+                'friendly_url'     => 'nullable',
+                'category_id'     => 'nullable',
                 'reward_type'   => 'required|in:0,1',
 
                 'usual_price'   => 'required|numeric|min:0',
@@ -761,7 +753,7 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
 
-                $uploadPath = public_path('reward_images');
+                $uploadPath = public_path('uploads/image');
 
                 // Ensure directory exists
                 if (!is_dir($uploadPath)) {
@@ -822,6 +814,7 @@ class RewardController extends Controller
             $maxQty = $request->reward_type == 0 ? $request->max_quantity_digital : $request->max_quantity_physical;
 
             $reward->update([
+                 'type'               => '0',
                 'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
                 'name'               => $validated['name'],
                 'description'        => $validated['description'],
@@ -938,7 +931,7 @@ class RewardController extends Controller
 
             // Remove old CSV file if exists
             if (!empty($reward->csvFile)) {
-                $oldFile = public_path('reward_voucher/' . $reward->csvFile);
+                $oldFile = public_path('uploads/csv/' . $reward->csvFile);
                 if (file_exists($oldFile)) {
                     @unlink($oldFile);
                 }
@@ -954,44 +947,34 @@ class RewardController extends Controller
 
         if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
-            // delete old vouchers
-            RewardVoucher::where('reward_id', $reward->id)->delete();
+                $file = $request->file('csvFile');
+                $filename = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('uploads/csv'), $filename);
 
-            $file = $request->file('csvFile');
-            $filename = time() . '_' . $file->getClientOriginalName();
+                $reward->csvFile = $filename;
+                $reward->save();
 
-            $path = public_path('reward_voucher');
-            if (!is_dir($path)) mkdir($path, 0775, true);
+                $filePath = public_path('uploads/csv/'.$filename);
 
-            $filePath = $path . '/' . $filename;
-            $file->move($path, $filename);
+                // READ XLSX OR CSV SAFELY
+                $rows = Excel::toArray([], $filePath);
 
-            $content = file_get_contents($filePath);
+                foreach ($rows[0] as $row) {
 
-            $cleanContent = mb_convert_encoding($content, 'UTF-8', 'UTF-8, ISO-8859-1, WINDOWS-1252');
+                    $code = trim($row[0] ?? '');
 
-            $tmp = tmpfile();
-            fwrite($tmp, $cleanContent);
-            rewind($tmp);
+                    if ($code === '' || strtolower($code) === 'code') {
+                        continue;
+                    }
 
-            while (($row = fgetcsv($tmp)) !== false) {
-
-                $code = trim($row[0] ?? '');
-
-                if ($code === '' || strtolower($code) == 'code') continue;
-
-                RewardVoucher::create([
-                    'reward_id' => $reward->id,
-                    'code'      => $code,
-                    'is_used'   => 0
-                ]);
+                    RewardVoucher::create([
+                        'type'      => '0',
+                        'reward_id' => $reward->id,
+                        'code'      => $code,
+                        'is_used'   => 0
+                    ]);
+                }
             }
-
-            fclose($tmp);
-
-            $reward->csvFile = $filename;
-            $reward->save();
-        }
 
             /* ---------------------------------------------------
             * SUCCESS
@@ -1030,11 +1013,11 @@ class RewardController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
             }
         
-            if ($reward->voucher_image && file_exists(public_path('reward_images/' . $reward->voucher_image))) {
-                unlink(public_path('reward_images/' . $reward->voucher_image));
+            if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
+                unlink(public_path('uploads/image/' . $reward->voucher_image));
             }
-            if ($reward->csvFile && file_exists(public_path('reward_voucher/' . $reward->csvFile))) {
-                unlink(public_path('reward_voucher/' . $reward->csvFile));
+            if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
+                unlink(public_path('uploads/csv/' . $reward->csvFile));
             }
            
             RewardTierRate::where('reward_id', $reward->id)->delete();          

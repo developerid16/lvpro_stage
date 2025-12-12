@@ -20,11 +20,13 @@ use App\Http\Controllers\Admin\BroadcastController;
 use App\Http\Controllers\Admin\AboutAppSliderController;
 use App\Http\Controllers\Admin\PartnerCompanyController;
 use App\Http\Controllers\Admin\APILogsController;
+use App\Http\Controllers\Admin\BdayEvoucherController;
 use App\Http\Controllers\Admin\RewardRedemptionController;
 use App\Http\Controllers\Admin\ContentManagementController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
 use App\Models\AppUser;
 use App\Models\UserTier;
@@ -40,7 +42,7 @@ use App\Http\Controllers\Admin\EmailLogController;
 use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
-use App\Mail\BroadcastEmail;
+use App\Http\Controllers\Admin\PushVoucherController;
 use Illuminate\Support\Facades\Log;
 
 /*
@@ -533,8 +535,21 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
 
 
+    Route::get('category/datatable', [CategoryController::class, 'datatable'])->name('admin.category.datatable');
+    Route::resource('category', CategoryController::class);
+
+    Route::post('evoucher/push-parameter-voucher', [EvoucherController::class, 'pushParameterVoucher'])->name('pushParameterVoucher');
+    Route::post('evoucher/push-member-voucher', [EvoucherController::class, 'pushMemberVoucher'])->name('pushMemberVoucher');
+    Route::get('reward/get-dates/{id}', [EvoucherController::class, 'getDates']);
     Route::get('evoucher/datatable', [EvoucherController::class, 'datatable']);
     Route::resource('evoucher', EvoucherController::class);
+
+    Route::get('bday-voucher/datatable', [BdayEvoucherController::class, 'datatable']);
+    Route::get('bday-voucher/get-club-locations', [BdayEvoucherController::class, 'getLocations'])->name('get.club.locations');
+    Route::resource('bday-voucher', BdayEvoucherController::class);
+    
+    Route::get('push-voucher/datatable', action: [PushVoucherController::class, 'datatable']);
+    Route::resource('push-voucher', PushVoucherController::class);
 
     
     

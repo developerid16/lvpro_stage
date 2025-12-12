@@ -15,6 +15,7 @@ class RewardVoucher extends Model
         'reward_id',
         'code',
         'is_used',
+        'type'
     ];
 
     /**

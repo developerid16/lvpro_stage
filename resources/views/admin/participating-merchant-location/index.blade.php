@@ -103,66 +103,65 @@
 </script>
 
 <script>
-    $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
+$(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
 
-        let modal = this;
+    let modal = this;
 
-        let start = modal.querySelector("#start_date");
-        let end   = modal.querySelector("#end_date");
+    let start = modal.querySelector("#start_date");
+    let end   = modal.querySelector("#end_date");
 
-        if (!start || !end) return;
+    if (!start || !end) return;
 
-        // Remove old event listeners to avoid duplication
-        if (start._handler) {
-            start.removeEventListener("input", start._handler);
-            start.removeEventListener("change", start._handler);
-            delete start._handler;
+    // Remove old listeners
+    if (start._handler) {
+        start.removeEventListener("input", start._handler);
+        start.removeEventListener("change", start._handler);
+        delete start._handler;
+    }
+
+    // On modal open → end is readonly
+    end.readOnly = true;
+
+    let isEdit = start.value && start.value.trim() !== "";
+
+    if (isEdit) {
+        end.min = start.value;
+        if (end.value && end.value < start.value) {
+            end.value = start.value;
         }
+    } else {
+        end.value = "";
+        end.removeAttribute("min");
+    }
 
-        // MODE detection
-        let isEdit = start.value && start.value.trim() !== "";
+    // When start date changes
+    function handle() {
 
-        if (isEdit) {
-            // EDIT MODE
-            end.disabled = true;           // disable initially
-            end.min = start.value;         // set minimum
-
-            // fix stored end if smaller than start
-            if (end.value && end.value < start.value) {
-                end.value = start.value;
-            }
-
-        } else {
-            // ADD MODE
-            end.disabled = true;   // disable always
-            end.value = "";        // empty
+        if (!start.value) {
+            end.readOnly = true;
+            end.value = "";
             end.removeAttribute("min");
+            return;
         }
 
-        // Handler when user changes start date (both modes)
-        function handle() {
+        // Allow user manual editing now
+        end.readOnly = false;
 
-            if (!start.value) {
-                end.disabled = true;
-                end.value = "";
-                end.removeAttribute("min");
-                return;
-            }
+        end.min = start.value;
 
-            end.disabled = false;
-            end.min = start.value;
-
-            if (end.value && end.value < start.value) {
-                end.value = start.value;
-            }
+        // Auto-fix invalid end date
+        if (end.value && end.value < start.value) {
+            end.value = start.value;
         }
+    }
 
-        // Attach handler
-        start._handler = handle;
-        start.addEventListener("change", handle);
-        start.addEventListener("input", handle);
-    });
+    // Attach handler
+    start._handler = handle;
+    start.addEventListener("change", handle);
+    start.addEventListener("input", handle);
+});
 </script>
+
 
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection
