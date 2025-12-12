@@ -127,7 +127,7 @@ class MerchantController extends Controller
         ]);
 
         // upload logo
-        $path = public_path('merchant/logo');
+        $path = public_path('uploads/image');
 
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
@@ -138,7 +138,7 @@ class MerchantController extends Controller
 
         $file->move($path, $filename);
 
-        $post_data['logo'] = 'merchant/logo/' . $filename;
+        $post_data['logo'] = 'uploads/image/' . $filename;
 
 
         Merchant::create($post_data);
@@ -172,7 +172,7 @@ class MerchantController extends Controller
             'logo'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $path = public_path('merchant/logo');
+        $path = public_path('uploads/image');
 
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
@@ -190,7 +190,7 @@ class MerchantController extends Controller
 
             $file->move($path, $filename);
 
-            $post_data['logo'] = 'merchant/logo/' . $filename;
+            $post_data['logo'] = 'uploads/image/' . $filename;
         }
 
 
