@@ -442,6 +442,9 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('reward-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/category')}}">Reward Category</a>
+                            @endcan
+                            @can('reward-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
                             @endcan
                             @can('evoucher-list')

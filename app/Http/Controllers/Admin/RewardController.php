@@ -705,7 +705,7 @@ class RewardController extends Controller
                     }
                 }
 
-                if (in_array($request->clearing_method, [2,4])) {
+                if (in_array($request->clearing_method, [2])) {
 
                     $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
