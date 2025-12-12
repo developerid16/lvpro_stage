@@ -64,7 +64,7 @@ class PushVoucherController extends Controller
             // -------------------------
             $final_data[$i] = [
                 'sr_no'        => $index,
-                'type'         => $row->type == 0 ? 'Member Push Voucher' : 'Parameter Push Voucher',
+                'type'         => $row->type == 0 ? 'Push Voucher By Member ID' : 'Push Voucher By Parameter',
                 'reward_name'  => $row->reward?->name ?? '-',      // Reward relation
                 'member_id'    => $row->member_id,
                 'created_at'   => $createdAt,

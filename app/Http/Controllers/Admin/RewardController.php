@@ -36,7 +36,7 @@ class RewardController extends Controller
         $permission_prefix    = $this->permission_prefix    = 'reward';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
-            'title'             => 'Reward',
+            'title'             => 'Treats & Deals',
             'module_base_url'   => url('admin/reward'),
         ];
 

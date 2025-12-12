@@ -27,7 +27,7 @@ class EvoucherController extends Controller
         $permission_prefix    = $this->permission_prefix    = 'evoucher';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
-            'title'             => 'e-Voucher',
+            'title'             => 'Digital Voucher',
             'module_base_url'   => url('admin/evoucher'),
         ];
 

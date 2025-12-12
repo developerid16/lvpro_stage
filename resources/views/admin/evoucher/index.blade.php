@@ -1,7 +1,7 @@
 @extends('layouts.master-layouts')
 
 @section('title')
-    e-Voucher
+     Digital Voucher
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -12,7 +12,7 @@
             {{ url('/') }}
         @endslot
         @slot('title')
-            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'e-Voucher Management' }}
+            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'Digital Voucher Management' }}
         @endslot
     @endcomponent
 
@@ -20,8 +20,8 @@
     <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
             <div>
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddMemberVoucher">Push Member Voucher</button>
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddParameterVoucher">Push Parameter Voucher</button>
+                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddMemberVoucher">Push Voucher By Member ID</button>
+                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddParameterVoucher">Push Voucher By Parameter</button>
             </div>
             @can("$permission_prefix-create")
                 <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>

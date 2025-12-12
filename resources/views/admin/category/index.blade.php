@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') Category @endsection
+@section('title') Reward Category @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Category Management @endslot
+@slot('title') Reward Category Management @endslot
 @endcomponent
 
 

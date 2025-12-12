@@ -17,7 +17,7 @@ class CategoryController extends Controller
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Category',
+            'title' => 'Reward Category',
             'module_base_url' => url('admin/category')
         ];
     }

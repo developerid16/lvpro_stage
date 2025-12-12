@@ -451,7 +451,7 @@
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">Digital Voucher</a>
                             @endcan
                             @can('bday-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/bday-voucher')}}">Birthday-Voucher</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/bday-voucher')}}">Birthday Voucher</a>
                             @endcan
                             @can('evoucher-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>

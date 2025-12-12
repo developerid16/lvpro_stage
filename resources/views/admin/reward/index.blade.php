@@ -1,7 +1,7 @@
 @extends('layouts.master-layouts')
 
 @section('title')
-    Rewards
+    Treats & Deals
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -12,7 +12,7 @@
             {{ url('/') }}
         @endslot
         @slot('title')
-            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'Rewards Management' }}
+            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'Treats & Deals Management' }}
         @endslot
     @endcomponent
 
