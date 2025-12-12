@@ -18,7 +18,7 @@ class ParticipatingMerchantLocationController extends Controller
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Participating Merchant Location',
+            'title' => 'Participating Merchant Outlet',
             'module_base_url' => url('admin/participating-merchant-location')
         ];
     }

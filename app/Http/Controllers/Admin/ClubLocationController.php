@@ -16,7 +16,7 @@ class ClubLocationController extends Controller
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Club Locations',
+            'title' => 'Club Location',
             'module_base_url' => url('admin/club-location')
         ];
     }

@@ -4,7 +4,7 @@
 
             <div class="modal-header">
                 <h5 class="sh_sub_title modal-title">
-                    {{ isset($data->id) ? 'Edit' : 'Add' }} Participating Merchant Location
+                    {{ isset($data->id) ? 'Edit' : 'Add' }} Participating Merchant Outlet
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>

@@ -1,7 +1,7 @@
 @extends('layouts.master-layouts')
 
 @section('title')
-     Digital Voucher
+     E-Voucher: Digital Voucher
 @endsection
 @section('content')
     @component('components.breadcrumb')
@@ -12,11 +12,9 @@
             {{ url('/') }}
         @endslot
         @slot('title')
-            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'Digital Voucher Management' }}
+            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'E-Voucher: Digital Voucher Management' }}
         @endslot
     @endcomponent
-
-
     <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
             <div>

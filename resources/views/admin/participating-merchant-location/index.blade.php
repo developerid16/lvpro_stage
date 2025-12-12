@@ -1,13 +1,13 @@
 @extends('layouts.master-layouts')
 
-@section('title') Participating Merchant Location @endsection
+@section('title') Participating Merchant Outlet @endsection
 
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Participating Merchant Location @endslot
+@slot('title') Participating Merchant Outlet @endslot
 @endcomponent
 
 
