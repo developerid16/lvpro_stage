@@ -19,3 +19,7 @@ public/qrcode
 public/report
 public/report/customer-report.xlsx
 public/uploads
+public/uploads/image/
+public/uploads/csv/
+public/reward_images/
+public/reward_voucher/
