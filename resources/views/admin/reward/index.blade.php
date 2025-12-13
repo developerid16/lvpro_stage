@@ -345,6 +345,8 @@
             $(".max_order").hide();
             $("#common_section").hide();
             $("#voucher_image_preview").hide();
+            $(".file").hide();
+            $(".inventory_qty").hide();
             $("#location_section").hide();
             let form = document.getElementById('add_frm');
             if (!form) return;

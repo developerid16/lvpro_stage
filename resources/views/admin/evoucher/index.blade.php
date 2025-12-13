@@ -671,30 +671,31 @@
             });
         });
 
-         function resetFormById() {
-        let modal = $('#AddModal').closest(".modal");
-    
-        $(".max_order").hide();
-        $("#common_section").hide();
-        $("#voucher_image_preview").hide();
-        $("#location_section").hide();
-        let form = document.getElementById('add_frm');
-        if (!form) return;
+        function resetFormById() {
+            let modal = $('#AddModal').closest(".modal");
+        
+            $(".participating_merchant").hide();
+            $("#voucher_image_preview").hide();
+            $("#participating_merchant_location").hide();
+            $(".file").hide();
+            $(".inventory_qty").hide();
+            let form = document.getElementById('add_frm');
+            if (!form) return;
 
-        // BASIC RESET
-        form.reset();
+            // BASIC RESET
+            form.reset();
 
-        // CLEAR FILE INPUTS
-        form.querySelectorAll('input[type="file"]').forEach(file => {
-            file.value = '';
-        });
+            // CLEAR FILE INPUTS
+            form.querySelectorAll('input[type="file"]').forEach(file => {
+                file.value = '';
+            });
 
-       
+        
 
-        // OPTIONAL: hide error messages
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-    }
+            // OPTIONAL: hide error messages
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        }
 
    
     </script>
