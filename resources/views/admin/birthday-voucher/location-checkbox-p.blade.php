@@ -8,7 +8,7 @@
                 <label class="form-label">{{ $location->name }}</label>
             </div>
             <div class="col-md-6">
-                <input type="number" name="locations[{{ $location->id }}][inventory_qty]" class="form-control"
+                <input type="number" min="0" name="locations[{{ $location->id }}][inventory_qty]" class="form-control"
                     placeholder="Quantity" min="0">
             </div>
         </div>

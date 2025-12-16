@@ -26,12 +26,12 @@ class BdayEvoucherController extends Controller
     public function __construct()
     {
 
-        $this->view_file_path = "admin.bday-voucher.";
+        $this->view_file_path = "admin.birthday-voucher.";
         $permission_prefix    = $this->permission_prefix = 'bday-voucher';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
             'title'             => 'Birthday Voucher',
-            'module_base_url'   => url('admin/bday-voucher'),
+            'module_base_url'   => url('admin/birthday-voucher'),
         ];
 
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'store']]);
@@ -108,7 +108,7 @@ class BdayEvoucherController extends Controller
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                // $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
           
             $final_data[$key]['action'] = $action . "</div>";

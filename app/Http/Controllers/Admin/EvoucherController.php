@@ -783,8 +783,8 @@ class EvoucherController extends Controller
                 'gender'             => 'nullable|array',
 
                 'age_mode'           => 'required',
-                'age_from'           => 'nullable|date',
-                'age_to'             => 'nullable|date',
+                'age_from'           => 'nullable',
+                'age_to'             => 'nullable',
 
                 'redemption_start_date' => 'nullable|date',
                 'redemption_end_date'   => 'nullable|date',

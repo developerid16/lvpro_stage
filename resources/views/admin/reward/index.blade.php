@@ -103,6 +103,7 @@
 
         $(".max_order").hide();
         $("#common_section").hide();
+
         $('.reward_type').on('change', function () {
             let type = $(this).val();
             $("#common_section").show(); // show physical fields
@@ -115,6 +116,8 @@
                 $("#participating_merchant_location").hide(); // also show location section
                 $('#collection_reminder_title').text('Send Collection Reminder');
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
+                 let merchantId = $('#merchant_id').val();
+                loadLocations(merchantId);
                 
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
@@ -137,9 +140,7 @@
             }
 
 
-        });
-
-      
+        });     
 
 
         $('#merchant_id').on('change', function () {
@@ -170,7 +171,7 @@
                         let html = '';
                         let i = 1;
 
-                        html += `<label class="sh_dec"><b>Locations</b></label>`;
+                        html += `<label class="sh_dec"><b>Locations </b><span style="color:red;">*</span></label>`;
 
                         // Wrapper ONLY ONCE
                         html += `<div id="location_wrapper" class="row gx-3 gy-3">`;
@@ -194,7 +195,7 @@
 
                                         <div class="d-flex align-items-center ms-3">
                                             <label class="mb-0 me-2 font-12">Inventory Qty</label>
-                                            <input type="number"
+                                            <input type="number" min="0"
                                                 class="form-control"
                                                 name="locations[${loc.id}][inventory_qty]"
                                                 placeholder="Qty"
@@ -374,7 +375,30 @@
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }
 
-   
+        function calculateVoucherSet() {
+
+            let usualPrice   = parseFloat($('#usual_price').val());
+            let voucherValue = parseFloat($('#voucher_value').val());
+
+            // Guard clauses
+            if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
+                $('#voucher_set').val('');
+                return;
+            }
+
+            let voucherSet = usualPrice / voucherValue;
+
+            // If you want integer only (recommended)
+            $('#voucher_set').val(Math.floor(voucherSet));
+
+            // If you want decimals instead, use this:
+            // $('#voucher_set').val(voucherSet.toFixed(2));
+        }
+
+        // Run on input change
+        $(document).on('input', '#usual_price, #voucher_value', function () {
+            calculateVoucherSet();
+        });
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

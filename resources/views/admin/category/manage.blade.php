@@ -131,7 +131,7 @@
                                                 <div class="sh_dec input-group-prepend">
                                                     <span class="input-group-text">$</span>
                                                 </div>
-                                                <input type="number" name="milestone_amount[]"
+                                                <input type="number" min="0" name="milestone_amount[]"
                                                     placeholder="Milestones  Amount" class="form-control sh_dec"
                                                     aria-label="Amount (to the nearest dollar)"
                                                     value="{{ $milestone->amount }}" required min="{{$milestone->min}}"
@@ -264,7 +264,7 @@
                         <div class="col-12 col-md-4">
                             <div class="mb-3">
                                 <label for="name">Keys earn <span class="required-hash">*</span></label>
-                                <input id="no_of_keys" type="number" class="form-control" name="no_of_keys"
+                                <input id="no_of_keys" type="number" min="0" class="form-control" name="no_of_keys"
                                     placeholder="Enter keys" required>
                             </div>
                         </div>

@@ -219,7 +219,7 @@
         }
 
         $.ajax({
-            url: "{{ url('admin/bday-voucher/get-club-locations') }}",
+            url: "{{ url('admin/birthday-voucher/get-club-locations') }}",
             type: "GET",
             data: { merchant_id: merchantId },
             success: function (res) {
@@ -381,19 +381,19 @@
                         <div class="col-12 col-md-6 inventory_qty" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    
-                                <input id="inventory_qty" type="number"  placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
+                                <input id="inventory_qty" type="number" min="0"  placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_value">Voucher Value<span class="required-hash">*</span></label>    
-                                <input id="voucher_value" type="number"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                <input id="voucher_value" type="number" min="0"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_set">Voucher Set<span class="required-hash">*</span></label>    
-                                <input id="voucher_set" type="number"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -459,11 +459,11 @@
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
                                 <label class="sh_dec">Low Stock Reminder 1</label>
-                                <input type="number" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
+                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
                                 <label class="sh_dec">Low Stock Reminder 2</label>
-                                <input type="number" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
+                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
                     </div>

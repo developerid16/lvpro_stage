@@ -456,32 +456,26 @@
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
                             @endcan
                             @can('evoucher-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">Digital Voucher</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">E-Voucher Voucher</a>
                             @endcan
                             @can('bday-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/bday-voucher')}}">Birthday Voucher</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
                             @endcan
                             @can('evoucher-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
                             @endcan
                             @can('reward-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/automated-reward')}}">Automated
-                                    Reward</a>
+                                {{-- <a class="dropdown-item" key="t-alerts" href="{{url('admin/automated-reward')}}">Automated Reward</a> --}}
                             @endcan
                             @can('reward-list')
-                                <a class="dropdown-item" key="t-alerts"
-                                    href="{{url('admin/reward?type=campaign-voucher')}}">Rewards Campaign
-                                    Voucher</a>
+                                {{-- <a class="dropdown-item" key="t-alerts"  href="{{url('admin/reward?type=campaign-voucher')}}">Rewards Campaign  Voucher</a> --}}
                             @endcan
                             @can('reward-redemption-cms')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/redemption-reward')}}">Rewards
-                                    Management CMS</a>
+                                {{-- <a class="dropdown-item" key="t-buttons" href="{{url('/admin/redemption-reward')}}">Rewards Management CMS</a> --}}
 
                             @endcan
                             @can('reward-redemption-pos')
-                                <a class="dropdown-item" key="t-buttons"
-                                    href="{{url('/admin/reward-redemption-pos')}}">Rewards
-                                    Redemption POS</a>
+                                {{-- <a class="dropdown-item" key="t-buttons"   href="{{url('/admin/reward-redemption-pos')}}">Rewards  Redemption POS</a> --}}
                             @endcan
                         </div>
                     </li>

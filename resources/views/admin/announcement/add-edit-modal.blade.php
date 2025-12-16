@@ -25,7 +25,7 @@
                         <div class="col-12 col-md-4">
                             <div class="mb-3">
                                 <label class="sh_dec"> Order <span class="required-hash">*</span></label>
-                                <input type="number" class="form-control" name="display_order" placeholder="Enter order" value="{{ $data->display_order ?? '' }}" >
+                                <input type="number" min="0" class="form-control" name="display_order" placeholder="Enter order" value="{{ $data->display_order ?? '' }}" >
                                 <span class="text-muted">Higher value shows first</span>
                             </div>
                         </div>

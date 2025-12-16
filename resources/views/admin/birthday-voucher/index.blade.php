@@ -22,7 +22,7 @@
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
            
             @can("$permission_prefix-create")
-            {{-- <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button> --}}
+            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
             @endcan
         </div>
 
@@ -61,7 +61,7 @@
 
     <!-- Create -->
     @can("$permission_prefix-create")
-        @include('admin.bday-voucher.add-edit-modal')
+        @include('admin.birthday-voucher.add-edit-modal')
     @endcan
     <!-- end modal -->
 
@@ -568,7 +568,7 @@
             }
 
             $.ajax({
-                url: "{{ url('admin/bday-voucher/get-club-locations') }}",
+                url: "{{ url('admin/birthday-voucher/get-club-locations') }}",
                 type: "GET",
                 data: { merchant_id: merchantId },
                 success: function (res) {

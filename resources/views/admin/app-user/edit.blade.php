@@ -69,7 +69,7 @@
                         <div class="col-12 col-md-7">
                             <div class="mb-3">
                                 <label class="sh_dec" for="title">Phone Number</label>
-                                <input id="phone_number" type="number" class="sh_dec form-control" name="phone_number"
+                                <input id="phone_number" type="number" min="0" class="sh_dec form-control" name="phone_number"
                                     placeholder="Enter phone number" value="{{ $data->phone_number ?? '' }}" required>
 
                             </div>

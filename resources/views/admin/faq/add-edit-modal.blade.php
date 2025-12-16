@@ -28,12 +28,8 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="faq_order">Order<span class="required-hash">*</span></label>
-                                <input id="faq_order" type="number" class="sh_dec form-control" name="faq_order" placeholder="Enter faq order" value="{{ $data->faq_order ?? '' }}" min="0">
+                                <input id="faq_order" type="number" min="0" class="sh_dec form-control" name="faq_order" placeholder="Enter faq order" value="{{ $data->faq_order ?? '' }}" min="0">
                                 <span>Sorting will be based on Ascending or Descending Numeric Order.
-
-
-
-
 
                                 </span>
                             </div>

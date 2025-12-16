@@ -95,9 +95,10 @@
                                 </div>
                             </div>                           
                            
+                            <!--publish channel-->
                            <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Publish Channel</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3">
+                                <label class="col-md-3 fw-bold">Publish Channel</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
                                         $publishChannels = [
                                             'All', 'AS', 'AT', 'AV', 'JH', 'JL', 'JV', 
@@ -118,8 +119,8 @@
 
                             <!--card Type-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Card Type</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3">
+                                <label class="col-md-3 fw-bold">Card Type</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
                                         $cardTypes = ['All', 'Credit Card', 'Debit Card', 'Safra'];
                                         $selected = isset($data) ? explode(',', $data->card_types ?? '') : [];
@@ -135,8 +136,8 @@
 
                            <!--Dependent Type-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Dependent Type</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3">
+                                <label class="col-md-3 fw-bold">Dependent Type</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
                                         $dependentTypes = ['All', 'Spouse', 'Child'];
                                         $selected = isset($data) ? explode(',', $data->dependent_types ?? '') : [];
@@ -152,8 +153,8 @@
 
                             <!--Marital Status-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Marital Status</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3">
+                                <label class="col-md-3 fw-bold">Marital Status</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
                                         $maritalStatus = ['All', 'Single', 'Married', 'Divorced', 'Widowed', 'Not Stated'];
                                         $selected = isset($data) ? explode(',', $data->marital_status ?? '') : [];
@@ -169,8 +170,8 @@
 
                             <!--Gender-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Gender</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3">
+                                <label class="col-md-3 fw-bold">Gender</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
                                         $genders = ['All', 'Male', 'Female'];
                                         $selected = isset($data) ? explode(',', $data->gender ?? '') : [];
@@ -187,23 +188,54 @@
 
                             <!---Age-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Age</label>
-                                <div class="col-md-8 d-flex flex-wrap gap-3 align-items-center">
+                                <label class="col-md-3 fw-bold">Age</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3 align-items-center">
+
                                     @php
                                         $selectedMode = $data->age_mode ?? 'All';
+                                        $ageFrom = $data->age_from ?? '';
+                                        $ageTo   = $data->age_to ?? '';
                                     @endphp
+
                                     <label class="d-flex align-items-center gap-1">
-                                        <input type="radio" name="age_mode" value="All" class="form-check-input"  {{ $selectedMode == 'All' ? 'checked' : '' }}>
+                                        <input type="radio" name="age_mode" value="All"
+                                            class="form-check-input"
+                                            {{ $selectedMode === 'All' ? 'checked' : '' }}>
                                         All
                                     </label>
+
                                     <label class="d-flex align-items-center gap-1">
-                                        <input type="radio" name="age_mode" value="custom" class="form-check-input age-select" {{ $selectedMode == 'custom' ? 'checked' : '' }}>
+                                        <input type="radio" name="age_mode" value="custom"
+                                            class="form-check-input age-select"
+                                            {{ $selectedMode === 'custom' ? 'checked' : '' }}>
                                         Select Age
                                     </label>
-                                    <input type="date" name="age_from" class="form-control age-range"  value="{{ $data->age_from ?? '' }}"   style="width: 150px;"{{ $selectedMode == 'custom' ? '' : 'disabled' }}>
-                                    <input type="date"   name="age_to"  class="form-control age-range" value="{{ $data->age_to ?? '' }}"   style="width: 150px;" {{ $selectedMode == 'custom' ? '' : 'disabled' }}>
+
+                                    <!-- From Age -->
+                                    <label for="">From</label>
+                                    <select name="age_from" class="form-select age-range" style="width:120px;" {{ $selectedMode === 'custom' ? '' : 'disabled' }}>
+                                        <option value="">From</option>
+                                        @for ($i = 1; $i <= 100; $i++)
+                                            <option value="{{ $i }}" {{ $ageFrom == $i ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+                                    </select>
+
+                                    <!-- To Age -->
+                                    <label for="">To</label>
+                                    <select name="age_to" class="form-select age-range" style="width:120px;" {{ $selectedMode === 'custom' ? '' : 'disabled' }}>
+                                        <option value="">To</option>
+                                        @for ($i = 1; $i <= 100; $i++)
+                                            <option value="{{ $i }}" {{ $ageTo == $i ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+                                    </select>
+
                                 </div>
                             </div>
+
 
                             <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                             <div id="location_date_container" class="col-12">
@@ -495,7 +527,7 @@
                         res.locations.forEach(loc => {
 
                             html += `
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <div class="location-box d-flex align-items-center p-2"
                                         style="border:1px solid #e9e9e9; border-radius:6px;">
 
@@ -542,12 +574,13 @@
                 type: "GET",
                 success: function (res) {
                     if (res.publish_start) {
-                        $("input[name='publish_start']").val(res.publish_start);
+                        $("input[name='publish_start']").val(formatToAmPm(res.publish_start));
                     }
 
                     if (res.publish_end) {
-                        $("input[name='publish_end']").val(res.publish_end);
+                        $("input[name='publish_end']").val(formatToAmPm(res.publish_end));
                     }
+
                 }
             });
         });
@@ -693,7 +726,85 @@
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }
 
+        function formatToAmPm(datetimeLocal) {
+            // Example input: 1979-08-16T04:12
+            if (!datetimeLocal) return '';
+
+            let d = new Date(datetimeLocal);
+            if (isNaN(d.getTime())) return '';
+
+            let yyyy = d.getFullYear();
+            let mm   = String(d.getMonth() + 1).padStart(2, '0');
+            let dd   = String(d.getDate()).padStart(2, '0');
+
+            let hours = d.getHours();
+            let minutes = String(d.getMinutes()).padStart(2, '0');
+            let seconds = String(d.getSeconds()).padStart(2, '0');
+
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12; // convert 0 → 12
+            hours = String(hours).padStart(2, '0');
+
+            return `${yyyy}-${mm}-${dd} ${hours}:${minutes}:${seconds} ${ampm}`;
+        }
+
    
+        $(document).on('change', 'input[type="checkbox"]', function () {
+
+            let name = $(this).attr('name'); // e.g. publish_channels[]
+            let $group = $('input[name="' + name + '"]');
+
+            let $allCheckbox = $group.filter('[value="All"]');
+            let $others = $group.not('[value="All"]');
+
+            // If "All" is clicked
+            if ($(this).val() === 'All') {
+                let isChecked = $(this).is(':checked');
+                $others.prop('checked', isChecked);
+            }
+            // If any other checkbox is clicked
+            else {
+                let allChecked = $others.length === $others.filter(':checked').length;
+                $allCheckbox.prop('checked', allChecked);
+            }
+        });
+
+        $(document).on('change', 'input[name="age_mode"]', function () {
+
+            if ($(this).val() === 'custom') {
+                $('.age-range').prop('disabled', false);
+            } else {
+                $('.age-range').prop('disabled', true).val('');
+            }
+        });
+
+        $(document).on('change', 'select[name="age_from"]', function () {
+
+            let fromVal = parseInt($(this).val(), 10);
+            let $toSelect = $('select[name="age_to"]');
+
+            // Reset To
+            $toSelect.val('');
+
+            // If no From selected, enable all To options
+            if (isNaN(fromVal)) {
+                $toSelect.find('option').prop('disabled', false);
+                return;
+            }
+
+            // Disable To options less than From
+            $toSelect.find('option').each(function () {
+                let optionVal = parseInt($(this).val(), 10);
+
+                if (isNaN(optionVal)) {
+                    // Keep placeholder enabled
+                    $(this).prop('disabled', false);
+                } else {
+                    $(this).prop('disabled', optionVal < fromVal);
+                }
+            });
+        });
+
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection
