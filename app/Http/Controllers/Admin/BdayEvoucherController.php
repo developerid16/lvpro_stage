@@ -455,16 +455,16 @@ class BdayEvoucherController extends Controller
                     ]
                 ], 422);
             }
-            $approvedRequest = RewardUpdateRequest::where('reward_id', $reward->id)->where('status', 'approved')->first();
+            // $approvedRequest = RewardUpdateRequest::where('reward_id', $reward->id)->where('status', 'approved')->first();
 
-            if ($approvedRequest) {
-                return response()->json([
-                    'status' => 'error',
-                    'errors' => [
-                        'month' => ['This reward has already been approved and cannot be updated again.']
-                    ]
-                ], 422);
-            }
+            // if ($approvedRequest) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'errors' => [
+            //             'month' => ['This reward has already been approved and cannot be updated again.']
+            //         ]
+            //     ], 422);
+            // }
 
             /* ---------------------------------------------------
             * CREATE REWARD (e-Voucher only)

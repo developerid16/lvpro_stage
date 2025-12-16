@@ -22,7 +22,7 @@
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
            
             @can("$permission_prefix-create")
-            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
+            {{-- <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button> --}}
             @endcan
         </div>
 

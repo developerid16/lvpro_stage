@@ -14,7 +14,7 @@ yarn-error.log
 /.idea
 /.vscode
 storage/framework/views/
-public/images
+public/images/
 public/qrcode
 public/report
 public/report/customer-report.xlsx
