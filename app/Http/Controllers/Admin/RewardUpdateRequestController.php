@@ -11,6 +11,7 @@ use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\User;
 use App\Models\UserAccessRequest;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -81,7 +82,7 @@ class RewardUpdateRequestController extends Controller
 
                 // BASIC INFO
                 'reward_id'         => $row->reward_id,
-                'month'             => $row->month,
+                'month'            => Carbon::createFromFormat('Y-m',$row->month )->format(config('shilla.month-format')),
                 'name'              => $row->name,
                 'description'       => $row->description ?? '-',
 

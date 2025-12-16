@@ -31,9 +31,7 @@
                             Reward Name
                         </th>
 
-                        <th data-field="description">
-                            Description
-                        </th>
+                      
 
                         <th data-field="inventory_type">
                             Inventory Type
