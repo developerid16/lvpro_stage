@@ -21,7 +21,7 @@
                         
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Name<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="name">Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" 
                                     placeholder="Enter Name"
                                     value="{{ $data->name ?? '' }}">
@@ -30,7 +30,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="status">Status<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="status">Status <span class="required-hash">*</span></label>
 
                                 <select class="sh_dec form-select" name="status">
                                     <option value="Active" {{ (isset($data->status) && $data->status == 'Active') ? 'selected' : '' }}>Active</option>

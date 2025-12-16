@@ -375,3 +375,7 @@ tspan {
 .font-12{
     font-size: 12px !important;
 }
+.readonly {
+    pointer-events: none;
+    background: #eff2f7 !important;
+}

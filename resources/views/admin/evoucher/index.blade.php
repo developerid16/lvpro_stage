@@ -100,10 +100,8 @@
                                 <label class="col-md-3 fw-bold">Publish Channel</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @php
-                                        $publishChannels = [
-                                            'All', 'AS', 'AT', 'AV', 'JH', 'JL', 'JV', 
-                                            'LF', 'OA', 'OE', 'OF', 'SH', 'SL', 'SV', 
-                                            'VT', 'VR', 'FA'
+                                        $publishChannels = ['All', 'AS', 'AT', 'AV', 'JH', 'JL', 'JV', 
+                                            'LF', 'OA', 'OE', 'OF', 'SH', 'SL', 'SV','VT', 'VR', 'FA'
                                         ];
 
                                         $selected = isset($data) ? explode(',', $data->publish_channels ?? '') : [];
@@ -313,6 +311,14 @@
                                 <div class="mb-3">
                                     <label class="sh_dec" for="reward_type">Import Member ID <span class="required-hash">*</span></label>   
                                     <input id="memberId" type="file" class="form-control" name="memberId" accept=".xlsx,.xls">
+                                    <div class="mt-1">
+                                        <label class="small text-muted">
+                                            Download demo file:
+                                            <a href="{{ asset('demo-push-voucher.xlsx') }}" download class="text-primary fw-bold">
+                                                Click here
+                                            </a>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             

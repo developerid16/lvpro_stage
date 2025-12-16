@@ -205,7 +205,7 @@
                     let html = '';
                     let i = 1;
 
-                    html += `<label class="sh_dec"><b>Participating Merchant Outlets</b></label>`;
+                    html += `<label class="sh_dec"><b>Participating Merchant Outlets </b> <span  style="color:red;">*</span></label>`;
                     html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
 
                     res.locations.forEach(loc => {
@@ -467,19 +467,19 @@
                             <div class="row">
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="max_quantity">Maximum Quantity<span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="max_quantity">Maximum Quantity <span class="required-hash">*</span></label>
                                         <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_digital"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_validity">Voucher Validity<span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
                                         <input id="voucher_validity" type="date"  class="sh_dec form-control"  name="voucher_validity" value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_type">Inventory Type<span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="inventory_type">Inventory Type <span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select inventory_type" name="inventory_type">
                                             <option class="sh_dec" value="">Select Voucher Type</option>
                                             <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
@@ -491,14 +491,23 @@
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
                                         <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlxs,.xls">
-
-                                        @if(isset($data->csvFile))
-                                            <div class="mt-2">
-                                                <a href="{{ asset('reward_voucher/'.$data->csvFile) }}" target="_blank" class="text-primary">
-                                                    {{ $data->csvFile }}
-                                                </a>
+                                        <div class="d-flex justify-content-between">
+                                            <div class="mt-1">
+                                                <label class="small text-muted">
+                                                    Download demo file:
+                                                    <a href="{{ asset('public/demo-reward.xlsx') }}" download class="text-primary fw-bold">
+                                                        Click here
+                                                    </a>
+                                                </label>
                                             </div>
-                                        @endif
+                                            @if(isset($data->csvFile))
+                                                <div class="mt-1">
+                                                    <a href="{{ asset('reward_voucher/'.$data->csvFile) }}" target="_blank" class="text-primary">
+                                                        {{ $data->csvFile }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
@@ -509,19 +518,19 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_value">Voucher Value<span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="voucher_value">Voucher Value <span class="required-hash">*</span></label>    
                                         <input id="voucher_value" type="number" min="0" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_set">Voucher Set<span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="voucher_set">Voucher Set <span class="required-hash">*</span></label>    
                                         <input id="voucher_set" type="number" min="0" readonly  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="clearing_method">Clearing Menthods<span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="clearing_method">Clearing Menthods <span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
 
                                             <option class="sh_dec" value="">Select Clearing Method</option>

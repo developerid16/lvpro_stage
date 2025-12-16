@@ -21,24 +21,24 @@
                     <div class="row">
 
                         <div class="col-12 col-md-6">
-                            <label>Name*</label>
+                            <label>Name <span class="required-hash">*</span></label>
                             <input type="text" name="name" class="form-control" value="{{ $data->name ?? '' }}">
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label>Code*</label>
+                            <label>Code <span class="required-hash">*</span></label>
                             <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}">
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label>Start Date*</label>
+                            <label>Start Date <span class="required-hash">*</span></label>
                             <input type="datetime-local" name="start_date" id="start_date"
                                 class="form-control"
                                 value="{{ isset($data->start_date) ? date('Y-m-d\TH:i', strtotime($data->start_date)) : '' }}">
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label>End Date*</label>
+                            <label>End Date <span class="required-hash">*</span></label>
                             <input type="datetime-local" name="end_date" id="end_date"
                                 class="form-control"
                                 value="{{ isset($data->end_date) ? date('Y-m-d\TH:i', strtotime($data->end_date)) : '' }}">
@@ -46,7 +46,7 @@
 
 
                         <div class="col-12 col-md-6">
-                            <label>Participating Merchant*</label>
+                            <label>Participating Merchant <span class="required-hash">*</span></label>
                             <select name="participating_merchant_id" class="form-select">
                                 @foreach($merchants as $merchant)
                                     <option value="{{ $merchant->id }}"
@@ -58,7 +58,7 @@
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label>Club Location*</label>
+                            <label>Club Location <span class="required-hash">*</span></label>
                             <select name="club_location_id" class="form-select">
                                 @foreach($locations as $loc)
                                     <option value="{{ $loc->id }}"
@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label>Status*</label>
+                            <label>Status <span class="required-hash">*</span></label>
                             <select name="status" class="form-select">
                                 <option value="Active" {{ isset($data) && $data->status == 'Active' ? 'selected' : '' }}>Active</option>
                                 <option value="Inactive" {{ isset($data) && $data->status == 'Inactive' ? 'selected' : '' }}>Inactive</option>

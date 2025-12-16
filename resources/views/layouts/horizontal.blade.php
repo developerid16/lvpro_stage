@@ -585,29 +585,29 @@
                             </a>
                             @endcan--}}
                             @can(['contact-us-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/contact-us')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/contact-us')}}">
                                     Contact Us Request
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['contact-us-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/notification-setting')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/notification-setting')}}">
                                     Notification Settings
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['contact-us-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/broadcast')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/broadcast')}}">
                                     Broadcast
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['apilogs-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/apilogs')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/apilogs')}}">
                                     POS API Log
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['apilogs-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/apilogs-sorting')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/apilogs-sorting')}}">
                                     POS API Log Not Triggered
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['apilogs-list'])
                                 <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
@@ -615,9 +615,9 @@
                                 </a>
                             @endcan
                             @can(['system-backup'])
-                                <a class="dropdown-item  " href="{{url('/admin/qr-setting')}}">
+                                {{-- <a class="dropdown-item  " href="{{url('/admin/qr-setting')}}">
                                     Qrcode Setting
-                                </a>
+                                </a> --}}
                             @endcan
                             @can(['cms-setting'])
                                 <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">

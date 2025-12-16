@@ -309,7 +309,7 @@
                         let html = '';
                         let i = 1;
 
-                        html += `<label class="sh_dec"><b>Participating Merchant Outlets</b></label>`;
+                        html += `<label class="sh_dec"><b>Participating Merchant Outlets </b><span  style="color:red;">*</span></label>`;
 
                         // Wrapper ONLY ONCE
                         html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
