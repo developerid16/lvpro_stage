@@ -366,7 +366,7 @@
                                     <div class="mt-1">
                                         <label class="small text-muted">
                                             Download demo file:
-                                            <a href="{{ asset('public/demo-reward.xlsx') }}" download class="text-primary fw-bold">
+                                            <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold">
                                                 Click here
                                             </a>
                                         </label>
