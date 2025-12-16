@@ -56,7 +56,8 @@ class PushVoucherController extends Controller
         foreach ($rowsQueryBuilder->get() as $row) {
             $index = $startIndex + $i + 1;
 
-            $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i:s A') : '';
+           
+            $createdAt =  $row->created_at->format(config('shilla.date-format'));
           
 
             // -------------------------

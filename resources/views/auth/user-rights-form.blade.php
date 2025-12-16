@@ -49,59 +49,46 @@
 
                                     <div>
                                         <h5 class="text-primary">Welcome Back !</h5>
-                                        <p class="text-muted">Sign in to continue to {{ config('app.name') }}.</p>
+                                        <p class="text-muted">Send Request For User Rights</p>
                                     </div>
 
                                     <div class="mt-4">
-                                        <form class="form-horizontal" method="POST" action="{{ route('login') }}">
+                                        <form method="POST" action="{{ url('user-rights-form') }}">
                                             @csrf
+
                                             <div class="mb-3">
-                                                <label for="username" class="form-label">Email</label>
-                                                <input name="email" type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" placeholder="Enter Email" autocomplete="email" autofocus>
-
-                                                @if(session()->has('email'))
-
-
-                                                <span class="invalid-feedback d-block" role="alert">
-                                                    <strong>{{ session()->get('email') }}</strong>
-                                                </span>
-
-                                                @endif
+                                                <label class="form-label">Name</label>
+                                                <input type="text" name="name" class="form-control" required>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label class="form-label">Password</label>
-                                                <div class="input-group auth-pass-inputgroup @error('password') is-invalid @enderror">
-                                                    <input type="password" name="password" class="form-control  @error('password') is-invalid @enderror" id="userpassword"  placeholder="Enter password" aria-label="Password" aria-describedby="password-addon">
-                                                    <button class="btn btn-light " type="button" id="password-addon"><i class="mdi mdi-eye-outline"></i></button>
-                                                    @error('password')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                    @enderror
+                                                <label class="form-label">Email</label>
+                                                <input type="email" name="email" class="form-control" required>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Description</label>
+                                                <textarea name="description" class="form-control" rows="4"
+                                                        placeholder="Why do you need admin access?"></textarea>
+                                            </div>
+
+                                            <div class="d-grid">
+                                                <button type="submit" class="btn btn-primary">
+                                                    Submit Request
+                                                </button>
+
+                                                <a href="{{ route('login') }}" class="text-muted mt-2 text-center">
+                                                    Back to Login
+                                                </a>
+                                            </div>
+
+                                            @if(session('success'))
+                                                <div class="alert alert-success mt-3">
+                                                    {{ session('success') }}
                                                 </div>
-                                                <div class="float-end mt-1">
-                                                    @if (Route::has('password.request'))
-                                                    <a href="{{ route('password.request') }}" class="text-muted">Forgot password?</a>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="remember" {{
-                                                    old('remember') ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="remember">
-                                                    Remember me
-                                                </label>
-                                            </div>
-
-                                            <div class="mt-3 d-grid">
-                                                <button class="btn btn-primary waves-effect waves-light" type="submit">Log
-                                                    In</button>
-                                                    <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a>
-                                            </div>
-
+                                            @endif
                                         </form>
+
 
                                     </div>
                                 </div>

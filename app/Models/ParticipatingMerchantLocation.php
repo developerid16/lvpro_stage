@@ -22,6 +22,11 @@ class ParticipatingMerchantLocation extends Model
         'status',
     ];
 
+   protected $casts = [
+    'start_date' => 'datetime',
+    'end_date'   => 'datetime',
+];
+
     // Relations
     public function merchant()
     {

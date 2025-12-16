@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use App\Mail\NewAdminRegister;
 use App\Models\KeyPassbookDebit;
 use App\Models\KeyPassbookCredit;
+use App\Models\UserAccessRequest;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserPurchasedReward;
 use Illuminate\Support\Facades\App;
@@ -486,4 +487,6 @@ class HomeController extends Controller
             }
         }
     }
+
+   
 }

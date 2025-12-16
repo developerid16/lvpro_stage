@@ -379,7 +379,13 @@
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
                             @endcan
                             @can(['app-user-list'])
-                                <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
+                            <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
+                            @endcan
+                            @can('user-rights')
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user-rights')}}">User Rrights Request</a>
+                            @endcan
+                            @can('user-rights')
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">Reward Update Request</a>
                             @endcan
                             @can(['campaign-voucher-group-list'])
                                 <a class="dropdown-item" key="t-dashboards"
@@ -393,13 +399,13 @@
                     @canany(['content-management', 'app-management', 'slider-list', 'about-app-banner-list', 'learn-more-page', 'faq-list', 'app-content-management'])
 
                     <li class="nav-item dropdown">
-                        {{-- <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content / Ad
                                 Management</span>
                             <!-- <div class="arrow-down"></div> -->
-                        </a> --}}
+                        </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            @can('content-management')
+                            {{-- @can('content-management')
                                 <a class="dropdown-item" key="t-alerts"
                                     href="{{url('admin/content-management')}}">T&C/PDPA/Legal Privacy Policy</a>
                             @endcan
@@ -414,22 +420,24 @@
                             @can('slider-list')
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/slider')}}">Advertisement
                                     Slider</a>
+                            @endcan --}}
+                            @can('slider-list')
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
                             @endcan
                             @can('slider-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard
-                                    Popup</a>
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/announcement')}}">Announcement</a>
                             @endcan
                             {{-- @can('about-app-banner-list')
                             <a class="dropdown-item" key="t-buttons" href="{{url('/admin/about-app-banner')}}">About App
                                 Banner</a>
                             @endcan --}}
-                            @can('learn-more-page')
+                            {{-- @can('learn-more-page')
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/learn-more-page')}}">Learn More
                                     Page</a>
                             @endcan
                             @can('faq-list')
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/faq-category')}}">FAQ</a>
-                            @endcan
+                            @endcan --}}
                         </div>
                     </li>
                     @endcan

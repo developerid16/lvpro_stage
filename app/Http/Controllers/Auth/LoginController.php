@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Mail\OTPVerify;
+use App\Models\UserAccessRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -134,4 +135,23 @@ class LoginController extends Controller
     {
         return view('auth.login');
     }
+    protected function userRightsForm()
+    {
+        return view('auth.user-rights-form');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'        => 'required|string|max:100',
+            'email'       => 'required|email',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        UserAccessRequest::create($request->only('name', 'email', 'description'));
+
+        return back()->with('success', 'Request submitted successfully. Admin will contact you.');
+    }
+
+   
 }

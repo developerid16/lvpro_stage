@@ -459,7 +459,16 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * 3) VALIDATE
             * ---------------------------------------------------*/
-            $validated = $request->validate($rules);
+           $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validated = $validator->validated();
 
             /* ---------------------------------------------------
             * 4) IMAGE UPLOAD

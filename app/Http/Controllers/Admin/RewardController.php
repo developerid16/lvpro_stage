@@ -723,7 +723,16 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 5) RUN VALIDATION
             * ---------------------------------------------------*/
-            $validated = $request->validate($rules);
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validated = $validator->validated();
 
             /* ---------------------------------------------------
             * 6) MANUAL LOCATION CHECK (PHYSICAL ONLY)

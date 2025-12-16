@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\DashboardPopup;
+use App\Models\Announcement;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardPopupController extends Controller
+class AnnouncementController extends Controller
 {
     function __construct()
     {
 
-        $this->view_file_path = "admin.dashboardpopup.";
-        $permission_prefix = $this->permission_prefix = 'dashboardpopup';
+        $this->view_file_path = "admin.announcement.";
+        $permission_prefix = $this->permission_prefix = 'announcement';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Dashboard popup',
-            'module_base_url' => url('admin/dashboardpopup')
+            'title' => 'Announcement',
+            'module_base_url' => url('admin/announcement')
         ];
 
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'store']]);
@@ -38,14 +38,14 @@ class DashboardPopupController extends Controller
 
     public function datatable(Request $request)
     {
-        // Always order by display_order DESC (higher first)
-        $query = DashboardPopup::query()
-            ->orderBy('order', 'desc'); // or display_order if column name is that
+        // Always sort by display_order DESC (higher first)
+        $query = Announcement::query()
+            ->orderBy('display_order', 'desc');
 
         $result = $this->get_sort_offset_limit_query(
             $request,
             $query,
-            ['code', 'name', 'status', 'frequency']
+            ['title', 'display_order', 'start_date', 'end_date']
         );
 
         $rows  = $result['data'];
@@ -58,26 +58,15 @@ class DashboardPopupController extends Controller
 
             $index = $start + $i + 1;
 
+            // IMPORTANT: id must be at root level
             $final_data[$i] = [
-                // 🔥 REQUIRED for drag & drop
-                'id'        => $row->id,
-
-                'sr_no'     => $index,
-                'code'      => $row->code,
-                'name'      => $row->name,
-                'order'     => $row->order,
-                'status'    => $row->status,
-                'frequency' => $row->frequency,
-                'date'      =>
+                'id'    => $row->id,              // 🔥 REQUIRED for drag & drop
+                'sr_no' => $index,
+                'title' => $row->title,
+                'date'  =>
                     optional($row->start_date)->format(config('shilla.date-format')) .
                     ' to ' .
                     optional($row->end_date)->format(config('shilla.date-format')),
-                'image'     => "<a href='" . asset("images/$row->image") . "' data-lightbox='set-$row->id'>
-                                    <img src='" . asset("images/$row->image") . "'
-                                        class='avatar-sm me-3 mx-lg-auto mb-3 mt-1
-                                        float-start float-lg-none rounded-circle'
-                                        alt='img'>
-                                </a>",
             ];
 
             // ---------------- ACTIONS ----------------
@@ -110,6 +99,8 @@ class DashboardPopupController extends Controller
     }
 
 
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -124,13 +115,14 @@ class DashboardPopupController extends Controller
     public function store(Request $request)
     {
         $post_data = $request->validate([
-            'name'        => 'required|string|max:25',
-            'button'   => 'required|string|max:10',
-            'order'         => 'required|numeric',
-            'frequency'    => 'required|in:once-a-day,always',           
-            'start_date'    => 'required',
+            'title'          => 'required|string|max:255',
+            'display_order'  => 'required|numeric',
+            'start_date'     => 'required',
             'end_date'      => 'required|after_or_equal:start_date',
-            'description'   => 'required|string',
+            'description'        => 'required|string',
+        ],
+[
+            'description.required' => 'Message field is required',
         ]);
 
 
@@ -139,11 +131,16 @@ class DashboardPopupController extends Controller
             $request->image->move(public_path('images'), $imageName);
             $post_data['image'] = $imageName;
         }
+        $post_data['message'] = $request->description;
+        unset($post_data['description']);
+        Announcement::create($post_data);
 
-        DashboardPopup::create($post_data);
-
-        return response()->json(['status' => 'success', 'message' => 'Poupup Created Successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Announcement created successfully'
+        ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -158,7 +155,7 @@ class DashboardPopupController extends Controller
      */
     public function edit(string $id)
     {
-        $this->layout_data['data'] = DashboardPopup::find($id);
+        $this->layout_data['data'] = Announcement::find($id);
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
@@ -169,62 +166,66 @@ class DashboardPopupController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $post_data = $this->validate($request, [
-            'name' => 'required|max:25',
-            'button' => 'required',
-            'frequency' => 'required',
-            'order' => 'required',
-            'description' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|required|date|after_or_equal:' . $request->start_date,
+        $post_data = $request->validate([
+            'title'          => 'required|string|max:255',
+            'display_order'  => 'required|numeric',
+            'start_date'     => 'required|date',
+            'end_date'       => 'required|date|after:start_date',
+            'description'        => 'required|string',
+        ],
+[
+            'description.required' => 'Message field is required',
         ]);
 
-
-        $rd = DashboardPopup::find($id);
-
+        $announcement = Announcement::findOrFail($id);
+        $post_data['message'] = $request->description;
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
             $request->image->move(public_path('images'), $imageName);
             $post_data['image'] = $imageName;
             try {
-                unlink(filename: public_path("images/$rd->image"));
+                unlink(public_path("images/$announcement->image"));
             } catch (\Throwable $th) {
                 //throw $th;
             }
         }
+        unset($post_data['description']);
+        $announcement->update($post_data);
 
-        $rd->update($post_data);
-
-        return response()->json(['status' => 'success', 'message' => 'Popup Update Successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Announcement updated successfully'
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        DashboardPopup::where('id', $id)->delete();
+        Announcement::where('id', $id)->delete();
         return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
     }
 
-     public function reorder(Request $request)
+    public function reorder(Request $request)
     {
         $request->validate([
             'order' => 'required|array',
-            'order.*.id' => 'required|exists:dashboard_popups,id',
+            'order.*.id' => 'required|exists:announcements,id',
         ]);
 
-        
+
         // Get current max display_order
-        $maxOrder = DashboardPopup::max('order');
+        $maxOrder = Announcement::max('display_order');
 
         // Start assigning from max → downward
         $currentOrder = $maxOrder;
 
         foreach ($request->order as $row) {
 
-            DashboardPopup::where('id', $row['id'])
-                ->update(['order' => $currentOrder]);
+            Announcement::where('id', $row['id'])
+                ->update(['display_order' => $currentOrder]);
 
             $currentOrder--; // decrement for DESC order
         }
@@ -233,4 +234,6 @@ class DashboardPopupController extends Controller
     }
 
 
+
+   
 }

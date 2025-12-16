@@ -1,7 +1,7 @@
  @php
     $data = $data ?? null;
     $selectedLocation = $data->club_location ?? ''; // value from DB
-    @endphp
+@endphp
 <script>
     $(document).on("change", "#merchant_id", function () {
         let merchantId = $(this).val();
@@ -18,11 +18,48 @@
         if (selectedMerchant) {
             loadClubLocations(selectedMerchant, selectedLocation);
         }       
+        toggleFieldsBasedOnMonth(modal);
        
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
         
     });
+
+    function toggleFieldsBasedOnMonth(modal) {
+
+        let selectedMonth = "{{ $data->month ?? '' }}";
+        let inventoryType = "{{ $data->inventory_type ?? '' }}"; // must be 0 or 1
+
+        let today = new Date();
+        let currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+
+        // =====================
+        // RESET EVERYTHING
+        // =====================
+        modal.find('input, textarea, select, input[type="file"]').prop('disabled', false);
+
+        modal.find('#month').addClass('readonly');
+        // =====================
+        // APPLY RULE
+        // =====================
+        if (selectedMonth === currentMonth) {
+
+            // Disable EVERYTHING
+            modal.find('input, textarea, select, input[type="file"]').prop('disabled', true);
+
+            // Allow ONLY inventory_qty
+            if(inventoryType == 0){
+                modal.find('#inventory_qty').prop('disabled', false);
+                modal.find('.inventory_type').prop('disabled', false);
+                modal.find('.inventory_type').addClass('readonly');
+            }
+
+            // Always allow system fields
+            modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]').prop('disabled', false);
+        }
+    }
+
+
 
     $(document).on('change', '.reward_type', function () {
 
@@ -100,7 +137,7 @@
 
                                     <div class="d-flex align-items-center me-auto">
                                         <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                            <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                            <span class="fw-bold"></span> ${loc.name}
                                         </label>
                                         
                                         <input type="checkbox" 
@@ -211,6 +248,13 @@
     }
 
 </script>
+<style>
+    .readonly {
+        pointer-events: none;
+        background: #eff2f7;
+    }
+
+</style>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -219,8 +263,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="overflow-y: auto;  max-height: 800px;">
-                <form enctype="multipart/form-data" class="z-index-1" method="POST" action="javascript:void(0)"
-                    id="{{ isset($data->id) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? '' }}">
+                <form enctype="multipart/form-data" class="z-index-1" method="POST" action="javascript:void(0)" id="{{ isset($data->id) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? '' }}">
                     @csrf
                     @if (isset($type))
                         <input type="hidden" name="parent_type" value="{{ $type }}">
@@ -229,19 +272,18 @@
                         @method('PATCH')
                     @endif
                     <div class="row">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3 sh_dec">
-                                <label class="sh_dec font-12">Birth Month<span class="required-hash">*</span></label>
-                                <input type="month"  class="form-control" name="month"   value="{{ isset($data->month) ? $data->month : '' }}">
+                                <label class="sh_dec">Reward Creation<span class="required-hash">*</span></label>
+                                <input type="month" id="month"  class="form-control" name="month"   value="{{ isset($data->month) ? $data->month : '' }}">
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_image">Voucher Image <span class="required-hash">*</span></label>
 
-                                <input id="voucher_image" type="file" class="sh_dec form-control"
-                                    name="voucher_image" accept=".png,.jpg,.jpeg">
+                                <input id="voucher_image" type="file" class="sh_dec form-control" value="{{ $data->voucher_image ?? '' }}" name="voucher_image" accept=".png,.jpg,.jpeg">
 
                                 <span class="text-secondary">(316 px X 140 px)</span>
                                 <!-- 🔥 PREVIEW IMAGE -->
@@ -251,29 +293,29 @@
                             </div>
 
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
                                 <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
                                 <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
+                                <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -294,83 +336,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="reward_type">Voucher Type <span class="required-hash">*</span></label>   
-                                <input id="" type="text" class="sh_dec form-control" name="voucher_type" value="e-Voucher" readonly>                            
-                            </div>
-                        </div>
-
-                        <div class="row align-items-center mb-3">
-                            <label class="col-md-4 fw-bold">Direct Utilization</label>
-                            <div class="col-md-3">                               
-                                <label>
-                                    <input type="checkbox" name="direct_utilization" value="1"  {{ isset($data) && $data->direct_utilization ? 'checked' : '' }} class="form-check-input">
-                                    <span class="mt-1">Direct Utilization</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-12 ">
-                            <div class="col-md-3">
-                            </div>
-                        </div>
-
-                        <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
-                        <div id="location_date_container" class="col-12">
-                            <label class="sh_dec"><b>Date & Time</b></label>
-
-                            <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
-                                
-                                <div class="row">
-
-                                    <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Publish End Date & Time</label>
-                                            <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
-                                        </div>
-                                    </div>
-
-                                    <!-- Sales fields -->
-                                    <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-3">
-                                        <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Sales End Date & Time</label>
-                                            <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                       
-                        <div class="col-12 col-md-6 max_qty">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum Quantity<span class="required-hash">*</span></label>
-                                <input id="max_quantity" type="number" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="voucher_validity">Voucher Validity<span class="required-hash">*</span></label>
-                                <input id="voucher_validity" type="date"  class="sh_dec form-control"  name="voucher_validity" value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}">
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="inventory_type">Inventory Type<span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Voucher Type</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
-                                </select>
+                                <input id="" type="text" class="sh_dec form-control" name="voucher_type" value="Birthday Voucher" readonly>                            
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -381,7 +347,22 @@
                                 </select>
                             </div>
                         </div>
-
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="voucher_validity">Voucher Validity<span class="required-hash">*</span></label>
+                                <input id="voucher_validity" type="date"  class="sh_dec form-control"  name="voucher_validity" value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}">
+                            </div>
+                        </div>
+                         <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="inventory_type">Inventory Type<span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select inventory_type" name="inventory_type">
+                                    <option class="sh_dec" value="">Select Voucher Type</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
+                                </select>
+                            </div>
+                        </div>
                         
                         <div class="col-12 col-md-6 file" style="display: none">
                             <div class="mb-3">
@@ -486,31 +467,7 @@
                             </div>
                         </div>                               
                     </div>
-
-                    <div class="row align-items-center mb-3">
-                        <label class="col-md-4 fw-bold">Friendly URL Name</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"   name="friendly_url"    value="{{ $data->friendly_url ?? '' }}">
-                        </div>
-                    </div>
-
-                    <!-- Category -->
-                    <div class="row align-items-center mb-3">
-                        <label class="col-md-4 fw-bold">Category</label>
-                        <div class="col-md-6">
-                            <select class="form-select" name="category_id">
-                                <option value="">Select Category</option>
-                                @if (isset($category))                                        
-                                    @foreach ($category as $cat)
-                                        <option value="{{ $cat->id }}" {{ isset($data) && $data->category_id == $cat->id ? 'selected' : '' }}>
-                                            {{ $cat->name }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
-                                                                
+                                                     
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>

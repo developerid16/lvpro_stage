@@ -4,22 +4,30 @@
 <script>
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let rewardType = $('#EditModal .reward_type').val();
+        
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
         $(".max_order").hide();
         $("#common_section").show();
-        console.log(rewardType,'reward_type');
-        console.log(merchantId,'merchantId');
-        if (rewardType == "1" && merchantId) {
+        if (rewardType == "1") {
             
             $(".max_order").hide(); // also show location section
             $(".max_qty").show(); // also show location section
             $("#EditModal #physical").show();
-            $("#EditModal #location_section").show();
+            $('#EditModal #collection_reminder_title').text('Send Collection Reminder');
+            $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
+        }
 
+        if (rewardType == "1" && merchantId) {
+            
+         
+            $("#EditModal #location_section").show();           
             editLoadLocations(modal, merchantId); // will use savedLocations variable inside modal
         }
+        
         if (rewardType == "0") {
+            $('#EditModal #collection_reminder_title').text('Send Reminder');
+            $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Reminder';
             $(".max_qty").hide(); // also show location section
             $(".max_order").show(); // also show location section
             $("#EditModal #digital").show();
@@ -57,6 +65,8 @@
         let locationWrapper = modal.find('#location_wrapper');
 
         if (type === "1") {
+            $('#EditModal #collection_reminder_title').text('Send Collection Reminder');
+            $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
             physical.show();
             locationSection.show();
 
@@ -65,6 +75,8 @@
             }
 
         } else {
+            $('#EditModal #collection_reminder_title').text('Send Reminder');
+            $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Reminder';
             physical.hide();
             locationSection.hide();
             locationWrapper.html("");
@@ -119,7 +131,7 @@
 
                                 <div class="d-flex align-items-center me-auto">
                                     <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                        <span class="fw-bold">Location ${i}:</span> ${loc.name}
+                                        <span class="fw-bold"></span> ${loc.name}
                                     </label>
                                     <input type="checkbox" 
                                         name="locations[${loc.id}][selected]" 
@@ -188,7 +200,7 @@
 
                                     <div class="d-flex align-items-center me-auto">
                                         <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                            <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                            <span class="fw-bold"></span> ${loc.name}
                                         </label>
                                         
                                         <input type="checkbox" 
@@ -301,32 +313,22 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
                                 <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
                                 <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
                                 <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="reward_type">Voucher Type <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select reward_type" name="reward_type">
-                                    <option class="sh_dec" value="">Select Voucher Type</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->reward_type) && $data->reward_type == '0' ? 'selected' : '' }}> Digital Voucher</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->reward_type) && $data->reward_type == '1' ? 'selected' : '' }}> Physical Voucher</option>
-                                </select>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -344,6 +346,17 @@
                                 </select>                                
                             </div>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="reward_type">Voucher Type <span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select reward_type" name="reward_type">
+                                    <option class="sh_dec" value="">Select Voucher Type</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->reward_type) && $data->reward_type == '0' ? 'selected' : '' }}> Digital Voucher</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->reward_type) && $data->reward_type == '1' ? 'selected' : '' }}> Physical Voucher</option>
+                                </select>
+                            </div>
+                        </div>
+                        
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
@@ -353,13 +366,13 @@
                                 
                                 <div class="row">
 
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time</label>
                                             <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
@@ -367,13 +380,13 @@
                                     </div>
 
                                     <!-- Sales fields -->
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales End Date & Time</label>
                                             <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
@@ -420,22 +433,9 @@
                         </div>
 
                         <!--Merchant Locations-->
-                        <div id="location_section" class="mt-2 mb-2" style="display:none;">
-                            
+                        <div id="location_section" class="mt-2 mb-2" style="display:none;">                            
                         </div>
-                        <div id="physical" >
-
-                            {{-- <div class="row">
-                                <div class="col-12 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="max_quantity_physical">Maximum Quantity <span class="required-hash">*</span></label>
-                                        <input id="max_quantity_physical" type="number" class="sh_dec form-control"
-                                            name="max_quantity_physical" placeholder="Enter Maximum Quantity"
-                                            value="{{ $data->max_quantity ?? '' }}">
-                                    </div>
-                                </div>
-                            </div> --}}
-
+                        <div id="physical" >                          
                         </div>
 
                         <div id="digital" style="display:none; margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
@@ -599,34 +599,14 @@
                                 </div>
                             </div>
 
-                            <!-- Club Classification -->
-                            <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Club Classification Type</label>
-                                <div class="col-md-6">
-                                    <select class="form-select" name="club_classification_id" readonly>
-                                        <option value="">Select</option>
-
-                                    </select>
-                                </div>
-                            </div>
 
                             <!-- FABS Category -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">FABS Categories</label>
+                                <label class="col-md-4 fw-bold">FABS Categories Information</label>
                                 <div class="col-md-6">
                                     <select class="form-select" name="fabs_category_id" readonly>
                                         <option value="">Select</option>                                     
 
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- SMC Classification -->
-                            <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">SMC Classification Type</label>
-                                <div class="col-md-6">
-                                    <select class="form-select" name="smc_classification_id" readonly>
-                                        <option value="">Select</option>
                                     </select>
                                 </div>
                             </div>
@@ -646,29 +626,30 @@
                                 <div class="col-md-3">
                                     <label>
                                         <input type="checkbox" name="publish_independent" value="1" {{ isset($data) && $data->publish_independent ? 'checked' : '' }} class="form-check-input">
-                                        Independent
+                                        Internet
                                     </label>
                                 </div>
 
                                 <div class="col-md-3">
                                     <label>
                                         <input type="checkbox" name="publish_inhouse" value="1" {{ isset($data) && $data->publish_inhouse ? 'checked' : '' }} class="form-check-input">
-                                        In-House
+                                        Inhouse
                                     </label>
                                 </div>
                             </div>
 
-                            <!-- Send Reminder -->
+                           <!-- Send Reminder -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Send Collection Reminder</label>
+                                <label class="col-md-4 fw-bold" id="collection_reminder_title"> Send Collection Reminder </label>
 
                                 <div class="col-md-3">
-                                    <label>
-                                        <input type="checkbox" name="send_reminder" value="1"  {{ isset($data) && $data->send_reminder ? 'checked' : '' }} class="form-check-input">
+                                    <label id="collection_reminder_label">
+                                        <input type="checkbox"   name="send_reminder" value="1" {{ isset($data) && $data->send_reminder ? 'checked' : '' }} class="form-check-input">
                                         Collection Reminder
                                     </label>
                                 </div>
                             </div>
+
 
                             <!-- All other common fields here -->
                         </div>                        

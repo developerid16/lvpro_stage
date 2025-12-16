@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\EvoucherController;
+use App\Http\Controllers\Admin\RewardUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Admin\DashboardPopupController;
 use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\Admin\BroadcastController;
 use App\Http\Controllers\Admin\AboutAppSliderController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\PartnerCompanyController;
 use App\Http\Controllers\Admin\APILogsController;
 use App\Http\Controllers\Admin\BdayEvoucherController;
@@ -43,6 +45,8 @@ use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PushVoucherController;
+use App\Http\Controllers\Admin\UserRightsRequestController;
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Log;
 
 /*
@@ -70,12 +74,13 @@ Route::any('/sso-callback', function () {
     return response()->json(true);
 });
 
+Route::get('/user-rights-form', [LoginController::class, 'userRightsForm']);
+Route::post('/user-rights-form', [LoginController::class, 'store']);
 //Update User Details
 Route::post('/update-profile/{id}', [App\Http\Controllers\HomeController::class, 'updateProfile'])->name('updateProfile');
 Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class, 'updatePassword'])->name('updatePassword');
 
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
-
 //Language Translation
 Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
 Route::middleware(['web', 'auth'])->group(function () {
@@ -86,6 +91,15 @@ Route::middleware(['web', 'auth'])->group(function () {
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middleware(['web', 'auth', 'OTPVerify'])->name('root');
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify'])->group(function () {
 
+    Route::post('user-rights/approve', action: [UserRightsRequestController::class, 'approve']);
+    Route::post('user-rights/{id}/reject', [UserRightsRequestController::class, 'reject']);
+    Route::get('user-rights/datatable', [UserRightsRequestController::class, 'datatable']);
+    Route::resource('user-rights', UserRightsRequestController::class);
+
+    Route::post('reward-update-request/approve', action: [RewardUpdateRequestController::class, 'approve']);
+    Route::post('reward-update-request/{id}/reject', [RewardUpdateRequestController::class, 'reject']);
+    Route::get('reward-update-request/datatable', [RewardUpdateRequestController::class, 'datatable']);
+    Route::resource('reward-update-request', RewardUpdateRequestController::class);
 
     Route::get('/send-sms', [App\Http\Controllers\HomeController::class, 'emailSend']);
 
@@ -170,8 +184,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('slider/datatable', [SliderController::class, 'datatable']);
     Route::resource('slider', SliderController::class);
 
+    Route::post('dashboardpopup/reorder', [DashboardPopupController::class, 'reorder']);
     Route::get('dashboardpopup/datatable', [DashboardPopupController::class, 'datatable']);
     Route::resource('dashboardpopup', DashboardPopupController::class);
+    
+   
+    Route::post('announcements/reorder', [AnnouncementController::class, 'reorder']);
+    Route::get('announcement/datatable', [AnnouncementController::class, 'datatable']);
+    Route::resource('announcement', AnnouncementController::class);
 
     Route::get('about-app-banner/datatable', [AboutAppSliderController::class, 'datatable']);
     Route::resource('about-app-banner', AboutAppSliderController::class);

@@ -39,13 +39,13 @@
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
                           
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
-                            <th data-field="reward_type" data-filter-control="input" data-sortable="true" data-escape="true">Reward Type</th>
                             <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
                             <th data-field="balance">Balance</th>
                             <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
                             <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Duration</th>
+                            <th data-field="month">Voucher Creation</th>
                             <th data-field="image">Image</th>
                             <th data-field="created_at">Created On</th>
 
@@ -400,8 +400,6 @@
                 preview.attr("src", "").hide();
             }
         });       
-
-
        
         $(document).on('shown.bs.modal','#EditModal', function () {
             const $modal = $(this);
@@ -508,7 +506,7 @@
 
                                         <div class="d-flex align-items-center me-auto">
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                                <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                                <span class="fw-bold"></span> ${loc.name}
                                             </label>
                                             <input type="checkbox" 
                                                 name="participating_merchant_locations[${loc.id}][selected]" 
@@ -531,8 +529,6 @@
                 }
             });
         }
-
-
     </script>
     <script>
         $(document).on("change", ".reward_id", function () {

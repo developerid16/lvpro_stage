@@ -86,7 +86,7 @@
 
                                     <div class="d-flex align-items-center me-auto">
                                         <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                            <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                            <span class="fw-bold"></span> ${loc.name}
                                         </label>
                                         
                                         <input type="checkbox" 
@@ -199,19 +199,19 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
                                 <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
                                 <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
                                 <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
@@ -261,13 +261,13 @@
                                 
                                 <div class="row">
 
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time</label>
                                             <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
@@ -275,13 +275,13 @@
                                     </div>
 
                                     <!-- Sales fields -->
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales End Date & Time</label>
                                             <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">

@@ -106,7 +106,6 @@
         $('.reward_type').on('change', function () {
             let type = $(this).val();
             $("#common_section").show(); // show physical fields
-
             if (type == "1") {
                 $("#physical").show(); // show physical fields
                 $("#location_section").show(); // also show location section
@@ -114,6 +113,9 @@
                 $(".max_order").hide(); // also show location section
                 $("#digital").hide(); // show physical fields
                 $("#participating_merchant_location").hide(); // also show location section
+                $('#collection_reminder_title').text('Send Collection Reminder');
+                $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
+                
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
                 $("#participating_merchant_location").show(); 
@@ -121,6 +123,8 @@
                 $(".max_order").show(); // also show location section// also show location section
                 $("#physical").hide(); // show physical fields
                 $("#location_section").hide(); // also show location section
+                $('#collection_reminder_title').text('Send Reminder');
+                $('#collection_reminder_label').contents().last()[0].textContent = ' Reminder';
             }else {
                 $("#common_section").hide();
                 $("#physical").hide();
@@ -131,7 +135,11 @@
                 $("#participating_merchant_location").hide();
                 $("#location_wrapper").html("");
             }
+
+
         });
+
+      
 
 
         $('#merchant_id').on('change', function () {
@@ -176,7 +184,7 @@
 
                                         <div class="d-flex align-items-center me-auto">
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                                <span class="fw-bold">Location ${i}:</span> ${loc.name}
+                                                <span class="fw-bold"></span> ${loc.name}
                                             </label>
                                             <input type="checkbox" 
                                                 name="locations[${loc.id}][selected]" 
@@ -314,7 +322,7 @@
 
                                         <div class="d-flex align-items-center me-auto">
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                                <span class="fw-bold">Outlet ${i}:</span> ${loc.name}
+                                                <span class="fw-bold"></span> ${loc.name}
                                             </label>
                                             <input type="checkbox" 
                                                 name="participating_merchant_locations[${loc.id}][selected]" 
@@ -338,7 +346,7 @@
             });
         }
 
-         function resetFormById() {
+        function resetFormById() {
             let modal = $('#AddModal').closest(".modal");
             toggleInventoryFields(modal);
             toggleClearingFields(modal);

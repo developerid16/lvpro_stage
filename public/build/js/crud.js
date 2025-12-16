@@ -132,7 +132,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
-                if (response.status === 'success') {
+                if (response.status == 'success') {
                     show_message(response.status, response.message);
                     $("#EditModal").modal('hide').remove();
                     refresh_datatable("#bstable");
@@ -141,6 +141,8 @@ $(document).ready(function () {
                 }
             },
             error: function (response) {
+                console.log(response,'response');
+                show_errors(response.responseJSON.errors);
                 show_errors(response.responseJSON.errors, "#edit_frm");
             }
         });

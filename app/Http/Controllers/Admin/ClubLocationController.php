@@ -61,8 +61,8 @@ class ClubLocationController extends Controller
                 'sr_no'      => $index,
                 'name'       => $row->name,
                 'status'     => $row->status,
-                'created_at' => $row->created_at?->format('d-m-Y h:i:s A'),
-                'updated_at' => $row->updated_at?->format('d-m-Y h:i:s A'),
+                'created_at' =>  $row->created_at->format(config('shilla.date-format')),
+                'updated_at' =>  $row->updated_at->format(config('shilla.date-format')),
 
                 'action' => "<div class='d-flex gap-3'>" .
                                 "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>

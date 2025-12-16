@@ -57,8 +57,8 @@ class MerchantController extends Controller
         foreach ($rowsQueryBuilder->get() as $row) {
             $index = $startIndex + $i + 1;
 
-            $createdAt = $row->created_at ? $row->created_at->format('d-m-Y h:i:s A') : '';
-            $updatedAt = $row->updated_at ? $row->updated_at->format('d-m-Y h:i:s A') : '';
+            $createdAt =  $row->created_at->format(config('shilla.date-format'));
+            $updatedAt =  $row->updated_at->format(config('shilla.date-format'));
 
             // -------------------------
             // ACTION BUTTONS
@@ -85,7 +85,7 @@ class MerchantController extends Controller
             $final_data[$i] = [
                 'sr_no'     => $index,
                 'name'      => $row->name,
-                'logo' => "<img src='" . asset($row->logo) . "' width='60' height='40'>",
+                'logo' => "<img src='" . asset($row->logo) . "' width='50' height='50'>",
                 'status'    => $row->status,
                 'created_at'=> $createdAt,
                 'updated_at'=> $updatedAt,
