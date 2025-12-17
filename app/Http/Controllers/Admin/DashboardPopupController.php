@@ -127,11 +127,12 @@ class DashboardPopupController extends Controller
             'name'        => 'required|string|max:25',
             'button'   => 'required|string|max:10',
             'order'         => 'required|numeric',
-            'frequency'    => 'required|in:once-a-day,always',           
+            'popup_type'    => 'required|in:once-a-day,always',           
             'start_date'    => 'required',
             'end_date'      => 'required|after_or_equal:start_date',
             'description'   => 'required|string',
         ]);
+
 
 
         if ($request->hasFile('image')) {
@@ -140,6 +141,7 @@ class DashboardPopupController extends Controller
             $post_data['image'] = $imageName;
         }
 
+        $post_data['frequency'] = $request->popup_type;
         DashboardPopup::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Poupup Created Successfully']);

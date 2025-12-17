@@ -45,7 +45,7 @@
                         <div class="col-12 col-md-3">
                             <div class="mb-3">
                                 <label class="sh_dec" for="url">Order <span class="required-hash">*</span></label>
-                                <input id="order" maxlength="50" type="number" class="sh_dec form-control"  name="order" placeholder="Enter order" value="{{ $data->order ?? '' }}" min="0" max="50">
+                                <input id="order" maxlength="50" type="number" class="sh_dec form-control"  name="order" placeholder="Enter order" value="{{ $data->order ?? 0 }}" min="0" max="50">
                                 <span class="sh_dec_s text-muted">Higher will be display first</span>
                             </div>
                         </div>                        
@@ -79,7 +79,8 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="frequency"> Popup Type <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select frequency " name="frequency">
+                                <select class="sh_dec form-select frequency " name="popup_type">
+                                    <option value="">Select Popup Type</option>
                                     <option class="sh_dec" value="once-a-day" {{ (isset($data->frequency) &&  $data->frequency == 'once-a-day') ? 'selected' : '' }} >Once a day</option>
                                     <option class="sh_dec" value="always" {{ (isset($data->frequency) &&  $data->frequency == 'always') ? 'selected' : '' }} >Always when user opens the app </option>
                                 </select>
