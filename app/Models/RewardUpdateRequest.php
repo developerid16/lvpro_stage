@@ -56,7 +56,11 @@ class RewardUpdateRequest extends Model
     'category_id',
     'month',
     'club_location',
-    'status'
+    'status',
+    'from_month',
+    'to_month',
+    'request_by'
+        
     
     ];
 
@@ -65,5 +69,10 @@ class RewardUpdateRequest extends Model
         'end_date' => 'datetime',
         'voucher_validity' => 'date',
     ];
+
+    public function requester()
+    {
+        return $this->belongsTo(User::class, 'request_by');
+    }
 
 }

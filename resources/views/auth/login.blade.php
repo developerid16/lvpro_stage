@@ -96,9 +96,8 @@
                                             </div>
 
                                             <div class="mt-3 d-grid">
-                                                <button class="btn btn-primary waves-effect waves-light" type="submit">Log
-                                                    In</button>
-                                                    <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a>
+                                                <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
+                                                    {{-- <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a> --}}
                                             </div>
 
                                         </form>

@@ -421,7 +421,7 @@ class RewardController extends Controller
                 'voucher_value'              => $request->voucher_value,
                 'voucher_set'                => $request->voucher_set,
                 'clearing_method'            => $request->clearing_method,
-                'participating_merchant_id'  => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
                 'location_text'  => $request->location_text,
                 'max_order'  => $request->max_order,                
             ]);
@@ -466,24 +466,30 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * DIGITAL: SAVE PARTICIPATING MERCHANT LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->reward_type == 0 
-                && $request->clearing_method == 2 
-                && $request->participating_merchant_locations) {
+            if ( $request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
+                $merchantIds = $request->participating_merchant_id ?? [];
 
-                    if (!isset($locData['selected'])) {
-                        continue;
+                // normalize merchant IDs
+                if (!is_array($merchantIds)) {
+                    $merchantIds = [$merchantIds];
+                }
+
+                foreach ($merchantIds as $merchantId) {
+
+                    foreach ($request->participating_merchant_locations as $locId => $locData) {
+
+                        if (!isset($locData['selected'])) {
+                            continue;
+                        }
+
+                        ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
                     }
-
-                    ParticipatingLocations::create([
-                        'reward_id'                  => $reward->id,
-                        'participating_merchant_id'  => $request->participating_merchant_id,
-                        'location_id'                => $locId,
-                        'is_selected'                => 1,
-                        'created_at'                 => now(),
-                        'updated_at'                 => now(),
-                    ]);
                 }
             }
 
@@ -708,7 +714,7 @@ class RewardController extends Controller
 
                if ($request->clearing_method == 2) {
 
-                    $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                    $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
 
                     $rules['participating_merchant_locations'] = 'required|array|min:1';
 
@@ -823,6 +829,7 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             $maxQty = $request->reward_type == 0 ? $request->max_quantity_digital : $request->max_quantity_physical;
 
+
             $reward->update([
                  'type'               => '0',
                 'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
@@ -870,7 +877,7 @@ class RewardController extends Controller
                 'voucher_value'             => $request->voucher_value,
                 'voucher_set'               => $request->voucher_set,
                 'clearing_method'           => $request->clearing_method,
-                'participating_merchant_id' => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
                 'location_text'             => $request->location_text,
                 'max_order'                 => $request->max_order,
             ]);
@@ -917,17 +924,30 @@ class RewardController extends Controller
          * ---------------------------------- */
         if ($reward->reward_type == 0 && $request->clearing_method == 2) {
 
+            // Clean old mappings
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
 
-            foreach ($request->participating_merchant_locations as $locId => $locData) {
-                if (!isset($locData['selected'])) continue;
+            $merchantIds = $request->participating_merchant_id ?? [];
+            $locations   = $request->participating_merchant_locations ?? [];
 
-                ParticipatingLocations::create([
-                    'reward_id'                 => $reward->id,
-                    'participating_merchant_id' => $request->participating_merchant_id,
-                    'location_id'               => $locId,
-                    'is_selected'               => 1,
-                ]);
+            // normalize merchant IDs
+            if (!is_array($merchantIds)) {
+                $merchantIds = [$merchantIds];
+            }
+
+            foreach ($merchantIds as $merchantId) {
+
+                foreach ($locations as $locId => $locData) {
+
+                    if (!isset($locData['selected'])) continue;
+
+                    ParticipatingLocations::create([
+                        'reward_id'                 => $reward->id,
+                        'participating_merchant_id' => $merchantId, // ✅ single ID
+                        'location_id'               => $locId,
+                        'is_selected'               => 1,
+                    ]);
+                }
             }
         }
 
@@ -1070,10 +1090,28 @@ class RewardController extends Controller
         ]);
     }
 
-    public function getParticipatingMerchantLocations($merchant_id)
+    public function getParticipatingMerchantLocations(Request $request)
     {
-        $locations = ParticipatingMerchantLocation::where('participating_merchant_id', $merchant_id)->where('status','Active')
-            ->select('id', 'name')
+        $merchantIds = $request->merchant_ids;
+
+        if (empty($merchantIds)) {
+            return response()->json([
+                'status' => 'success',
+                'locations' => []
+            ]);
+        }
+
+        // normalize to array
+        if (!is_array($merchantIds)) {
+            $merchantIds = [$merchantIds];
+        }
+
+        $locations = ParticipatingMerchantLocation::whereIn(
+                'participating_merchant_id',
+                $merchantIds
+            )
+            ->where('status', 'Active')
+            ->select('id', 'name', 'participating_merchant_id')
             ->get();
 
         return response()->json([
@@ -1081,8 +1119,5 @@ class RewardController extends Controller
             'locations' => $locations
         ]);
     }
-
-
-    
     
 }

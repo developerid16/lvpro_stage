@@ -455,114 +455,21 @@
             toggleInventoryFields(modal);
         });
 
-        function toggleInventoryFields(modal) {
-            let type = modal.find('.inventory_type').val();
-
-            let fileField = modal.find('.file');
-            let qtyField  = modal.find('.inventory_qty');
-
-            if (type === "1") {
-                fileField.show();
-                qtyField.hide();
-                qtyField.find("input").val(""); // clear
-            } else if (type === "0") {
-                qtyField.show();
-                fileField.hide();
-                fileField.find("input").val(""); // clear
-            } else {
-                // nothing selected → hide both
-                fileField.hide();
-                qtyField.hide();
-            }
-        }
-
-        function toggleClearingFields(modal) {
-            let method = modal.find('.clearing_method').val();
-
-            let locationField = modal.find('.location_text');
-            let merchantField = modal.find('.participating_merchant');
-
-            // Hide both first
-            locationField.hide();
-            merchantField.hide();
-            $("#participating_merchant_location").hide();
-            if (["0", "1", "3"].includes(method)) {
-                // QR, Barcode, External Link → show LOCATION
-                locationField.show();
-                merchantField.hide();
-            } 
-            else if (["2"].includes(method)) {
-                // External Code OR Merchant Code → show PARTICIPATING MERCHANT
-                merchantField.show();
-                locationField.hide();
-            }
-        }
-
         $(document).on("change", ".clearing_method", function () {
             let modal = $(this).closest(".modal");
             toggleClearingFields(modal);
         });
 
         $('#participating_merchant_id').on('change', function () {
-            let merchantId = $(this).val();
+            const merchantIds = $(this).val(); // array or null
 
-            if (merchantId) {
+            if (merchantIds) {
                 $("#participating_merchant_location").show();
-                loadParticipatingMerchantLocations(merchantId);
+                loadParticipatingMerchantLocations(merchantIds);
             } else {
                 $("#participating_merchant_location").hide();
             }
-        });
-
-        function loadParticipatingMerchantLocations(merchantId) {
-            $.ajax({
-                url: "{{ url('admin/reward/get-participating-merchant-locations') }}/" + merchantId,
-                type: "GET",
-                success: function (res) {
-
-                    if (res.status === 'success') {
-
-                        let html = '';
-                        let i = 1;
-
-                        html += `<label class="sh_dec"><b>Participating Merchant Outlets</b></label>`;
-
-                        // Wrapper ONLY ONCE
-                        html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
-
-                        res.locations.forEach(loc => {
-
-                            html += `
-                                <div class="col-md-3 col-12">
-                                    <div class="location-box d-flex align-items-center p-2"
-                                        style="border:1px solid #e9e9e9; border-radius:6px;">
-
-                                        <div class="d-flex align-items-center me-auto">
-                                            <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                                <span class="fw-bold"></span> ${loc.name}
-                                            </label>
-                                            <input type="checkbox" 
-                                                name="participating_merchant_locations[${loc.id}][selected]" 
-                                                value="1" 
-                                                class="form-check-input">
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-
-                            i++;
-                        });
-
-                        html += `
-                            </div><div id="participating_merchant_locations_error" class="text-danger mt-1"></div>`; // close row wrapper
-
-                        $("#participating_merchant_location").html(html);
-                    }
-
-                }
-            });
-        }
-
+        });   
 
     </script>
     <script>
@@ -581,7 +488,11 @@
                 'input[name="redemption_end_date"]'
             );
         }
-        document.addEventListener('DOMContentLoaded', initFlatpickr);
+        document.addEventListener('DOMContentLoaded', function () {
+            initFlatpickr();
+            initFlatpickrDate();
+        });
+
 
 
         $(document).on("change", ".reward_id", function () {

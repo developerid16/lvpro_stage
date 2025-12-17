@@ -194,7 +194,7 @@ class EvoucherController extends Controller
 
             // External code + Merchant code → merchant + locations required
             if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
 
@@ -280,7 +280,7 @@ class EvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -291,21 +291,32 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->clearing_method == 2 &&
-                $request->participating_merchant_locations) {
+            if ( $request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
-                    if (!isset($locData['selected'])) continue;
+                $merchantIds = $request->participating_merchant_id ?? [];
 
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $request->participating_merchant_id,
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
+                // normalize merchant IDs
+                if (!is_array($merchantIds)) {
+                    $merchantIds = [$merchantIds];
+                }
+
+                foreach ($merchantIds as $merchantId) {
+
+                    foreach ($request->participating_merchant_locations as $locId => $locData) {
+
+                        if (!isset($locData['selected'])) {
+                            continue;
+                        }
+
+                        ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                    }
                 }
             }
-      
 
             /* ---------------------------------------------------
             * XLSX / CSV UPLOAD (merchant inventory)
@@ -452,7 +463,7 @@ class EvoucherController extends Controller
             }
 
             if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
 
@@ -546,7 +557,7 @@ class EvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -557,20 +568,32 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * 7) UPDATE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->clearing_method == 2 && $request->participating_merchant_locations) {
+            if ($request->reward_type == 0 && $request->clearing_method == 2) {
 
-
+                // Clean old mappings
                 ParticipatingLocations::where('reward_id', $reward->id)->delete();
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
-                    if (!isset($locData['selected'])) continue;
+                $merchantIds = $request->participating_merchant_id ?? [];
+                $locations   = $request->participating_merchant_locations ?? [];
 
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $request->participating_merchant_id,
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
+                // normalize merchant IDs
+                if (!is_array($merchantIds)) {
+                    $merchantIds = [$merchantIds];
+                }
+
+                foreach ($merchantIds as $merchantId) {
+
+                    foreach ($locations as $locId => $locData) {
+
+                        if (!isset($locData['selected'])) continue;
+
+                        ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                    }
                 }
             }
 

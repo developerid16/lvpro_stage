@@ -47,6 +47,16 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <script>
+    function initFlatpickr() {
+            
+        bindStartEndFlatpickr(
+            'input[name="start_date"]',
+            'input[name="end_date"]'
+        );
+       
+    }
+    document.addEventListener('DOMContentLoaded', initFlatpickr);
+    
     const csrf = $('meta[name="csrf-token"]').attr('content');
     var ModuleBaseUrl = "{{ $module_base_url }}/";
     var DataTableUrl = ModuleBaseUrl + "datatable";

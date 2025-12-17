@@ -164,7 +164,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('faq-category', FAQCategoryController::class);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
     Route::get('/reward/get-locations/{merchant_id}', [RewardController::class, 'getMerchantLocations']);
-    Route::get('/reward/get-participating-merchant-locations/{merchant_id}', [RewardController::class, 'getParticipatingMerchantLocations']);
+    Route::get('/reward/get-participating-merchant-locations',[RewardController::class, 'getParticipatingMerchantLocations']);
 
     Route::resource('reward', RewardController::class);
 

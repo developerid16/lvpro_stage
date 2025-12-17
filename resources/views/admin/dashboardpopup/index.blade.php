@@ -49,6 +49,17 @@
 
 <script src='{{URL::asset("build/libs/tinymce/tinymce.min.js")}}'></script>
 <script>
+
+    function initFlatpickr() {
+            
+        bindStartEndFlatpickr(
+            'input[name="start_date"]',
+            'input[name="end_date"]'
+        );
+       
+    }
+    document.addEventListener('DOMContentLoaded', initFlatpickr);
+    
     var ModuleBaseUrl = "{{ $module_base_url }}/";
     var DataTableUrl = ModuleBaseUrl + "datatable";
 

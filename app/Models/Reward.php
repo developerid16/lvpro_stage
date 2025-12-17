@@ -54,7 +54,9 @@ class Reward extends Model
         'direct_utilization',
         'category_id',
         'month',
-        'club_location'
+        'club_location',
+        'from_month',
+        'to_month',
         
     ];
 

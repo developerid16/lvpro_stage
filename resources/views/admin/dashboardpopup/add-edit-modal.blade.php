@@ -1,3 +1,19 @@
+<script>
+    $(document).on('shown.bs.modal', '#EditModal', function () {      
+        initFlatpickr(this);
+        
+    });
+
+    
+    function initFlatpickr(modal) {
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="start_date"]',
+            'input[name="end_date"]'
+        );      
+    }
+
+</script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
     data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -22,7 +38,7 @@
                         <div class="col-12 col-md-3">
                             <div class="mb-3">
                                 <label class="sh_dec" for="url">Button Text <span class="required-hash">*</span></label>
-                                <input id="button" maxlength="10" type="text" class="sh_dec form-control" name="button"  placeholder="Enter button text" value="{{ $data->button ?? 'Ok' }}">
+                                <input id="button" maxlength="10" type="text" class="sh_dec form-control" name="button"  placeholder="Enter button text" value="{{ $data->button ?? '' }}">
                                 <span class="sh_dec_s text-muted">Max 10 character allows</span>
                             </div>
                         </div>
@@ -34,24 +50,32 @@
                             </div>
                         </div>                        
                         <hr class="dashed">
-                        <div class="col-12 col-md-6">
+                       <div class="col-12 col-md-6">
                             <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="start_date"> Publish Start Date & Time <span class="required-hash">*</span></label>
-                                <input  id="start_date" type="datetime-local" class="form-control" name="start_date"
-                                    @if (!isset($data->start_date))
-                                        min="{{ now()->format('Y-m-d\TH:i') }}"
-                                    @endif value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d\TH:i') : '' }}">
+                                <label class="sh_dec">Publish Start Date & Time <span class="required-hash">*</span></label>
+                                <input
+                                    type="text"
+                                    class="form-control js-datetime-start"
+                                    name="start_date"
+                                    value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d H:i:s') : '' }}"
+                                    placeholder="YYYY-MM-DD HH:mm:ss"
+                                >
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3 sh_dec">
-                                <label class="sh_dec" for="end_date"> Publish End Date & Time <span class="required-hash">*</span></label>
-                                <input id="end_date" type="datetime-local" class="form-control" name="end_date"
-                                    @if (!isset($data->end_date))
-                                        min="{{ now()->format('Y-m-d\TH:i') }}"
-                                    @endif value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d\TH:i') : '' }}">
+                                <label class="sh_dec">Publish End Date & Time <span class="required-hash">*</span></label>
+                                <input
+                                    type="text"
+                                    class="form-control js-datetime-end"
+                                    name="end_date"
+                                    value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d H:i:s') : '' }}"
+                                    placeholder="YYYY-MM-DD HH:mm:ss"
+                                >
                             </div>
                         </div>
+
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="frequency"> Popup Type <span class="required-hash">*</span></label>

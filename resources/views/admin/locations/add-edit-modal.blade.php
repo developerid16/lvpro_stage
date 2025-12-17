@@ -43,10 +43,8 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="status">Status<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select" name="status">
-                                    <option class="sh_dec" value="Active" {{ (isset($data->status) && $data->status == 'Active') ?
-                                        'selected' : '' }}>Active</option>
-                                                                        <option class="sh_dec" value="Disabled" {{ (isset($data->status) && $data->status ==
-                                        'Disabled') ? 'selected' : '' }}>Disabled</option>
+                                    <option class="sh_dec" value="Active" {{ (isset($data->status) && $data->status == 'Active') ? 'selected' : '' }}>Active</option>
+                                    <option class="sh_dec" value="Disabled" {{ (isset($data->status) && $data->status == 'Disabled') ? 'selected' : '' }}>Disabled</option>
                                 </select>
                                 <div class="sh_dec_s error" id="status_error"></div>
                             </div>

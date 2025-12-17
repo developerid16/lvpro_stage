@@ -8,6 +8,7 @@
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
          initFlatpickr(this);
+         initFlatpickrDate(this);    
         $(".max_order").hide();
         $("#common_section").show();
         if (rewardType == "1") {
@@ -73,22 +74,23 @@
         // $('#voucher_set').val(voucherSet.toFixed(2));
     }
 
-
     $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
 
-        $(this).find("#participating_merchant_id").on("change", function () {
+        const modal = $(this);
 
-            let merchantId = $(this).val();
-            let modal      = $(this).closest('.modal'); 
+        modal.find("#participating_merchant_id").on("change", function () {
 
-            if (merchantId) {
-                modal.find("#participating_merchant_location").show();
-                editParticipatingMerchantLocations(modal,merchantId);
+            let merchantIds = $(this).val();
+
+            if (merchantIds && merchantIds.length) {
+                editParticipatingMerchantLocations(modal, merchantIds);
             } else {
-                modal.find("#participating_merchant_location").hide();
+                modal.find("#participating_section").hide();
+                modal.find("#selected_locations_wrapper").hide();
             }
         });
     });
+
 
     $(document).on('change', '.reward_type', function () {
 
@@ -207,112 +209,12 @@
         let modal = $(this).closest(".modal");
         editToggleClearingFields(modal);
         editToggleInventoryFields(modal);
-    });
-
-    function editParticipatingMerchantLocations(modal, merchantId) {
-        modal.find('#participating_location_wrapper').html("");
-        $.ajax({
-            url: "{{ url('admin/reward/get-participating-merchant-locations') }}/" + merchantId,
-            type: "GET",
-            success: function (res) {
-
-                if (res.status === 'success') {
-
-                    let html = '';
-                    let i = 1;
-
-                    html += `<label class="sh_dec"><b>Participating Merchant Outlets </b> <span  style="color:#f46a6a;">*</span></label>`;
-                    html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
-
-                    res.locations.forEach(loc => {
-
-                        let isChecked = participatingLocations.includes(loc.id) ? 'checked' : '';
-                        console.log(participatingLocations,'participatingLocations');
-                        
-
-                        html += `
-                            <div class="col-md-4 col-12">
-                                <div class="location-box d-flex align-items-center p-2"
-                                    style="border:1px solid #e9e9e9; border-radius:6px;">
-
-                                    <div class="d-flex align-items-center me-auto">
-                                        <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
-                                            <span class="fw-bold"></span> ${loc.name}
-                                        </label>
-                                        
-                                        <input type="checkbox" 
-                                            name="participating_merchant_locations[${loc.id}][selected]" 
-                                            value="1"
-                                            class="form-check-input"
-                                            ${isChecked}>
-                                    </div>
-
-                                </div>
-                            </div>
-                        `;
-
-                        i++;
-                    });
-
-                    html += `</div><div id="participating_merchant_locations_error" class="text-danger mt-1"></div>`;
-                    modal.find('#participating_merchant_location').html(html);
-                }
-            }
-
-        });
-    }
-
-    function editToggleInventoryFields(modal) {
-        let type = modal.find('.inventory_type').val();
-
-        let fileField = modal.find('.file');
-        let qtyField  = modal.find('.inventory_qty');
-
-        if (type === "1") {
-            fileField.show();
-            qtyField.hide();
-            qtyField.find("input").val(""); // clear
-        } else if (type === "0") {
-            qtyField.show();
-            fileField.hide();
-            fileField.find("input").val(""); // clear
-        } else {
-            // nothing selected → hide both
-            fileField.hide();
-            qtyField.hide();
-        }
-    }
-
-    function editToggleClearingFields(modal) {
-        let method = modal.find('.clearing_method').val();
-
-        let locationField = modal.find('.location_text');
-        let merchantField = modal.find('.participating_merchant');
-
-        // Hide both first
-        locationField.hide();
-        merchantField.hide();
-        $("#participating_merchant_location").hide();
-        if (["0", "1", "3"].includes(method)) {
-            // QR, Barcode, External Link → show LOCATION
-            locationField.show();
-            merchantField.hide();
-        } 
-        else if (["2"].includes(method)) {
-            $("#EditModal #participating_merchant_location").show();
-            let participatingMerchantId = $('#EditModal #participating_merchant_id').val();
-            editParticipatingMerchantLocations(modal, participatingMerchantId); // will use savedLocations variable inside modal
-            // External Code OR Merchant Code → show PARTICIPATING MERCHANT
-            merchantField.show();
-            locationField.hide();
-        }
-    }
+    });  
     
     $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
     });
 
-   
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -492,7 +394,14 @@
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
-                                        <input id="voucher_validity" type="date"  class="sh_dec form-control"  name="voucher_validity" value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}">
+                                        <input
+                                            id="voucher_validity"
+                                            type="text"
+                                            class="sh_dec form-control js-flat-date"
+                                            name="voucher_validity"
+                                            value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}"
+                                            placeholder="YYYY-MM-DD"
+                                        />
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
@@ -579,11 +488,11 @@
                                 <div class="col-12 col-md-6 participating_merchant" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
-                                        <select class="sh_dec form-select" name="participating_merchant_id" id="participating_merchant_id">
+                                        <select multiple class="sh_dec form-select select2" name="participating_merchant_id[]" id="participating_merchant_id">
                                             <option value="">Select Participating Merchant</option>
                                             @if (isset($participating_merchants))                                        
                                                 @foreach ($participating_merchants as $merchant)
-                                                    <option value="{{ $merchant->id }}" {{ isset($data) && $data->participating_merchant_id == $merchant->id ? 'selected' : '' }}>
+                                                    <option  value="{{ $merchant->id }}" {{ isset($data) && in_array($merchant->id,explode(',', $data->participating_merchant_id ?? '')) ? 'selected' : '' }}>
                                                         {{ $merchant->name }}
                                                     </option>
                                                 @endforeach
@@ -592,9 +501,28 @@
                                     </div>
                                 </div>
 
+                            </div>                           
+
+                            <div class="row mt-3" id="participating_section" style="display:none;">
+
+                                <!-- LEFT: Locations -->
+                                <div class="col-md-7">
+                                    <div id="participating_merchant_location"></div>
+                                </div>
+
+                                <!-- RIGHT: Selected Outlets -->
+                                <div class="col-md-5 mb-2">
+                                    <div id="selected_locations_wrapper" style="display:none;">
+                                        <label class="sh_dec fw-bold">Selected Outlets</label>
+                                        <div id="selected_locations_summary"
+                                            class="form-control"
+                                            style="min-height:120px; background:#f8f9fa;">
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div id="participating_merchant_location" class="mt-2 mb-2" style="display:none;"> 
-                            </div>
+
                         </div>
 
                         <div id="common_section" style="margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">

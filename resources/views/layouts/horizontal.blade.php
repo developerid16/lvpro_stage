@@ -382,7 +382,7 @@
                             <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
                             @endcan
                             @can('user-rights')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user-rights')}}">User Rrights Request</a>
+                                {{-- <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user-rights')}}">User Rrights Request</a> --}}
                             @endcan
                             @can('user-rights')
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">Reward Update Request</a>

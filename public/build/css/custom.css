@@ -379,3 +379,10 @@ tspan {
     pointer-events: none;
     background: #eff2f7 !important;
 }
+.location-box {
+    cursor: pointer;
+}
+
+#selected_locations_summary div {
+    line-height: 1.6;
+}

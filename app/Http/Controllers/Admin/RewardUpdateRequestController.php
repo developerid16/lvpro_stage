@@ -50,8 +50,16 @@ class RewardUpdateRequestController extends Controller
 
     public function datatable(Request $request)
     {
-        $query = RewardUpdateRequest::query()
-            ->orderBy('created_at', 'desc');
+      
+        $query = RewardUpdateRequest::with('requester')->orderBy('created_at', 'desc');
+
+        $filters = json_decode($request->get('filter'), true) ?? [];
+
+        if (!empty($filters['requester'])) {
+            $query->whereHas('requester', function ($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['requester'] . '%');
+            });
+        }
 
         $result = $this->get_sort_offset_limit_query(
             $request,
@@ -71,6 +79,8 @@ class RewardUpdateRequestController extends Controller
 
         $final_data = [];
         $i = 0;
+
+     
 
         foreach ($rows->get() as $row) {
 
@@ -107,6 +117,7 @@ class RewardUpdateRequestController extends Controller
                 'status'            => ucfirst($row->status),
 
                 // META
+                'requester' => optional($row->requester)->name ?? '-',
                 'created_at'        => optional($row->created_at)->format(config('shilla.date-format')),
             ];
 
@@ -225,7 +236,8 @@ class RewardUpdateRequestController extends Controller
             $reward = Reward::findOrFail($update->reward_id);
 
             $reward->update([
-                'month'              => $update->month,
+                'from_month'          => $update->from_month,
+                'to_month'          => $update->to_month,
                 'voucher_image'      => $update->voucher_image,
                 'name'               => $update->name,
                 'description'        => $update->description,
@@ -256,25 +268,43 @@ class RewardUpdateRequestController extends Controller
             ]);
 
 
-            if ($update->clearing_method == 2) {
+            if ($update->clearing_method == '2') {
 
-                // Remove old actual locations
-                ParticipatingLocations::where('reward_id', $reward->id)->delete();
-                // Copy from pending table
-                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->get();
+                // Fetch pending locations (can contain multiple merchants)
+                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->get();
 
-                foreach ($pendingLocations as $loc) {
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $loc->participating_merchant_id,
-                        'location_id'               => $loc->location_id,
-                        'is_selected'               => 1,
-                    ]);
+
+                // Safety: nothing to approve
+                if ($pendingLocations->isEmpty()) {
+                    // just skip, do NOT return from parent method
+                } else {
+
+                    // Remove old actual locations
+                    ParticipatingLocations::where('reward_id', $reward->id)->delete();
+
+                    // Copy approved locations
+                    foreach ($pendingLocations as $loc) {
+
+                        ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $loc->participating_merchant_id, // ✅ single per row
+                            'location_id'               => $loc->location_id,               // ✅ single per row
+                            'is_selected'               => $loc->is_selected ?? 1,
+                        ]);
+                    }
+
+                    // Cleanup pending table
+                    RewardParticipatingMerchantLocationUpdate::where(
+                        'reward_id',
+                        $reward->id
+                    )->delete();
                 }
-
-                // Optional cleanup
-                RewardParticipatingMerchantLocationUpdate::where('reward_id',$reward->id)->delete();
             }
+
+
             DB::commit();
 
             return response()->json([

@@ -27,11 +27,12 @@
                             Month
                         </th>
 
+                        <th data-field="requester" data-filter-control="input">
+                            Requester
+                        </th>
                         <th data-field="name" data-filter-control="input">
                             Reward Name
-                        </th>
-
-                      
+                        </th>                      
 
                         <th data-field="inventory_type">
                             Inventory Type

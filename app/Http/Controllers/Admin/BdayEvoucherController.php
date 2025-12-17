@@ -100,7 +100,23 @@ class BdayEvoucherController extends Controller
             }
             $final_data[$key]['duration']   = $duration;
             $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
-            $final_data[$key]['month'] = Carbon::createFromFormat('Y-m',$row->month )->format(config('shilla.month-format'));
+            $fromMonth = $row->from_month
+                ? Carbon::createFromFormat('Y-m', $row->from_month)
+                    ->format(config('shilla.month-format'))
+                : null;
+
+            $toMonth = $row->to_month
+                ? Carbon::createFromFormat('Y-m', $row->to_month)
+                    ->format(config('shilla.month-format'))
+                : null;
+
+            if ($fromMonth && $toMonth) {
+                $final_data[$key]['month'] = $fromMonth . ' To ' . $toMonth;
+            } elseif ($fromMonth) {
+                $final_data[$key]['month'] = $fromMonth;
+            } else {
+                $final_data[$key]['month'] = '-';
+            }
             $final_data[$key]['status'] = $row->status;
 
             $action = "<div class='d-flex gap-3'>";
@@ -143,7 +159,8 @@ class BdayEvoucherController extends Controller
             * VALIDATION BASED ON BLADE FIELDS ONLY
             * ---------------------------------------------------*/
             $rules = [
-                'month' => 'required',
+                'from_month' => 'required',
+                'to_month' => 'required',
                 'voucher_image'      => 'required|image|mimes:png,jpg,jpeg|max:2048',
                 'name'               => 'required|string|max:191',
                 'description'        => 'required|string',
@@ -186,11 +203,17 @@ class BdayEvoucherController extends Controller
             }
 
             // External code + Merchant code → merchant + locations required
-            if (in_array($request->clearing_method, [2])) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-                $rules['participating_merchant_locations'] = 'required|array|min:1';
-            }
+            if ($request->clearing_method == 2) {
+                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
 
+                $rules['participating_merchant_locations'] = 'required|array|min:1';
+
+                foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
+                    if (isset($locData['selected'])) {
+                        // nothing extra here – just mark as selected
+                    }
+                }
+            }
 
             /* ---------------------------------------------------
             * VALIDATE
@@ -223,7 +246,8 @@ class BdayEvoucherController extends Controller
             * ---------------------------------------------------*/
             $reward = Reward::create([
                 'type'           => '2',
-                'month'          => $validated['month'],
+                'from_month'          => $validated['from_month'],
+                'to_month'          => $validated['to_month'],
                 'voucher_image'  => $validated['voucher_image'],
                 'name'           => $validated['name'],
                 'description'    => $validated['description'],
@@ -244,7 +268,7 @@ class BdayEvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -255,17 +279,30 @@ class BdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->clearing_method == 2 && $request->participating_merchant_locations) {
+            if ( $request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
-                    if (!isset($locData['selected'])) continue;
+                $merchantIds = $request->participating_merchant_id ?? [];
 
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $request->participating_merchant_id,
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
+                // normalize merchant IDs
+                if (!is_array($merchantIds)) {
+                    $merchantIds = [$merchantIds];
+                }
+
+                foreach ($merchantIds as $merchantId) {
+
+                    foreach ($request->participating_merchant_locations as $locId => $locData) {
+
+                        if (!isset($locData['selected'])) {
+                            continue;
+                        }
+
+                        RewardParticipatingMerchantLocationUpdate::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                    }
                 }
             }
       
@@ -419,7 +456,8 @@ class BdayEvoucherController extends Controller
 
        
             $validated = $request->validate([
-                'month' => 'required',
+                'from_month' => 'required',
+                'to_month' => 'required',
                 'voucher_image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
                 'name' => 'required|string',
                 'description' => 'required|string',
@@ -472,7 +510,9 @@ class BdayEvoucherController extends Controller
             $reward = RewardUpdateRequest::create([
                 'type'           => '2',
                 'reward_id'      => $id,
-                'month'          => $validated['month'],
+                'from_month'          => $validated['from_month'],
+                'to_month'          => $validated['to_month'],
+                'request_by'          => auth()->id(),
                 'voucher_image' => $validated['voucher_image'] ?? $reward->voucher_image,
                 'name'           => $validated['name'],
                 'description'    => $validated['description'],
@@ -493,7 +533,7 @@ class BdayEvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id,
+                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -506,17 +546,32 @@ class BdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->clearing_method == 2 && $request->participating_merchant_locations) {
+            if ($request->reward_type == 0 && $request->clearing_method == 2) {
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
-                    if (!isset($locData['selected'])) continue;
+                // Clean old mappings
+                RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
 
-                    RewardParticipatingMerchantLocationUpdate::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $request->participating_merchant_id,
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
+                $merchantIds = $request->participating_merchant_id ?? [];
+                $locations   = $request->participating_merchant_locations ?? [];
+
+                // normalize merchant IDs
+                if (!is_array($merchantIds)) {
+                    $merchantIds = [$merchantIds];
+                }
+
+                foreach ($merchantIds as $merchantId) {
+
+                    foreach ($locations as $locId => $locData) {
+
+                        if (!isset($locData['selected'])) continue;
+
+                        RewardParticipatingMerchantLocationUpdate::create([
+                            'reward_id'                 => $id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                    }
                 }
             }
       

@@ -1,3 +1,20 @@
+<script>
+     $(document).on('shown.bs.modal', '#EditModal', function () {      
+        initFlatpickr(this);
+        
+    });
+
+    
+    function initFlatpickr(modal) {
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="start_date"]',
+            'input[name="end_date"]'
+        );      
+    }
+
+</script>
+
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
     data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -32,17 +49,28 @@
                         <hr class="dashed">
                         {{-- START DATE --}}
                         <div class="col-12 col-md-6">
-                            <div class="mb-3">
+                            <div class="mb-3 sh_dec">
                                 <label class="sh_dec">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                <input type="datetime-local" class="form-control" name="start_date" value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d\TH:i') : '' }}">
+                                <input
+                                    type="text"
+                                    class="form-control js-datetime-start"
+                                    name="start_date"
+                                    value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d H:i:s') : '' }}"
+                                    placeholder="YYYY-MM-DD HH:mm:ss"
+                                >
                             </div>
                         </div>
 
-                        {{-- END DATE --}}
                         <div class="col-12 col-md-6">
-                            <div class="mb-3">
-                                <label class="sh_dec"> Publish End Date & Time <span class="required-hash">*</span></label>
-                                <input type="datetime-local" class="form-control" name="end_date" value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d\TH:i') : '' }}">
+                            <div class="mb-3 sh_dec">
+                                <label class="sh_dec">Publish End Date & Time <span class="required-hash">*</span></label>
+                                <input
+                                    type="text"
+                                    class="form-control js-datetime-end"
+                                    name="end_date"
+                                    value="{{ isset($data->end_date) ? $data->end_date->format('Y-m-d H:i:s') : '' }}"
+                                    placeholder="YYYY-MM-DD HH:mm:ss"
+                                >
                             </div>
                         </div>
                         <hr class="dashed">
