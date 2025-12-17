@@ -131,8 +131,8 @@ class ParticipatingMerchantLocationController extends Controller
             'participating_merchant_id' => 'required|exists:participating_merchants,id',
             'name'               => 'required|string|max:255',
             'code'               => 'required|string|max:100',
-            'start_date' => 'required|date_format:Y-m-d\TH:i',
-            'end_date'   => 'required|date_format:Y-m-d\TH:i|after_or_equal:start_date',
+            'start_date' => 'required',
+            'end_date'   => 'required|after_or_equal:start_date',
             'club_location_id'   => 'required|exists:club_locations,id',
             'status'             => 'required|in:Active,Inactive',
         ]);
@@ -168,8 +168,8 @@ class ParticipatingMerchantLocationController extends Controller
         $post_data = $this->validate($request, [
             'name'               => 'required|string|max:255',
             'code'               => 'required|string|max:100',
-            'start_date' => 'required|date_format:Y-m-d\TH:i',
-            'end_date'   => 'required|date_format:Y-m-d\TH:i|after_or_equal:start_date',
+            'start_date' => 'required',
+            'end_date'   => 'required|after_or_equal:start_date',
             'club_location_id'   => 'required|exists:club_locations,id',
             'status'             => 'required|in:Active,Inactive',
         ]);
