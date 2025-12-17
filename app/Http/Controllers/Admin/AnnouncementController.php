@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AnnouncementController extends Controller
 {
@@ -112,34 +113,52 @@ class AnnouncementController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
-        $post_data = $request->validate([
+        $rules = [
             'title'          => 'required|string|max:255',
             'display_order'  => 'required|numeric',
-            'start_date'     => 'required',
-            'end_date'      => 'required|after_or_equal:start_date',
-            'description'        => 'required|string',
-        ],
-[
+            'start_date'     => 'required|date',
+            'end_date'       => 'required|date|after_or_equal:start_date',
+            'description'    => 'required|string',
+            'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
+
+        $messages = [
             'description.required' => 'Message field is required',
-        ]);
+        ];
 
+        $validator = Validator::make($request->all(), $rules, $messages);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        // Image upload
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
             $request->image->move(public_path('images'), $imageName);
-            $post_data['image'] = $imageName;
+            $validated['image'] = $imageName;
         }
-        $post_data['message'] = $request->description;
-        unset($post_data['description']);
-        Announcement::create($post_data);
+
+        // Map description → message
+        $validated['message'] = $validated['description'];
+        unset($validated['description']);
+
+        Announcement::create($validated);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Announcement created successfully'
         ]);
     }
+
 
 
     /**
@@ -164,39 +183,62 @@ class AnnouncementController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, string $id)
     {
-        $post_data = $request->validate([
+        $rules = [
             'title'          => 'required|string|max:255',
             'display_order'  => 'required|numeric',
             'start_date'     => 'required|date',
             'end_date'       => 'required|date|after:start_date',
-            'description'        => 'required|string',
-        ],
-[
+            'description'    => 'required|string',
+            'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
+
+        $messages = [
             'description.required' => 'Message field is required',
-        ]);
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         $announcement = Announcement::findOrFail($id);
-        $post_data['message'] = $request->description;
+
+        // Map description → message
+        $validated['message'] = $validated['description'];
+        unset($validated['description']);
+
+        // Image upload & replace
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
             $request->image->move(public_path('images'), $imageName);
-            $post_data['image'] = $imageName;
-            try {
-                unlink(public_path("images/$announcement->image"));
-            } catch (\Throwable $th) {
-                //throw $th;
+            $validated['image'] = $imageName;
+
+            // delete old image safely
+            if (!empty($announcement->image)) {
+                $oldPath = public_path('images/' . $announcement->image);
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
             }
         }
-        unset($post_data['description']);
-        $announcement->update($post_data);
+
+        $announcement->update($validated);
 
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Announcement updated successfully'
         ]);
     }
+
 
 
     /**

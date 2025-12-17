@@ -6,6 +6,7 @@ use App\Models\DashboardPopup;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardPopupController extends Controller
@@ -121,30 +122,46 @@ class DashboardPopupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        $post_data = $request->validate([
+        $rules = [
             'name'        => 'required|string|max:25',
-            'button'   => 'required|string|max:10',
-            'order'         => 'required|numeric',
-            'popup_type'    => 'required|in:once-a-day,always',           
-            'start_date'    => 'required',
-            'end_date'      => 'required|after_or_equal:start_date',
-            'description'   => 'required|string',
-        ]);
+            'button'      => 'required|string|max:10',
+            'order'       => 'required|numeric',
+            'popup_type'  => 'required|in:once-a-day,always',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after_or_equal:start_date',
+            'description' => 'required|string',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
 
+        $validator = Validator::make($request->all(), $rules);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
+        $validated = $validator->validated();
+
+        // Image upload
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
             $request->image->move(public_path('images'), $imageName);
-            $post_data['image'] = $imageName;
+            $validated['image'] = $imageName;
         }
 
-        $post_data['frequency'] = $request->popup_type;
-        DashboardPopup::create($post_data);
+        // Map popup_type → frequency
+        $validated['frequency'] = $validated['popup_type'];
 
-        return response()->json(['status' => 'success', 'message' => 'Poupup Created Successfully']);
+        DashboardPopup::create($validated);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Dashboard Popup created successfully'
+        ]);
     }
 
     /**
@@ -171,35 +188,53 @@ class DashboardPopupController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $post_data = $this->validate($request, [
-            'name' => 'required|max:25',
-            'button' => 'required',
-            'frequency' => 'required',
-            'order' => 'required',
-            'description' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|required|date|after_or_equal:' . $request->start_date,
-        ]);
+        $rules = [
+            'name'        => 'required|string|max:25',
+            'button'      => 'required|string|max:50',
+            'popup_type'   => 'required|string',
+            'order'       => 'required|numeric',
+            'description' => 'required|string',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date|after_or_equal:start_date',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ];
 
+        $validator = Validator::make($request->all(), $rules);
 
-        $rd = DashboardPopup::find($id);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
+        $validated = $validator->validated();
+
+        $popup = DashboardPopup::findOrFail($id);
+
+        // Image upload & replace
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
             $request->image->move(public_path('images'), $imageName);
-            $post_data['image'] = $imageName;
-            try {
-                unlink(filename: public_path("images/$rd->image"));
-            } catch (\Throwable $th) {
-                //throw $th;
+            $validated['image'] = $imageName;
+
+            // delete old image safely
+            if (!empty($popup->image)) {
+                $oldPath = public_path('images/' . $popup->image);
+                if (file_exists($oldPath)) {
+                    @unlink($oldPath);
+                }
             }
         }
 
-        $rd->update($post_data);
+        $validated['frequency'] = $validated['popup_type'];
+        $popup->update($validated);
 
-        return response()->json(['status' => 'success', 'message' => 'Popup Update Successfully']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Dashboard Popup updated successfully'
+        ]);
     }
-
     /**
      * Remove the specified resource from storage.
      */
