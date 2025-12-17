@@ -361,7 +361,7 @@
                         <div class="col-12 col-md-6 file" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlxs,.xls">
+                                <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
                                 <div class="d-flex justify-content-between">
                                     <div class="mt-1">
                                         <label class="small text-muted">

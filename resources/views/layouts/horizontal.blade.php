@@ -456,7 +456,7 @@
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
                             @endcan
                             @can('evoucher-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">E-Voucher Voucher</a>
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">eVoucher</a>
                             @endcan
                             @can('bday-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
@@ -511,7 +511,7 @@
                         </a>
                     @endcan
                     @canany(['report-customer', 'report-sales', 'report-reward'])
-                    <li class="nav-item dropdown">
+                    {{-- <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Report</span>
                             <!-- <div class="arrow-down"></div> -->
@@ -531,7 +531,7 @@
                             @endcan
 
                         </div>
-                    </li>
+                    </li> --}}
                     @endcan
                     @canany(['referral-rate'])
                     {{-- <a class="nav-link  " href="{{url('/admin/tiers')}}">

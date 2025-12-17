@@ -1,3 +1,18 @@
+<script>
+     $(document).on('shown.bs.modal', '#EditModal', function () {
+        initFlatpickr(this);        
+    });
+
+    function initFlatpickr(modal) {
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="start_date"]',
+            'input[name="end_date"]'
+        );      
+    }
+
+   
+</script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -32,16 +47,16 @@
 
                         <div class="col-12 col-md-6">
                             <label>Start Date <span class="required-hash">*</span></label>
-                            <input type="datetime-local" name="start_date" id="start_date"
+                            <input type="text" name="start_date" id="start_date"
                                 class="form-control"
-                                value="{{ isset($data->start_date) ? date('Y-m-d\TH:i', strtotime($data->start_date)) : '' }}">
+                                value="{{ isset($data->start_date) ? $data->start_date : '' }}">
                         </div>
 
                         <div class="col-12 col-md-6">
                             <label>End Date <span class="required-hash">*</span></label>
-                            <input type="datetime-local" name="end_date" id="end_date"
+                            <input type="text" name="end_date" id="end_date"
                                 class="form-control"
-                                value="{{ isset($data->end_date) ? date('Y-m-d\TH:i', strtotime($data->end_date)) : '' }}">
+                                value="{{ isset($data->end_date) ? $data->end_date : '' }}">
                         </div>
 
 

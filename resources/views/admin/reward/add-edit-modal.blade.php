@@ -7,6 +7,7 @@
         
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
+         initFlatpickr(this);
         $(".max_order").hide();
         $("#common_section").show();
         if (rewardType == "1") {
@@ -35,7 +36,22 @@
             editToggleInventoryFields(modal);
             editToggleClearingFields(modal);
         }
+        
     });
+
+    function initFlatpickr(modal) {
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="publish_start"]',
+            'input[name="publish_end"]'
+        );
+
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="sales_start"]',
+            'input[name="sales_end"]'
+        );
+    }
 
     function calculateVoucherSet() {
 
@@ -135,7 +151,7 @@
 
                 if (res.status !== 'success') return;
 
-                let html = `<label class="sh_dec"><b>Locations </b> <span  style="color:red;">*</span></label>`;
+                let html = `<label class="sh_dec"><b>Locations </b> <span  style="color:#f46a6a;">*</span></label>`;
                 html += `<div id="location_wrapper" class="row gx-3 gy-3">`;   // UPDATED wrapper
 
                 let i = 1;
@@ -205,7 +221,7 @@
                     let html = '';
                     let i = 1;
 
-                    html += `<label class="sh_dec"><b>Participating Merchant Outlets </b> <span  style="color:red;">*</span></label>`;
+                    html += `<label class="sh_dec"><b>Participating Merchant Outlets </b> <span  style="color:#f46a6a;">*</span></label>`;
                     html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
 
                     res.locations.forEach(loc => {
@@ -291,10 +307,12 @@
             locationField.hide();
         }
     }
-     $(document).on('input', '#usual_price, #voucher_value', function () {
+    
+    $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
     });
 
+   
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -393,13 +411,13 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time</label>
-                                            <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
+                                            <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
                                         </div>
                                     </div>
 
@@ -407,13 +425,13 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales End Date & Time</label>
-                                            <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
+                                            <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -490,7 +508,7 @@
                                 <div class="col-12 col-md-6 file" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlxs,.xls">
+                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
                                         <div class="d-flex justify-content-between">
                                             <div class="mt-1">
                                                 <label class="small text-muted">
@@ -577,11 +595,9 @@
                             </div>
                             <div id="participating_merchant_location" class="mt-2 mb-2" style="display:none;"> 
                             </div>
-
                         </div>
 
                         <div id="common_section" style="margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
-
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Hide Quantity</label>
                                 <div class="col-md-3">

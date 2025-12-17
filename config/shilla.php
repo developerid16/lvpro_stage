@@ -1,7 +1,7 @@
 <?php
 return [
     // 'date-format' =>  'd-m-Y',
-    'date-format' =>  'Y-m-d h:i:s A',
+    'date-format' => 'Y-M-d H:i:s',
     'month-format' =>  'Y M',
     'apiusername' =>  env('apiusername', 'API9LS9MPTHXA'),
     'apipassword' =>  env('apipassword', 'API9LS9MPTHXAF6B2U'),

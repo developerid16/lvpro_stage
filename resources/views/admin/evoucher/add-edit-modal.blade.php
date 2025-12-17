@@ -4,12 +4,29 @@
 <script>
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
-       
+
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
+        initFlatpickr(this);
         
     });
 
+    
+    function initFlatpickr(modal) {
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="publish_start"]',
+            'input[name="publish_end"]'
+        );
+
+        bindStartEndFlatpickrEdit(
+            modal,
+            'input[name="sales_start"]',
+            'input[name="sales_end"]'
+        );
+    }
+
+   
     $(document).on('change', '.reward_type', function () {
 
         let modal = $(this).closest('.modal');
@@ -157,6 +174,8 @@
         }
     }
 
+
+
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -260,17 +279,16 @@
                             <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
                                 
                                 <div class="row">
-
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="publish_start" value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time</label>
-                                            <input type="datetime-local" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
+                                            <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
                                         </div>
                                     </div>
 
@@ -278,13 +296,13 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="datetime-local"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . 'T' . $data->sales_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales End Date & Time</label>
-                                            <input type="datetime-local" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . 'T' . $data->sales_end_time : '' }}">
+                                            <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -318,7 +336,7 @@
                         <div class="col-12 col-md-6 file" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlxs,.xls">
+                                <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
                                 <div class="d-flex justify-content-between">
                                     <div class="mt-1">
                                         <label class="small text-muted">

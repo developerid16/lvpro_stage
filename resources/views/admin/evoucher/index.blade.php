@@ -260,13 +260,13 @@
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="datetime-local"  class="form-control" name="redemption_start_date" value="">
+                                                <input type="text"  class="form-control" name="redemption_start_date" value="">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption End Date & Time</label>
-                                                <input type="datetime-local" class="form-control" name="redemption_end_date"  value="">
+                                                <input type="text" class="form-control" name="redemption_end_date"  value="">
                                             </div>
                                         </div>
                                     </div>
@@ -363,13 +363,13 @@
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="datetime-local"  class="form-control" name="redemption_start_date" value="{{ isset($data->redemption_start_date) ? $data->redemption_start_date . 'T' . $data->redemption_start_time : '' }}">
+                                                <input type="text"  class="form-control" name="redemption_start_date" value="{{ isset($data->redemption_start_date) ? $data->redemption_start_date . 'T' . $data->redemption_start_time : '' }}">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption End Date & Time</label>
-                                                <input type="datetime-local" class="form-control" name="redemption_end_date"  value="{{ isset($data->redemption_end_date) ? $data->redemption_end_date . 'T' . $data->redemption_end_time : '' }}">
+                                                <input type="text" class="form-control" name="redemption_end_date"  value="{{ isset($data->redemption_end_date) ? $data->redemption_end_date . 'T' . $data->redemption_end_time : '' }}">
                                             </div>
                                         </div>
                                     </div>
@@ -566,6 +566,24 @@
 
     </script>
     <script>
+        function initFlatpickr() {
+            
+            bindStartEndFlatpickr(
+                'input[name="publish_start"]',
+                'input[name="publish_end"]'
+            );
+            bindStartEndFlatpickr(
+                'input[name="sales_start"]',
+                'input[name="sales_end"]'
+            );
+            bindStartEndFlatpickr(
+                'input[name="redemption_start_date"]',
+                'input[name="redemption_end_date"]'
+            );
+        }
+        document.addEventListener('DOMContentLoaded', initFlatpickr);
+
+
         $(document).on("change", ".reward_id", function () {
             let id = $(this).val();
 

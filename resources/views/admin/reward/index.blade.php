@@ -171,7 +171,7 @@
                         let html = '';
                         let i = 1;
 
-                        html += `<label class="sh_dec"><b>Locations </b><span style="color:red;">*</span></label>`;
+                        html += `<label class="sh_dec"><b>Locations </b><span style="color:#f46a6a;">*</span></label>`;
 
                         // Wrapper ONLY ONCE
                         html += `<div id="location_wrapper" class="row gx-3 gy-3">`;
@@ -309,7 +309,7 @@
                         let html = '';
                         let i = 1;
 
-                        html += `<label class="sh_dec"><b>Participating Merchant Outlets </b><span  style="color:red;">*</span></label>`;
+                        html += `<label class="sh_dec"><b>Participating Merchant Outlets </b><span  style="color:#f46a6a;">*</span></label>`;
 
                         // Wrapper ONLY ONCE
                         html += `<div id="participating_location_wrapper" class="row gx-3 gy-3">`;
@@ -399,6 +399,19 @@
         $(document).on('input', '#usual_price, #voucher_value', function () {
             calculateVoucherSet();
         });
+
+        function initFlatpickr() {
+            
+            bindStartEndFlatpickr(
+                'input[name="publish_start"]',
+                'input[name="publish_end"]'
+            );
+            bindStartEndFlatpickr(
+                'input[name="sales_start"]',
+                'input[name="sales_end"]'
+            );
+        }
+        document.addEventListener('DOMContentLoaded', initFlatpickr);
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

@@ -66,6 +66,15 @@
 @section('script')
 
 <script>
+     function initFlatpickr() {
+            
+            bindStartEndFlatpickr(
+                'input[name="start_date"]',
+                'input[name="end_date"]'
+            );
+        }
+        document.addEventListener('DOMContentLoaded', initFlatpickr);
+
     let participating_merchant_id = "{{ $participating_merchant_id }}";
 
     // Correct Resource Base URL (for store/update/delete)
