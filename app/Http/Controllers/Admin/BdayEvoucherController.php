@@ -119,7 +119,9 @@ class BdayEvoucherController extends Controller
                 $final_data[$key]['month'] = '-';
             }
             $final_data[$key]['status'] = $row->status;
+            $final_data[$key]['month'] =  $row->month ? Carbon::createFromFormat('Y-m', $row->month)->format(config('shilla.month-format')): null;
 
+            
             $action = "<div class='d-flex gap-3'>";
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
