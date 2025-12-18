@@ -85,8 +85,6 @@
             initFlatpickrDate();
         });
 
-
-
         function ajaxRequest(params) {
             params.data.type = type
             $.get(DataTableUrl + '?' + $.param(params.data)).then(function(res) {
@@ -140,16 +138,22 @@
             toggleClearingFields(modal);
         });
 
-        $('#participating_merchant_id').on('change', function () {
-            const merchantIds = $(this).val(); // array or null
+        $(document).on('change', '#AddModal #participating_merchant_id', function () {
 
-            if (merchantIds) {
-                $("#participating_merchant_location").show();
-                loadParticipatingMerchantLocations(merchantIds);
+            const modal      = $(this).closest('.modal');   // ✅ modal context
+            const merchantIds = $(this).val();               // array or null
+
+            if (merchantIds && merchantIds.length > 0) {
+                modal.find("#participating_section").show();
+                modal.find("#participating_merchant_location").show();
+
+                loadParticipatingMerchantLocations(modal,merchantIds);
             } else {
-                $("#participating_merchant_location").hide();
+                // only hide LEFT section, NOT selected summary
+                modal.find("#participating_merchant_location").empty();
+                modal.find("#participating_section").hide();
             }
-        });           
+        });         
     </script>
     <script>
         $(document).on("change", ".reward_id", function () {
@@ -226,6 +230,12 @@
             $(".file").hide();
             $(".inventory_qty").hide();
             $('.club_location').val(null).trigger('change');
+
+            window.selectedOutletMap = {};               // clear JS memory
+            modal.find("#selected_locations_summary").empty();
+            modal.find("#selected_locations_wrapper").hide();
+            modal.find("#selected_locations_hidden").empty();
+
             let form = document.getElementById('add_frm');
             if (!form) return;
 

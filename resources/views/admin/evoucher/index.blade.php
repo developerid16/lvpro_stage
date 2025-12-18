@@ -431,8 +431,6 @@
                 preview.attr("src", "").hide();
             }
         });       
-
-
        
         $(document).on('shown.bs.modal','#EditModal', function () {
             const $modal = $(this);
@@ -460,17 +458,22 @@
             toggleClearingFields(modal);
         });
 
-        $('#participating_merchant_id').on('change', function () {
-            const merchantIds = $(this).val(); // array or null
+        $(document).on('change', '#AddModal #participating_merchant_id', function () {
 
-            if (merchantIds) {
-                $("#participating_merchant_location").show();
-                loadParticipatingMerchantLocations(merchantIds);
+            const modal      = $(this).closest('.modal');   // ✅ modal context
+            const merchantIds = $(this).val();               // array or null
+
+            if (merchantIds && merchantIds.length > 0) {
+                modal.find("#participating_section").show();
+                modal.find("#participating_merchant_location").show();
+
+                loadParticipatingMerchantLocations(modal,merchantIds);
             } else {
-                $("#participating_merchant_location").hide();
+                // only hide LEFT section, NOT selected summary
+                modal.find("#participating_merchant_location").empty();
+                modal.find("#participating_section").hide();
             }
-        });   
-
+        });
     </script>
     <script>
         function initFlatpickr() {
@@ -488,12 +491,11 @@
                 'input[name="redemption_end_date"]'
             );
         }
+
         document.addEventListener('DOMContentLoaded', function () {
             initFlatpickr();
             initFlatpickrDate();
         });
-
-
 
         $(document).on("change", ".reward_id", function () {
             let id = $(this).val();
@@ -536,7 +538,6 @@
                     let firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     let rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-                    console.log("Excel Rows:", rows); // DEBUG
 
                     let ids = [];
 
@@ -552,7 +553,6 @@
                         }
                     });
 
-                    console.log("Extracted IDs:", ids); // DEBUG
 
                     document.getElementById("push_voucher").value = ids.join(", ");
 
@@ -636,29 +636,48 @@
         });
 
         function resetFormById() {
-            let modal = $('#AddModal').closest(".modal");
-        
-            $(".participating_merchant").hide();
-            $("#voucher_image_preview").hide();
-            $("#participating_merchant_location").hide();
-            $(".file").hide();
-            $(".inventory_qty").hide();
-            let form = document.getElementById('add_frm');
+
+            const modal = $('#AddModal');
+
+            // -------------------------------
+            // RESET FORM
+            // -------------------------------
+            const form = document.getElementById('add_frm');
             if (!form) return;
 
-            // BASIC RESET
             form.reset();
 
+            // -------------------------------
+            // HIDE SECTIONS
+            // -------------------------------
+            modal.find(".participating_merchant").hide();
+            modal.find("#voucher_image_preview").hide();
+            modal.find("#participating_section").hide();
+            modal.find("#participating_merchant_location").empty();
+            modal.find(".file").hide();
+            modal.find(".inventory_qty").hide();
+
+            // -------------------------------
+            // 🔥 RESET SELECTED OUTLETS STATE
+            // -------------------------------
+            window.selectedOutletMap = {};               // clear JS memory
+            modal.find("#selected_locations_summary").empty();
+            modal.find("#selected_locations_wrapper").hide();
+            modal.find("#selected_locations_hidden").empty();
+
+            // -------------------------------
             // CLEAR FILE INPUTS
+            // -------------------------------
             form.querySelectorAll('input[type="file"]').forEach(file => {
                 file.value = '';
             });
 
-        
+            // -------------------------------
+            // REMOVE VALIDATION ERRORS
+            // -------------------------------
+            modal.find('.is-invalid').removeClass('is-invalid');
+            modal.find('.invalid-feedback').remove();
 
-            // OPTIONAL: hide error messages
-            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }
 
         function formatToAmPm(datetimeLocal) {
@@ -682,7 +701,6 @@
 
             return `${yyyy}-${mm}-${dd} ${hours}:${minutes}:${seconds} ${ampm}`;
         }
-
    
         $(document).on('change', 'input[type="checkbox"]', function () {
 
@@ -739,7 +757,6 @@
                 }
             });
         });
-
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

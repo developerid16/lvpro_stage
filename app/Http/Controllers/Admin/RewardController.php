@@ -58,7 +58,7 @@ class RewardController extends Controller
         $this->layout_data['category'] = Category::get();
 
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
-        $this->layout_data['tiers'] = Tier::all();
+        $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -229,7 +229,7 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 2) DYNAMIC TIER VALIDATION
             * ---------------------------------------------------*/
-            $tiers = Tier::all();
+            $tiers = Tier::where('status', 'Active')->get();;
             foreach ($tiers as $tier) {
                 $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
             }
@@ -421,7 +421,7 @@ class RewardController extends Controller
                 'voucher_value'              => $request->voucher_value,
                 'voucher_set'                => $request->voucher_set,
                 'clearing_method'            => $request->clearing_method,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
+                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
                 'location_text'  => $request->location_text,
                 'max_order'  => $request->max_order,                
             ]);
@@ -576,11 +576,19 @@ class RewardController extends Controller
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
-        $this->layout_data['tiers'] = Tier::all();
+        $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
         $this->layout_data['category'] = Category::get();
         // 👉 Build simple array: [location_id => inventory_qty]
         $this->layout_data['savedLocations'] = $reward ? $reward->rewardLocations->pluck('inventory_qty','location_id')  : [];
-        $this->layout_data['participatingLocations'] = $reward ? $reward->participatingLocations->pluck('location_id')  : [];
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+
+        $locations = ParticipatingMerchantLocation::whereIn('id', $locationIds)->select('id', 'name')->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
 
@@ -588,7 +596,7 @@ class RewardController extends Controller
             'status' => 'success',
             'html' => $html,
             'savedLocations' => $this->layout_data['savedLocations'],
-            'participatingLocations' => $this->layout_data['participatingLocations']
+            'participatingLocations' => $locations
         ]);
     }
 
@@ -634,7 +642,7 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 2) TIER VALIDATION
             * ---------------------------------------------------*/
-            $tiers = Tier::all();
+            $tiers = Tier::where('status', 'Active')->get();
             foreach ($tiers as $tier) {
                 $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
             }
@@ -714,7 +722,7 @@ class RewardController extends Controller
 
                if ($request->clearing_method == 2) {
 
-                    $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
+                    $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
                     $rules['participating_merchant_locations'] = 'required|array|min:1';
 
@@ -877,7 +885,7 @@ class RewardController extends Controller
                 'voucher_value'             => $request->voucher_value,
                 'voucher_set'               => $request->voucher_set,
                 'clearing_method'           => $request->clearing_method,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
+                'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
                 'location_text'             => $request->location_text,
                 'max_order'                 => $request->max_order,
             ]);
@@ -922,34 +930,35 @@ class RewardController extends Controller
             /* ----------------------------------
          * DIGITAL → UPDATE PARTICIPATING MERCHANT OUTLETS
          * ---------------------------------- */
-        if ($reward->reward_type == 0 && $request->clearing_method == 2) {
+        if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
 
-            // Clean old mappings
+            // Remove old mappings
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
 
-            $merchantIds = $request->participating_merchant_id ?? [];
-            $locations   = $request->participating_merchant_locations ?? [];
+            foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-            // normalize merchant IDs
-            if (!is_array($merchantIds)) {
-                $merchantIds = [$merchantIds];
-            }
-
-            foreach ($merchantIds as $merchantId) {
-
-                foreach ($locations as $locId => $locData) {
-
-                    if (!isset($locData['selected'])) continue;
-
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $merchantId, // ✅ single ID
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
+                if (!isset($locData['selected'])) {
+                    continue;
                 }
+
+                // Fetch merchant from location
+                $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                    ->value('participating_merchant_id');
+
+                if (!$merchantId) {
+                    continue;
+                }
+
+                ParticipatingLocations::create([
+                    'reward_id'                 => $reward->id,
+                    'participating_merchant_id' => $merchantId,
+                    'location_id'               => $locId,
+                    'is_selected'               => 1,
+                ]);
             }
         }
+
+
 
         /* ---------------------------------------------------
         * DIGITAL → INVENTORY TYPE SWITCH (Merchant → Non-Merchant)

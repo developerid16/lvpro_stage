@@ -389,3 +389,18 @@ tspan {
 .error{
     color: #f46a6a !important;
 }
+
+.month {
+    flex-wrap: wrap;
+    /* margin: 0 -10px; */
+}
+
+.month input {
+    width: 49%;
+    margin: 0 !important;
+    /* padding: 0 10px; */
+}
+
+.month p {
+    width: 100%;
+}

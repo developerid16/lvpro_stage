@@ -144,7 +144,6 @@
 
         });     
 
-
         $('#merchant_id').on('change', function () {
             let merchantId = $(this).val();
             let rewardType = $('.reward_type').val();
@@ -246,19 +245,22 @@
             toggleClearingFields(modal);
         });
 
-        $('#participating_merchant_id').on('change', function () {
+        $(document).on('change', '#AddModal #participating_merchant_id', function () {
             const merchantIds = $(this).val(); // array or null
-
+            const modal      = $(this).closest('.modal');
             if (merchantIds) {
-                $("#participating_merchant_location").show();
-                loadParticipatingMerchantLocations(merchantIds);
+                modal.find("#participating_section").show();
+                modal.find("#participating_merchant_location").show();
+
+                loadParticipatingMerchantLocations(modal,merchantIds);
             } else {
-                $("#participating_merchant_location").hide();
+                modal.find("#participating_merchant_location").empty();
+                modal.find("#participating_section").hide();
             }
         });    
 
         function resetFormById() {
-            let modal = $('#AddModal').closest(".modal");
+            const modal = $('#AddModal');
             toggleInventoryFields(modal);
             toggleClearingFields(modal);
             $(".max_order").hide();
@@ -268,6 +270,11 @@
             $(".inventory_qty").hide();
             $("#location_section").hide();
           
+
+            window.selectedOutletMap = {};               // clear JS memory
+            modal.find("#selected_locations_summary").empty();
+            modal.find("#selected_locations_wrapper").hide();
+            modal.find("#selected_locations_hidden").empty();
             let form = document.getElementById('add_frm');
             if (!form) return;
 

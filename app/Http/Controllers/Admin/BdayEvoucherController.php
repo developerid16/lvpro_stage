@@ -9,6 +9,7 @@ use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
 use App\Models\Evoucher;
+use App\Models\ParticipatingMerchantLocation;
 use App\Models\Reward;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
@@ -204,7 +205,7 @@ class BdayEvoucherController extends Controller
 
             // External code + Merchant code → merchant + locations required
             if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
+                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
 
@@ -244,102 +245,88 @@ class BdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * CREATE REWARD (e-Voucher only)
             * ---------------------------------------------------*/
-            $reward = Reward::create([
-                'type'           => '2',
-                'from_month'          => $validated['from_month'],
-                'to_month'          => $validated['to_month'],
-                'voucher_image'  => $validated['voucher_image'],
-                'name'           => $validated['name'],
-                'description'    => $validated['description'],
-                'term_of_use'    => $validated['term_of_use'],
-                'how_to_use'     => $validated['how_to_use'],
+            $startMonth = Carbon::createFromFormat('Y-m', $validated['from_month'])->startOfMonth();
+            $endMonth   = Carbon::createFromFormat('Y-m', $validated['to_month'])->startOfMonth();
 
-                'merchant_id'    => $validated['merchant_id'],
-                'reward_type'    => 0, // e-voucher fixed
+            $current = $startMonth->copy();
 
-                'voucher_validity'   => $validated['voucher_validity'],
+            while ($current->lte($endMonth)) {
 
-                'club_location'     => $validated['club_location'],
-                'inventory_type'     => $validated['inventory_type'],
-                'inventory_qty'      => $validated['inventory_qty'] ?? null,
+                $reward = Reward::create([
+                    'type'                => '2',
+                    'month'                 => $current->format('Y-m'),
+                    'from_month'          => $current->format('Y-m'),
+                    'to_month'            => $current->format('Y-m'), // single month per voucher
+                    'voucher_image'       => $validated['voucher_image'],
+                    'name'                => $validated['name'],
+                    'description'         => $validated['description'],
+                    'term_of_use'         => $validated['term_of_use'],
+                    'how_to_use'          => $validated['how_to_use'],
+                    'merchant_id'         => $validated['merchant_id'],
+                    'reward_type'         => 0,
+                    'voucher_validity'    => $validated['voucher_validity'],
+                    'club_location'       => $validated['club_location'],
+                    'inventory_type'      => $validated['inventory_type'],
+                    'inventory_qty'       => $validated['inventory_qty'] ?? null,
+                    'voucher_value'       => $validated['voucher_value'],
+                    'voucher_set'         => $validated['voucher_set'],
+                    'clearing_method'     => $validated['clearing_method'],
+                    'location_text'       => $request->location_text,
+                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+                    'hide_quantity'       => $request->hide_quantity ? 1 : 0,
+                    'low_stock_1'         => $validated['low_stock_1'],
+                    'low_stock_2'         => $validated['low_stock_2'],
+                ]);
 
-                'voucher_value'      => $validated['voucher_value'],
-                'voucher_set'        => $validated['voucher_set'],
-                'clearing_method'    => $validated['clearing_method'],
-
-                'location_text'      => $request->location_text,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
-
-                'hide_quantity'      => $request->hide_quantity ? 1 : 0,
-                'low_stock_1'        => $validated['low_stock_1'],
-                'low_stock_2'        => $validated['low_stock_2'],
-            ]);
-
-
-            /* ---------------------------------------------------
-            * SAVE PARTICIPATING LOCATIONS
-            * ---------------------------------------------------*/
-            if ( $request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
-
-                $merchantIds = $request->participating_merchant_id ?? [];
-
-                // normalize merchant IDs
-                if (!is_array($merchantIds)) {
-                    $merchantIds = [$merchantIds];
-                }
-
-                foreach ($merchantIds as $merchantId) {
+                // -------------------------------
+                // PARTICIPATING LOCATIONS
+                // -------------------------------
+                if ($request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
                     foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                        if (!isset($locData['selected'])) {
-                            continue;
-                        }
+                        if (!isset($locData['selected'])) continue;
+
+                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                            ->value('participating_merchant_id');
+
+                        if (!$merchantId) continue;
 
                         RewardParticipatingMerchantLocationUpdate::create([
                             'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'participating_merchant_id' => $merchantId,
                             'location_id'               => $locId,
                             'is_selected'               => 1,
                         ]);
                     }
                 }
-            }
-      
 
-            /* ---------------------------------------------------
-            * XLSX / CSV UPLOAD (merchant inventory)
-            * ---------------------------------------------------*/
-            if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+                // -------------------------------
+                // CSV / XLSX INVENTORY
+                // -------------------------------
+                if ($request->inventory_type == 1 && isset($filePath)) {
 
-                $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/csv'), $filename);
+                    $rows = Excel::toArray([], $filePath);
 
-                $reward->csvFile = $filename;
-                $reward->save();
+                    foreach ($rows[0] as $row) {
 
-                $filePath = public_path('uploads/csv/'.$filename);
+                        $code = trim($row[0] ?? '');
 
-                // READ XLSX OR CSV SAFELY
-                $rows = Excel::toArray([], $filePath);
+                        if ($code === '' || strtolower($code) === 'code') continue;
 
-                foreach ($rows[0] as $row) {
-
-                    $code = trim($row[0] ?? '');
-
-                    if ($code === '' || strtolower($code) === 'code') {
-                        continue;
+                        RewardVoucher::create([
+                            'type'      => '2',
+                            'reward_id' => $reward->id,
+                            'code'      => $code,
+                            'is_used'   => 0
+                        ]);
                     }
-
-                    RewardVoucher::create([
-                        'type'      => '2',
-                        'reward_id' => $reward->id,
-                        'code'      => $code,
-                        'is_used'   => 0
-                    ]);
                 }
+
+                // move to next month
+                $current->addMonth();
             }
+
 
             DB::commit();
             return response()->json(['status'=>'success','message'=>'Reward Created Successfully']);
@@ -376,14 +363,24 @@ class BdayEvoucherController extends Controller
         $this->layout_data['club_location'] = ClubLocation::get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
-        $this->layout_data['participatingLocations'] = $reward ? $reward->participatingLocations->pluck('location_id')  : [];
+        // 🔥 Get location IDs
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+
+        // 🔥 Fetch names from participating_merchant_locations
+        $locations = ParticipatingMerchantLocation::whereIn('id', $locationIds)->select('id', 'name')->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
 
         return response()->json([
             'status' => 'success',
             'html' => $html,
-            'participatingLocations' => $this->layout_data['participatingLocations']
+            'participatingLocations' => $locations
         ]);
     }
 
@@ -489,7 +486,7 @@ class BdayEvoucherController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'errors' => [
-                        'month' => ['Your request is already pending approval.']
+                        'from_month' => ['Your request is already pending approval.']
                     ]
                 ], 422);
             }
@@ -533,7 +530,7 @@ class BdayEvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
+                'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -546,35 +543,33 @@ class BdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->reward_type == 0 && $request->clearing_method == 2) {
+            if ($request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
-                // Clean old mappings
+                // 🔥 Remove old pending mappings for this reward
                 RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
 
-                $merchantIds = $request->participating_merchant_id ?? [];
-                $locations   = $request->participating_merchant_locations ?? [];
+                foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                // normalize merchant IDs
-                if (!is_array($merchantIds)) {
-                    $merchantIds = [$merchantIds];
-                }
-
-                foreach ($merchantIds as $merchantId) {
-
-                    foreach ($locations as $locId => $locData) {
-
-                        if (!isset($locData['selected'])) continue;
-
-                        RewardParticipatingMerchantLocationUpdate::create([
-                            'reward_id'                 => $id,
-                            'participating_merchant_id' => $merchantId, // ✅ single ID
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
+                    if (!isset($locData['selected'])) {
+                        continue;
                     }
+
+                    // 🔥 Fetch merchant ID FROM location (single source of truth)
+                    $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                        ->value('participating_merchant_id');
+
+                    if (!$merchantId) {
+                        continue; // safety guard
+                    }
+
+                    RewardParticipatingMerchantLocationUpdate::create([
+                        'reward_id'                 => $id,
+                        'participating_merchant_id' => $merchantId, // ✅ derived, NOT looped
+                        'location_id'               => $locId,
+                        'is_selected'               => 1,
+                    ]);
                 }
             }
-      
 
             /* ---------------------------------------------------
             * XLSX / CSV UPLOAD (merchant inventory)
@@ -626,8 +621,6 @@ class BdayEvoucherController extends Controller
         }
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -649,6 +642,8 @@ class BdayEvoucherController extends Controller
                 unlink(public_path('uploads/csv/' . $reward->csvFile));
             }
            
+            RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+            RewardUpdateRequest::where('reward_id', $reward->id)->delete();
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
             RewardVoucher::where('reward_id', $reward->id)->delete();
             $reward->delete();
@@ -671,7 +666,7 @@ class BdayEvoucherController extends Controller
         }
     }
 
-   public function getLocations(Request $request)
+    public function getLocations(Request $request)
     {
         $merchantId = $request->merchant_id;
 
@@ -680,7 +675,5 @@ class BdayEvoucherController extends Controller
             'status' => 'success',
             'data' => $locations
         ]);
-    }
-
-   
+    }   
 }

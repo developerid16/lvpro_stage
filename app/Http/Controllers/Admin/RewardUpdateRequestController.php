@@ -82,17 +82,34 @@ class RewardUpdateRequestController extends Controller
 
      
 
-        foreach ($rows->get() as $row) {
+        foreach ($rows->get() as $key => $row) {
 
             $index = $start + $i + 1;
 
+            $fromMonth = $row->from_month
+                ? Carbon::createFromFormat('Y-m', $row->from_month)
+                    ->format(config('shilla.month-format'))
+                : null;
+
+            $toMonth = $row->to_month
+                ? Carbon::createFromFormat('Y-m', $row->to_month)
+                    ->format(config('shilla.month-format'))
+                : null;
+
+            if ($fromMonth && $toMonth) {
+                $month = $fromMonth . ' To ' . $toMonth;
+            } elseif ($fromMonth) {
+                $month = $fromMonth;
+            } else {
+                $month = '-';
+            }
             $final_data[$i] = [
                 'id'                => $row->id,
                 'sr_no'             => $index,
 
                 // BASIC INFO
                 'reward_id'         => $row->reward_id,
-                'month'            => Carbon::createFromFormat('Y-m',$row->month )->format(config('shilla.month-format')),
+                'month'            =>  $month,
                 'name'              => $row->name,
                 'description'       => $row->description ?? '-',
 
@@ -270,39 +287,38 @@ class RewardUpdateRequestController extends Controller
 
             if ($update->clearing_method == '2') {
 
-                // Fetch pending locations (can contain multiple merchants)
+                // Fetch pending locations for this reward
                 $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
                     'reward_id',
                     $reward->id
                 )->get();
 
-
-                // Safety: nothing to approve
+                // If nothing pending, do nothing
                 if ($pendingLocations->isEmpty()) {
-                    // just skip, do NOT return from parent method
-                } else {
-
-                    // Remove old actual locations
-                    ParticipatingLocations::where('reward_id', $reward->id)->delete();
-
-                    // Copy approved locations
-                    foreach ($pendingLocations as $loc) {
-
-                        ParticipatingLocations::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $loc->participating_merchant_id, // ✅ single per row
-                            'location_id'               => $loc->location_id,               // ✅ single per row
-                            'is_selected'               => $loc->is_selected ?? 1,
-                        ]);
-                    }
-
-                    // Cleanup pending table
-                    RewardParticipatingMerchantLocationUpdate::where(
-                        'reward_id',
-                        $reward->id
-                    )->delete();
+                    return; // or just skip silently
                 }
+
+                // Remove old approved locations
+                ParticipatingLocations::where('reward_id', $reward->id)->delete();
+
+                // Approve each pending location (1 row = 1 merchant + 1 location)
+                foreach ($pendingLocations as $loc) {
+
+                    $locData = ParticipatingLocations::create([
+                        'reward_id'                 => $reward->id,
+                        'participating_merchant_id' => $loc->participating_merchant_id, // ✅ single ID
+                        'location_id'               => $loc->location_id,
+                        'is_selected'               => $loc->is_selected ?? 1,
+                    ]);
+                }
+
+                // Cleanup pending table after approval
+                RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->delete();
             }
+
 
 
             DB::commit();

@@ -11,7 +11,12 @@
     $(document).on('shown.bs.modal', '#EditModal', function () {
 
         let modal = $(this).closest('.modal');
-        initFlatpickrDate(this);    
+        initFlatpickrDate(this);  
+        bindMonthFlatpickrEdit(this,
+            'input[name="from_month"]',
+            'input[name="to_month"]'
+        );
+         
        
         let selectedMerchant = "{{ $data->merchant_id ?? '' }}";
         let selectedLocation = "{{ $data->club_location ?? '' }}";
@@ -23,6 +28,19 @@
        
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
+
+        const merchantId = modal.find("#participating_merchant_id").val();
+         // EDIT MODE
+        if (modal.attr("id") === "EditModal") {
+            editParticipatingMerchantLocations(modal);
+        }
+
+        // merchant selected later
+        modal.find("#participating_merchant_id").on("change", function () {
+
+            const merchantId = $(this).val();
+            loadParticipatingMerchantLocations(modal, merchantId);
+        }); 
         
     });
 
@@ -60,22 +78,7 @@
         }
     }  
    
-    $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
-
-        const modal = $(this);
-
-        modal.find("#participating_merchant_id").on("change", function () {
-
-            let merchantIds = $(this).val();
-
-            if (merchantIds && merchantIds.length) {
-                editParticipatingMerchantLocations(modal, merchantIds);
-            } else {
-                modal.find("#participating_section").hide();
-                modal.find("#selected_locations_wrapper").hide();
-            }
-        });
-    });
+   
     //Digital Reward
     $(document).on("change", ".clearing_method", function () {
         let modal = $(this).closest(".modal");
@@ -124,6 +127,7 @@
     }
 
 </script>
+
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -146,8 +150,8 @@
                                 <label class="sh_dec">
                                     Reward Creation <span class="required-hash">*</span>
                                 </label>
-                                <div class="d-flex">
-                                    <input type="text" id="from_month" class="form-control me-1" name="from_month" value="{{ isset($data->from_month) ? $data->from_month : '' }}">
+                                <div class="d-flex month">
+                                    <input type="text" id="from_month" class="form-control" name="from_month" value="{{ isset($data->from_month) ? $data->from_month : '' }}">
                                     <input type="text" id="to_month" class="form-control" name="to_month"value="{{ isset($data->to_month) ? $data->to_month : '' }}">
                                 </div>
                             </div>
@@ -316,11 +320,11 @@
                         <div class="col-12 col-md-6 participating_merchant" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
-                                <select multiple class="sh_dec form-select select2" name="participating_merchant_id[]" id="participating_merchant_id">
+                                <select class="sh_dec form-select" name="participating_merchant_id" id="participating_merchant_id">
                                     <option value="">Select Participating Merchant</option>
                                     @if (isset($participating_merchants))                                        
                                         @foreach ($participating_merchants as $merchant)
-                                            <option  value="{{ $merchant->id }}" {{ isset($data) && in_array($merchant->id,explode(',', $data->participating_merchant_id ?? '')) ? 'selected' : '' }}>
+                                            <option  value="{{ $merchant->id }}">
                                                 {{ $merchant->name }}
                                             </option>
                                         @endforeach
@@ -330,7 +334,7 @@
                         </div>
                     </div>
                    <div class="row mt-3" id="participating_section" style="display:none;">
-
+                        <div id="selected_locations_hidden"></div>
                         <!-- LEFT: Locations -->
                         <div class="col-md-7">
                             <div id="participating_merchant_location"></div>

@@ -10,6 +10,9 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
 <script>
+    let selectedOutletMap = []; 
+   
+
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
 
@@ -223,6 +226,65 @@
         endPicker.input.setAttribute("disabled", true);
     }
 
+    function bindMonthFlatpickrEdit(modal, startSelector, endSelector) {
+
+        // make sure modal is DOM element, not jQuery
+        modal = modal instanceof HTMLElement ? modal : modal[0];
+
+        const startEl = modal.querySelector(startSelector);
+        const endEl   = modal.querySelector(endSelector);
+
+        if (!startEl || !endEl) return;
+
+        // 💣 DESTROY old instances (CRITICAL for edit modal)
+        if (startEl._flatpickr) startEl._flatpickr.destroy();
+        if (endEl._flatpickr) endEl._flatpickr.destroy();
+
+        let endPicker;
+
+        const startPicker = flatpickr(startEl, {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            allowInput: false,
+            onChange(selectedDates) {
+                if (!selectedDates.length) return;
+
+                const selected = selectedDates[0];
+
+                endPicker.set("minDate", selected);
+                endPicker.input.removeAttribute("disabled");
+                endPicker.open();
+            }
+        });
+
+        endPicker = flatpickr(endEl, {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            allowInput: false
+        });
+
+        // disable TO initially
+        endPicker.input.setAttribute("disabled", true);
+
+        // 🧠 EDIT MODE: if FROM already has value, enable TO
+        if (startEl.value) {
+            endPicker.input.removeAttribute("disabled");
+            endPicker.set("minDate", startEl.value);
+        }
+    }
+
 
     function initFlatpickrDate(context = document) {
 
@@ -246,13 +308,10 @@
         });
     }
 
-    function loadParticipatingMerchantLocations(merchantIds) {
-        // normalize → always array
-        if (!merchantIds) {
-            $("#participating_merchant_location").html('');
-            $("#selected_locations_summary").html('');
-            $("#selected_locations_wrapper").hide();   // ✅ hide
-            $("#participating_section").hide(); 
+    function loadParticipatingMerchantLocations(modal, merchantIds) {
+        if (!merchantIds || merchantIds.length == 0) {
+            modal.find("#participating_merchant_location").empty();
+            modal.find("#participating_section").hide();
             return;
         }
 
@@ -260,106 +319,39 @@
             merchantIds = [merchantIds];
         }
 
-        $.ajax({
-            url: "{{ url('admin/reward/get-participating-merchant-locations') }}",
-            type: "GET",
-            data: {
-                merchant_ids: merchantIds // ✅ send array
-            },
-            success: function (res) {
-
-                if (res.status !== 'success') return;
-
-                let html = '';
-
-                html += `
-                    <label class="sh_dec">
-                        <b>Participating Merchant Outlets</b>
-                        <span style="color:#f46a6a;">*</span>
-                    </label>
-                    <div id="participating_location_wrapper" class="row gx-3 gy-3">
-                `;
-
-                res.locations.forEach(loc => {
-                    html += `
-                        <div class="col-md-4 col-12">
-                            <div class="location-box d-flex align-items-center p-2"
-                                style="border:1px solid #e9e9e9; border-radius:6px;">
-
-                                <div class="d-flex align-items-center me-auto">
-                                    <input type="checkbox"
-                                        name="participating_merchant_locations[${loc.id}][selected]"
-                                        value="1"
-                                        class="form-check-input me-2">
-
-                                    <label class="mb-0 font-12 fw-bold">
-                                        ${loc.name}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += `
-                    </div>
-                    <div id="participating_merchant_locations_error"
-                        class="text-danger mt-1"></div>
-                `;
-
-                $("#participating_merchant_location").html(html);
-                $("#participating_section").show();        // ✅ added
-                // updateSelectedLocationsSummary(document); 
-            }
-        });
-    }
-
-    function editParticipatingMerchantLocations(modal, merchantIds) {
-
-        if (!merchantIds) {
-            modal.find('#participating_section').hide();
-            return;
-        }
-
-        if (!Array.isArray(merchantIds)) {
-            merchantIds = [merchantIds];
-        }
+        modal.find("#participating_merchant_location").empty();
 
         $.ajax({
             url: "{{ url('admin/reward/get-participating-merchant-locations') }}",
             type: "GET",
             data: { merchant_ids: merchantIds },
             success: function (res) {
-
+                
                 if (res.status !== 'success') return;
 
                 let html = `
-                    <label class="sh_dec">
-                        <b>Participating Merchant Outlets</b>
-                        <span style="color:#f46a6a;">*</span>
+                    <label class="sh_dec fw-bold">
+                        Participating Merchant Outlets <span class="text-danger">*</span>
                     </label>
-                    <div class="row gx-3 gy-3">
+                    <div id="participating_location_wrapper" class="row gx-3 gy-3">
                 `;
 
                 res.locations.forEach(loc => {
-
-                    let checked = Array.isArray(participatingLocations)
-                        && participatingLocations.includes(loc.id)
-                        ? 'checked'
-                        : '';
+                    
+                    
+                    const checked = selectedOutletMap[loc.id] ? 'checked' : '';
 
                     html += `
-                        <div class="col-md-6 col-12">
+                        <div class="col-md-4 col-12">
                             <div class="location-box d-flex align-items-center p-2 border rounded">
 
                                 <input type="checkbox"
-                                    name="participating_merchant_locations[${loc.id}][selected]"
-                                    value="1"
-                                    class="form-check-input me-2"
+                                    class="form-check-input me-2 outlet-checkbox"
+                                    data-id="${loc.id}"
+                                    data-name="${loc.name}"
                                     ${checked}>
 
                                 <label class="mb-0 fw-bold">${loc.name}</label>
-
                             </div>
                         </div>
                     `;
@@ -369,97 +361,154 @@
 
                 modal.find("#participating_merchant_location").html(html);
                 modal.find("#participating_section").show();
-
-                updateSelectedLocationsSummary(modal);
             }
         });
     }
 
-    function updateSelectedLocationsSummary(context) {
+    function syncHiddenSelectedLocations(modal) {
 
-        const selected = [];
+        const container = modal.find("#selected_locations_hidden");
+        container.empty();
 
-        $(context)
-            .find('input[name^="participating_merchant_locations"]:checked')
-            .each(function () {
-
-                const name = $(this)
-                    .closest('.location-box')
-                    .find('label')
-                    .text()
-                    .trim();
-
-                if (name) selected.push(name);
-            });
-
-        const wrapper = $(context).find('#selected_locations_wrapper');
-        const summary = $(context).find('#selected_locations_summary');
-
-        if (selected.length) {
-            summary.html(
-                selected.map(n => `<div>• ${n}</div>`).join('')
-            );
-            wrapper.show();
-        } else {
-            summary.html('');
-            wrapper.hide();
-        }
+        Object.keys(selectedOutletMap).forEach(locId => {
+            container.append(`
+                <input type="hidden"
+                    name="participating_merchant_locations[${locId}][selected]"
+                    value="1">
+            `);
+        });
     }
 
-    $(document).on('change','input[name^="participating_merchant_locations"]', function () {
-            const modal = $(this).closest('.modal');
+    function editParticipatingMerchantLocations(modal) {
+        // reset map
+        selectedOutletMap = {};
 
-            updateSelectedLocationsSummary(modal);
+        // backend-provided array
+        participatingLocations.forEach(loc => {
+            selectedOutletMap[loc.id] = loc.name;
+        });
+
+        updateSelectedLocationsSummary(modal);
+        syncHiddenSelectedLocations(modal);
+
+        // do NOT load checkbox UI
+        modal.find("#participating_merchant_location").empty();
+        modal.find("#participating_section").show();
+    }
+
+    function updateSelectedLocationsSummary(modal) {
+
+        const wrapper = modal.find("#selected_locations_wrapper");
+        const summary = modal.find("#selected_locations_summary");
+
+        const names = Object.values(selectedOutletMap);
+
+        if (!names.length) {
+            summary.empty();
+            wrapper.hide();
+            return;
         }
-    );
+
+        summary.html(names.map(n => `<div>• ${n}</div>`).join(""));
+        wrapper.show();
+    }
+
+    $(document).on("change", ".outlet-checkbox", function () {
+
+        const modal = $(this).closest(".modal");
+
+        const id   = $(this).data("id");
+        const name = $(this).data("name");
+
+        if (this.checked) {
+            selectedOutletMap[id] = name;
+        } else {
+            delete selectedOutletMap[id];
+        }
+
+        updateSelectedLocationsSummary(modal);
+        syncHiddenSelectedLocations(modal);
+    });
 
     function toggleClearingFields(modal) {
-        let method = modal.find('.clearing_method').val();
 
-        let locationField = modal.find('.location_text');
-        let merchantField = modal.find('.participating_merchant');
+        const method = modal.find('.clearing_method').val();
 
-        // Hide both first
+        const locationField  = modal.find('.location_text');
+        const merchantField  = modal.find('.participating_merchant');
+        const outletWrapper  = modal.find('#selected_locations_wrapper');
+        const outletList     = modal.find('#participating_merchant_location');
+        const outletSection  = modal.find('#participating_section');
+        const merchantSelect = modal.find('#participating_merchant_id');
+
+        // 🔥 ALWAYS RESET SELECTED OUTLETS ON METHOD CHANGE
+        selectedOutletMap = [];
+        modal.find('#selected_locations_summary').empty();
+        modal.find('#selected_locations_hidden').empty();
+        outletWrapper.hide();
+
+        // 🔴 HARD RESET UI
         locationField.hide();
         merchantField.hide();
-        $("#participating_merchant_location").hide();
+        outletList.empty();
+        outletSection.hide();
+
+        // 🔥 Reset merchant selection unless method = 2
+        if (method !== "2") {
+            merchantSelect.val(null).trigger('change');
+        }
+
+        // ✅ SHOW BASED ON METHOD
         if (["0", "1", "3"].includes(method)) {
-            // QR, Barcode, External Link → show LOCATION
             locationField.show();
-            merchantField.hide();
-        } 
-        else if (["2"].includes(method)) {
-            // External Code OR Merchant Code → show PARTICIPATING MERCHANT
+        }
+
+        if (method === "2") {
             merchantField.show();
-            locationField.hide();
+            outletSection.show();
         }
     }
 
     function editToggleClearingFields(modal) {
-        let method = modal.find('.clearing_method').val();
+        const method = modal.find('.clearing_method').val();
 
-        let locationField = modal.find('.location_text');
-        let merchantField = modal.find('.participating_merchant');
+        const locationField  = modal.find('.location_text');
+        const merchantField  = modal.find('.participating_merchant');
+        const outletWrapper  = modal.find('#selected_locations_wrapper');
+        const outletList     = modal.find('#participating_merchant_location');
+        const outletSection  = modal.find('#participating_section');
+        const merchantSelect = modal.find('#participating_merchant_id');
 
-        // Hide both first
+        // 🔴 RESET UI
         locationField.hide();
         merchantField.hide();
-        $("#participating_merchant_location").hide();
-        if (["0", "1", "3"].includes(method)) {
-            // QR, Barcode, External Link → show LOCATION
-            locationField.show();
-            merchantField.hide();
-        } 
-        else if (["2"].includes(method)) {
-            $("#EditModal #participating_merchant_location").show();
-            let participatingMerchantId = $('#EditModal #participating_merchant_id').val();
-            editParticipatingMerchantLocations(modal, participatingMerchantId);
-             setTimeout(() => {
+        outletWrapper.hide();
+        outletList.empty();
+        outletSection.hide();
+
+        // 🔥 If switching away from merchant-based clearing
+        if (method !== "2") {
+
+            merchantSelect.val(null).trigger('change');
+
+            selectedOutletMap = {};
+            modal.find('#selected_locations_summary').empty();
+            modal.find('#selected_locations_hidden').empty();
+
+            return; // nothing else to do
+        }
+
+        // ✅ Method = 2 (Merchant based)
+        merchantField.show();
+        outletSection.show();
+
+        const merchantId = merchantSelect.val();
+
+        if (merchantId) {
+            editParticipatingMerchantLocations(modal, merchantId);
+            setTimeout(() => {
                 updateSelectedLocationsSummary(modal);
-            }, 300); // will use savedLocations variable inside modal
-            // External Code OR Merchant Code → show PARTICIPATING MERCHANT
-            merchantField.show();
-            locationField.hide();
+            }, 300);
         }
     }
 

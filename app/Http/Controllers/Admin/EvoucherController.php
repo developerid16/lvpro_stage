@@ -8,6 +8,7 @@ use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
 use App\Models\Evoucher;
+use App\Models\ParticipatingMerchantLocation;
 use App\Models\PushVoucherMember;
 use App\Models\Reward;
 use App\Models\RewardVoucher;
@@ -194,7 +195,7 @@ class EvoucherController extends Controller
 
             // External code + Merchant code → merchant + locations required
             if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
+                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
 
@@ -280,7 +281,7 @@ class EvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
+                'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -291,32 +292,31 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * SAVE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ( $request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
+            if ($request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
 
-                $merchantIds = $request->participating_merchant_id ?? [];
+                foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                // normalize merchant IDs
-                if (!is_array($merchantIds)) {
-                    $merchantIds = [$merchantIds];
-                }
-
-                foreach ($merchantIds as $merchantId) {
-
-                    foreach ($request->participating_merchant_locations as $locId => $locData) {
-
-                        if (!isset($locData['selected'])) {
-                            continue;
-                        }
-
-                        ParticipatingLocations::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId, // ✅ single ID
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
+                    if (!isset($locData['selected'])) {
+                        continue;
                     }
+
+                    // Fetch merchant from location
+                    $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                        ->value('participating_merchant_id');
+
+                    if (!$merchantId) {
+                        continue;
+                    }
+
+                    ParticipatingLocations::create([
+                        'reward_id'                 => $reward->id,
+                        'participating_merchant_id' => $merchantId,
+                        'location_id'               => $locId,
+                        'is_selected'               => 1,
+                    ]);
                 }
             }
+
 
             /* ---------------------------------------------------
             * XLSX / CSV UPLOAD (merchant inventory)
@@ -380,22 +380,33 @@ class EvoucherController extends Controller
      */
     public function edit(string $id)
     {
-        $reward = Reward::with(['participatingLocations'])->find($id);
-        $this->layout_data['data'] = $reward;
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $reward = Reward::with('participatingLocations')->findOrFail($id);
 
-        $this->layout_data['participatingLocations'] = $reward ? $reward->participatingLocations->pluck('location_id')  : [];
+        $this->layout_data['data'] = $reward;
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+
+        // 🔥 Get location IDs
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+
+        // 🔥 Fetch names from participating_merchant_locations
+        $locations = ParticipatingMerchantLocation::whereIn('id', $locationIds)->select('id', 'name')->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
 
         return response()->json([
             'status' => 'success',
-            'html' => $html,
-            'participatingLocations' => $this->layout_data['participatingLocations']
+            'html'   => $html,
+            'participatingLocations' => $locations
         ]);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -463,7 +474,7 @@ class EvoucherController extends Controller
             }
 
             if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|array|exists:participating_merchants,id';
+                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                 $rules['participating_merchant_locations'] = 'required|array|min:1';
             }
 
@@ -557,7 +568,7 @@ class EvoucherController extends Controller
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
-                'participating_merchant_id' =>  implode(',', $request->participating_merchant_id ?? []),
+                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
 
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
@@ -568,34 +579,35 @@ class EvoucherController extends Controller
             /* ---------------------------------------------------
             * 7) UPDATE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/
-            if ($request->reward_type == 0 && $request->clearing_method == 2) {
+            if ( $request->clearing_method == 2 &&  !empty($request->participating_merchant_locations)) {
 
-                // Clean old mappings
+                // 1️⃣ Remove old mappings
                 ParticipatingLocations::where('reward_id', $reward->id)->delete();
 
-                $merchantIds = $request->participating_merchant_id ?? [];
-                $locations   = $request->participating_merchant_locations ?? [];
+                foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                // normalize merchant IDs
-                if (!is_array($merchantIds)) {
-                    $merchantIds = [$merchantIds];
-                }
-
-                foreach ($merchantIds as $merchantId) {
-
-                    foreach ($locations as $locId => $locData) {
-
-                        if (!isset($locData['selected'])) continue;
-
-                        ParticipatingLocations::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId, // ✅ single ID
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
+                    if (!isset($locData['selected'])) {
+                        continue;
                     }
+
+                    // 2️⃣ Get merchant ID from location itself
+                    $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                        ->value('participating_merchant_id');
+
+                    if (!$merchantId) {
+                        continue; // safety
+                    }
+
+                    // 3️⃣ Save correct mapping
+                    ParticipatingLocations::create([
+                        'reward_id'                 => $reward->id,
+                        'participating_merchant_id' => $merchantId,
+                        'location_id'               => $locId,
+                        'is_selected'               => 1,
+                    ]);
                 }
             }
+
 
             /* ---------------------------------------------------
             * 8) INVENTORY (merchant → upload file)

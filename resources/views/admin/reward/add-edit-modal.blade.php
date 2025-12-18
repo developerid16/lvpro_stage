@@ -28,6 +28,7 @@
         }
         
         if (rewardType == "0") {
+            
             $('#EditModal #collection_reminder_title').text('Send Reminder');
             $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Reminder';
             $(".max_qty").hide(); // also show location section
@@ -36,8 +37,18 @@
             $("#EditModal #location_section").show();
             editToggleInventoryFields(modal);
             editToggleClearingFields(modal);
-        }
-        
+
+            if (modal.attr("id") === "EditModal") {
+                editParticipatingMerchantLocations(modal);
+            }
+
+              // merchant selected later
+            modal.find("#participating_merchant_id").on("change", function () {
+
+                const merchantId = $(this).val();
+                loadParticipatingMerchantLocations(modal, merchantId);
+            });  
+        }        
     });
 
     function initFlatpickr(modal) {
@@ -74,22 +85,22 @@
         // $('#voucher_set').val(voucherSet.toFixed(2));
     }
 
-    $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
+    // $(document).on("shown.bs.modal", "#EditModal", function () {
 
-        const modal = $(this);
+    //     const modal = $(this);
 
-        modal.find("#participating_merchant_id").on("change", function () {
+    //     modal.find("#participating_merchant_id").on("change", function () {
 
-            let merchantIds = $(this).val();
+    //         let merchantIds = $(this).val();
 
-            if (merchantIds && merchantIds.length) {
-                editParticipatingMerchantLocations(modal, merchantIds);
-            } else {
-                modal.find("#participating_section").hide();
-                modal.find("#selected_locations_wrapper").hide();
-            }
-        });
-    });
+    //         if (merchantIds && merchantIds.length) {
+    //             editParticipatingMerchantLocations(modal, merchantIds);
+    //         } else {
+    //             modal.find("#participating_section").hide();
+    //             modal.find("#selected_locations_wrapper").hide();
+    //         }
+    //     });
+    // });
 
 
     $(document).on('change', '.reward_type', function () {
@@ -488,11 +499,11 @@
                                 <div class="col-12 col-md-6 participating_merchant" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
-                                        <select multiple class="sh_dec form-select select2" name="participating_merchant_id[]" id="participating_merchant_id">
+                                        <select class="sh_dec form-select" name="participating_merchant_id" id="participating_merchant_id">
                                             <option value="">Select Participating Merchant</option>
                                             @if (isset($participating_merchants))                                        
                                                 @foreach ($participating_merchants as $merchant)
-                                                    <option  value="{{ $merchant->id }}" {{ isset($data) && in_array($merchant->id,explode(',', $data->participating_merchant_id ?? '')) ? 'selected' : '' }}>
+                                                    <option  value="{{ $merchant->id }}">
                                                         {{ $merchant->name }}
                                                     </option>
                                                 @endforeach
@@ -504,6 +515,7 @@
                             </div>                           
 
                             <div class="row mt-3" id="participating_section" style="display:none;">
+                                <div id="selected_locations_hidden"></div>
 
                                 <!-- LEFT: Locations -->
                                 <div class="col-md-7">

@@ -1,68 +1,17 @@
- @php
-    $data = $data ?? null;
-@endphp
-<script>
-    $(document).on('shown.bs.modal', '#EditModal', function () {
-        let modal = $(this).closest('.modal');
-        
-        editToggleInventoryFields(modal);
-        editToggleClearingFields(modal);
-        initFlatpickr(this);
-        initFlatpickrDate(this);  
-
-        const merchantId = modal.find("#participating_merchant_id").val();
-
-        // EDIT MODE
-        if (modal.attr("id") === "EditModal") {
-            editParticipatingMerchantLocations(modal);
-        }
-
-        // merchant selected later
-        modal.find("#participating_merchant_id").on("change", function () {
-
-            const merchantId = $(this).val();
-            loadParticipatingMerchantLocations(modal, merchantId);
-        });  
-    });
-    
-    function initFlatpickr(modal) {
-        bindStartEndFlatpickrEdit(
-            modal,
-            'input[name="publish_start"]',
-            'input[name="publish_end"]'
-        );
-
-        bindStartEndFlatpickrEdit(
-            modal,
-            'input[name="sales_start"]',
-            'input[name="sales_end"]'
-        );
-    }   
-  
-    //Digital Reward
-    $(document).on("change", "#EditModal .clearing_method", function () {
-        let modal = $(this).closest(".modal");
-        editToggleClearingFields(modal);
-        editToggleInventoryFields(modal);
-    });
-</script>
-<div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
+<div class="modal fade" id="AddModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="sh_sub_title modal-title">{{ isset($data->id) ? 'Edit' : 'Add' }} {{ $title ?? '' }}</h5>
+                <h5 class="sh_sub_title modal-title">Add {{ $title ?? '' }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="overflow-y: auto;  max-height: 800px;">
                 <form enctype="multipart/form-data" class="z-index-1" method="POST" action="javascript:void(0)"
-                    id="{{ isset($data->id) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? '' }}">
+                    id="add_frm">
                     @csrf
                     @if (isset($type))
                         <input type="hidden" name="parent_type" value="{{ $type }}">
-                    @endif
-                    @if (isset($data->id))
-                        @method('PATCH')
-                    @endif
+                    @endif                   
                     <div class="row">
 
                         <div class="col-12 col-md-6">

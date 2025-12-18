@@ -74,6 +74,12 @@ Route::any('/sso-callback', function () {
     return response()->json(true);
 });
 
+Route::any('/pending_reward_request', function () {
+
+    return view('email.pending_reward_request');
+});
+
+
 Route::get('/user-rights-form', [LoginController::class, 'userRightsForm']);
 Route::post('/user-rights-form', [LoginController::class, 'store']);
 //Update User Details
@@ -83,12 +89,15 @@ Route::post('/update-password/{id}', [App\Http\Controllers\HomeController::class
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 //Language Translation
 Route::get('index/{locale}', [App\Http\Controllers\HomeController::class, 'lang']);
+
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('admin/otp-verification', [OTPVerifyController::class, 'index'])->name('otp.index');
     Route::post('admin/otp-verification', [OTPVerifyController::class, 'verify'])->name('otp.verify');
     Route::get('admin/otp-resend', [OTPVerifyController::class, 'resend'])->name('otp.resend');
 });
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middleware(['web', 'auth', 'OTPVerify'])->name('root');
+
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify'])->group(function () {
 
     Route::post('user-rights/approve', action: [UserRightsRequestController::class, 'approve']);
@@ -479,7 +488,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
         // Lets end it here all things 
 
-        dd("retunr");
+        dd(vars: "retunr");
 
         // return view('email.edm');
 
