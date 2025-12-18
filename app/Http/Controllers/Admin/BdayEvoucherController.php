@@ -294,7 +294,7 @@ class BdayEvoucherController extends Controller
 
                         if (!$merchantId) continue;
 
-                        RewardParticipatingMerchantLocationUpdate::create([
+                        ParticipatingLocations::create([
                             'reward_id'                 => $reward->id,
                             'participating_merchant_id' => $merchantId,
                             'location_id'               => $locId,
