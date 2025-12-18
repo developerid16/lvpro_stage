@@ -232,6 +232,36 @@ class BdayEvoucherController extends Controller
 
             $validated = $validator->validated();
 
+              /* ---------------------------------------------------
+            * CREATE REWARD (e-Voucher only)
+            * ---------------------------------------------------*/
+            $startMonth = Carbon::createFromFormat('Y-m', $validated['from_month'])->startOfMonth();
+            $endMonth   = Carbon::createFromFormat('Y-m', $validated['to_month'])->startOfMonth();
+
+            $current = $startMonth->copy();          
+            $existingMonths = [];
+
+            while ($current->lte($endMonth)) {
+
+                $monthValue = $current->format('Y-m');
+
+                if (Reward::where('month', $monthValue)->exists()) {
+                    $existingMonths[] = $monthValue;
+                }
+
+                $current->addMonth();
+            }
+
+            if (!empty($existingMonths)) {
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => [
+                        'from_month' => [
+                            'Voucher already exists for month: ' . implode(', ', $existingMonths)
+                        ]
+                    ]
+                ], 422);
+            }
 
             /* ---------------------------------------------------
             * UPLOAD IMAGE
@@ -244,13 +274,8 @@ class BdayEvoucherController extends Controller
             }           
 
 
-            /* ---------------------------------------------------
-            * CREATE REWARD (e-Voucher only)
-            * ---------------------------------------------------*/
-            $startMonth = Carbon::createFromFormat('Y-m', $validated['from_month'])->startOfMonth();
-            $endMonth   = Carbon::createFromFormat('Y-m', $validated['to_month'])->startOfMonth();
+          
 
-            $current = $startMonth->copy();
 
             while ($current->lte($endMonth)) {
 
