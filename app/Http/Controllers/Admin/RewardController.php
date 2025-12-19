@@ -219,9 +219,8 @@ class RewardController extends Controller
                 'hide_quantity'      => 'nullable|boolean',
                 'low_stock_1'        => 'required|integer|min:0',
                 'low_stock_2'        => 'required|integer|min:0',
-
-                'publish_independent'=> 'required|boolean',
-                'publish_inhouse'    => 'required|boolean',
+                'publish_independent' => 'required_without:publish_inhouse|boolean',
+                'publish_inhouse'     => 'required_without:publish_independent|boolean',
 
                 'send_reminder'      => 'required|boolean',
             ];
@@ -658,8 +657,9 @@ class RewardController extends Controller
                     'low_stock_1'      => 'required|integer|min:0',
                     'low_stock_2'      => 'required|integer|min:0',
 
-                    'publish_independent' => 'required|boolean',
-                    'publish_inhouse'     => 'required|boolean',
+                    'publish_independent' => 'required_without:publish_inhouse|boolean',
+                    'publish_inhouse'     => 'required_without:publish_independent|boolean',
+
                     'send_reminder'       => 'required|boolean',
                 ];
 

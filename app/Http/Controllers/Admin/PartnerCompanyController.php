@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\PartnerCompany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PartnerCompanyController extends Controller
 {
@@ -89,12 +90,26 @@ class PartnerCompanyController extends Controller
      */
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
-            'code' => 'required|unique:users,email',
-            'name' => 'required|unique:users,phone',
+        $validator = Validator::make($request->all(), [
+            'code'   => 'required|unique:users,email',
+            'name'   => 'required|unique:users,phone',
             'status' => 'required',
-
+        ], [
+            'code.required'   => 'Code is required',
+            'code.unique'     => 'Email already exists',
+            'name.required'   => 'Name is required',
+            'name.unique'     => 'Phone already exists',
+            'status.required' => 'Status is required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         PartnerCompany::create($post_data);
 
@@ -127,12 +142,26 @@ class PartnerCompanyController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $post_data = $this->validate($request, [
-            "code" => "required|unique:users,email,$id",
-            "name" => "required|unique:users,phone,$id",
+        $validator = Validator::make($request->all(), [
+            'code'   => 'required|unique:users,email,' . $id,
+            'name'   => 'required|unique:users,phone,' . $id,
             'status' => 'required',
-
+        ], [
+            'code.required'   => 'Code is required',
+            'code.unique'     => 'Email already exists',
+            'name.required'   => 'Name is required',
+            'name.unique'     => 'Phone already exists',
+            'status.required' => 'Status is required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
         PartnerCompany::find($id)->update($post_data);
         return response()->json(['status' => 'success', 'message' => 'Partner Company Update Successfully']);
     }

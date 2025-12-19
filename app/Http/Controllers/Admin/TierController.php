@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TierController extends Controller
 {
@@ -104,12 +105,25 @@ class TierController extends Controller
      */
     public function store(Request $request)
     {
-         $post_data = $this->validate($request, [
-            'code' => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
-            'status' => 'required',
+        $validator = Validator::make($request->all(), [
+            'code'      => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
+            'status'    => 'required',
             'tier_name' => 'required',
-
+        ], [
+            'code.required'      => 'Code is required',
+            'code.regex'         => 'Code may contain only letters, numbers and hyphens',
+            'status.required'    => 'Status is required',
+            'tier_name.required' => 'Tier name is required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         Tier::create($post_data);
 
@@ -142,12 +156,25 @@ class TierController extends Controller
     public function update(Request $request, $id)
     {
          //
-        $post_data = $this->validate($request, [
-            'code' => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
-            "status" => "required",
-            "tier_name" => "required",
-
+        $validator = Validator::make($request->all(), [
+            'code'      => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
+            'status'    => 'required',
+            'tier_name' => 'required',
+        ], [
+            'code.required'      => 'Code is required',
+            'code.regex'         => 'Code may contain only letters, numbers and hyphens',
+            'status.required'    => 'Status is required',
+            'tier_name.required' => 'Tier name is required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
         Tier::find($id)->update($post_data);
         return response()->json(['status' => 'success', 'message' => 'Tier Update Successfully']);
     }

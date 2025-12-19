@@ -404,3 +404,49 @@ tspan {
 .month p {
     width: 100%;
 }
+
+.width-200{
+    width: 200px !important;
+}
+.member-modal {
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.member-input {
+    max-width: 260px;
+    background: #e0e0e0;
+    border: none;
+}
+
+.modal-body h5 {
+    font-size: 18px;
+}
+
+.btn-secondary {
+    min-width: 120px;
+}
+
+.btn-light {
+    min-width: 120px;
+    background: #e0e0e0;
+}
+
+.total-section{
+    margin-top: auto;
+    margin-bottom: 0;
+    display: flex;
+    justify-content: end;
+}
+.reward-img img {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+    background: #e0e0e0;
+    border-radius: 4px;
+}
+
+.reward-detail p {
+    margin-bottom: 4px;
+    font-size: 14px;
+}

@@ -37,12 +37,12 @@
 
                         <div class="col-12 col-md-6">
                             <label>Name <span class="required-hash">*</span></label>
-                            <input type="text" name="name" class="form-control" value="{{ $data->name ?? '' }}">
+                            <input type="text" name="name" class="form-control" value="{{ $data->name ?? '' }}" placeholder="Enter Name">
                         </div>
 
                         <div class="col-12 col-md-6">
                             <label>Code <span class="required-hash">*</span></label>
-                            <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}">
+                            <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}" placeholder="Enter Code">
                         </div>
 
                         <div class="col-12 col-md-6">

@@ -480,6 +480,20 @@
                         </div>
                     </li>
                     @endcan
+
+                     @canany(['reward-list', 'reward-redemption-pos', 'reward-redemption-cms'])
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CSO</span>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                            @can('cso-purchase-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
+                            @endcan                           
+                        </div>
+                    </li>
+                    @endcan
                  
                     @canany(['aircrew-company-list'])
                     {{-- <a class="nav-link  " href="{{url('/admin/partner-company')}}">

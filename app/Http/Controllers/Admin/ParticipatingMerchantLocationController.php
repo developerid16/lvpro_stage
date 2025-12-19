@@ -8,6 +8,7 @@ use App\Models\ParticipatingMerchantLocation;
 use App\Models\ParticipatingMerchant;
 use App\Models\ClubLocation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ParticipatingMerchantLocationController extends Controller
 {
@@ -127,15 +128,42 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
+       $validator = Validator::make($request->all(), [
             'participating_merchant_id' => 'required|exists:participating_merchants,id',
-            'name'               => 'required|string|max:255',
-            'code'               => 'required|string|max:100',
-            'start_date' => 'required',
-            'end_date'   => 'required|after_or_equal:start_date',
-            'club_location_id'   => 'required|exists:club_locations,id',
-            'status'             => 'required|in:Active,Inactive',
+            'name'              => 'required|string|max:255',
+            'code'              => 'required|string|max:100',
+            'start_date'        => 'required|date',
+            'end_date'          => 'required|date|after_or_equal:start_date',
+            'club_location_id'  => 'required|exists:club_locations,id',
+            'status'            => 'required|in:Active,Inactive',
+        ], [
+            'participating_merchant_id.required' => 'Participating merchant is required',
+            'participating_merchant_id.exists'   => 'Invalid participating merchant',
+
+            'name.required' => 'Name is required',
+            'code.required' => 'Code is required',
+
+            'start_date.required' => 'Start date is required',
+            'start_date.date'     => 'Start date must be a valid date',
+
+            'end_date.required' => 'End date is required',
+            'end_date.after_or_equal' => 'End date must be after or equal to start date',
+
+            'club_location_id.required' => 'Club location is required',
+            'club_location_id.exists'   => 'Invalid club location',
+
+            'status.required' => 'Status is required',
+            'status.in'       => 'Invalid status value',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         ParticipatingMerchantLocation::create($post_data);
 
@@ -165,14 +193,38 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function update(Request $request, $id)
     {
-        $post_data = $this->validate($request, [
-            'name'               => 'required|string|max:255',
-            'code'               => 'required|string|max:100',
-            'start_date' => 'required',
-            'end_date'   => 'required|after_or_equal:start_date',
-            'club_location_id'   => 'required|exists:club_locations,id',
-            'status'             => 'required|in:Active,Inactive',
+        $validator = Validator::make($request->all(), [
+            'name'              => 'required|string|max:255',
+            'code'              => 'required|string|max:100',
+            'start_date'        => 'required|date',
+            'end_date'          => 'required|date|after_or_equal:start_date',
+            'club_location_id'  => 'required|exists:club_locations,id',
+            'status'            => 'required|in:Active,Inactive',
+        ], [
+            'name.required' => 'Name is required',
+            'code.required' => 'Code is required',
+
+            'start_date.required' => 'Start date is required',
+            'start_date.date'     => 'Start date must be a valid date',
+
+            'end_date.required' => 'End date is required',
+            'end_date.after_or_equal' => 'End date must be after or equal to start date',
+
+            'club_location_id.required' => 'Club location is required',
+            'club_location_id.exists'   => 'Invalid club location',
+
+            'status.required' => 'Status is required',
+            'status.in'       => 'Invalid status value',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         ParticipatingMerchantLocation::findOrFail($id)->update($post_data);
 

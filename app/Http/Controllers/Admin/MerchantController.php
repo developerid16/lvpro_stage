@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Merchant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+   use Illuminate\Support\Facades\Validator;
 
 class MerchantController extends Controller
 {
@@ -118,15 +119,33 @@ class MerchantController extends Controller
     /* -----------------------------------------------------
      * STORE MERCHANT
      * ----------------------------------------------------- */
+
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
             'status' => 'required|in:Active,Inactive',
             'logo'   => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.required'   => 'Merchant name is required',
+            'status.required' => 'Status is required',
+            'status.in'       => 'Invalid status value',
+            'logo.required'   => 'Logo is required',
+            'logo.image'      => 'Logo must be an image',
+            'logo.mimes'      => 'Allowed formats: jpg, jpeg, png, webp',
+            'logo.max'        => 'Logo size must be less than 2MB',
         ]);
 
-        // upload logo
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // -------------------------
+        // Upload logo
+        // -------------------------
         $path = public_path('uploads/image');
 
         if (!file_exists($path)) {
@@ -138,12 +157,19 @@ class MerchantController extends Controller
 
         $file->move($path, $filename);
 
-        $post_data['logo'] = 'uploads/image/' . $filename;
+        // -------------------------
+        // Store merchant
+        // -------------------------
+        Merchant::create([
+            'name'   => $request->name,
+            'status' => $request->status,
+            'logo'   => 'uploads/image/' . $filename,
+        ]);
 
-
-        Merchant::create($post_data);
-
-        return response()->json(['status' => 'success', 'message' => 'Merchant Created Successfully']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Merchant Created Successfully'
+        ]);
     }
 
 
@@ -166,19 +192,44 @@ class MerchantController extends Controller
     {
         $merchant = Merchant::findOrFail($id);
 
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
             'status' => 'required|in:Active,Inactive',
             'logo'   => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'name.required'   => 'Merchant name is required',
+            'status.required' => 'Status is required',
+            'status.in'       => 'Invalid status value',
+            'logo.image'      => 'Logo must be an image',
+            'logo.mimes'      => 'Allowed formats: jpg, jpeg, png, webp',
+            'logo.max'        => 'Logo size must be less than 2MB',
         ]);
 
-        $path = public_path('uploads/image');
-
-        if (!file_exists($path)) {
-            mkdir($path, 0777, true);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
+        // -------------------------
+        // Prepare update data
+        // -------------------------
+        $post_data = [
+            'name'   => $request->name,
+            'status' => $request->status,
+        ];
+
+        // -------------------------
+        // Upload logo if provided
+        // -------------------------
         if ($request->hasFile('logo')) {
+
+            $path = public_path('uploads/image');
+
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
 
             // delete old image
             if ($merchant->logo && file_exists(public_path($merchant->logo))) {
@@ -193,10 +244,15 @@ class MerchantController extends Controller
             $post_data['logo'] = 'uploads/image/' . $filename;
         }
 
-
+        // -------------------------
+        // Update merchant
+        // -------------------------
         $merchant->update($post_data);
 
-        return response()->json(['status' => 'success', 'message' => 'Merchant Updated Successfully']);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Merchant Updated Successfully'
+        ]);
     }
 
 

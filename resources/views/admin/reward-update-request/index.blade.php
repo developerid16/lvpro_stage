@@ -30,6 +30,10 @@
                         <th data-field="requester" data-filter-control="input">
                             Requester
                         </th>
+                          <th data-field="created_at">
+                            Requested Date
+                        </th>
+
                         <th data-field="name" data-filter-control="input">
                             Reward Name
                         </th>                      
@@ -54,10 +58,7 @@
                             Status
                         </th>
 
-                        <th data-field="created_at">
-                            Requested Date
-                        </th>
-
+                      
                         <th data-field="action" class="text-center" data-searchable="false">
                             Action
                         </th>

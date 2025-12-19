@@ -1,6 +1,6 @@
 @extends('layouts.master-layouts')
 
-@section('title') Partner Company @endsection
+@section('title') Tier Management @endsection
 @section('content')
 
 @component('components.breadcrumb')

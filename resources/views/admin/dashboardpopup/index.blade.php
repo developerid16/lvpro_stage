@@ -28,7 +28,7 @@
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75" data-width-unit="px" data-searchable="false">Sr. No.</th>
                          <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
                         <th data-field="date">Date</th>
-                        <th data-field="frequency" data-filter-control="select" data-sortable="false">Frequency</th>
+                        <th data-field="frequency" data-filter-control="select" data-sortable="false" data-filter-data="var:frequencyOptions">Frequency</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
                 </thead>
@@ -49,6 +49,11 @@
 
 <script src='{{URL::asset("build/libs/tinymce/tinymce.min.js")}}'></script>
 <script>
+    var frequencyOptions = {
+        'once-a-day': 'once-a-day',
+        'always': 'always'
+    };
+
 
     function initFlatpickr() {
             
@@ -200,8 +205,6 @@
 
         initRowDragDrop();
     });
-
-
 
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
 use App\Http\Controllers\Admin\RewardUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
@@ -579,7 +580,11 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     
     Route::get('push-voucher/datatable', action: [PushVoucherController::class, 'datatable']);
     Route::resource('push-voucher', PushVoucherController::class);
-
     
+    Route::post('/purchase/complete', [CsoPurchaseController::class, 'complete']);
+    Route::post('/purchase/cancel', [CsoPurchaseController::class, 'cancel']);
+    Route::post('/checkout', [CsoPurchaseController::class, 'checkout']);
+    Route::post('/get-member-details', [CsoPurchaseController::class, 'getMemberDetails']);
+    Route::resource('cso-purchase', CsoPurchaseController::class);
     
 });

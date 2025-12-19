@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ClubLocationController extends Controller
 {
@@ -101,11 +102,29 @@ class ClubLocationController extends Controller
      * ----------------------------------------------------- */
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
+
+        $validator = Validator::make($request->all(), [
             'merchant_id' => 'required|exists:merchants,id',
             'name'        => 'required|string|max:255',
             'status'      => 'required|in:Active,Inactive',
+        ], [
+            'merchant_id.required' => 'Merchant is required',
+            'merchant_id.exists'   => 'Invalid merchant selected',
+            'name.required'        => 'Name is required',
+            'status.required'      => 'Status is required',
+            'status.in'            => 'Invalid status value',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // validated data
+        $post_data = $validator->validated();
+
 
         ClubLocation::create($post_data);
 
@@ -136,11 +155,24 @@ class ClubLocationController extends Controller
      * ----------------------------------------------------- */
     public function update(Request $request, $id)
     {
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
             'status' => 'required|in:Active,Inactive',
+        ], [
+            'name.required'   => 'Name is required',
+            'status.required' => 'Status is required',
+            'status.in'       => 'Invalid status value',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // validated data
+        $post_data = $validator->validated();
         ClubLocation::findOrFail($id)->update($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Location Updated Successfully']);
