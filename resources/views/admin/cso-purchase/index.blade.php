@@ -13,117 +13,117 @@
     <div class="container mt-4">
 
         <form method="GET" action="{{ url()->current() }}" class="mb-4">
-        <div class="row g-2 align-items-end">
+            <div class="row g-2 align-items-end">
 
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Reward Type</label>
-                <select name="reward_type" class="form-select">
-                    <option value="">All</option>
-                    <option value="0" {{ (string)$selected_type === '0' ? 'selected' : '' }}>
-                        Digital
-                    </option>
-                    <option value="1" {{ (string)$selected_type === '1' ? 'selected' : '' }}>
-                        Physical
-                    </option>
-                </select>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Reward Type</label>
+                    <select name="reward_type" class="form-select">
+                        <option value="">All</option>
+                        <option value="0" {{ (string)$selected_type === '0' ? 'selected' : '' }}>
+                            Digital
+                        </option>
+                        <option value="1" {{ (string)$selected_type === '1' ? 'selected' : '' }}>
+                            Physical
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Search
+                    </button>
+                </div>
+
+                <div class="col-md-1">
+                    <a href="{{ url()->current() }}" class="btn btn-secondary w-100">
+                        Reset
+                    </a>
+                </div>
+
             </div>
-
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">
-                    Search
-                </button>
-            </div>
-
-            <div class="col-md-1">
-                <a href="{{ url()->current() }}" class="btn btn-secondary w-100">
-                    Reset
-                </a>
-            </div>
-
-        </div>
-    </form>
+        </form>
 
 
 
-    <h5 class="mb-3"><strong>Current Deals:</strong></h5>
-    <input type="hidden" id="purchase_id">
+        <h5 class="mb-3"><strong>Current Deals:</strong></h5>
+        <input type="hidden" id="purchase_id">
 
-    <div class="row g-4">
-        @forelse($rewards as $reward)
+        <div class="row g-4">
+            @forelse($rewards as $reward)
 
-            <div class="col-md-4 col-lg-3">
-                <div class="card reward-card h-100 shadow-sm">
+                <div class="col-md-4 col-lg-3">
+                    <div class="card reward-card h-100 shadow-sm">
 
-                    {{-- IMAGE --}}
-                    <div class="reward-img-wrapper d-flex justify-content-center">
-                        @if($reward->voucher_image)
-                            <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
-                                class="card-img-top reward-img"
-                                alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
-                        @else
-                            <div class="reward-img-placeholder">
-                                No Image
+                        {{-- IMAGE --}}
+                        <div class="reward-img-wrapper d-flex justify-content-center">
+                            @if($reward->voucher_image)
+                                <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
+                                    class="card-img-top reward-img"
+                                    alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
+                            @else
+                                <div class="reward-img-placeholder">
+                                    No Image
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- BODY --}}
+                        <div class="card-body d-flex flex-column">
+
+                            <span class="badge bg-info mb-2 align-self-start p-2">
+                                {{ $reward->reward_type == 0 ? 'Digital' : 'Physical' }}
+                            </span>
+
+                            <h6 class="card-title fw-bold mb-1">
+                                {{ $reward->name }}
+                            </h6>
+
+                            <p class="text-muted small mb-2">
+                                {{ Str::limit($reward->description, 70) }}
+                            </p>
+
+                            <p class="fw-semibold mb-1">
+                                From: <span class="text-success">${{ $reward->voucher_value }}</span>
+                            </p>
+
+                            <p class="small mb-2">
+                                <strong>Sale Ends:</strong><br>
+                                {{ $reward->voucher_validity ?? '-' }}
+                            </p>
+
+                            <hr class="my-2">
+
+                            <ul class="list-unstyled small mb-3">
+                                <li>Total: {{ $reward->voucher_set }}</li>
+                                <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
+                                <li>Club Total: 12</li>
+                                <li>Total Sold: 38</li>
+                                <li>Online: 1 | Inhouse: 37</li>
+                                <li>Pending Collection: 0</li>
+                            </ul>
+
+                            <div class="mt-auto">
+                                <button
+                                    class="btn btn-primary w-100 buy-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#memberModal"
+                                    data-reward-id="{{ $reward->id }}">
+                                    BUY
+                                </button>
                             </div>
-                        @endif
-                    </div>
-
-                    {{-- BODY --}}
-                    <div class="card-body d-flex flex-column">
-
-                        <span class="badge bg-info mb-2 align-self-start p-2">
-                            {{ $reward->reward_type == 0 ? 'Digital' : 'Physical' }}
-                        </span>
-
-                        <h6 class="card-title fw-bold mb-1">
-                            {{ $reward->name }}
-                        </h6>
-
-                        <p class="text-muted small mb-2">
-                            {{ Str::limit($reward->description, 70) }}
-                        </p>
-
-                        <p class="fw-semibold mb-1">
-                            From: <span class="text-success">${{ $reward->voucher_value }}</span>
-                        </p>
-
-                        <p class="small mb-2">
-                            <strong>Sale Ends:</strong><br>
-                            {{ $reward->voucher_validity ?? '-' }}
-                        </p>
-
-                        <hr class="my-2">
-
-                        <ul class="list-unstyled small mb-3">
-                            <li>Total: {{ $reward->voucher_set }}</li>
-                            <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
-                            <li>Club Total: 12</li>
-                            <li>Total Sold: 38</li>
-                            <li>Online: 1 | Inhouse: 37</li>
-                            <li>Pending Collection: 0</li>
-                        </ul>
-
-                        <div class="mt-auto">
-                            <button
-                                class="btn btn-primary w-100 buy-btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#memberModal"
-                                data-reward-id="{{ $reward->id }}">
-                                BUY
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        @empty
-            <div class="col-12 text-center">
-                <p class="text-muted">No rewards available.</p>
-            </div>
-        @endforelse
+            @empty
+                <div class="col-12 text-center">
+                    <p class="text-muted">No rewards available.</p>
+                </div>
+            @endforelse
+        </div>
+
+
     </div>
-
-
-</div>
 
 
 <!-- Create -->

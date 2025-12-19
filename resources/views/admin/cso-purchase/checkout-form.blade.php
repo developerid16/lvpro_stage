@@ -1,24 +1,25 @@
 <div class="modal fade" id="checkoutModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 600px;">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="sh_sub_title modal-title"><strong></strong> <span id="d_reward"></span></h5>
+            {{-- <div class="modal-header">
+                <h5 class="sh_sub_title modal-title"><strong></strong> </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            </div> --}}
 
             <div id="checkoutStep" class="p-4">
+                <h5>Reward: <span id="d_reward"></span></h5>
                 <form id="checkoutForm">
 
                     <!-- hidden -->
                     <input type="hidden" name="reward_id" id="checkout_reward_id">
-                <input type="hidden" name="member_id" id="checkout_member_id">
+                    <input type="hidden" name="member_id" id="checkout_member_id">
 
-                <input type="hidden" name="member_name" id="member_name">
-                <input type="hidden" name="member_email" id="member_email">
+                    <input type="hidden" name="member_name" id="member_name">
+                    <input type="hidden" name="member_email" id="member_email">
 
-                <input type="hidden" name="subtotal" id="subtotal">
-                <input type="hidden" name="admin_fee" id="admin_fee" value="0">
-                <input type="hidden" name="total" id="total">
+                    <input type="hidden" name="subtotal" id="subtotal">
+                    <input type="hidden" name="admin_fee" id="admin_fee" value="0">
+                    <input type="hidden" name="total" id="total">
 
                 
 
