@@ -122,12 +122,15 @@
             url: '{{ url("/admin/checkout") }}',
             method: 'POST',
             data: $('#checkoutForm').serialize(),
-            success: function (res) {             
+            success: function (res) { 
+                           
 
                 $('#purchase_id').val(res.purchase_id);
 
                 $('#receipt_no').text(res.receipt_no);
                 $('#receipt_date').text(res.date);
+                $('#type').text(res.type);
+                $('#name').text(res.name);
 
                 $('#confirm_reward').text($('#d_reward').text());
                 $('#confirm_qty').text($('#qty').val());
@@ -236,75 +239,98 @@
 
 
 
-  $('#submitMember').on('click', function () {
+    $('#submitMember').on('click', function () {
 
-    const memberId = $('#member_id').val().trim();
-    const rewardId = $('#reward_id').val();
+        const memberId = $('#member_id').val().trim();
+        const rewardId = $('#reward_id').val();
 
-    if (!memberId) {
-        alert('Member ID is required');
-        return;
-    }
-
-    $.ajax({
-        url: "{{ url('admin/get-member-details') }}",
-        method: 'POST',
-        data: {
-            member_id: memberId,
-            reward_id: rewardId,
-            _token: $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function (res) {
-
-            /* ================= MEMBER ================= */
-            $('#d_name').text(res.member.name);
-            $('#d_email').val(res.member.email);
-            $('#d_mobile').val(res.member.mobile);
-
-            // hidden (must be submitted)
-            $('#member_name').val(res.member.name);
-            $('#member_email').val(res.member.email);
-
-            /* ================= REWARD ================= */
-            $('#reward_image').attr('src', res.reward.image);
-            $('#reward_type').text(res.reward.type);
-            $('#reward_name').text(res.reward.name);
-            $('#reward_offer').text(res.reward.offer);
-            $('#d_reward').text(res.reward.name);
-
-            $('#reward_end').text(res.reward.sales_end);
-            $('#reward_left').text(res.reward.remaining_qty);
-
-            /* ================= RATES ================= */
-            $('#rate_member').text(res.reward.rates.member);
-            $('#rate_movie').text(res.reward.rates.movie);
-            $('#rate_bitez').text(res.reward.rates.bitez);
-            $('#rate_travel').text(res.reward.rates.travel);
-
-            /* ================= PRICING ================= */
-            $('#d_subtotal').text(res.pricing.subtotal);
-            $('#d_admin').text(res.pricing.admin_fee);
-            $('#d_total').text(res.pricing.total);
-
-            // hidden pricing
-            $('#subtotal').val(res.pricing.subtotal);
-            $('#admin_fee').val(res.pricing.admin_fee);
-            $('#total').val(res.pricing.total);
-
-            /* ================= IDS ================= */
-            $('#checkout_member_id').val(res.member.id);
-            $('#checkout_reward_id').val(res.reward.id);
-
-            /* ================= MODAL FLOW ================= */
-            $('#memberModal').modal('hide');
-            $('#checkoutModal').modal('show');
-        },
-
-        error: function (xhr) {
-            alert(xhr.responseJSON?.message || 'Member not found');
+        if (!memberId) {
+            alert('Member ID is required');
+            return;
         }
+
+        $.ajax({
+            url: "{{ url('admin/get-member-details') }}",
+            method: 'POST',
+            data: {
+                member_id: memberId,
+                reward_id: rewardId,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (res) {
+
+                /* ================= MEMBER ================= */
+                $('#d_name').text(res.member.name);
+                $('#d_email').val(res.member.email);
+                $('#d_mobile').val(res.member.mobile);
+
+                // hidden (must be submitted)
+                $('#member_name').val(res.member.name);
+                $('#member_email').val(res.member.email);
+
+                /* ================= REWARD ================= */
+                $('#reward_image').attr('src', res.reward.image);
+                $('#reward_type').text(res.reward.type);
+                $('#reward_name').text(res.reward.name);
+                $('#reward_offer').text(res.reward.offer);
+                $('#d_reward').text(res.reward.name);
+
+                $('#reward_end').text(res.reward.sales_end);
+                $('#reward_left').text(res.reward.remaining_qty);
+
+                /* ================= RATES ================= */
+                $('#rate_member').text(res.reward.rates.member);
+                $('#rate_movie').text(res.reward.rates.movie);
+                $('#rate_bitez').text(res.reward.rates.bitez);
+                $('#rate_travel').text(res.reward.rates.travel);
+
+                /* ================= PRICING ================= */
+                $('#d_subtotal').text(res.pricing.subtotal);
+                $('#d_admin').text(res.pricing.admin_fee);
+                $('#d_total').text(res.pricing.total);
+
+                // hidden pricing
+                $('#subtotal').val(res.pricing.subtotal);
+                $('#admin_fee').val(res.pricing.admin_fee);
+                $('#total').val(res.pricing.total);
+
+                /* ================= IDS ================= */
+                $('#checkout_member_id').val(res.member.id);
+                $('#checkout_reward_id').val(res.reward.id);
+
+                /* ================= MODAL FLOW ================= */
+                $('#memberModal').modal('hide');
+                $('#checkoutModal').modal('show');
+            },
+
+            error: function (xhr) {
+                alert(xhr.responseJSON?.message || 'Member not found');
+            }
+        });
     });
-});
+
+    $('#checkoutModal').on('hidden.bs.modal', function () {
+
+        $('#checkoutStep').show();
+        $('#previewStep').hide();
+        $('#confirmationStep').hide();
+
+        $('#purchase_id').val('');
+    });
+    $('#checkoutModal').on('show.bs.modal', function () {
+
+        // Reset steps
+        $('#checkoutStep').show();
+        $('#previewStep').hide();
+        $('#confirmationStep').hide();
+
+        // Reset purchase id
+        $('#purchase_id').val('');
+
+        // Optional: reset form
+        $('#checkoutForm')[0].reset();
+    });
+
 
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>

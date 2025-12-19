@@ -80,6 +80,7 @@ class CsoPurchaseController extends Controller
         DB::beginTransaction();
 
         try {
+            $reward = Reward::findOrFail($request->reward_id);
 
             $receiptNo = 'RCPT-' . now()->format('YmdHis');
 
@@ -106,6 +107,8 @@ class CsoPurchaseController extends Controller
                 'purchase_id' => $purchase->id,
                 'receipt_no'  => $receiptNo,
                 'date'        => now()->format(config('shilla.date-format') ),
+                'name'         => $reward->name,
+                'type' => $reward->reward_type == 0 ? 'Digital' : 'Physical',
                 'qty'         => $purchase->qty,
                 'price'       => $purchase->total,
                 'total'       => $purchase->total

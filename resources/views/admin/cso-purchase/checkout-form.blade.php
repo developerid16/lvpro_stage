@@ -142,54 +142,60 @@
             </div>
           </div>
 
-          <div id="confirmationStep" style="display:none">
+            <div id="confirmationStep" style="display:none">
 
-              <h5 class="mb-3">Purchase Confirmation</h5>
+                <h5 class="mb-3">Purchase Confirmation</h5>
 
-              <p><strong>Reward Name:</strong> <span id="reward_name"></span></p>
-              <p><strong>Reward Type:</strong> <span id="reward_type"></span></p>
-              <p><strong>Receipt No:</strong> <span id="receipt_no"></span></p>
-              <p><strong>Date:</strong> <span id="receipt_date"></span></p>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="m-0"><strong>Reward Name:</strong> <span id="name"></span></p>
+                        <p class="m-0"><strong>Reward Type:</strong> <span id="type"></span></p>
+                    </div>
+                    <div>
+                        <p class="m-0"><strong>Receipt No:</strong> <span id="receipt_no"></span></p>
+                        <p class="m-0"><strong>Date:</strong> <span id="receipt_date"></span></p>
+                    </div>
+                </div>
 
-              <table class="table table-bordered mt-3">
-                  <thead>
-                  <tr>
-                      <th>No</th>
-                      <th>Description</th>
-                      <th>Qty</th>
-                      <th>Price</th>
-                      <th>Amount</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr>
-                      <td>1</td>
-                      <td id="confirm_reward"></td>
-                      <td id="confirm_qty"></td>
-                      <td>SGD <span id="confirm_price"></span></td>
-                      <td>SGD <span id="confirm_amount"></span></td>
-                  </tr>
-                  </tbody>
-              </table>
+                <table class="table table-bordered mt-3">
+                    <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Description</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Amount</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td id="confirm_reward"></td>
+                        <td id="confirm_qty"></td>
+                        <td>SGD <span id="confirm_price"></span></td>
+                        <td>SGD <span id="confirm_amount"></span></td>
+                    </tr>
+                    </tbody>
+                </table>
 
-              <div class="text-end">
-                  <p>Subtotal: SGD <span id="confirm_subtotal"></span></p>
-                  <p>Admin Fee: SGD 0.00</p>
-                  <h6>Total: SGD <span id="confirm_total"></span></h6>
-              </div>
+                <div class="text-end">
+                    <p>Subtotal: SGD <span id="confirm_subtotal"></span></p>
+                    <p>Admin Fee: SGD 0.00</p>
+                    <h6>Total: SGD <span id="confirm_total"></span></h6>
+                </div>
 
-              <div class="d-flex justify-content-between mt-3">
-                <button class="btn btn-danger" id="btnCancelPurchase">
-                    Cancel
-                </button>
+                <div class="d-flex justify-content-between mt-3">
+                    <button class="btn btn-danger" id="btnCancelPurchase">
+                        Cancel
+                    </button>
 
-                <button class="btn btn-success" id="btnCompletePurchase">
-                    Submit
-                </button>
+                    <button class="btn btn-success" id="btnCompletePurchase">
+                        Submit
+                    </button>
+                </div>
+
+
             </div>
-
-
-          </div>
 
         </div>
     </div>
