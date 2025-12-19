@@ -377,10 +377,23 @@
                                     <label class="sh_dec" for="amount"> <b> Tier Rates </b></label>
                                 </div>
                                 @foreach ($tiers as $key => $tier)
+                                @php
+                                    $price = '';
+                                    if($data){
+                                        foreach ($data->tierRates as $rate) {
+                                            if ($rate->tier_id == $tier->id) {
+                                                $price = $rate->price;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                @endphp
+
                                     <div class="col-4">
                                         <div class="mb-3">
                                             <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="required-hash">*</span></label>
-                                            <input id="tier_{{ $tier->id }}" type="number" min="0" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"   value="{{ isset($data->tierRates[$key]['price']) ? $data->tierRates[$key]['price'] : '' }}">
+                                            <input id="tier_{{ $tier->id }}" type="number" min="0" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"  
+                                             value="{{ $price }}">
                                         </div>
                                     </div>
                                 @endforeach

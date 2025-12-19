@@ -80,7 +80,23 @@ class CsoPurchaseController extends Controller
         DB::beginTransaction();
 
         try {
+
             $reward = Reward::findOrFail($request->reward_id);
+
+            // -----------------------------------
+            // DUPLICATE CHECK (IMPORTANT)
+            // -----------------------------------
+            $alreadyExists = Purchase::where('member_id', $request->member_id)
+                ->where('reward_id', $request->reward_id)
+                ->whereIn('status', [1, 2]) // pending or completed
+                ->exists();
+
+            if ($alreadyExists) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'This reward is already purchased by this member.'
+                ], 422);
+            }
 
             $receiptNo = 'RCPT-' . now()->format('YmdHis');
 
@@ -91,7 +107,7 @@ class CsoPurchaseController extends Controller
                 'member_name'       => $request->member_name,
                 'member_email'      => $request->member_email,
                 'qty'               => $request->qty,
-                'status'            => 'pending',
+                'status'            => 1, // PENDING (numeric)
                 'payment_mode'      => $request->payment_mode,
                 'note'              => $request->note,
                 'update_membership' => $request->has('update_membership') ? 1 : 0,
@@ -106,9 +122,9 @@ class CsoPurchaseController extends Controller
             return response()->json([
                 'purchase_id' => $purchase->id,
                 'receipt_no'  => $receiptNo,
-                'date'        => now()->format(config('shilla.date-format') ),
-                'name'         => $reward->name,
-                'type' => $reward->reward_type == 0 ? 'Digital' : 'Physical',
+                'date'        => now()->format(config('shilla.date-format')),
+                'name'        => $reward->name,
+                'type'        => $reward->reward_type == 0 ? 'Digital' : 'Physical',
                 'qty'         => $purchase->qty,
                 'price'       => $purchase->total,
                 'total'       => $purchase->total
@@ -116,11 +132,14 @@ class CsoPurchaseController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
-                'error' => $e->getMessage() // IMPORTANT for debugging
+                'status' => 'error',
+                'error'  => $e->getMessage()
             ], 500);
         }
     }
+
 
     public function complete(Request $request)
     {

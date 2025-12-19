@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
+use App\Http\Controllers\Admin\CsoIssuanceController;
 use App\Models\AppUser;
 use App\Models\UserTier;
 use App\Models\KeyPassbookCredit;
@@ -586,5 +587,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('/checkout', [CsoPurchaseController::class, 'checkout']);
     Route::post('/get-member-details', [CsoPurchaseController::class, 'getMemberDetails']);
     Route::resource('cso-purchase', CsoPurchaseController::class);
+    
+    Route::post('cso-issuance/issue', [CsoIssuanceController::class, 'issue']);
+    Route::get('cso-issuance/view/{id}', [CsoIssuanceController::class, 'view']);
+    Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
+    Route::resource('cso-issuance', CsoIssuanceController::class);
     
 });

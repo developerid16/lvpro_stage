@@ -329,7 +329,8 @@
     }
 
     function loadParticipatingMerchantLocations(modal, merchantIds) {
-        if (!merchantIds || merchantIds.length == 0) {
+
+        if (!merchantIds || merchantIds.length === 0) {
             modal.find("#participating_merchant_location").empty();
             modal.find("#participating_section").hide();
             return;
@@ -346,8 +347,18 @@
             type: "GET",
             data: { merchant_ids: merchantIds },
             success: function (res) {
-                
-                if (res.status !== 'success') return;
+
+                // keep your original guard
+                if (!res || res.status !== 'success') {
+                    showNoOutlets(modal);
+                    return;
+                }
+
+                // ✅ FIX: handle empty / null locations
+                if (!res.locations || res.locations.length === 0) {
+                    showNoOutlets(modal);
+                    return;
+                }
 
                 let html = `
                     <label class="sh_dec fw-bold">
@@ -356,21 +367,20 @@
                     <div id="participating_location_wrapper" class="row gx-3 gy-3">
                 `;
 
-                res.locations.forEach(loc => {
-                    
-                    
-                    const checked = selectedOutletMap[loc.id] ? 'checked' : '';
+                res.locations.forEach(function (loc) {
+
+                    const checked = selectedOutletMap && selectedOutletMap[loc.id]
+                        ? 'checked'
+                        : '';
 
                     html += `
                         <div class="col-md-4 col-12">
                             <div class="location-box d-flex align-items-center p-2 border rounded">
-
                                 <input type="checkbox"
                                     class="form-check-input me-2 outlet-checkbox"
                                     data-id="${loc.id}"
                                     data-name="${loc.name}"
                                     ${checked}>
-
                                 <label class="mb-0 fw-bold">${loc.name}</label>
                             </div>
                         </div>
@@ -381,8 +391,22 @@
 
                 modal.find("#participating_merchant_location").html(html);
                 modal.find("#participating_section").show();
+            },
+            error: function () {
+                showNoOutlets(modal);
             }
         });
+    }
+
+    function showNoOutlets(modal) {
+
+        modal.find("#participating_merchant_location").html(`
+            <div class="alert alert-danger mb-2" style="width:170px;">
+                Outlets not found
+            </div>
+        `);
+
+        modal.find("#participating_section").show();
     }
 
     function syncHiddenSelectedLocations(modal) {

@@ -16,78 +16,78 @@
     <input type="hidden" id="purchase_id">
 
     <div class="row g-4">
-@forelse($rewards as $reward)
+        @forelse($rewards as $reward)
 
-    <div class="col-md-4 col-lg-3">
-        <div class="card reward-card h-100 shadow-sm">
+            <div class="col-md-4 col-lg-3">
+                <div class="card reward-card h-100 shadow-sm">
 
-            {{-- IMAGE --}}
-            <div class="reward-img-wrapper d-flex justify-content-center">
-                @if($reward->voucher_image)
-                    <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
-                         class="card-img-top reward-img"
-                         alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
-                @else
-                    <div class="reward-img-placeholder">
-                        No Image
+                    {{-- IMAGE --}}
+                    <div class="reward-img-wrapper d-flex justify-content-center">
+                        @if($reward->voucher_image)
+                            <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
+                                class="card-img-top reward-img"
+                                alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
+                        @else
+                            <div class="reward-img-placeholder">
+                                No Image
+                            </div>
+                        @endif
                     </div>
-                @endif
-            </div>
 
-            {{-- BODY --}}
-            <div class="card-body d-flex flex-column">
+                    {{-- BODY --}}
+                    <div class="card-body d-flex flex-column">
 
-                <span class="badge bg-info mb-2 align-self-start p-2">
-                    {{ $reward->inventory_type == 0 ? 'Physical' : 'Digital' }}
-                </span>
+                        <span class="badge bg-info mb-2 align-self-start p-2">
+                            {{ $reward->inventory_type == 0 ? 'Physical' : 'Digital' }}
+                        </span>
 
-                <h6 class="card-title fw-bold mb-1">
-                    {{ $reward->name }}
-                </h6>
+                        <h6 class="card-title fw-bold mb-1">
+                            {{ $reward->name }}
+                        </h6>
 
-                <p class="text-muted small mb-2">
-                    {{ Str::limit($reward->description, 70) }}
-                </p>
+                        <p class="text-muted small mb-2">
+                            {{ Str::limit($reward->description, 70) }}
+                        </p>
 
-                <p class="fw-semibold mb-1">
-                    From: <span class="text-success">${{ $reward->voucher_value }}</span>
-                </p>
+                        <p class="fw-semibold mb-1">
+                            From: <span class="text-success">${{ $reward->voucher_value }}</span>
+                        </p>
 
-                <p class="small mb-2">
-                    <strong>Sale Ends:</strong><br>
-                    {{ $reward->voucher_validity ?? 'yyyy-MM-dd HH:mm:ss' }}
-                </p>
+                        <p class="small mb-2">
+                            <strong>Sale Ends:</strong><br>
+                            {{ $reward->voucher_validity ?? 'yyyy-MM-dd HH:mm:ss' }}
+                        </p>
 
-                <hr class="my-2">
+                        <hr class="my-2">
 
-                <ul class="list-unstyled small mb-3">
-                    <li>Total: {{ $reward->voucher_set }}</li>
-                    <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
-                    <li>Club Total: 12</li>
-                    <li>Total Sold: 38</li>
-                    <li>Online: 1 | Inhouse: 37</li>
-                    <li>Pending Collection: 0</li>
-                </ul>
+                        <ul class="list-unstyled small mb-3">
+                            <li>Total: {{ $reward->voucher_set }}</li>
+                            <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
+                            <li>Club Total: 12</li>
+                            <li>Total Sold: 38</li>
+                            <li>Online: 1 | Inhouse: 37</li>
+                            <li>Pending Collection: 0</li>
+                        </ul>
 
-                <div class="mt-auto">
-                    <button
-                        class="btn btn-secondary w-100 buy-btn"
-                        data-bs-toggle="modal"
-                        data-bs-target="#memberModal"
-                        data-reward-id="{{ $reward->id }}">
-                        BUY
-                    </button>
+                        <div class="mt-auto">
+                            <button
+                                class="btn btn-primary w-100 buy-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#memberModal"
+                                data-reward-id="{{ $reward->id }}">
+                                BUY
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-@empty
-    <div class="col-12 text-center">
-        <p class="text-muted">No rewards available.</p>
+        @empty
+            <div class="col-12 text-center">
+                <p class="text-muted">No rewards available.</p>
+            </div>
+        @endforelse
     </div>
-@endforelse
-</div>
 
 
 </div>
@@ -122,15 +122,15 @@
             url: '{{ url("/admin/checkout") }}',
             method: 'POST',
             data: $('#checkoutForm').serialize(),
-            success: function (res) { 
-                           
+
+            success: function (res) {
 
                 $('#purchase_id').val(res.purchase_id);
 
                 $('#receipt_no').text(res.receipt_no);
                 $('#receipt_date').text(res.date);
-                $('#type').text(res.type);
-                $('#name').text(res.name);
+                $('.type').text(res.type);
+                $('.name').text(res.name);
 
                 $('#confirm_reward').text($('#d_reward').text());
                 $('#confirm_qty').text($('#qty').val());
@@ -142,11 +142,33 @@
 
                 $('#previewStep').hide();
                 $('#confirmationStep').show();
+            },
 
+            error: function (xhr) {
+
+                let message = 'Something went wrong. Please try again.';
+
+                // ✅ Laravel validation / custom error
+                if (xhr.status === 422 && xhr.responseJSON?.message) {
+                    message = xhr.responseJSON.message;
+                }
+
+                // ✅ Server exception
+                if (xhr.status === 500 && xhr.responseJSON?.error) {
+                    message = xhr.responseJSON.error;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Checkout Failed',
+                    text: message,
+                    confirmButtonText: 'OK'
+                });
             }
         });
 
     });
+
 
     $('#btnCompletePurchase').on('click', function () {
 
@@ -258,9 +280,8 @@
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (res) {
-
                 /* ================= MEMBER ================= */
-                $('#d_name').text(res.member.name);
+                $('#d_name').val(res.member.name);
                 $('#d_email').val(res.member.email);
                 $('#d_mobile').val(res.member.mobile);
 

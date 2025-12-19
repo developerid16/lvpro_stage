@@ -228,10 +228,23 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 2) DYNAMIC TIER VALIDATION
             * ---------------------------------------------------*/
-            $tiers = Tier::where('status', 'Active')->get();;
+           $tiers = Tier::where('status', 'Active')->get();
+
+            $messages = [];
+
             foreach ($tiers as $tier) {
-                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
+
+                $field = "tier_{$tier->id}";
+
+                // rules
+                $rules[$field] = 'required|numeric|min:0';
+
+                // custom messages
+                $messages["{$field}.required"] = "{$tier->tier_name} price is required";
+                $messages["{$field}.numeric"]  = "{$tier->tier_name} price must be a number";
+                $messages["{$field}.min"]      = "{$tier->tier_name} price must be 0 or greater";
             }
+
 
             /* ---------------------------------------------------
             * 3) PHYSICAL VALIDATION
@@ -312,8 +325,31 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 5) RUN VALIDATOR
             * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules, $messages);
 
+                    /* ---------------------------------------------------
+            * 5.1) TIER PRICE <= USUAL PRICE (CROSS-FIELD)
+            * ---------------------------------------------------*/
+            $validator->after(function ($validator) use ($request, $tiers) {
+
+                $usualPrice = $request->usual_price;
+
+                foreach ($tiers as $tier) {
+                    $field = "tier_{$tier->id}";
+                    $tierPrice = $request->input($field);
+
+                    if ($tierPrice !== null && $tierPrice > $usualPrice) {
+                        $validator->errors()->add(
+                            $field,
+                            "{$tier->tier_name} price cannot be greater than Usual Price"
+                        );
+                    }
+                }
+            });
+
+            /* ---------------------------------------------------
+            * 6) CHECK FAIL
+            * ---------------------------------------------------*/
             if ($validator->fails()) {
                 return response()->json([
                     "status" => "error",
@@ -641,10 +677,23 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 2) TIER VALIDATION
             * ---------------------------------------------------*/
-            $tiers = Tier::where('status', 'Active')->get();
+           $tiers = Tier::where('status', 'Active')->get();
+
+            $messages = [];
+
             foreach ($tiers as $tier) {
-                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
+
+                $field = "tier_{$tier->id}";
+
+                // rules
+                $rules[$field] = 'required|numeric|min:0';
+
+                // custom messages
+                $messages["{$field}.required"] = "{$tier->tier_name} price is required";
+                $messages["{$field}.numeric"]  = "{$tier->tier_name} price must be a number";
+                $messages["{$field}.min"]      = "{$tier->tier_name} price must be 0 or greater";
             }
+
 
             /* ---------------------------------------------------
             * 3) PHYSICAL VALIDATION
@@ -737,7 +786,24 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 5) RUN VALIDATION
             * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules,$messages);
+
+            $validator->after(function ($validator) use ($request, $tiers) {
+
+                $usualPrice = $request->usual_price;
+
+                foreach ($tiers as $tier) {
+                    $field = "tier_{$tier->id}";
+                    $tierPrice = $request->input($field);
+
+                    if ($tierPrice !== null && $tierPrice > $usualPrice) {
+                        $validator->errors()->add(
+                            $field,
+                            "{$tier->tier_name} price cannot be greater than Usual Price"
+                        );
+                    }
+                }
+            });
 
             if ($validator->fails()) {
                 return response()->json([
@@ -894,11 +960,22 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 6) UPDATE TIER RATES
             * ---------------------------------------------------*/
+            RewardTierRate::where('reward_id', $reward->id)->delete();
+
             foreach ($tiers as $tier) {
-                RewardTierRate::updateOrCreate(
-                    ['reward_id' => $reward->id, 'tier_id' => $tier->id],
-                    ['price'     => $request->input("tier_{$tier->id}")]
-                );
+
+                $price = $request->input("tier_{$tier->id}");
+
+                // Optional safety: skip empty values
+                if ($price === null || $price === '') {
+                    continue;
+                }
+
+                RewardTierRate::create([
+                    'reward_id' => $reward->id,
+                    'tier_id'   => $tier->id,
+                    'price'     => $price,
+                ]);
             }
 
 

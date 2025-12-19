@@ -21,9 +21,23 @@ class Purchase extends Model
         'collection',
         'subtotal',
         'admin_fee',
-        'total'
+        'total',
+        'remark',
+        'redeemed_at'
     ];
 
     public $table = 'purchases';
+
+    public function reward()
+    {
+        return $this->belongsTo(Reward::class);
+    }
+
+     protected $casts = [
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+        'redeemed_at' => 'datetime',
+    ];
+
 }
 

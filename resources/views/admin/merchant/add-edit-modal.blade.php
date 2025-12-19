@@ -24,7 +24,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="logo">Logo <span class="required-hash">*</span></label>
 
-                                <input id="logo" 
+                                <input id="" 
                                     type="file" 
                                     class="sh_dec form-control" 
                                     name="logo"
@@ -32,8 +32,8 @@
 
                                 <img id="logo_preview"
                                     src="{{ isset($data) && $data->logo ? asset($data->logo) : '' }}"
-                                    width="100"
-                                    height="70"
+                                    width="50"
+                                    height="50"
                                     style="border:1px solid #ccc; margin-top:8px; {{ isset($data) && $data->logo ? '' : 'display:none;' }}">
                             </div>
                         </div>

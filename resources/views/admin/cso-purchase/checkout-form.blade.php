@@ -24,18 +24,20 @@
                     <div class="col-md-6">
                         <p>
                             <strong>Email:</strong>
-                            <input type="text" id="d_email" class="form-control mb-2" readonly>
+                            <input type="text" id="d_email" class="form-control mb-2" readonly value="test@gmail.com">
+
                         </p>
 
                         <p>
-                            <strong>Mobile:</strong>
-                            <input type="text" id="d_mobile" class="form-control mb-2" readonly>
+                            <strong>Name:</strong>
+                            <input type="text" id="d_name" class="form-control mb-2" readonly value="test">
                         </p>
 
 
                         <p>
                             <strong>Mobile:</strong>
-                            <input type="text" id="d_mobile" class="form-control mb-2" name="email" readonly>
+                            <input type="text" id="d_mobile" class="form-control mb-2" readonly value="88888888888">
+
                         </p>
 
                         <div class="form-check mb-3">
@@ -148,8 +150,8 @@
 
                 <div class="d-flex justify-content-between">
                     <div>
-                        <p class="m-0"><strong>Reward Name:</strong> <span id="name"></span></p>
-                        <p class="m-0"><strong>Reward Type:</strong> <span id="type"></span></p>
+                        <p class="m-0"><strong>Reward Name:</strong> <span class="name"></span></p>
+                        <p class="m-0"><strong>Reward Type:</strong> <span class="type"></span></p>
                     </div>
                     <div>
                         <p class="m-0"><strong>Receipt No:</strong> <span id="receipt_no"></span></p>

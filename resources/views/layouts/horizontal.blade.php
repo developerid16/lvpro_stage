@@ -491,6 +491,9 @@
                             @can('cso-purchase-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
                             @endcan                           
+                            @can('cso-issuance-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance')}}">CSO Issuance</a>
+                            @endcan                           
                         </div>
                     </li>
                     @endcan
