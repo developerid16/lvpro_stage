@@ -112,7 +112,7 @@ class CsoIssuanceController extends Controller
                 'member_id'           => $row->member_id,
                 'qty'                 => $row->qty,
                 'payment_mode'        => strtoupper($row->payment_mode),
-                'reward_type'          => ((int) ($row->reward->type ?? -1) === 0) ? 'Digital' : 'Physical',
+                'reward_type'          => ((int) ($row->reward->reward_type ?? 1) === 0) ? 'Digital' : 'Physical',
                 'status'              => $status,
                 'receipt_datetime'    => optional($row->created_at)->format(config('shilla.date-format')),
                 'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('shilla.date-format')) : '-',
@@ -140,7 +140,7 @@ class CsoIssuanceController extends Controller
             'member_id'         => $purchase->member_id,
             'qty'               => $purchase->qty,
             'payment_mode'      => strtoupper($purchase->payment_mode),
-            'reward_type'          => ((int) ($row->reward->type ?? -1) === 0) ? 'Digital' : 'Physical',
+            'reward_type'          => ((int) ($row->reward->reward_type ?? 1) === 0) ? 'Digital' : 'Physical',
              'status_badge' => "<span class='badge bg-{$statusData['class']}'>
                         {$statusData['label']}
                    </span>",
