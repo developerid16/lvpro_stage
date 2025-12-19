@@ -15,66 +15,80 @@
     <h5 class="mb-3"><strong>Current Deals:</strong></h5>
     <input type="hidden" id="purchase_id">
 
-    <div class="row">
-        @forelse($rewards as $reward)
+    <div class="row g-4">
+@forelse($rewards as $reward)
 
-            <div class="col-md-4 col-lg-3 mb-4">
-                <div class="reward-card">
+    <div class="col-md-4 col-lg-3">
+        <div class="card reward-card h-100 shadow-sm">
 
-                    {{-- IMAGE --}}
-                    <div class="reward-image">
-                        @if($reward->voucher_image)
-                            <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}" alt="" width="100px" height="100px">
-                        @else
-                            <div class="img-placeholder">IMAGE</div>
-                        @endif
+            {{-- IMAGE --}}
+            <div class="reward-img-wrapper d-flex justify-content-center">
+                @if($reward->voucher_image)
+                    <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
+                         class="card-img-top reward-img"
+                         alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
+                @else
+                    <div class="reward-img-placeholder">
+                        No Image
                     </div>
+                @endif
+            </div>
 
-                    {{-- CONTENT --}}
-                    <div class="reward-body">
+            {{-- BODY --}}
+            <div class="card-body d-flex flex-column">
 
-                        <p class="reward-type">
-                            {{ $reward->inventory_type == 0 ? 'Physical' : 'Digital' }}
-                        </p>
+                <span class="badge bg-info mb-2 align-self-start p-2">
+                    {{ $reward->inventory_type == 0 ? 'Physical' : 'Digital' }}
+                </span>
 
-                        <h6 class="reward-title">{{ $reward->name }}</h6>
+                <h6 class="card-title fw-bold mb-1">
+                    {{ $reward->name }}
+                </h6>
 
-                        <p class="reward-desc">
-                            {{ $reward->description }}
-                        </p>
+                <p class="text-muted small mb-2">
+                    {{ Str::limit($reward->description, 70) }}
+                </p>
 
-                        <p class="reward-text">
-                            <strong>From:</strong> ${{ $reward->voucher_value }}
-                        </p>
+                <p class="fw-semibold mb-1">
+                    From: <span class="text-success">${{ $reward->voucher_value }}</span>
+                </p>
 
-                        <p class="reward-text">
-                            <strong>Sale End Date Time:</strong><br>
-                            {{ $reward->voucher_validity ?? 'yyyy-MM-dd HH:mm:ss' }}
-                        </p>
+                <p class="small mb-2">
+                    <strong>Sale Ends:</strong><br>
+                    {{ $reward->voucher_validity ?? 'yyyy-MM-dd HH:mm:ss' }}
+                </p>
 
-                        <p class="reward-text">Total: {{ $reward->voucher_set }}</p>
-                        <p class="reward-text">Left: {{ $reward->inventory_qty ?? 0 }}</p>
-                        <p class="reward-text">Club Totals: 12</p>
-                        <p class="reward-text">Total Sold: 38</p>
-                        <p class="reward-text">(Sold) Online: 1</p>
-                        <p class="reward-text">(Sold) Inhouse: 37</p>
-                        <p class="reward-text">Pending Collection: 0</p>
+                <hr class="my-2">
 
-                        <div class="text-left mt-3">
-                            <button   class="btn btn-secondary btn-sm buy-btn" data-bs-toggle="modal" data-bs-target="#memberModal" data-reward-id="{{ $reward->id }}">
-                                BUY
-                            </button>
-                        </div>
-                    </div>
+                <ul class="list-unstyled small mb-3">
+                    <li>Total: {{ $reward->voucher_set }}</li>
+                    <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
+                    <li>Club Total: 12</li>
+                    <li>Total Sold: 38</li>
+                    <li>Online: 1 | Inhouse: 37</li>
+                    <li>Pending Collection: 0</li>
+                </ul>
+
+                <div class="mt-auto">
+                    <button
+                        class="btn btn-secondary w-100 buy-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#memberModal"
+                        data-reward-id="{{ $reward->id }}">
+                        BUY
+                    </button>
                 </div>
             </div>
-
-        @empty
-            <div class="col-12 text-center">
-                <p>No rewards available.</p>
-            </div>
-        @endforelse
+        </div>
     </div>
+
+@empty
+    <div class="col-12 text-center">
+        <p class="text-muted">No rewards available.</p>
+    </div>
+@endforelse
+</div>
+
 
 </div>
 

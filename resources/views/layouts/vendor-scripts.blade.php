@@ -56,80 +56,78 @@
    
     function bindStartEndFlatpickr(startSelector, endSelector) {
 
-    const startEl = document.querySelector(startSelector);
-    const endEl   = document.querySelector(endSelector);
+        const startEl = document.querySelector(startSelector);
+        const endEl   = document.querySelector(endSelector);
 
-    if (!startEl || !endEl) return;
+        if (!startEl || !endEl) return;
 
-    let startPicker, endPicker;
+        let startPicker, endPicker;
 
-    startPicker = flatpickr(startEl, {
-        minDate: "today",
-        enableTime: true,
-        enableSeconds: true,
-        time_24hr: true,
-        dateFormat: 'Y-m-d H:i:S',
-        altInput: true,
-        altFormat: 'Y-m-d H:i:S',
+        startPicker = flatpickr(startEl, {
+            minDate: "today",
+            enableTime: true,
+            enableSeconds: true,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i:S',
+            altInput: true,
+            altFormat: 'Y-m-d H:i:S',
 
-        onReady(_, __, instance) {
-            instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-        },
+            onReady(_, __, instance) {
+                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+            },
 
-        onChange(selectedDates) {
+            onChange(selectedDates) {
 
-            if (!selectedDates.length) {
-                endPicker.clear();
-                endPicker.input.disabled = true;
-                return;
+                if (!selectedDates.length) {
+                    endPicker.clear();
+                    endPicker.input.disabled = true;
+                    return;
+                }
+
+                const start = selectedDates[0];
+
+                endPicker.input.disabled = false;
+
+                // ✅ ONLY block same exact datetime
+                endPicker.set('minDate', new Date(start.getTime() + 1000));
+
+                // Clear invalid already-selected end
+                if (
+                    endPicker.selectedDates.length &&
+                    endPicker.selectedDates[0] <= start
+                ) {
+                    endPicker.clear();
+                }
             }
+        });
 
-            const start = selectedDates[0];
+        endPicker = flatpickr(endEl, {
+            enableTime: true,
+            enableSeconds: true,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i:S',
+            altInput: true,
+            altFormat: 'Y-m-d H:i:S',
 
-            endPicker.input.disabled = false;
+            onReady(_, __, instance) {
+                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                instance.input.disabled = true;
+            },
 
-            // ✅ ONLY block same exact datetime
-            endPicker.set('minDate', new Date(start.getTime() + 1000));
+            // 🔒 HARD GUARD (manual typing)
+            onChange(selectedDates, _, instance) {
 
-            // Clear invalid already-selected end
-            if (
-                endPicker.selectedDates.length &&
-                endPicker.selectedDates[0] <= start
-            ) {
-                endPicker.clear();
+                if (!selectedDates.length || !startPicker.selectedDates.length) return;
+
+                const start = startPicker.selectedDates[0];
+                const end   = selectedDates[0];
+
+                if (end.getTime() <= start.getTime()) {
+                    instance.clear();
+                }
             }
-        }
-    });
-
-    endPicker = flatpickr(endEl, {
-        enableTime: true,
-        enableSeconds: true,
-        time_24hr: true,
-        dateFormat: 'Y-m-d H:i:S',
-        altInput: true,
-        altFormat: 'Y-m-d H:i:S',
-
-        onReady(_, __, instance) {
-            instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-            instance.input.disabled = true;
-        },
-
-        // 🔒 HARD GUARD (manual typing)
-        onChange(selectedDates, _, instance) {
-
-            if (!selectedDates.length || !startPicker.selectedDates.length) return;
-
-            const start = startPicker.selectedDates[0];
-            const end   = selectedDates[0];
-
-            if (end.getTime() <= start.getTime()) {
-                instance.clear();
-            }
-        }
-    });
-}
-
-
+        });
+    }
 
     function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
         const startEl = modal.querySelector(startSelector);
@@ -307,7 +305,6 @@
             endPicker.set("minDate", startEl.value);
         }
     }
-
 
     function initFlatpickrDate(context = document) {
 
