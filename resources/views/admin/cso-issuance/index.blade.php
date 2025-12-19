@@ -25,11 +25,16 @@
                 <label class="form-label fw-bold">Search</label>
                 <input type="text" id="filter_value" class="form-control"
                     placeholder="Enter Member ID or Receipt No">
-            </div>
-
+                </div>
+                
             <div class="col-md-1">
                 <button id="searchBtn" class="btn btn-primary w-100">
                     Search
+                </button>
+            </div>
+            <div class="col-md-1">
+                <button id="resetBtn" class="btn btn-secondary w-100">
+                    Reset
                 </button>
             </div>
 
@@ -94,6 +99,19 @@
     $('#searchBtn').on('click', function () {
         $('#bstable').bootstrapTable('refresh', {pageNumber: 1});
     });
+
+    $('#resetBtn').on('click', function () {
+
+        // reset filter inputs
+        $('#filter_by').val('member_id');
+        $('#filter_value').val('');
+
+        // reload table without filters
+        $('#bstable').bootstrapTable('refresh', { pageNumber: 1 });
+    });
+
+
+
 
     $(document).on('click', '.view-btn', function () {
 

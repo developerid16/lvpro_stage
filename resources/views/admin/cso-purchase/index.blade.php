@@ -10,7 +10,40 @@
 @endcomponent
 
 
-<div class="container mt-4">
+    <div class="container mt-4">
+
+        <form method="GET" action="{{ url()->current() }}" class="mb-4">
+        <div class="row g-2 align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Reward Type</label>
+                <select name="reward_type" class="form-select">
+                    <option value="">All</option>
+                    <option value="0" {{ (string)$selected_type === '0' ? 'selected' : '' }}>
+                        Digital
+                    </option>
+                    <option value="1" {{ (string)$selected_type === '1' ? 'selected' : '' }}>
+                        Physical
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    Search
+                </button>
+            </div>
+
+            <div class="col-md-1">
+                <a href="{{ url()->current() }}" class="btn btn-secondary w-100">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+
 
     <h5 class="mb-3"><strong>Current Deals:</strong></h5>
     <input type="hidden" id="purchase_id">
@@ -38,7 +71,7 @@
                     <div class="card-body d-flex flex-column">
 
                         <span class="badge bg-info mb-2 align-self-start p-2">
-                            {{ $reward->inventory_type == 0 ? 'Physical' : 'Digital' }}
+                            {{ $reward->reward_type == 0 ? 'Digital' : 'Physical' }}
                         </span>
 
                         <h6 class="card-title fw-bold mb-1">
@@ -55,7 +88,7 @@
 
                         <p class="small mb-2">
                             <strong>Sale Ends:</strong><br>
-                            {{ $reward->voucher_validity ?? 'yyyy-MM-dd HH:mm:ss' }}
+                            {{ $reward->voucher_validity ?? '-' }}
                         </p>
 
                         <hr class="my-2">
@@ -139,6 +172,7 @@
 
                 $('#confirm_subtotal').text($('#subtotal').val());
                 $('#confirm_total').text($('#total').val());
+                $('#payment_mode').text(res.payment_mode);
 
                 $('#previewStep').hide();
                 $('#confirmationStep').show();
@@ -258,9 +292,6 @@
         });
     });
 
-
-
-
     $('#submitMember').on('click', function () {
 
         const memberId = $('#member_id').val().trim();
@@ -292,6 +323,22 @@
                 /* ================= REWARD ================= */
                 $('#reward_image').attr('src', res.reward.image);
                 $('#reward_type').text(res.reward.type);
+                /* ================= COLLECTION (BASED ON REWARD TYPE) ================= */
+                let $collection = $('#collection');
+                $collection.empty(); // remove old options
+
+                if (parseInt(res.reward.reward_type) === 0) {
+                    // Digital
+                    $collection.append(
+                        `<option value="digital" selected>Digital</option>`
+                    );
+                } else if (parseInt(res.reward.reward_type) === 1) {
+                    // Physical
+                    $collection.append(
+                        `<option value="physical" selected>Physical</option>`
+                    );
+                }
+
                 $('#reward_name').text(res.reward.name);
                 $('#reward_offer').text(res.reward.offer);
                 $('#d_reward').text(res.reward.name);

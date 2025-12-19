@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -28,8 +29,17 @@ class CsoPurchaseController extends Controller
 
     public function index(Request $request)
     {
-       $this->layout_data['rewards'] = Reward::where('type','0')->get(); 
-       return view($this->view_file_path . "index")->with($this->layout_data);
+        $query = Reward::where('type','0')->withTrashed(); 
+
+        // IMPORTANT: allow 0
+        if ($request->filled('reward_type')) {
+            $query->where('reward_type', (int) $request->reward_type);
+        }
+
+        $this->layout_data['rewards'] = $query->get();
+        $this->layout_data['selected_type'] = $request->reward_type;
+
+        return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
     public function getMemberDetails(Request $request)
@@ -44,6 +54,12 @@ class CsoPurchaseController extends Controller
 
         $reward = Reward::findOrFail($request->reward_id);
 
+        if ($reward->sales_end_date && $reward->sales_end_time) {
+            $salesEnd = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                $reward->sales_end_date . ' ' . $reward->sales_end_time
+            )->format(config('shilla.date-format'));
+        }
         return response()->json([
             'member' => [
                 'id'     => $member->id ?? 1,
@@ -54,10 +70,11 @@ class CsoPurchaseController extends Controller
             'reward' => [
                 'id'    => $reward->id,
                 'image' => asset('uploads/image/'.$reward->voucher_image),
-                'type'  => $reward->inventory_type == 0 ? 'Physical' : 'Digital',
+                'reward_type'  => $reward->inventory_type,
+                'type'  => $reward->inventory_type == 0 ? 'Digital' : 'Physical',
                 'name'  => $reward->name,
-                'offer' => '$5 off min $10 purchase',
-                'sales_end' => $reward->voucher_validity,
+                'offer' => $reward->description,
+                'sales_end' => $salesEnd,
                 'remaining_qty' => 12,
                 'rates' => [
                     'member' => '1.00',
@@ -88,7 +105,6 @@ class CsoPurchaseController extends Controller
             // -----------------------------------
             $alreadyExists = Purchase::where('member_id', $request->member_id)
                 ->where('reward_id', $request->reward_id)
-                ->whereIn('status', [1, 2]) // pending or completed
                 ->exists();
 
             if ($alreadyExists) {
@@ -127,6 +143,7 @@ class CsoPurchaseController extends Controller
                 'type'        => $reward->reward_type == 0 ? 'Digital' : 'Physical',
                 'qty'         => $purchase->qty,
                 'price'       => $purchase->total,
+                'payment_mode'       => $purchase->payment_mode,
                 'total'       => $purchase->total
             ]);
 
@@ -139,7 +156,6 @@ class CsoPurchaseController extends Controller
             ], 500);
         }
     }
-
 
     public function complete(Request $request)
     {
