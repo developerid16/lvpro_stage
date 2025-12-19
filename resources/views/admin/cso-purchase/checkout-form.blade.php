@@ -1,13 +1,18 @@
 <div class="modal fade" id="checkoutModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 600px;">
         <div class="modal-content">
-            {{-- <div class="modal-header">
-                <h5 class="sh_sub_title modal-title"><strong></strong> </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div> --}}
+           <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalTitle"></h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+
 
             <div id="checkoutStep" class="p-4">
-                <h5>Reward: <span id="d_reward"></span></h5>
                 <form id="checkoutForm">
 
                     <!-- hidden -->
@@ -20,7 +25,8 @@
                     <input type="hidden" name="subtotal" id="subtotal">
                     <input type="hidden" name="admin_fee" id="admin_fee" value="0">
                     <input type="hidden" name="total" id="total">
-
+                    <input type="hidden" name="d_reward" id="d_reward">
+                    
                 
 
                     <div class="row">
@@ -84,9 +90,16 @@
                             <p><strong>Admin Fee:</strong> SGD <span id="d_admin"></span></p>
                             <p><strong>Total:</strong> SGD <span id="d_total"></span></p>
 
-                            <button type="button" class="btn btn-secondary mt-3" id="btnCheckout">
-                                CHECK OUT
-                            </button>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="modal" id="btnBackToMember"  data-bs-target="#memberModal" data-reward-id="">
+                                    Back
+                                </button>
+
+                                <button type="button" class="btn btn-primary" id="btnCheckout">
+                                    CHECK OUT
+                                </button>
+                            </div>
+
 
                         </div>
                         </div>
@@ -97,9 +110,7 @@
 
             <div id="previewStep" style="display:none" class="p-4">
 
-                <h5 class="mb-3">Reward Preview</h5>
-
-                <div class="reward-detail text-center mb-4 mt-4">
+                <div class="reward-detail text-center">
 
                 <div class="reward-img mb-3">
                     <img id="reward_image" src="" alt="Reward Image">
@@ -146,8 +157,6 @@
             </div>
 
             <div id="confirmationStep" style="display:none" class="p-4">
-
-                <h5 class="mb-3">Purchase Confirmation</h5>
 
                 <div class="d-flex justify-content-between">
                     <div>

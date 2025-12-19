@@ -143,14 +143,32 @@
     $('#btnCheckout').on('click', function () {
         $('#checkoutStep').hide();
         $('#previewStep').show();
+        $('#checkoutModalTitle').text('Reward Preview');
     });
     $('#btnBack').on('click', function () {
         $('#previewStep').hide();
         $('#checkoutStep').show();
+        $('#checkoutModalTitle').text($('#d_reward').val());
     });
 
-    $('#btnConfirm').on('click', function () {
+    $('#btnBackPreview').on('click', function () {
+        $('#checkoutModal').modal('hide');
+        // Once checkout modal is fully hidden, show member modal
+        $('#checkoutModal').one('hidden.bs.modal', function () {
+            $('#memberModal').modal('show');
+        });
 
+    });
+
+    $('#checkoutModal').on('hidden.bs.modal', function () {
+        $('#checkoutModalTitle').text('');
+        $('#checkoutStep').show();
+        $('#previewStep, #confirmationStep').hide();
+    });
+
+
+    $('#btnConfirm').on('click', function () {
+        $('#checkoutModalTitle').text('Purchase Confirmation');
         $.ajax({
             url: '{{ url("/admin/checkout") }}',
             method: 'POST',
@@ -341,8 +359,8 @@
 
                 $('#reward_name').text(res.reward.name);
                 $('#reward_offer').text(res.reward.offer);
-                $('#d_reward').text(res.reward.name);
-
+                $('#d_reward').val(res.reward.name);
+                $('#checkoutModalTitle').text(res.reward.name);
                 $('#reward_end').text(res.reward.sales_end);
                 $('#reward_left').text(res.reward.remaining_qty);
 
@@ -365,6 +383,7 @@
                 /* ================= IDS ================= */
                 $('#checkout_member_id').val(res.member.id);
                 $('#checkout_reward_id').val(res.reward.id);
+                $('#btnBackToMember').attr('data-reward-id', res.reward.id);
 
                 /* ================= MODAL FLOW ================= */
                 $('#memberModal').modal('hide');

@@ -214,7 +214,9 @@ class RewardController extends Controller
                 'usual_price'        => 'required|numeric|min:0',
 
                 'publish_start'      => 'required',
+                'publish_end'      => 'required',
                 'sales_start'        => 'required',
+                'sales_end'        => 'required',
 
                 'hide_quantity'      => 'nullable|boolean',
                 'low_stock_1'        => 'required|integer|min:0',
@@ -670,8 +672,10 @@ class RewardController extends Controller
 
                 'usual_price'   => 'required|numeric|min:0',
 
-                'publish_start' => 'required',
-                'sales_start'   => 'required',
+                'publish_start'      => 'required',
+                'publish_end'      => 'required',
+                'sales_start'        => 'required',
+                'sales_end'        => 'required',
             ];
 
             /* ---------------------------------------------------
