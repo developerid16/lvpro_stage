@@ -34,4 +34,13 @@ return [
         'secret' => env('STRIPE_SECRET'),
         'key'    => env('STRIPE_KEY'),
     ],
+
+    // config/services.php
+    'azure' => [
+        'client_id' => env('AZURE_CLIENT_ID'),
+        'tenant_id' => env('AZURE_TENANT_ID'),
+        'secret_id' => env('AZURE_CLIENT_SECRET'),
+    ],
+
+
 ];

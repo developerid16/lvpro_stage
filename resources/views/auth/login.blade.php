@@ -97,6 +97,8 @@
 
                                             <div class="mt-3 d-grid">
                                                 <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
+                                                <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button>
+
                                                     {{-- <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a> --}}
                                             </div>
 
@@ -129,6 +131,8 @@
     <script src="{{ URL::asset('/build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
     <!-- auth-2-carousel init -->
     <script src="{{ URL::asset('/build/js/pages/auth-2-carousel.init.js') }}"></script>
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+
     <script>
         $(function() {
 
@@ -139,5 +143,22 @@
 
             })
         });
+
+        const msalConfig = {
+            auth: {
+                clientId: "{{ config('services.azure.client_id') }}",
+                authority: "https://login.microsoftonline.com/organizations",
+                redirectUri: "{{ url('/auth/callback') }}"
+            }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        function login() {
+            msalInstance.loginRedirect({
+                scopes: ["openid", "profile", "email"]
+            });
+        }
+        
     </script>
     @endsection

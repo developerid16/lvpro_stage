@@ -81,6 +81,11 @@ Route::any('/pending_reward_request', function () {
     return view('email.pending_reward_request');
 });
 
+Route::post('/auth/microsoft', [MicrosoftAuthController::class, 'login']);// web.php
+Route::get('/auth/callback', function () {
+    return view('auth.microsoft-callback');
+});
+
 
 Route::get('/user-rights-form', [LoginController::class, 'userRightsForm']);
 Route::post('/user-rights-form', [LoginController::class, 'store']);
