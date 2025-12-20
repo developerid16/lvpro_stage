@@ -64,6 +64,15 @@ use Illuminate\Support\Facades\Log;
 */
 
 Auth::routes();
+Route::get('/clear', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('config:cache');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    return 'All cache, config, route & view cleared and rebuilt';
+});
+
 Route::any('/sso-callback', function () {
 
     // Log all incoming data
@@ -601,11 +610,3 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     
 });
 
-Route::get('/clear', function () {
-    Artisan::call('optimize:clear');
-    Artisan::call('config:cache');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
-    Artisan::call('cache:clear');
-    return 'All cache, config, route & view cleared and rebuilt';
-});
