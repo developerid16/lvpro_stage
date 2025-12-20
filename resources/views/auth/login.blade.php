@@ -5,13 +5,14 @@
 @endsection
 
 @section('css')
+    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+
 <!-- owl.carousel css -->
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
 @endsection
 
 @section('body')
-<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 
 <body class="auth-body-bg">
     @endsection
@@ -98,13 +99,7 @@
 
                                             <div class="mt-3 d-grid">
                                                 <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
-                                                {{-- <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button> --}}
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-primary mt-2"
-                                                    id="msLoginBtn">
-                                                    Login with Microsoft
-                                                </button>
+                                                <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button>
 
                                                     {{-- <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a> --}}
                                             </div>
@@ -149,33 +144,22 @@
 
             })
         });
+
+        const msalConfig = {
+            auth: {
+                clientId: "{{ config('services.azure.client_id') }}",
+                authority: "https://login.microsoftonline.com/organizations"
+                redirectUri: "{{ url('/auth/callback') }}"
+            }
+        };
+
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        function login() {
+            msalInstance.loginRedirect({
+                scopes: ["openid", "profile", "email"]
+            });
+        }
         
     </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            if (typeof msal === 'undefined') {
-                console.error('MSAL not loaded');
-                return;
-            }
-
-            const msalConfig = {
-                auth: {
-                    clientId: "{{ config('services.azure.client_id') }}",
-                    authority: "https://login.microsoftonline.com/common",
-                    redirectUri: "{{ url('/auth/callback') }}"
-                }
-            };
-
-            const msalInstance = new msal.PublicClientApplication(msalConfig);
-
-            document.getElementById('msLoginBtn').addEventListener('click', function () {
-                msalInstance.loginRedirect({
-                    scopes: ["openid", "profile", "email"]
-                });
-            });
-        });
-    </script>
-
     @endsection
