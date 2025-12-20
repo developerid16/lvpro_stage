@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Signing you in…</title>
-    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+  <title>Signing you in…</title>
+  <script src="{{ asset('/build/js/msal-browser.min.js') }}"></script>
 </head>
 <body>
 <p>Signing you in…</p>
@@ -12,7 +12,7 @@
 const msalConfig = {
     auth: {
         clientId: "{{ config('services.azure.client_id') }}",
-        authority: "https://login.microsoftonline.com/organizations",
+        authority: "https://login.microsoftonline.com/common",
         redirectUri: "{{ url('/auth/callback') }}"
     }
 };

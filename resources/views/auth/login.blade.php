@@ -5,7 +5,7 @@
 @endsection
 
 @section('css')
-    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+<script src="{{ asset('/build/js/msal-browser.min.js') }}"></script>
 
 <!-- owl.carousel css -->
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
@@ -148,7 +148,7 @@
         const msalConfig = {
             auth: {
                 clientId: "{{ config('services.azure.client_id') }}",
-                authority: "https://login.microsoftonline.com/organizations",
+                authority: "https://login.microsoftonline.com/common",
                 redirectUri: "{{ url('/auth/callback') }}"
             }
         };
