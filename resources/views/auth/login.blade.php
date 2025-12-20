@@ -3,7 +3,6 @@
 @section('title')
 @lang('translation.Login')
 @endsection
-    <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 
 @section('css')
 <!-- owl.carousel css -->
@@ -12,6 +11,7 @@
 @endsection
 
 @section('body')
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 
 <body class="auth-body-bg">
     @endsection
