@@ -49,6 +49,7 @@ use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Auth\LoginController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 /*
@@ -598,4 +599,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
     Route::resource('cso-issuance', CsoIssuanceController::class);
     
+});
+
+Route::get('/clear', function () {
+    Artisan::call('optimize:clear');
+    Artisan::call('config:cache');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    return 'All cache, config, route & view cleared and rebuilt';
 });
