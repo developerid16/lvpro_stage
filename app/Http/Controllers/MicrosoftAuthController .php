@@ -13,7 +13,7 @@ class MicrosoftAuthController extends Controller
         $token = $request->id_token;
 
         $keys = Http::get(
-            'https://login.microsoftonline.com/organizations/discovery/v2.0/keys'
+            'https://login.microsoftonline.com/common/discovery/v2.0/keys'
         )->json();
 
         $decoded = JWT::decode($token, JWK::parseKeySet($keys));

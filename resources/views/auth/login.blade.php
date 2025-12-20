@@ -143,22 +143,26 @@
 
             })
         });
+        
+    </script>
 
-        const msalConfig = {
-            auth: {
-                clientId: "{{ config('services.azure.client_id') }}",
-                authority: "https://login.microsoftonline.com/organizations",
-                redirectUri: "{{ url('/auth/callback') }}"
-            }
-        };
+    <script>
+        window.login = function () {
 
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
+            const msalConfig = {
+                auth: {
+                    clientId: "{{ config('services.azure.client_id') }}",
+                    authority: "https://login.microsoftonline.com/common",
+                    redirectUri: "{{ url('/auth/callback') }}"
+                }
+            };
 
-        function login() {
+            const msalInstance = new msal.PublicClientApplication(msalConfig);
+
             msalInstance.loginRedirect({
                 scopes: ["openid", "profile", "email"]
             });
-        }
-        
+        };
     </script>
+
     @endsection
