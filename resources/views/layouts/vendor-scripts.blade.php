@@ -514,7 +514,8 @@
     }
 
     function editToggleClearingFields(modal) {
-        const method = modal.find('.clearing_method').val();
+
+        const method = Number(modal.find('.clearing_method').val());
 
         const locationField  = modal.find('.location_text');
         const merchantField  = modal.find('.participating_merchant');
@@ -523,38 +524,41 @@
         const outletSection  = modal.find('#participating_section');
         const merchantSelect = modal.find('#participating_merchant_id');
 
-        // 🔴 RESET UI
+        // RESET UI
         locationField.hide();
         merchantField.hide();
         outletWrapper.hide();
         outletList.empty();
         outletSection.hide();
 
-        // 🔥 If switching away from merchant-based clearing
-        if (method !== "2") {
-
-            merchantSelect.val(null).trigger('change');
-
-            selectedOutletMap = {};
-            modal.find('#selected_locations_summary').empty();
-            modal.find('#selected_locations_hidden').empty();
-
-            return; // nothing else to do
+        // External link / text based
+        if ([0, 1, 3].includes(method)) {
+            locationField.show();
+            return;
         }
 
-        // ✅ Method = 2 (Merchant based)
-        merchantField.show();
-        outletSection.show();
+        // Merchant based
+        if (method === 2) {
+            merchantField.show();
+            outletSection.show();
 
-        const merchantId = merchantSelect.val();
-
-        if (merchantId) {
-            editParticipatingMerchantLocations(modal, merchantId);
-            setTimeout(() => {
-                updateSelectedLocationsSummary(modal);
-            }, 300);
+            const merchantId = merchantSelect.val();
+            if (merchantId) {
+                editParticipatingMerchantLocations(modal, merchantId);
+                setTimeout(() => {
+                    updateSelectedLocationsSummary(modal);
+                }, 300);
+            }
+            return;
         }
+
+        // Everything else → reset merchant data
+        merchantSelect.val(null).trigger('change');
+        selectedOutletMap = {};
+        modal.find('#selected_locations_summary').empty();
+        modal.find('#selected_locations_hidden').empty();
     }
+
 
     function editToggleInventoryFields(modal) {
         let type = modal.find('.inventory_type').val();

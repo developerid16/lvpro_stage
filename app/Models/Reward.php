@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Reward extends Model
 {
@@ -140,5 +141,35 @@ class Reward extends Model
         return $this->hasMany(ParticipatingLocations::class);
     }
 
+    private function validateVoucherFileStructure($filePath)
+    {
+        $rows = Excel::toArray([], $filePath);
+
+        // File empty
+        if (empty($rows) || empty($rows[0])) {
+            return 'File is empty.';
+        }
+
+        $sheet = $rows[0];
+
+        // Must have at least header row
+        if (!isset($sheet[0])) {
+            return 'Invalid file format.';
+        }
+
+        $header = array_map('trim', $sheet[0]);
+
+        // ❌ More than 1 column
+        if (count($header) !== 1) {
+            return 'File must contain only one column named "code".';
+        }
+
+        // ❌ Header must be exactly "code"
+        if (strtolower($header[0]) !== 'code') {
+            return 'File column name must be "code".';
+        }
+
+        return null; // ✅ valid
+    }
 
 }

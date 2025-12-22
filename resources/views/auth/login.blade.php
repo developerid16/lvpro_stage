@@ -90,8 +90,7 @@
                                             </div>
 
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="remember" {{
-                                                    old('remember') ? 'checked' : '' }}>
+                                                <input class="form-check-input" type="checkbox" id="remember" {{old('remember') ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="remember">
                                                     Remember me
                                                 </label>
@@ -99,7 +98,7 @@
 
                                             <div class="mt-3 d-grid">
                                                 <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
-                                                {{-- <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button> --}}
+                                                <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button>
 
                                                     {{-- <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a> --}}
                                             </div>

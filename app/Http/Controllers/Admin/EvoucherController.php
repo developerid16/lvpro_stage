@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
+use App\Rules\SingleCodeColumnFile;
 
 class EvoucherController extends Controller
 {
@@ -138,81 +139,107 @@ class EvoucherController extends Controller
         try {
 
             /* ---------------------------------------------------
-            * VALIDATION BASED ON BLADE FIELDS ONLY
-            * ---------------------------------------------------*/
+            | BASE RULES
+            --------------------------------------------------- */
             $rules = [
-                'voucher_image'      => 'required|image|mimes:png,jpg,jpeg|max:2048',
-                'name'               => 'required|string|max:191',
-                'description'        => 'required|string',
-                'term_of_use'        => 'required|string',
-                'how_to_use'         => 'required|string',
+                'voucher_image'    => 'required|image|mimes:png,jpg,jpeg|max:2048',
 
-                'merchant_id'        => 'required|exists:merchants,id',
+                'name'             => 'required|string|max:191',
+                'description'      => 'required|string',
+                'term_of_use'      => 'required|string',
+                'how_to_use'       => 'required|string',
 
-                'publish_start'      => 'required',
-                'sales_start'        => 'required',
+                'merchant_id'      => 'required|exists:merchants,id',
 
-                'friendly_url'       => 'nullable',
-                'direct_utilization'       => 'nullable',
-                'max_quantity'       => 'required|integer|min:1',
-                'voucher_validity'   => 'required|date',
+                'publish_start'    => 'required|date',
+                'publish_end'      => 'required|date|after_or_equal:publish_start',
+                'sales_start'      => 'required|date',
+                'sales_end'        => 'required|date|after_or_equal:sales_start',
 
-                'category_id'     => 'nullable',
-                'inventory_type'     => 'required|in:0,1',
-                'voucher_value'      => 'required|numeric|min:0',
-                'voucher_set'        => 'required|integer|min:1',
+                'friendly_url'     => 'nullable|string',
+                'direct_utilization'=> 'nullable|boolean',
 
-                'clearing_method'    => 'required|in:0,1,2,3,4',
+                'max_quantity'     => 'required|integer|min:1',
+                'voucher_validity' => 'required|date',
 
-                'low_stock_1'        => 'required|integer|min:0',
-                'low_stock_2'        => 'required|integer|min:0',
+                'category_id'      => 'nullable',
+                'inventory_type'   => 'required|in:0,1',
+                'voucher_value'    => 'required|numeric|min:0',
+                'voucher_set'      => 'required|integer|min:1',
+
+                'clearing_method'  => 'required|in:0,1,2,3,4',
+
+                'low_stock_1'      => 'required|integer|min:0',
+                'low_stock_2'      => 'required|integer|min:0',
             ];
 
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
+            ];
 
             /* ---------------------------------------------------
-            * INVENTORY RULES
-            * ---------------------------------------------------*/
-
-            // Non-merchant → qty required
-            if ($request->inventory_type == 0) {
+            | INVENTORY RULES
+            --------------------------------------------------- */
+            if ((int) $request->inventory_type === 0) {
                 $rules['inventory_qty'] = 'required|integer|min:1';
             }
 
-            // Merchant → file required
-            if ($request->inventory_type == 1) {
-                $rules['csvFile'] = 'required|file';
+            if ((int) $request->inventory_type === 1) {
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
             }
-
 
             /* ---------------------------------------------------
-            * CLEARING METHOD RULES
-            * ---------------------------------------------------*/
-
-            // External link → text required
-             if (in_array($request->clearing_method, [0,1,3])) {
-                $rules['location_text'] = 'required|string';
+            | CLEARING METHOD RULES
+            --------------------------------------------------- */
+            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                $rules['location_text'] = 'required';
+                $messages = [
+                    'location_text.required' => 'Location is required',
+                ];
             }
 
-            // External code + Merchant code → merchant + locations required
-            if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-                $rules['participating_merchant_locations'] = 'required|array|min:1';
-            }
 
+            if ((int) $request->clearing_method === 2) {
+
+                $rules['participating_merchant_id'] =
+                    'required|exists:participating_merchants,id';
+
+                $rules['participating_merchant_locations'] =
+                    'required|array|min:1';
+
+                $hasSelected = false;
+
+                foreach ($request->participating_merchant_locations ?? [] as $loc) {
+                    if (!empty($loc['selected'])) {
+                        $hasSelected = true;
+                    }
+                }
+
+                if (!$hasSelected) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => [
+                            'participating_merchant_locations' =>
+                                ['Please select at least one merchant location.']
+                        ]
+                    ], 422);
+                }
+            }
 
             /* ---------------------------------------------------
-            * VALIDATE
-            * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules);
+            | VALIDATE
+            --------------------------------------------------- */
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
-                    "status" => "error",
-                    "errors" => $validator->errors()
+                    'status' => 'error',
+                    'errors' => $validator->errors()
                 ], 422);
             }
 
             $validated = $validator->validated();
+
 
 
             /* ---------------------------------------------------
@@ -422,66 +449,99 @@ class EvoucherController extends Controller
             * ---------------------------------------------------*/
             $reward = Reward::findOrFail($id);
 
-            /* ---------------------------------------------------
-            * 2) VALIDATION RULES (same as store(), except image optional)
-            * ---------------------------------------------------*/
+           /* ---------------------------------------------------
+            | UPDATE VALIDATION RULES
+            --------------------------------------------------- */
             $rules = [
-                'voucher_image'      => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-                'name'               => 'required|string|max:191',
-                'description'        => 'required|string',
-                'term_of_use'        => 'required|string',
-                'how_to_use'         => 'required|string',
+                'voucher_image'    => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
 
-                'merchant_id'        => 'required|exists:merchants,id',
-                'friendly_url'     => 'nullable',
-                'category_id'     => 'nullable',
-                'publish_start'      => 'required',
-                'sales_start'        => 'required',
+                'name'             => 'required|string|max:191',
+                'description'      => 'required|string',
+                'term_of_use'      => 'required|string',
+                'how_to_use'       => 'required|string',
 
-                'direct_utilization'       => 'nullable',
-                'max_quantity'       => 'required|integer|min:1',
-                'voucher_validity'   => 'required|date',
+                'merchant_id'      => 'required|exists:merchants,id',
 
-                'inventory_type'     => 'required|in:0,1',
-                'voucher_value'      => 'required|numeric|min:0',
-                'voucher_set'        => 'required|integer|min:1',
+                'friendly_url'     => 'nullable|string',
+                'category_id'      => 'nullable',
 
-                'clearing_method'    => 'required|in:0,1,2,3,4',
+                'publish_start'    => 'required|date',
+                'publish_end'      => 'required|date|after_or_equal:publish_start',
 
-                'low_stock_1'        => 'required|integer|min:0',
-                'low_stock_2'        => 'required|integer|min:0',
+                'sales_start'      => 'required|date',
+                'sales_end'        => 'required|date|after_or_equal:sales_start',
+
+                'direct_utilization'=> 'nullable|boolean',
+
+                'max_quantity'     => 'required|integer|min:1',
+                'voucher_validity' => 'required|date',
+
+                'inventory_type'   => 'required|in:0,1',
+                'voucher_value'    => 'required|numeric|min:0',
+                'voucher_set'      => 'required|integer|min:1',
+
+                'clearing_method'  => 'required|in:0,1,2,3,4',
+
+                'low_stock_1'      => 'required|integer|min:0',
+                'low_stock_2'      => 'required|integer|min:0',
+            ];
+
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
             ];
 
             /* --------------------------------------------
-            * INVENTORY RULES
-            * --------------------------------------------*/
-            if ($request->inventory_type == 0) {
+            | INVENTORY RULES
+            -------------------------------------------- */
+            if ((int) $request->inventory_type === 0) {
                 $rules['inventory_qty'] = 'required|integer|min:1';
             }
 
             if ($request->inventory_type == 1) {
-                // require new CSV only if old doesn't exist
-                if (!$reward->csvFile && !$request->hasFile('csvFile')) {
-                    $rules['csvFile'] = 'required|file';
-                }
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
             }
 
             /* --------------------------------------------
-            * CLEARING METHOD RULES
-            * --------------------------------------------*/
-             if (in_array($request->clearing_method, [0,1,3])) {
-                $rules['location_text'] = 'required|string';
+            | CLEARING METHOD RULES
+            -------------------------------------------- */
+            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                $rules['location_text'] = 'required';
+                $messages = [
+                    'location_text.required' => 'Location is required',
+                ];
             }
 
-            if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-                $rules['participating_merchant_locations'] = 'required|array|min:1';
+            if ((int) $request->clearing_method === 2) {
+
+                $rules['participating_merchant_id'] =
+                    'required|exists:participating_merchants,id';
+
+                $rules['participating_merchant_locations'] =
+                    'required|array|min:1';
+
+                $hasSelected = false;
+
+                foreach ($request->participating_merchant_locations ?? [] as $loc) {
+                    if (!empty($loc['selected'])) {
+                        $hasSelected = true;
+                    }
+                }
+
+                if (!$hasSelected) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => [
+                            'participating_merchant_locations' =>
+                                ['Please select at least one merchant location.']
+                        ]
+                    ], 422);
+                }
             }
 
             /* ---------------------------------------------------
-            * 3) VALIDATE
-            * ---------------------------------------------------*/
-           $validator = Validator::make($request->all(), $rules);
+            | VALIDATE
+            --------------------------------------------------- */
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -491,6 +551,7 @@ class EvoucherController extends Controller
             }
 
             $validated = $validator->validated();
+
 
             /* ---------------------------------------------------
             * 4) IMAGE UPLOAD

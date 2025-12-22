@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
+use App\Rules\SingleCodeColumnFile;
 
 class BdayEvoucherController extends Controller
 {
@@ -180,6 +181,13 @@ class BdayEvoucherController extends Controller
                 'low_stock_2'        => 'required|integer|min:0',
             ];
 
+            $messages = [];
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
+                'term_of_use.string'   => 'Voucher T&C is required',
+            ];
+
+
 
             /* ---------------------------------------------------
             * INVENTORY RULES
@@ -192,7 +200,7 @@ class BdayEvoucherController extends Controller
 
             // Merchant → file required
             if ($request->inventory_type == 1) {
-                $rules['csvFile'] = 'required|file';
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
             }
 
 
@@ -201,9 +209,13 @@ class BdayEvoucherController extends Controller
             * ---------------------------------------------------*/
 
             // External link → text required
-             if (in_array($request->clearing_method, [0,1,3])) {
-                $rules['location_text'] = 'required|string';
+            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                $rules['location_text'] = 'required';
+                $messages = [
+                    'location_text.required' => 'Location is required',
+                ];
             }
+
 
             // External code + Merchant code → merchant + locations required
             if ($request->clearing_method == 2) {
@@ -221,7 +233,7 @@ class BdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * VALIDATE
             * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules);
+            $validator = Validator::make($request->all(), $rules,$messages);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -414,7 +426,7 @@ class BdayEvoucherController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
         DB::beginTransaction();
 
@@ -423,14 +435,11 @@ class BdayEvoucherController extends Controller
             $reward = Reward::findOrFail($id);
             $currentMonth = now()->format('Y-m');
 
-            /*
-            |--------------------------------------------------------------------------
-            | CASE 1: CURRENT MONTH
-            |--------------------------------------------------------------------------
-            */
+            /* ===================================================
+            | CASE 1: CURRENT MONTH → ONLY INVENTORY UPDATE
+            ===================================================*/
             if ($reward->month === $currentMonth) {
 
-                // Only manual inventory allowed
                 if ($reward->inventory_type != 0) {
                     return response()->json([
                         'status' => 'error',
@@ -438,7 +447,6 @@ class BdayEvoucherController extends Controller
                     ], 422);
                 }
 
-                // Inventory qty required
                 if (!$request->filled('inventory_qty')) {
                     return response()->json([
                         'status' => 'error',
@@ -448,68 +456,119 @@ class BdayEvoucherController extends Controller
                     ], 422);
                 }
 
-                // ❌ No minus allowed
                 if ($request->inventory_qty < $reward->inventory_qty) {
                     return response()->json([
                         'status' => 'error',
                         'errors' => [
-                            'inventory_qty' => [
-                                'Inventory cannot be reduced for current month.'
-                            ]
+                            'inventory_qty' => ['Inventory cannot be reduced for current month.']
                         ]
                     ], 422);
                 }
 
-                // ✅ ONLY update inventory_qty
                 $reward->update([
                     'inventory_qty' => $request->inventory_qty
                 ]);
 
                 DB::commit();
+
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Inventory updated successfully'
                 ]);
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CASE 2: NON-CURRENT MONTH → STORE FOR ADMIN APPROVAL
-            |--------------------------------------------------------------------------
-            */
+            /* ===================================================
+            | CASE 2: NON-CURRENT MONTH → ADMIN APPROVAL FLOW
+            ===================================================*/
 
-       
-            $validated = $request->validate([
-                'from_month' => 'required',
-                'to_month' => 'required',
-                'voucher_image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-                'name' => 'required|string',
-                'description' => 'required|string',
-                'term_of_use' => 'required|string',
-                'how_to_use' => 'required|string',
-                'merchant_id' => 'required|exists:merchants,id',
-                'voucher_validity' => 'required|date',
-                'club_location' => 'required',
-                'inventory_type' => 'required|in:0,1',
-                'inventory_qty' => 'nullable|integer|min:0',
-                'voucher_value' => 'required|numeric|min:0',
-                'voucher_set' => 'required|integer|min:1',
-                'clearing_method' => 'required',
-                'low_stock_1' => 'required|integer|min:0',
-                'low_stock_2' => 'required|integer|min:0',
-            ]);
+            $rules = [
+                'from_month'        => 'required',
+                'to_month'          => 'required',
+                'voucher_image'     => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'name'              => 'required|string',
+                'description'       => 'required|string',
+                'term_of_use'       => 'required|string',
+                'how_to_use'        => 'required|string',
+                'merchant_id'       => 'required|exists:merchants,id',
+                'voucher_validity'  => 'required|date',
+                'club_location'     => 'required',
+                'inventory_type'    => 'required|in:0,1',
+                'inventory_qty'     => 'nullable|integer|min:0',
+                'voucher_value'     => 'required|numeric|min:0',
+                'voucher_set'       => 'required|integer|min:1',
+                'clearing_method'   => 'required',
+                'low_stock_1'       => 'required|integer|min:0',
+                'low_stock_2'       => 'required|integer|min:0',
+            ];
+
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
+                'term_of_use.string'   => 'Voucher T&C is required',
+            ];
+
+             /* ---------------------------------------------------
+            * INVENTORY RULES
+            * ---------------------------------------------------*/
+
+            // Non-merchant → qty required
+            if ($request->inventory_type == 0) {
+                $rules['inventory_qty'] = 'required|integer|min:1';
+            }
+
+            // Merchant → file required
+            if ($request->inventory_type == 1) {
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+            }
 
 
-            if ($request->hasFile('voucher_image')) {
-                $file = $request->file('voucher_image');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/image'), $filename);
-                $validated['voucher_image'] = $filename;
-            }           
+            /* ---------------------------------------------------
+            * CLEARING METHOD RULES
+            * ---------------------------------------------------*/
 
-            $pendingRequest = RewardUpdateRequest::where('reward_id',  $reward->id) ->where('status', 'pending') ->first();
+            // External link → text required
+            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                $rules['location_text'] = 'required';
+                $messages = [
+                    'location_text.required' => 'Location is required',
+                ];
+            }
 
-            if ($pendingRequest) {
+
+            // External code + Merchant code → merchant + locations required
+            if ($request->clearing_method == 2) {
+                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+
+                $rules['participating_merchant_locations'] = 'required|array|min:1';
+
+                foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
+                    if (isset($locData['selected'])) {
+                        // nothing extra here – just mark as selected
+                    }
+                }
+            }
+
+            /* ---------------------------------------------------
+            * VALIDATE
+            * ---------------------------------------------------*/
+           
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validated = $validator->validated();
+
+            /* ===================================================
+            | CHECK EXISTING PENDING REQUEST
+            ===================================================*/
+            if (RewardUpdateRequest::where('reward_id', $reward->id)
+                ->where('status', 'pending')
+                ->exists()) {
+
                 return response()->json([
                     'status' => 'error',
                     'errors' => [
@@ -517,122 +576,50 @@ class BdayEvoucherController extends Controller
                     ]
                 ], 422);
             }
-            // $approvedRequest = RewardUpdateRequest::where('reward_id', $reward->id)->where('status', 'approved')->first();
 
-            // if ($approvedRequest) {
-            //     return response()->json([
-            //         'status' => 'error',
-            //         'errors' => [
-            //             'month' => ['This reward has already been approved and cannot be updated again.']
-            //         ]
-            //     ], 422);
-            // }
+            /* ===================================================
+            | IMAGE UPLOAD
+            ===================================================*/
+            if ($request->hasFile('voucher_image')) {
+                $file = $request->file('voucher_image');
+                $filename = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('uploads/image'), $filename);
+                $validated['voucher_image'] = $filename;
+            }
 
-            /* ---------------------------------------------------
-            * CREATE REWARD (e-Voucher only)
-            * ---------------------------------------------------*/
-            $reward = RewardUpdateRequest::create([
-                'type'           => '2',
-                'reward_id'      => $id,
-                'from_month'          => $validated['from_month'],
-                'to_month'          => $validated['to_month'],
-                'request_by'          => auth()->id(),
-                'voucher_image' => $validated['voucher_image'] ?? $reward->voucher_image,
+            /* ===================================================
+            | CREATE UPDATE REQUEST
+            ===================================================*/
+            $updateRequest = RewardUpdateRequest::create([
+                'type'           => 2,
+                'reward_id'      => $reward->id,
+                'from_month'     => $validated['from_month'],
+                'to_month'       => $validated['to_month'],
+                'request_by'     => auth()->id(),
+                'voucher_image'  => $validated['voucher_image'] ?? $reward->voucher_image,
                 'name'           => $validated['name'],
                 'description'    => $validated['description'],
                 'term_of_use'    => $validated['term_of_use'],
                 'how_to_use'     => $validated['how_to_use'],
-
                 'merchant_id'    => $validated['merchant_id'],
-                'reward_type'    => 0, // e-voucher fixed
-
-                'voucher_validity'   => $validated['voucher_validity'],
-
-                'club_location'     => $validated['club_location'],
-                'inventory_type'     => $validated['inventory_type'],
-                'inventory_qty'      => $validated['inventory_qty'] ?? null,
-
-                'voucher_value'      => $validated['voucher_value'],
-                'voucher_set'        => $validated['voucher_set'],
-                'clearing_method'    => $validated['clearing_method'],
-
-                'location_text'      => $request->location_text,
-                'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
-
-                'hide_quantity'      => $request->hide_quantity ? 1 : 0,
-                'low_stock_1'        => $validated['low_stock_1'],
-                'low_stock_2'        => $validated['low_stock_2'],
-                'status'        => 'pending',
+                'reward_type'    => 0,
+                'voucher_validity' => $validated['voucher_validity'],
+                'club_location'  => $validated['club_location'],
+                'inventory_type' => $validated['inventory_type'],
+                'inventory_qty'  => $validated['inventory_qty'],
+                'voucher_value'  => $validated['voucher_value'],
+                'voucher_set'    => $validated['voucher_set'],
+                'clearing_method'=> $validated['clearing_method'],
+                'location_text'  => $request->location_text,
+                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+                'hide_quantity'  => $request->hide_quantity ? 1 : 0,
+                'low_stock_1'    => $validated['low_stock_1'],
+                'low_stock_2'    => $validated['low_stock_2'],
+                'status'         => 'pending',
             ]);
-        
-
-
-            /* ---------------------------------------------------
-            * SAVE PARTICIPATING LOCATIONS
-            * ---------------------------------------------------*/
-            if ($request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
-
-                // 🔥 Remove old pending mappings for this reward
-                RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
-
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
-
-                    if (!isset($locData['selected'])) {
-                        continue;
-                    }
-
-                    // 🔥 Fetch merchant ID FROM location (single source of truth)
-                    $merchantId = ParticipatingMerchantLocation::where('id', $locId)
-                        ->value('participating_merchant_id');
-
-                    if (!$merchantId) {
-                        continue; // safety guard
-                    }
-
-                    RewardParticipatingMerchantLocationUpdate::create([
-                        'reward_id'                 => $id,
-                        'participating_merchant_id' => $merchantId, // ✅ derived, NOT looped
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
-                }
-            }
-
-            /* ---------------------------------------------------
-            * XLSX / CSV UPLOAD (merchant inventory)
-            * ---------------------------------------------------*/
-            if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-                $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/csv'), $filename);
-
-                $reward->csvFile = $filename;
-                $reward->save();
-
-                $filePath = public_path('uploads/csv/'.$filename);
-
-                // READ XLSX OR CSV SAFELY
-                $rows = Excel::toArray([], $filePath);
-
-                foreach ($rows[0] as $row) {
-
-                    $code = trim($row[0] ?? '');
-
-                    if ($code === '' || strtolower($code) === 'code') {
-                        continue;
-                    }
-
-                    RewardVoucher::create([
-                        'type'      => '2',
-                        'reward_id' => $reward->id,
-                        'code'      => $code,
-                        'is_used'   => 0
-                    ]);
-                }
-            }
 
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Update request sent for admin approval'
@@ -641,12 +628,14 @@ class BdayEvoucherController extends Controller
         } catch (\Throwable $e) {
 
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

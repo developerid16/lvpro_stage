@@ -35,7 +35,7 @@ $(document).ready(function () {
                         $("#participating_merchant_locations_error") .html(response.errors.participating_merchant_locations[0]);
                     }
                     if (response.errors?.locations) {
-                        $("#locations_error") .html(response.errors.locations[0]);
+                        $("#locations_error") .html(response.errors.locations);
                     }
                     return;
                 }              

@@ -156,7 +156,7 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Publish End Date & Time</label>
+                                            <label class="sh_dec font-12">Publish End Date & Time <span class="required-hash">*</span></label>
                                             <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
                                         </div>
                                     </div>
@@ -170,7 +170,7 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Sales End Date & Time</label>
+                                            <label class="sh_dec font-12">Sales End Date & Time <span class="required-hash">*</span></label>
                                             <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>

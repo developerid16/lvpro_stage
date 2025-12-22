@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
+use App\Rules\SingleCodeColumnFile;
 
 class RewardController extends Controller
 {
@@ -196,83 +197,52 @@ class RewardController extends Controller
         DB::beginTransaction();
 
         try {
-
-           /* ---------------------------------------------------
-            * 1) BASE VALIDATION RULES
-            * ---------------------------------------------------*/
             $rules = [
                 'voucher_image'      => 'required|image|mimes:png,jpg,jpeg|max:2048',
                 'name'               => 'required|string|max:191',
                 'description'        => 'required|string',
                 'term_of_use'        => 'required|string',
                 'how_to_use'         => 'required|string',
-                'friendly_url'     => 'nullable',
-                'category_id'     => 'nullable',
                 'merchant_id'        => 'required|exists:merchants,id',
                 'reward_type'        => 'required|in:0,1',
-
                 'usual_price'        => 'required|numeric|min:0',
-
                 'publish_start'      => 'required',
-                'publish_end'      => 'required',
+                'publish_end'        => 'required',
                 'sales_start'        => 'required',
-                'sales_end'        => 'required',
-
-                'hide_quantity'      => 'nullable|boolean',
+                'sales_end'          => 'required',
                 'low_stock_1'        => 'required|integer|min:0',
                 'low_stock_2'        => 'required|integer|min:0',
-                'publish_independent' => 'required_without:publish_inhouse|boolean',
-                'publish_inhouse'     => 'required_without:publish_independent|boolean',
-
                 'send_reminder'      => 'required|boolean',
             ];
 
-            /* ---------------------------------------------------
-            * 2) DYNAMIC TIER VALIDATION
-            * ---------------------------------------------------*/
-           $tiers = Tier::where('status', 'Active')->get();
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
+            ];
 
-            $messages = [];
+            /* ---------------- TIER RULES ---------------- */
+            $tiers = Tier::where('status', 'Active')->get();
 
             foreach ($tiers as $tier) {
-
-                $field = "tier_{$tier->id}";
-
-                // rules
-                $rules[$field] = 'required|numeric|min:0';
-
-                // custom messages
-                $messages["{$field}.required"] = "{$tier->tier_name} price is required";
-                $messages["{$field}.numeric"]  = "{$tier->tier_name} price must be a number";
-                $messages["{$field}.min"]      = "{$tier->tier_name} price must be 0 or greater";
+                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
+                $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
 
-
-            /* ---------------------------------------------------
-            * 3) PHYSICAL VALIDATION
-            * ---------------------------------------------------*/
+            /* ---------------- PHYSICAL ---------------- */
             if ($request->reward_type == 1) {
 
-                // max qty for physical
                 $rules['max_quantity_physical'] = 'required|integer|min:1';
-
-                // must send at least one location
                 $rules['locations'] = 'required|array|min:1';
 
-                $hasSelectedLocation = false;
+                $hasSelected = false;
 
                 foreach ($request->locations ?? [] as $locId => $locData) {
-
                     if (isset($locData['selected'])) {
-                        $hasSelectedLocation = true;
-
-                        // inventory is required ONLY when selected
+                        $hasSelected = true;
                         $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
                     }
                 }
 
-                // If no checkbox selected → throw SAME error format as digital
-                if (!$hasSelectedLocation) {
+                if (!$hasSelected) {
                     return response()->json([
                         "status" => "error",
                         "errors" => [
@@ -282,76 +252,54 @@ class RewardController extends Controller
                 }
             }
 
-
-            /* ---------------------------------------------------
-            * 4) DIGITAL VALIDATION
-            * ---------------------------------------------------*/
+            /* ---------------- DIGITAL ---------------- */
             if ($request->reward_type == 0) {
 
-                $rules = array_merge($rules, [
-
+                $rules += [
                     'max_quantity_digital' => 'required|integer|min:1',
-
                     'voucher_validity'     => 'required|date',
-
                     'inventory_type'       => 'required|in:0,1',
                     'voucher_value'        => 'required|numeric|min:1',
                     'voucher_set'          => 'required|numeric|min:1',
                     'clearing_method'      => 'required|in:0,1,2,3,4',
-                ]);
+                ];
 
-                // non-merchant
                 if ($request->inventory_type == 0) {
                     $rules['inventory_qty'] = 'required|integer|min:1';
                 }
 
-                // merchant
                 if ($request->inventory_type == 1) {
-                    $rules['csvFile'] = 'required|file';
+                    $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
                 }
 
-                // external code / merchant code (needs locations)
                 if ($request->clearing_method == 2) {
                     $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-
                     $rules['participating_merchant_locations'] = 'required|array|min:1';
-
-                    foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
-                        if (isset($locData['selected'])) {
-                            // nothing extra here – just mark as selected
-                        }
-                    }
+                }
+                if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                    $rules['location_text'] = 'required';
+                    $messages = [
+                        'location_text.required' => 'Location is required',
+                    ];
                 }
             }
 
-            /* ---------------------------------------------------
-            * 5) RUN VALIDATOR
-            * ---------------------------------------------------*/
+            /* ---------------- RUN VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
 
-                    /* ---------------------------------------------------
-            * 5.1) TIER PRICE <= USUAL PRICE (CROSS-FIELD)
-            * ---------------------------------------------------*/
+            /* ---------------- CROSS FIELD CHECK ---------------- */
             $validator->after(function ($validator) use ($request, $tiers) {
-
-                $usualPrice = $request->usual_price;
-
                 foreach ($tiers as $tier) {
-                    $field = "tier_{$tier->id}";
-                    $tierPrice = $request->input($field);
-
-                    if ($tierPrice !== null && $tierPrice > $usualPrice) {
+                    $price = $request->input("tier_{$tier->id}");
+                    if ($price > $request->usual_price) {
                         $validator->errors()->add(
-                            $field,
+                            "tier_{$tier->id}",
                             "{$tier->tier_name} price cannot be greater than Usual Price"
                         );
                     }
                 }
             });
 
-            /* ---------------------------------------------------
-            * 6) CHECK FAIL
-            * ---------------------------------------------------*/
             if ($validator->fails()) {
                 return response()->json([
                     "status" => "error",
@@ -360,6 +308,7 @@ class RewardController extends Controller
             }
 
             $validated = $validator->validated();
+
 
 
 
@@ -653,156 +602,170 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             $reward = Reward::findOrFail($id);
 
-
-            /* ---------------------------------------------------
-            * 1) BASE VALIDATION RULES
-            * ---------------------------------------------------*/
             $rules = [
                 'voucher_image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
 
-                'name'          => 'required|string|max:191',
-                'description'   => 'required|string',
-                'term_of_use'   => 'required|string',
-                'how_to_use'    => 'required|string',
+                'name'        => 'required|string|max:191',
+                'description' => 'required|string',
+                'term_of_use' => 'required|string',
+                'how_to_use'  => 'required|string',
 
-                'merchant_id'   => 'required|exists:merchants,id',
-                'friendly_url'     => 'nullable',
-                'category_id'     => 'nullable',
-                'reward_type'   => 'required|in:0,1',
+                'merchant_id' => 'required|exists:merchants,id',
+                'reward_type' => 'required|in:0,1',
 
-                'usual_price'   => 'required|numeric|min:0',
+                'usual_price' => 'required|numeric|min:0',
 
-                'publish_start'      => 'required',
-                'publish_end'      => 'required',
-                'sales_start'        => 'required',
-                'sales_end'        => 'required',
+                'publish_start' => 'required',
+                'publish_end'   => 'required',
+                'sales_start'   => 'required',
+                'sales_end'     => 'required',
             ];
 
-            /* ---------------------------------------------------
-            * 2) TIER VALIDATION
-            * ---------------------------------------------------*/
-           $tiers = Tier::where('status', 'Active')->get();
+            $messages = [
+                'term_of_use.required' => 'Voucher T&C is required',
+            ];
 
-            $messages = [];
+            /* ---------------- TIER RULES ---------------- */
+            $tiers = Tier::where('status', 'Active')->get();
 
             foreach ($tiers as $tier) {
-
-                $field = "tier_{$tier->id}";
-
-                // rules
-                $rules[$field] = 'required|numeric|min:0';
-
-                // custom messages
-                $messages["{$field}.required"] = "{$tier->tier_name} price is required";
-                $messages["{$field}.numeric"]  = "{$tier->tier_name} price must be a number";
-                $messages["{$field}.min"]      = "{$tier->tier_name} price must be 0 or greater";
+                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
+                $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
 
+            /* ---------------- PHYSICAL ---------------- */
+            if ((int) $request->reward_type === 1) {
 
-            /* ---------------------------------------------------
-            * 3) PHYSICAL VALIDATION
-            * ---------------------------------------------------*/
-            if ($request->reward_type == 1) {
-
-                $rules += [
+                $rules = array_merge($rules, [
                     'max_quantity_physical' => 'required|integer|min:1',
+                    'low_stock_1'           => 'required|integer|min:0',
+                    'low_stock_2'           => 'required|integer|min:0',
+                    'send_reminder'         => 'required|boolean',
 
-                    'low_stock_1'      => 'required|integer|min:0',
-                    'low_stock_2'      => 'required|integer|min:0',
+                    'publish_independent'   => 'required_without_all:publish_inhouse|boolean',
+                    'publish_inhouse'       => 'required_without_all:publish_independent|boolean',
 
-                    'publish_independent' => 'required_without:publish_inhouse|boolean',
-                    'publish_inhouse'     => 'required_without:publish_independent|boolean',
+                    'locations'             => 'required|array|min:1',
+                ]);
 
-                    'send_reminder'       => 'required|boolean',
-                ];
-
-                // must send at least one location
-                $rules['locations'] = 'required|array|min:1';
-
-                $hasSelectedLocation = false;
+                $hasSelected = false;
 
                 foreach ($request->locations ?? [] as $locId => $locData) {
-
-                    if (isset($locData['selected'])) {
-                        $hasSelectedLocation = true;
-
-                        // inventory is required ONLY when selected
-                        $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+                    if (!empty($locData['selected'])) {
+                        $hasSelected = true;
+                        $rules["locations.$locId.inventory_qty"] =
+                            'required|integer|min:1';
                     }
                 }
 
-                // If no checkbox selected → throw SAME error format as digital
-                if (!$hasSelectedLocation) {
+                if (!$hasSelected) {
                     return response()->json([
-                        "status" => "error",
-                        "errors" => [
-                            "locations" => ["Please select at least one location."]
+                        'status' => 'error',
+                        'errors' => [
+                            'locations' => ['Please select at least one location.']
                         ]
                     ], 422);
                 }
             }
 
+            /* ---------------- DIGITAL ---------------- */
+            if ((int) $request->reward_type === 0) {
 
-            
-
-            /* ---------------------------------------------------
-            * 4) DIGITAL VALIDATION
-            * ---------------------------------------------------*/
-            if ($request->reward_type == 0) {
-
-                $rules += [
+                $rules = array_merge($rules, [
                     'max_quantity_digital' => 'required|integer|min:1',
+                    'voucher_validity'     => 'required|date',
+                    'inventory_type'       => 'required|in:0,1',
+                    'voucher_value'        => 'required|numeric|min:1',
+                    'voucher_set'          => 'required|numeric|min:1',
+                    'clearing_method'      => 'required|in:0,1,2,3,4',
+                ]);
 
-                    'voucher_validity' => 'required|date',
-
-                    'inventory_type'   => 'required|in:0,1',
-                    'voucher_value'    => 'required|numeric|min:1',
-                    'voucher_set'      => 'required|numeric|min:1',
-                    'clearing_method'  => 'required|in:0,1,2,3,4',
-                ];
-
-                if ($request->inventory_type == 0) {
-
+                if ((int) $request->inventory_type == 0) {
                     $rules['inventory_qty'] = 'required|integer|min:1';
+                } 
 
-                } else {
-
-                    // If no old file and user didn't upload new → required
-                    if (!$reward->csvFile && !$request->hasFile('csvFile')) {
-                        $rules['csvFile'] = 'required|file';
-                    }
+                if ($request->inventory_type == 1) {
+                    $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
                 }
 
-               if ($request->clearing_method == 2) {
+                if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                    $rules['location_text'] = 'required';
+                    $messages = [
+                        'location_text.required' => 'Location is required',
+                    ];
+                }
 
-                    $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                if ((int) $request->clearing_method === 2) {
 
-                    $rules['participating_merchant_locations'] = 'required|array|min:1';
+                    $existingMerchantId = $reward->participating_merchant_id ?? null;
+                    $existingLocations  = $reward->participatingLocations ?? collect();
 
-                    foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
-                        if (isset($locData['selected'])) {
-                            // OK
+                    // -------------------------------
+                    // Participating merchant
+                    // -------------------------------
+                    if (
+                        !$request->has('participating_merchant_locations') &&
+                        !$request->filled('participating_merchant_id') &&
+                        !$existingMerchantId
+                    ) {
+                        $rules['participating_merchant_id'] =
+                            'required|exists:participating_merchants,id';
+                    }
+
+                    // -------------------------------
+                    // Participating locations
+                    // -------------------------------
+                    if (
+                        !$request->filled('participating_merchant_locations') &&
+                        $existingLocations->isEmpty()
+                    ) {
+                        $rules['participating_merchant_locations'] =
+                            'required|array|min:1';
+                    }
+
+                    // -------------------------------
+                    // If locations sent → check selected
+                    // -------------------------------
+                    if ($request->has('participating_merchant_locations')) {
+
+                        $hasSelected = false;
+
+                        foreach ($request->participating_merchant_locations as $loc) {
+                            if (!empty($loc['selected'])) {
+                                $hasSelected = true;
+                                break;
+                            }
+                        }
+
+                        if (!$hasSelected) {
+                            return response()->json([
+                                'status' => 'error',
+                                'errors' => [
+                                    'participating_merchant_locations' => [
+                                        'Please select at least one merchant location.'
+                                    ]
+                                ]
+                            ], 422);
                         }
                     }
                 }
+
+
             }
 
-            /* ---------------------------------------------------
-            * 5) RUN VALIDATION
-            * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules,$messages);
+            /* ---------------- VALIDATOR ---------------- */
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             $validator->after(function ($validator) use ($request, $tiers) {
 
-                $usualPrice = $request->usual_price;
+                $usual = (float) $request->usual_price;
 
                 foreach ($tiers as $tier) {
-                    $field = "tier_{$tier->id}";
-                    $tierPrice = $request->input($field);
+                    $price = (float) $request->input("tier_{$tier->id}");
 
-                    if ($tierPrice !== null && $tierPrice > $usualPrice) {
+                    if ($price > $usual) {
                         $validator->errors()->add(
-                            $field,
+                            "tier_{$tier->id}",
                             "{$tier->tier_name} price cannot be greater than Usual Price"
                         );
                     }
