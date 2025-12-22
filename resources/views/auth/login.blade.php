@@ -134,6 +134,7 @@
     <script src="{{ URL::asset('/build/js/pages/auth-2-carousel.init.js') }}"></script>
 
     <script>
+        
         $(function() {
 
             $("#password-addon").on('click', function() {
@@ -148,7 +149,7 @@
             auth: {
                 clientId: "{{ config('services.azure.client_id') }}",
                 authority: "https://login.microsoftonline.com/common",
-                redirectUri: "{{ url('/auth/callback') }}"
+                redirectUri: "{{ url('/sso-callback' }}"
             }
         };
 
