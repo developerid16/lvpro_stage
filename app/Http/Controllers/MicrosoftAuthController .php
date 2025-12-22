@@ -12,19 +12,29 @@ class MicrosoftAuthController extends Controller
     {
         $token = $request->id_token;
 
-        $keys = Http::get(
-            'https://login.microsoftonline.com/common/discovery/v2.0/keys'
-        )->json();
+        // Fetch tenant public keys
+        $keys = Http::get('https://login.microsoftonline.com/' .config('services.azure.tenant_id') .'/discovery/v2.0/keys')->json();
 
+        // Decode & verify token
         $decoded = JWT::decode($token, JWK::parseKeySet($keys));
 
-        $user = User::updateOrCreate(
-            ['email' => $decoded->preferred_username],
-            ['name' => $decoded->name]
-        );
+        $email = $decoded->preferred_username ?? $decoded->email;
 
-        auth()->login($user);
+        // 🔍 Check if user already exists
+        $existingUser = User::where('email', $email)->first();
 
-        return response()->json(['success' => true]);
+        if ($existingUser) {
+            // ✅ Existing user → login
+            auth()->login($existingUser);
+            return response()->json(['success' => true, 'redirect' => '/dashboard']);
+        }
+
+        $user = User::create([ 'email' => $email, 'name'  => $decoded->name ?? '', ]);
+
+        return response()->json([
+            'success'  => true,
+            'redirect' => '/user-rights-form'
+        ]);
     }
+
 }

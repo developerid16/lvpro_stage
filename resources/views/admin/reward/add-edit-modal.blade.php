@@ -224,7 +224,7 @@
     
     $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
-    });
+    }); 
 
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -651,8 +651,8 @@
                         </div>                        
                     </div>
                     <div class="row">
-                        <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
+                        <div class="col-6 mt-3 d-grid">                         
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors(this)">Reset</button>
                         </div>
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>

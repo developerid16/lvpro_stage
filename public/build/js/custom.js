@@ -155,12 +155,12 @@ function show_errors(error, form_id = null) {
 }
 
 function remove_errors(form_id = null) {
-    if (form_id == null) {
+    if (!form_id) {
         $(".validation-error").remove();
         $(".error, .custom-error").html('');
     } else {
-        $(form_id + ".validation-error").remove();
-        $(form_id + ".error, .custom-error").html('');
+        $(form_id).find(".validation-error").remove();
+        $(form_id).find(".error, .custom-error").html('');
     }
     hide_loader();
 }

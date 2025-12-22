@@ -73,25 +73,24 @@ Route::get('/clear', function () {
     return 'All cache, config, route & view cleared and rebuilt';
 });
 
-Route::any('/sso-callback', function () {
+// Route::any('/sso-callback', function () {
 
-    // Log all incoming data
-    Log::info('SSO Callback Request', [
-        'method'  => request()->method(),
-        'headers' => request()->headers->all(),
-        'payload' => request()->all(),
-        'raw'     => request()->getContent()
-    ]);
+//     // Log all incoming data
+//     Log::info('SSO Callback Request', [
+//         'method'  => request()->method(),
+//         'headers' => request()->headers->all(),
+//         'payload' => request()->all(),
+//         'raw'     => request()->getContent()
+//     ]);
 
-    return response()->json(true);
-});
+//     return response()->json(true);
+// });
 
 Route::any('/pending_reward_request', function () {
-
     return view('email.pending_reward_request');
 });
 
-Route::post('/auth/microsoft', [MicrosoftAuthController::class, 'login']);// web.php
+Route::post('/sso-callback', [MicrosoftAuthController::class, 'login']);// web.php
 Route::get('/auth/callback', function () {
     return view('auth.microsoft-callback');
 });

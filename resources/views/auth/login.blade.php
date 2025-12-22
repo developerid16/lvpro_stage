@@ -148,8 +148,8 @@
         const msalConfig = {
             auth: {
                 clientId: "{{ config('services.azure.client_id') }}",
-                authority: "https://login.microsoftonline.com/common",
-                redirectUri: "{{ url('/sso-callback' }}"
+                authority: "https://login.microsoftonline.com/{{ config('services.azure.tenant_id') }}",
+                redirectUri: "{{ url('/sso-callback' )}}"
             }
         };
 

@@ -10,8 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
 <script>
-    let selectedOutletMap = []; 
-   
+    let selectedOutletMap = [];    
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -54,6 +53,7 @@
         });
     });
    
+    
     function bindStartEndFlatpickr(startSelector, endSelector) {
 
         const startEl = document.querySelector(startSelector);
