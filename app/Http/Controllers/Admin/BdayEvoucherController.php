@@ -517,7 +517,9 @@ class BdayEvoucherController extends Controller
 
             // Merchant → file required
             if ($request->inventory_type == 1) {
-                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                if(!$reward->csvFile){
+                    $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                }
             }
 
 
@@ -534,15 +536,57 @@ class BdayEvoucherController extends Controller
             }
 
 
-            // External code + Merchant code → merchant + locations required
-            if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+            if ((int) $request->clearing_method === 2) {
 
-                $rules['participating_merchant_locations'] = 'required|array|min:1';
+                $existingMerchantId = $reward->participating_merchant_id ?? null;
+                $existingLocations  = $reward->participatingLocations ?? collect();
 
-                foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
-                    if (isset($locData['selected'])) {
-                        // nothing extra here – just mark as selected
+                // -------------------------------
+                // Participating merchant
+                // -------------------------------
+                if (
+                    !$request->has('participating_merchant_locations') &&
+                    !$request->filled('participating_merchant_id') &&
+                    !$existingMerchantId
+                ) {
+                    $rules['participating_merchant_id'] =
+                        'required|exists:participating_merchants,id';
+                }
+
+                // -------------------------------
+                // Participating locations
+                // -------------------------------
+                if (
+                    !$request->filled('participating_merchant_locations') &&
+                    $existingLocations->isEmpty()
+                ) {
+                    $rules['participating_merchant_locations'] =
+                        'required|array|min:1';
+                }
+
+                // -------------------------------
+                // If locations sent → check selected
+                // -------------------------------
+                if ($request->has('participating_merchant_locations')) {
+
+                    $hasSelected = false;
+
+                    foreach ($request->participating_merchant_locations as $loc) {
+                        if (!empty($loc['selected'])) {
+                            $hasSelected = true;
+                            break;
+                        }
+                    }
+
+                    if (!$hasSelected) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => [
+                                'participating_merchant_locations' => [
+                                    'Please select at least one merchant location.'
+                                ]
+                            ]
+                        ], 422);
                     }
                 }
             }

@@ -685,7 +685,9 @@ class RewardController extends Controller
                 } 
 
                 if ($request->inventory_type == 1) {
-                    $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                    if(!$reward->csvFile){
+                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                    }
                 }
 
                 if ($request->clearing_method != 2 && $request->clearing_method != 4) {
