@@ -73,13 +73,13 @@
                     <form enctype="multipart/form-data" class="z-index-1" method="POST" action="javascript:void(0)" id="AddParameterVoucherForm">
                         @csrf                      
                         <div class="row">                            
-                            <div class="col-6 col-md-6">
+                            <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="merchant_id">Push Voucher <span class="required-hash">*</span></label>
-                                    <textarea name="voucher" id="voucher" cols="30" rows="10"></textarea>                              
+                                    <textarea id="voucher" type="text" class="sh_dec form-control" name="voucher" placeholder="Enter Push Voucher" readonly></textarea>                             
                                 </div>
                             </div>
-                            <div class="col-6 col-md-6">
+                            <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
                                     <select class="sh_dec form-select reward_id" name="reward_id1">
@@ -303,8 +303,8 @@
                         <div class="row">                            
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
-                                    <label class="sh_dec" for="push_voucher">Push Voucher <span class="required-hash">*</span></label>
-                                    <textarea name="push_voucher" id="push_voucher" cols="30" rows="5" readonly></textarea>                              
+                                    <label class="sh_dec" for="how_to_use">Push Voucher <span class="required-hash">*</span></label>
+                                    <textarea id="push_voucher" type="text" class="sh_dec form-control" name="push_voucher" placeholder="Enter Push Voucher" readonly></textarea>
                                 </div>
                             </div>
                             <div class="col-6 col-md-6">

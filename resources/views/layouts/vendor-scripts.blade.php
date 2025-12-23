@@ -602,6 +602,76 @@
         }
     }
 
+    function reset_data(modalId) {
+        const modal = $('#' + modalId);
+        if (!modal.length) return;
+
+        // clear validation UI
+        modal.find('.is-invalid').removeClass('is-invalid');
+        modal.find('.invalid-feedback, .error').text('');
+
+        // original values
+        const publish_start = modal.find('#publish_start_original').val();
+        const publish_end   = modal.find('#publish_end_original').val();
+        const sales_start   = modal.find('#sales_start_original').val();
+        const sales_end     = modal.find('#sales_end_original').val();
+
+        // publish_start flatpickr
+        const publishStartEl = modal.find('#publish_start')[0];
+        console.log(publishStartEl,'publishStartEl');
+        
+        if (publishStartEl && publishStartEl._flatpickr) {
+            publishStartEl._flatpickr.setDate(publish_start, true);
+        }
+
+        // publish_end flatpickr
+        const publishEndEl = modal.find('#publish_end')[0];
+        if (publishEndEl && publishEndEl._flatpickr) {
+            publishEndEl._flatpickr.setDate(publish_end, true);
+        }
+
+        // sales_start flatpickr
+        const salesStartEl = modal.find('#sales_start')[0];
+        if (salesStartEl && salesStartEl._flatpickr) {
+            salesStartEl._flatpickr.setDate(sales_start, true);
+        }
+
+        // sales_end flatpickr
+        const salesEndEl = modal.find('#sales_end')[0];
+        if (salesEndEl && salesEndEl._flatpickr) {
+            salesEndEl._flatpickr.setDate(sales_end, true);
+        }
+    }
+
+
+    // Show preview when selecting a new image
+    document.getElementById('voucher_image').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('voucher_image_preview');
+        
+        const clearBtn = document.getElementById('clear_voucher_image');
+
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            clearBtn.style.display = 'inline-block';
+        }
+    });
+   
+
+    // Clear image
+    document.getElementById('clear_voucher_image').addEventListener('click', function () {
+        const input = document.getElementById('voucher_image');
+        const preview = document.getElementById('voucher_image_preview');
+
+        input.value = '';
+        preview.src = '';
+        preview.style.display = 'none';
+        this.style.display = 'none';
+    });
+
+    
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>

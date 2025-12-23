@@ -49,7 +49,41 @@
                 loadParticipatingMerchantLocations(modal, merchantId);
             });  
         }        
+    
+    
     });
+
+    $(document).on("change", ".voucher_image", function (e) {
+
+        const modal = $('#EditModal');
+        const file = e.target.files[0];
+
+        const preview = modal.find('#voucher_image_preview');
+        const clearBtn = modal.find('#clear_voucher_image');
+
+        if (file) {
+            preview
+                .attr('src', URL.createObjectURL(file))
+                .show();
+
+            clearBtn.show();
+        }
+    });
+
+    $(document).on('click', '#clear_voucher_image', function () {
+
+        const modal = $(this).closest('.modal'); // auto-detect modal
+        const input = modal.find('#voucher_image')[0];
+        const preview = modal.find('#voucher_image_preview');
+
+        if (input) {
+            input.value = '';   // reset file input
+        }
+
+        preview.attr('src', '').hide();
+        $(this).hide();
+    });
+
 
     function initFlatpickr(modal) {
         bindStartEndFlatpickrEdit(
@@ -248,39 +282,39 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_image">Voucher Image <span class="required-hash">*</span></label>
-
-                                <input id="voucher_image" type="file" class="sh_dec form-control"
-                                    name="voucher_image" accept=".png,.jpg,.jpeg">
-
-                                <span class="text-secondary">(316 px X 140 px)</span>
-                                <!-- 🔥 PREVIEW IMAGE -->
-                                <img id="voucher_image_preview"
-                                    src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}"
-                                    style="max-width:50px; margin-top:10px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
-                            </div>
-
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="mb-3">
                                 <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
-
                         <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="voucher_image">
+                                    Voucher Image <span class="required-hash">*</span>
+                                </label>
+                                <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
+                                <span class="text-secondary">(316 px X 140 px)</span>
+                                <div class="d-flex justify-items-start gap-2">
+                                    <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
+                                    <a href="javascript:void(0);" class="text-danger" id="clear_voucher_image" style="display:none;">
+                                        Clear
+                                    </a>
+                                </div>
+                            </div>
+                        </div>                       
+
+                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
                                 <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
                                 <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
                                 <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
@@ -315,6 +349,11 @@
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
+                            <input type="hidden" id="publish_start_original" value="{{ $data->publish_start_date ?? '' }} {{ $data->publish_start_time ?? '' }}">
+                            <input type="hidden" id="publish_end_original" value="{{ $data->publish_end_date ?? '' }} {{ $data->publish_end_time ?? '' }}">
+                            <input type="hidden" id="sales_start_original" value="{{ $data->sales_start_date ?? '' }} {{ $data->sales_start_time ?? '' }}">
+                            <input type="hidden" id="sales_end_original" value="{{ $data->sales_end_date ?? '' }} {{ $data->sales_end_time ?? '' }}">
+
                             <label class="sh_dec"><b>Date & Time</b></label>
 
                             <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
@@ -324,7 +363,7 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text"  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="publish_start"  id="publish_start"  value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
@@ -650,9 +689,10 @@
                             <!-- All other common fields here -->
                         </div>                        
                     </div>
+
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">                         
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors(this)">Reset</button>
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="reset_data('{{ isset($data->id) ? 'EditModal' : 'AddModal' }}')">Reset</button>
                         </div>
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>

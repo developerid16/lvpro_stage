@@ -439,10 +439,10 @@ tspan {
     justify-content: end;
 }
 .reward-img img {
-    width: 160px;
-    height: 90px;
-    object-fit: cover;
-    background: #e0e0e0;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    /* background: #e0e0e0; */
     border-radius: 4px;
 }
 

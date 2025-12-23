@@ -1,5 +1,5 @@
 <div class="modal fade" id="checkoutModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg" style="width: 600px;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
            <div class="modal-header">
                 <h5 class="modal-title" id="checkoutModalTitle"></h5>
@@ -30,131 +30,123 @@
                 
 
                     <div class="row">
-
-                        <!-- LEFT -->
-                        <div class="col-md-6">
-                            <p>
-                                <strong>Name:</strong>
-                                <input type="text" id="d_name" class="form-control mb-2" readonly value="test">
-                            </p>
-                            <p>
-                                <strong>Email:</strong>
-                                <input type="text" id="d_email" class="form-control mb-2" readonly value="test@gmail.com">
-
-                            </p>
-
-                            <p>
-                                <strong>Mobile:</strong>
-                                <input type="text" id="d_mobile" class="form-control mb-2" readonly value="88888888888">
-
-                            </p>
-
+                        <div class="col-md-12 col-lg-12">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="">Name</label>
+                                <input type="text" id="d_name" class="sh_dec form-control mb-2" readonly value="test">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="">Email</label>
+                                <input type="text" id="d_email" class="sh_dec form-control mb-2" readonly value="test@gmail.com">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="">Mobile</label>
+                                <input type="text" id="d_mobile" class="sh_dec form-control mb-2" readonly value="88888888888">
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-lg-12">
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="no_update"  name="update_membership" >
-                                <label class="form-check-label">
+                                <label class="sh_dec" class="form-check-label">
                                     I DO NOT wish to update my SAFRA member profile
                                 </label>
                             </div>
-
-                            <div class="mb-2">
-                                <label>Quantity</label>
-                                <select id="qty" name="qty" class="form-control">
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">Quantity</label>
+                                <select id="qty" name="qty" class="sh_dec form-control">
                                     <option value="1">1</option>
                                 </select>
                             </div>
-
-                            <div class="mb-2">
-                                <label>Collection</label>
-                                <select id="collection" name="collection" class="form-control">
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">Collection</label>
+                                <select id="collection" name="collection" class="sh_dec form-control">
                                 </select>
                             </div>
-
-                            <div class="mb-2">
-                                <label>Payment Mode</label>
-                                <select id="payment" class="form-control" name="payment_mode">
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">Payment Mode</label>
+                                <select id="payment" class="sh_dec form-control" name="payment_mode">
                                     <option>Cash</option>
                                     <option>Online</option>
                                 </select>
                             </div>
-
-                            <div class="mb-2">
-                                <label>Note</label>
-                                <textarea name="note" class="form-control"></textarea>
+                        </div>
+                        <div class="col-md-6 col-lg-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">Note</label>
+                                <textarea name="note" class="sh_dec form-control" rows="1"></textarea>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                             <label class="sh_dec">Preview</label>
+                             <div class="reward-detail text-left">
 
-                        <!-- RIGHT -->
+                                <div class="reward-img mb-3">
+                                    <img id="reward_image" src="" alt="Reward Image">
+                                </div>
+
+                                <p id="reward_type"></p>
+                                <p><strong id="reward_name"></strong></p>
+                                <p id="reward_offer"></p>
+
+                                <div class="row mt-3 text-left d-flex justify-content-between">
+                                    <div class="col-5">
+                                        <strong>Member Type</strong><br>
+                                        SAFRA Member<br>
+                                        SAFRA MovieMax<br>
+                                        SAFRA Bitez<br>
+                                        SAFRA Travel Club
+                                    </div>
+                                    <div class="col-3 text-left">
+                                        <strong>Rate (SGD)</strong><br>
+                                        <span id="rate_member"></span><br>
+                                        <span id="rate_movie"></span><br>
+                                        <span id="rate_bitez"></span><br>
+                                        <span id="rate_travel"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <strong>Sales End Date Time:</strong><br>
+                                    <span id="reward_end"></span>
+                                </div>
+
+                                <div class="mt-2">
+                                    <strong>Remaining Quantity at Club:</strong>
+                                    <span id="reward_left"></span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-6 total-section">
-                        <div>                       
-                            <p><strong>Subtotal:</strong> SGD <span id="d_subtotal"></span></p>
-                            <p><strong>Admin Fee:</strong> SGD <span id="d_admin"></span></p>
-                            <p><strong>Total:</strong> SGD <span id="d_total"></span></p>
-
-                            <div class="d-flex justify-content-between mt-3">
-                                <button type="button" class="btn btn-secondary me-2" data-bs-toggle="modal" id="btnBackToMember"  data-bs-target="#memberModal" data-reward-id="">
-                                    Back
-                                </button>
-
-                                <button type="button" class="btn btn-primary" id="btnCheckout">
-                                    CHECK OUT
-                                </button>
+                            <div>                       
+                                <p><strong>Subtotal:</strong> SGD <span id="d_subtotal"></span></p>
+                                <p><strong>Admin Fee:</strong> SGD <span id="d_admin"></span></p>
+                                <p><strong>Total:</strong> SGD <span id="d_total"></span></p>
+    
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button type="button" class="btn btn-secondary me-2" data-bs-toggle="modal" id="btnBackToMember"  data-bs-target="#memberModal" data-reward-id="">
+                                        Back
+                                    </button>
+    
+                                    <button type="button" class="btn btn-primary" id="btnConfirm">
+                                        CHECK OUT
+                                    </button>
+                                </div>
                             </div>
-
-
                         </div>
-                        </div>
-
                     </div>
                 </form>
             </div>
 
-            <div id="previewStep" style="display:none" class="p-4">
-
-                <div class="reward-detail text-center">
-
-                <div class="reward-img mb-3">
-                    <img id="reward_image" src="" alt="Reward Image">
-                </div>
-
-                <p id="reward_type"></p>
-                <p><strong id="reward_name"></strong></p>
-                <p id="reward_offer"></p>
-
-                <div class="row mt-3 text-start d-flex justify-content-center">
-                    <div class="col-5">
-                        <strong>Member Type</strong><br>
-                        SAFRA Member<br>
-                        SAFRA MovieMax<br>
-                        SAFRA Bitez<br>
-                        SAFRA Travel Club
-                    </div>
-                    <div class="col-3 text-start">
-                        <strong>Rate (SGD)</strong><br>
-                        <span id="rate_member"></span><br>
-                        <span id="rate_movie"></span><br>
-                        <span id="rate_bitez"></span><br>
-                        <span id="rate_travel"></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <strong>Sales End Date Time:</strong><br>
-                    <span id="reward_end"></span>
-                </div>
-
-                <div class="mt-2">
-                    <strong>Remaining Quantity at Club:</strong>
-                    <span id="reward_left"></span>
-                </div>
-
-                <hr>
-
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-light" id="btnBack">Back</button>
-                    <button class="btn btn-primary" id="btnConfirm">Confirm</button>
-                </div>
-                </div>
-            </div>
 
             <div id="confirmationStep" style="display:none" class="p-4">
 
