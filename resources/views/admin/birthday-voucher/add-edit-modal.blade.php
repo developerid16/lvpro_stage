@@ -205,7 +205,7 @@
                                 <label class="sh_dec" for="voucher_image">
                                     Voucher Image <span class="required-hash">*</span>
                                 </label>
-                                <input id="voucher_image" type="file" class="sh_dec form-control" name="voucher_image" accept=".png,.jpg,.jpeg">
+                                <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
                                 <span class="text-secondary">(316 px X 140 px)</span>
                                 <div class="d-flex justify-items-start gap-2">
                                     <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
