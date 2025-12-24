@@ -268,7 +268,7 @@
             <tr>
                 <td bgcolor="#da4f44" align="left" style="padding: 16px 32px; border-radius: 0px 0px 0px 0px; color: #666666; font-family: 'Arial', Helvetica, Arial, sans-serif; font-size: 12px;font-weight: 400; line-height: 22px;display: flex;justify-content:space-between;align-items:center;">
                 @if ((isset($provider) && ($provider == "hotmail.com" || $provider == "outlook.com" || $provider == "outlook.sg")) || (isset($data['provider']) && ($data['provider'] == "hotmail.com" || $data['provider'] == "outlook.com" || $data['provider'] == "outlook.sg")) )
-                    <img src="{{asset('build/email/shillaaccesslogo.png')}}" alt="" srcset="" style="max-width:95px;float:left;">
+                    <img src="{{ asset('/build/images/logo-dark.png') }}" alt="" srcset="" style="max-width:95px;float:left;">
 
                     @if(isset($unique_id) )
                     <div style="font-size: 12px;font-weight: bolder;color: #FFFFFF !important;margin-top: 10px;width: 100%;text-align: right !important;">APHID:{{$unique_id}}</div>
@@ -279,7 +279,7 @@
 
                 @else 
 
-                <img class="logom" src="{{asset('build/email/shillaaccesslogo.png')}}" alt="" srcset="">
+                <img class="logom" src="{{ asset('/build/images/logo-dark.png') }}" alt="" srcset="">
                 <!-- for outlook logo code -->
                 <!-- for outlook logo code -->
                     @if(isset($unique_id) )

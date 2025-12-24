@@ -29,7 +29,7 @@ class NewAdminRegister extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your New Password for The Shilla Access',
+            subject: 'Your New Password for The Safra',
         );
     }
 

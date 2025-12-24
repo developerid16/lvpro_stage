@@ -151,21 +151,35 @@
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+
+                // ✅ SAFE: selectedDates is ready here
+                if (instance.selectedDates.length && endPickerInstance) {
+                    const startDate = instance.selectedDates[0];
+
+                    endPickerInstance.set('minDate', startDate);
+                    endPickerInstance.set('clickOpens', true);
+                    endPickerInstance.altInput.removeAttribute('disabled');
+
+                    // 🔒 prevents -1 year
+                    endPickerInstance.jumpToDate(startDate);
+                }
             },
 
             onChange(selectedDates) {
                 if (!endPickerInstance) return;
 
                 if (selectedDates.length) {
-                    endPickerInstance.set('minDate', selectedDates[0]);
-                    endPickerInstance.input.removeAttribute('disabled');
-                    endPickerInstance.set('clickOpens', true);
+                    const d = selectedDates[0];
+                    safeEnableEndPicker(endPickerInstance, d);
                 } else {
                     endPickerInstance.clear();
-                    endPickerInstance.input.setAttribute('disabled', true);
+                    endPickerInstance.set('minDate', null);
                     endPickerInstance.set('clickOpens', false);
+                    endPickerInstance.altInput.setAttribute('disabled', true);
+                    endPickerInstance.jumpToDate(new Date());
                 }
             }
+
         });
 
         endPickerInstance = flatpickr(endEl, {
@@ -180,26 +194,33 @@
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+
+                // 🔑 anchor calendar safely
+                instance.jumpToDate(
+                    instance.selectedDates[0] || new Date()
+                );
             }
         });
 
-        // ✅ EDIT MODE HANDLING
-        if (startEl.value) {
 
-            endPickerInstance.set('minDate', startPickerInstance.selectedDates[0]);
-            endPickerInstance.input.removeAttribute('disabled');
-            endPickerInstance.set('clickOpens', true);
-
+        if (startPickerInstance.selectedDates.length) {
+            const d = startPickerInstance.selectedDates[0];
+            safeEnableEndPicker(endPickerInstance, d);
         } else {
-
-            // start empty → end must be disabled
-            endPickerInstance.clear();
-            endPickerInstance.input.setAttribute('disabled', true);
-            endPickerInstance.set('clickOpens', false);
+            endPickerInstance.altInput.setAttribute('disabled', true);
         }
+
 
     }
   
+    function safeEnableEndPicker(instance, anchorDate) {
+        instance.set('minDate', anchorDate);
+        instance.jumpToDate(anchorDate);   // 🔑 REQUIRED
+        instance.set('clickOpens', true);
+        instance.altInput.removeAttribute('disabled');
+    }
+
+
     function bindMonthFlatpickr(startSelector, endSelector) {
 
         const startEl = document.querySelector(startSelector);
@@ -559,7 +580,6 @@
         modal.find('#selected_locations_hidden').empty();
     }
 
-
     function editToggleInventoryFields(modal) {
         let type = modal.find('.inventory_type').val();
 
@@ -601,49 +621,7 @@
             qtyField.hide();
         }
     }
-
-    function reset_data(modalId) {
-        const modal = $('#' + modalId);
-        if (!modal.length) return;
-
-        // clear validation UI
-        modal.find('.is-invalid').removeClass('is-invalid');
-        modal.find('.invalid-feedback, .error').text('');
-
-        // original values
-        const publish_start = modal.find('#publish_start_original').val();
-        const publish_end   = modal.find('#publish_end_original').val();
-        const sales_start   = modal.find('#sales_start_original').val();
-        const sales_end     = modal.find('#sales_end_original').val();
-
-        // publish_start flatpickr
-        const publishStartEl = modal.find('#publish_start')[0];
-        console.log(publishStartEl,'publishStartEl');
-        
-        if (publishStartEl && publishStartEl._flatpickr) {
-            publishStartEl._flatpickr.setDate(publish_start, true);
-        }
-
-        // publish_end flatpickr
-        const publishEndEl = modal.find('#publish_end')[0];
-        if (publishEndEl && publishEndEl._flatpickr) {
-            publishEndEl._flatpickr.setDate(publish_end, true);
-        }
-
-        // sales_start flatpickr
-        const salesStartEl = modal.find('#sales_start')[0];
-        if (salesStartEl && salesStartEl._flatpickr) {
-            salesStartEl._flatpickr.setDate(sales_start, true);
-        }
-
-        // sales_end flatpickr
-        const salesEndEl = modal.find('#sales_end')[0];
-        if (salesEndEl && salesEndEl._flatpickr) {
-            salesEndEl._flatpickr.setDate(sales_end, true);
-        }
-    }
-
-
+  
     // Show preview when selecting a new image
     document.getElementById('voucher_image').addEventListener('change', function (e) {
         const file = e.target.files[0];
@@ -658,7 +636,6 @@
         }
     });
    
-
     // Clear image
     document.getElementById('clear_voucher_image').addEventListener('click', function () {
         const input = document.getElementById('voucher_image');
@@ -669,9 +646,6 @@
         preview.style.display = 'none';
         this.style.display = 'none';
     });
-
-    
-    
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>

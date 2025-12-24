@@ -50,7 +50,6 @@
             });  
         }        
     
-    
     });
 
     $(document).on("change", ".voucher_image", function (e) {
@@ -75,7 +74,6 @@
         reader.readAsDataURL(file);
     });
 
-
     $(document).on('click', '#clear_voucher_image', function () {
 
         const modal = $(this).closest('.modal'); // auto-detect modal
@@ -89,7 +87,6 @@
         preview.attr('src', '').hide();
         $(this).hide();
     });
-
 
     function initFlatpickr(modal) {
         bindStartEndFlatpickrEdit(
@@ -106,42 +103,15 @@
     }
 
     function calculateVoucherSet() {
-
         let usualPrice   = parseFloat($('#EditModal #usual_price').val());
         let voucherValue = parseFloat($('#EditModal #voucher_value').val());
-
-        // Guard clauses
         if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
             $('#EditModal #voucher_set').val('');
             return;
         }
-
         let voucherSet = usualPrice / voucherValue;
-
-        // If you want integer only (recommended)
-        $('#EditModal #voucher_set').val(Math.floor(voucherSet));
-
-        // If you want decimals instead, use this:
-        // $('#voucher_set').val(voucherSet.toFixed(2));
+        $('#EditModal #voucher_set').val(Math.floor(voucherSet));        
     }
-
-    // $(document).on("shown.bs.modal", "#EditModal", function () {
-
-    //     const modal = $(this);
-
-    //     modal.find("#participating_merchant_id").on("change", function () {
-
-    //         let merchantIds = $(this).val();
-
-    //         if (merchantIds && merchantIds.length) {
-    //             editParticipatingMerchantLocations(modal, merchantIds);
-    //         } else {
-    //             modal.find("#participating_section").hide();
-    //             modal.find("#selected_locations_wrapper").hide();
-    //         }
-    //     });
-    // });
-
 
     $(document).on('change', '.reward_type', function () {
 
@@ -264,7 +234,7 @@
     
     $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
-    }); 
+    });
 
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -698,7 +668,7 @@
 
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">                         
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="reset_data('{{ isset($data->id) ? 'EditModal' : 'AddModal' }}')">Reset</button>
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
                         </div>
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>

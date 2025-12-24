@@ -15,7 +15,7 @@
                                 <p style="margin-top: 0 !important;">Follow us at:</p>
                                 <div class="followusico">
                                     <div style="max-height: 32px;margin-right:10px;float: left;">
-                                        <a href="https://www.facebook.com/Shilladutyfree.sg" style="max-height:50px;">
+                                        <a href="#" style="max-height:50px;">
 
                                             <div class="iconsocial">
                                                 <!-- <img src="{{asset('build/email/fb.png')}}" class="mediaicosocial"> -->
@@ -29,7 +29,7 @@
 
                                     <div style="max-height: 32px;margin-right:10px;float: left;">
                                         <!-- style="max-height:50px;height: 32px !important;width: 32px;" -->
-                                        <a href="https://www.instagram.com/shilladutyfreesg/">
+                                        <a href="#">
                                             <div class="iconsocial">
 
                                                 <!-- <img src="{{asset('build/email/ig.png')}}" class="mediaicosocial"> -->
@@ -43,7 +43,7 @@
                                     </div>
 
                                     <div style="max-height: 32px;">
-                                        <a href="https://www.xiaohongshu.com/user/profile/5aa6374b4eacab58cdd6416e?xhsshare=CopyLink&appuid=5f7c33470000000001001e87&apptime=1702455842" style="max-height:50px;">
+                                        <a href="#" style="max-height:50px;">
 
                                             <div class="iconsocial">
                                                 <img src="{{asset('build/email/ch.png')}}" style="width: 100%;max-width: 20px;max-height: 20px;aspect-ratio: 1 / 1;padding:6px;object-fit: contain;">
@@ -53,7 +53,7 @@
 
                                 </div>
                                 <div class="block">
-                                    <p>For any inquiries, feel free to reach out to us at <a href="mailto:shilla.access@samsung.com">shilla.access@samsung.com</a> </p>
+                                    <p>For any inquiries, feel free to reach out to us at <a href="mailto:support@example.com">support@example.com</a> </p>
                                 </div>
 
                                
@@ -78,7 +78,7 @@
                    @endphp 
                     @endif
                     @if (isset($en_email))
-                    <a style="margin: 0;color:#FFF;font-size: 10px;color: #FFF;font-weight: normal;letter-spacing: 0.5px;" href="https://www.theshillaaccess.sg/unsubscribe?token={{$en_email}}">Click Here to unsubscribe</a>
+                    <a style="margin: 0;color:#FFF;font-size: 10px;color: #FFF;font-weight: normal;letter-spacing: 0.5px;" href="#">Click Here to unsubscribe</a>
                         
                     @endif
                 </td>
@@ -92,7 +92,7 @@
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px;margin:0 auto;">
             <tr>
                 <td align="left" style="padding: 10px 30px 10px 30px; color: #49433B; font-family: Helvetica, Arial, sans-serif; font-size: 10px; font-weight: 400; line-height: 18px;text-align:center;">
-                    <p style="margin: 0;">© {{date('Y')}} Shilla Access. All rights reserved.</p>
+                    <p style="margin: 0;">© {{date('Y')}} Safra. All rights reserved.</p>
                 </td>
             </tr>
         </table>

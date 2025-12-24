@@ -125,7 +125,7 @@
                             <!-- {{config('app.name')}} -->
                             <h1
                                 style="font-size: 32px; font-weight:700; margin: 2px;color:white;width:100%;letter-spacing:0px;">
-                                Shilla Access</h1>
+                                Safra</h1>
                         </td>
                     </tr>
                 </table>

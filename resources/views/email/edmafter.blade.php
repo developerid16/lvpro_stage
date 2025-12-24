@@ -4,7 +4,7 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 800px;overflow: hidden;">
                 <tr>
                 <td bgcolor="#da4f44" align="left" style="padding: 16px 32px; border-radius: 0px 0px 0px 0px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 12px;font-weight: 400; line-height: 22px;display: flex;justify-content:space-between;align-items:center;">
-                    <img src="{{asset('build/email/shillaaccesslogo.png')}}" alt="" srcset="" style="max-width: 104px;">
+                    <img src="{{ asset('/build/images/logo-dark.png') }}" alt="" srcset="" style="max-width: 104px;">
                     <div style="font-size: 24px;font-weight:bolder;color:#FFFFFF;margin-top:10px;width:100%;text-align: right;">S10111997</div>
                     </td>
                 </tr>

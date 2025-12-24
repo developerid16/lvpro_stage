@@ -605,7 +605,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('cso-issuance/issue', [CsoIssuanceController::class, 'issue']);
     Route::get('cso-issuance/view/{id}', [CsoIssuanceController::class, 'view']);
     Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
-    Route::resource('cso-issuance', CsoIssuanceController::class);
-    
+    Route::resource('cso-issuance', CsoIssuanceController::class);    
 });
 

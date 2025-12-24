@@ -154,17 +154,17 @@ function show_errors(error, form_id = null) {
     hide_loader()
 }
 
-// function remove_errors(form_id = null) {
-//     if (!form_id) {
-//         $(".validation-error").remove();
-//         $(".error, .custom-error").html('');
-//     } else {
-//         $(form_id).find(".validation-error").remove();
-//         $(form_id).find(".error, .custom-error").html('');
+function remove_errors(form_id = null) {
+    if (!form_id) {
+        $(".validation-error").remove();
+        $(".error, .custom-error").html('');
+    } else {
+        $(form_id).find(".validation-error").remove();
+        $(form_id).find(".error, .custom-error").html('');
 
-//     }
-//     hide_loader();
-// }
+    }
+    hide_loader();
+}
 
 
 
