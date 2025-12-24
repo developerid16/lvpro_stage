@@ -16,14 +16,20 @@
         const preview = modal.find('#voucher_image_preview');
         const clearBtn = modal.find('#clear_voucher_image');
 
-        if (file) {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
             preview
-                .attr('src', URL.createObjectURL(file))
+                .attr('src', event.target.result) // data:image/*
                 .show();
 
             clearBtn.show();
-        }
+        };
+
+        reader.readAsDataURL(file);
     });
+
 
     $(document).on('click', '#clear_voucher_image', function () {
 

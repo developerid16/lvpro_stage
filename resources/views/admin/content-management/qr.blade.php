@@ -205,11 +205,9 @@
                     console.log("response",response);
                  }
             });
-        });
-
-        
-        
+        });        
     });
+
     async function imageChange(event){
         console.log('event',event);
         const file = event.target.files[0];
@@ -217,19 +215,19 @@
         
     }
     const convertBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-        const fileReader = new FileReader();
-        fileReader.readAsDataURL(file);
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
 
-        fileReader.onload = () => {
-            resolve(fileReader.result);
-        };
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
 
-        fileReader.onerror = (error) => {
-            reject(error);
-        };
-    });
-};
+            fileReader.onerror = (error) => {
+                reject(error);
+            };
+        });
+    };
 
     function previewQRCode(){
 
