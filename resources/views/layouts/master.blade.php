@@ -6,7 +6,7 @@
     <title> @yield('title') | {{config('app.name')}} </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="" name="description" />
-    <meta content="Shilla" name="author" />
+    <meta content="Safra" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.png') }}">
 

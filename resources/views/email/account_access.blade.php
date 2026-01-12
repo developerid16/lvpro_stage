@@ -6,7 +6,7 @@
         <tr>
         <td bgcolor="#ffffff" align="left" style="padding: 50px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 22px;">
                 <p style="margin: 0;">Dear {{$data['name']}},</p>
-                <p style="margin: 0;">As part of our The Shilla Access ensuring the security of your account, we have assigned a new password for your account. This email contains the details you need to access your account.</p>
+                <p style="margin: 0;">As part of our The Safra Access ensuring the security of your account, we have assigned a new password for your account. This email contains the details you need to access your account.</p>
             </td>
         </tr>
         <tr>
@@ -30,7 +30,7 @@
         <tr>
         <td bgcolor="#ffffff" align="left"
                     style="padding: 0px 30px 50px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 22px;">
-                <p style="margin: 0;">Thank you for using The Shilla Access. We appreciate your trust in us and are committed to providing you with a secure and seamless experience.</p>
+                <p style="margin: 0;">Thank you for using The Safra Access. We appreciate your trust in us and are committed to providing you with a secure and seamless experience.</p>
             </td>
         </tr>
 </td>

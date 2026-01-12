@@ -56,8 +56,8 @@ class CategoryController extends Controller
             $index = $startIndex + $i + 1;
 
 
-            $createdAt = $row->created_at->format(config('shilla.date-format'));
-            $updatedAt = $row->updated_at->format(config('shilla.date-format'));
+            $createdAt = $row->created_at->format(config('safra.date-format'));
+            $updatedAt = $row->updated_at->format(config('safra.date-format'));
 
             // -------------------------
             // ACTION BUTTONS

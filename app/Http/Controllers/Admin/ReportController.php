@@ -196,7 +196,7 @@ class ReportController extends Controller
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['user_name'] = $row->user->name;
 
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 
             $final_data[$key]['status'] = $row->status;
             $action = "";
@@ -316,6 +316,6 @@ class ReportController extends Controller
     function lastTransaction($id): string
     {
         $last =  Sale::where('user_id', $id)->first();
-        return $last ? $last->date->format(config('shilla.date-format')) : 'NDA';
+        return $last ? $last->date->format(config('safra.date-format')) : 'NDA';
     }
 }

@@ -12,21 +12,21 @@
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
                     <div class="row">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="code">Code <span class="required-hash">*</span></label>
                                 <input id="code" type="text" class="sh_dec form-control" name="code" placeholder="Enter Code"
                                     value="{{ $data->code ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="tier_name">Name <span class="required-hash">*</span></label>
                                 <input id="tier_name" type="text" class="sh_dec form-control" name="tier_name" placeholder="Enter Name"
                                     value="{{ $data->tier_name ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="status">Status <span class="required-hash">*</span></label>
 

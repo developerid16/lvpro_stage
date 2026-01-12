@@ -135,12 +135,12 @@ class CustomerReport implements ShouldQueue
                     $item->email,
                     $item->country_code . ' ' . $item->phone_number,
                     $item->status,
-                    $item->date_of_birth ? $item->date_of_birth->format(config('shilla.date-format')) : '',
+                    $item->date_of_birth ? $item->date_of_birth->format(config('safra.date-format')) : '',
                     $item->gender,
                     $item->date_of_birth ?  $item->date_of_birth->age : '',
-                    $item->expiry_date ? $item->expiry_date->format(config('shilla.date-format')) : '',
-                    $item->created_at ? $item->created_at->format(config('shilla.date-format')) : '',
-                    $item->last_login ? $item->last_login->format(config('shilla.date-format')) : '',
+                    $item->expiry_date ? $item->expiry_date->format(config('safra.date-format')) : '',
+                    $item->created_at ? $item->created_at->format(config('safra.date-format')) : '',
+                    $item->last_login ? $item->last_login->format(config('safra.date-format')) : '',
 
                     $instance->total($item->id),
                     $instance->last3month($item->id),
@@ -151,7 +151,7 @@ class CustomerReport implements ShouldQueue
                     $instance->remainKey($item->id),
                     $item->referral ? $item->referral->byuser->name : 'ND',
                     $item->referral ? $item->referral->byuser->unique_id : 'ND',
-                    $item->referral ? $item->referral->created_at->format(config('shilla.date-format')) : 'ND',
+                    $item->referral ? $item->referral->created_at->format(config('safra.date-format')) : 'ND',
                     $item->referral ? $item->referral->status : 'ND',
                 ]);
             }
@@ -232,6 +232,6 @@ class CustomerReport implements ShouldQueue
     function lastTransaction($id): string
     {
         $last =  Sale::where('loyalty', $id)->first();
-        return $last ? $last->date->format(config('shilla.date-format')) : 'NDA';
+        return $last ? $last->date->format(config('safra.date-format')) : 'NDA';
     }
 }

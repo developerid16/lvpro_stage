@@ -64,13 +64,13 @@ class CustomerReportExport implements FromQuery, WithMapping, WithHeadings
             $item->email,
             $item->country_code . ' ' . $item->phone_number,
             $item->status,
-            $item->date_of_birth ? $item->date_of_birth->format(config('shilla.date-format')) : '',
+            $item->date_of_birth ? $item->date_of_birth->format(config('safra.date-format')) : '',
             $item->gender,
             $item->date_of_birth ?  $item->date_of_birth->age : '',
-            $item->expiry_date ? $item->expiry_date->format(config('shilla.date-format')) : '',
-            $item->created_at ? $item->created_at->format(config('shilla.date-format')) : '',
+            $item->expiry_date ? $item->expiry_date->format(config('safra.date-format')) : '',
+            $item->created_at ? $item->created_at->format(config('safra.date-format')) : '',
 
-            $item->last_login ? $item->last_login->format(config('shilla.date-format')) : '',
+            $item->last_login ? $item->last_login->format(config('safra.date-format')) : '',
 
             $this->total($item->id),
             $this->last3month($item->id),
@@ -154,7 +154,7 @@ class CustomerReportExport implements FromQuery, WithMapping, WithHeadings
     function lastTransaction($id): string
     {
         $last =  Sale::where('loyalty', $id)->first();
-        return $last ? $last->date->format(config('shilla.date-format')) : 'NDA';
+        return $last ? $last->date->format(config('safra.date-format')) : 'NDA';
     }
 
     // $value->total =  number_format(KeyPassbookCredit::where('user_id', $value->id)->sum('no_of_key'));

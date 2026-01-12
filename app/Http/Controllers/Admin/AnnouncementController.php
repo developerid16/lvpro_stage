@@ -65,9 +65,9 @@ class AnnouncementController extends Controller
                 'sr_no' => $index,
                 'title' => $row->title,
                 'date'  =>
-                    optional($row->start_date)->format(config('shilla.date-format')) .
+                    optional($row->start_date)->format(config('safra.date-format')) .
                     ' to ' .
-                    optional($row->end_date)->format(config('shilla.date-format')),
+                    optional($row->end_date)->format(config('safra.date-format')),
             ];
 
             // ---------------- ACTIONS ----------------

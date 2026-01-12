@@ -15,7 +15,9 @@ use App\Http\Controllers\Controller;
 use App\Models\RefundSale;
 use App\Models\Sale;
 use App\Models\UserPurchasedRewardLogs;
+use App\Services\SafraService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class AppUserController extends Controller
@@ -69,9 +71,9 @@ class AppUserController extends Controller
             $final_data[$key]['unique_id'] = $row->unique_id;
             $final_data[$key]['gender'] = $row->gender;
             $final_data[$key]['phone_number'] = $row->country_code . ' ' . $row->phone_number;
-            $final_data[$key]['date_of_birth'] = $row->date_of_birth ? $row->date_of_birth->format(config('shilla.date-format')) : '';
-            $final_data[$key]['created_at'] = $row->created_at ? $row->created_at->format(config('shilla.date-format')) : '';
-            $final_data[$key]['expiry_date'] = $row->expiry_date ? $row->expiry_date->format(config('shilla.date-format')) : '';
+            $final_data[$key]['date_of_birth'] = $row->date_of_birth ? $row->date_of_birth->format(config('safra.date-format')) : '';
+            $final_data[$key]['created_at'] = $row->created_at ? $row->created_at->format(config('safra.date-format')) : '';
+            $final_data[$key]['expiry_date'] = $row->expiry_date ? $row->expiry_date->format(config('safra.date-format')) : '';
             $final_data[$key]['my_code'] = $row->my_code;
             $final_data[$key]['name'] = $row->name;
             $final_data[$key]['email'] = $row->email;
@@ -92,7 +94,9 @@ class AppUserController extends Controller
 
             $action .= "<a href='$editurl' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             $action .= "<a href='$transactionsurl' class='edit' data-id='$row->id'><i class='mdi mdi-credit-card text-primary action-icon font-size-18'></i></a>";
-
+            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+            }
 
             $final_data[$key]['action'] = $action . "</div>";
         }
@@ -349,9 +353,26 @@ class AppUserController extends Controller
      */
     public function destroy(string $id)
     {
-        User::where('id', $id)->delete();
-        return response()->json(['status' => 'success', 'message' => 'User Delete Successfully']);
+        DB::transaction(function () use ($id) {
+
+            // delete app user related data
+            KeyPassbookDebit::where('user_id', $id)->delete();
+            KeyPassbookCredit::where('user_id', $id)->delete();
+            UserPurchasedReward::where('user_id', $id)->delete();
+            UserPurchasedRewardLogs::where('user_id', $id)->delete();
+            RefundSale::where('user_id', $id)->delete();
+            Sale::where('user_id', $id)->delete();
+
+            // finally delete app user
+            AppUser::where('id', $id)->delete();
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'App user and all related data deleted successfully'
+        ]);
     }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -431,4 +452,7 @@ class AppUserController extends Controller
         }
         return redirect()->back()->with('message', "Entry added successfully");
     }
+
+   
+
 }

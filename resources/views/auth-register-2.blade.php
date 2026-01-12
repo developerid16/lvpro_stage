@@ -50,7 +50,7 @@
 
                                         <div>
                                             <h5 class="text-primary">Register account</h5>
-                                            <p class="text-muted">Get your free Shilla account now.</p>
+                                            <p class="text-muted">Get your free Safra account now.</p>
                                         </div>
 
                                         <div class="mt-4">
@@ -84,7 +84,7 @@
                                                 </div>
 
                                                 <div>
-                                                    <p class="mb-0">By registering you agree to the Shilla <a href="#"
+                                                    <p class="mb-0">By registering you agree to the Safra <a href="#"
                                                             class="text-primary">Terms of Use</a></p>
                                                 </div>
 
@@ -133,8 +133,8 @@
                                         <p class="mb-0">© <script>
                                                 document.write(new Date().getFullYear())
 
-                                            </script> Shilla. Crafted with <i class="mdi mdi-heart text-danger"></i> by
-                                            shilla</p>
+                                            </script> Safra. Crafted with <i class="mdi mdi-heart text-danger"></i> by
+                                            Safra</p>
                                     </div>
                                 </div>
 

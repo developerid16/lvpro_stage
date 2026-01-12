@@ -20,7 +20,7 @@
                                     <div class="col-7">
                                         <div class="text-primary p-4">
                                             <h5 class="text-primary"> Verify Password</h5>
-                                            <p>Verify Password with Shilla.</p>
+                                            <p>Verify Password with Safra.</p>
                                         </div>
                                     </div>
                                     <div class="col-5 align-self-end">
@@ -66,7 +66,7 @@
                             <p>© <script>
                                     document.write(new Date().getFullYear())
 
-                                </script> Shilla. Crafted with <i class="mdi mdi-heart text-danger"></i> by shilla</p>
+                                </script> Safra. Crafted with <i class="mdi mdi-heart text-danger"></i> by Safra</p>
                         </div>
 
                     </div>

@@ -50,7 +50,7 @@
 
                                         <div>
                                             <h5 class="text-primary"> Reset Password</h5>
-                                            <p class="text-muted">Re-Password with Shilla.</p>
+                                            <p class="text-muted">Re-Password with Safra.</p>
                                         </div>
 
                                         <div class="mt-4">
@@ -82,8 +82,8 @@
                                         <p class="mb-0">© <script>
                                                 document.write(new Date().getFullYear())
 
-                                            </script> Shilla. Crafted with <i class="mdi mdi-heart text-danger"></i> by
-                                            shilla</p>
+                                            </script> Safra. Crafted with <i class="mdi mdi-heart text-danger"></i> by
+                                            Safra</p>
                                     </div>
                                 </div>
 

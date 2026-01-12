@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') User Management @endsection
+@section('title') Application User @endsection
 @section('content')
 
     @component('components.breadcrumb')
     @slot('li_1') Admin @endslot
     @slot('li_1_link') {{url('/')}} @endslot
-    @slot('title') User Management @endslot
+    @slot('title') Application User @endslot
     @endcomponent
 
 

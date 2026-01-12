@@ -6,6 +6,6 @@ return [
     'month-format' =>  'Y-m',
     'apiusername' =>  env('apiusername', 'API9LS9MPTHXA'),
     'apipassword' =>  env('apipassword', 'API9LS9MPTHXAF6B2U'),
-    'senderid' =>  env('senderid', 'Shilla SG'),
+    'senderid' =>  env('senderid', 'Safra SG'),
     'languagetype' =>  env('languagetype',1),
 ];

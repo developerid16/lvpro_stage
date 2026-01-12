@@ -82,7 +82,7 @@
 
 
 
-                                <td>{{$data['date']->format(config('shilla.date-format' ) . " g:i:s a") }}
+                                <td>{{$data['date']->format(config('safra.date-format' ) . " g:i:s a") }}
                                 </td>
                             </tr>
                             @endforeach

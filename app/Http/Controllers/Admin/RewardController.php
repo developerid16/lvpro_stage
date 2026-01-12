@@ -137,7 +137,7 @@ class RewardController extends Controller
 
             $final_data[$key]['redeemed'] = number_format(UserPurchasedReward::where([['status', 'Redeemed'], ['reward_id', $row->id]])->count());
 
-            $duration = $row->created_at->format(config('shilla.date-format'));
+            $duration = $row->created_at->format(config('safra.date-format'));
 
             if (!empty($row->voucher_image)) {
 
@@ -153,12 +153,12 @@ class RewardController extends Controller
             }
 
             if ($row->end_date) {
-                $duration .= ' to ' . $row->end_date->format(config('shilla.date-format'));
+                $duration .= ' to ' . $row->end_date->format(config('safra.date-format'));
             } else {
                 $duration .= " - No Expiry";
             }
             $final_data[$key]['duration']   = $duration;
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 
             $final_data[$key]['status'] = $row->status;
 

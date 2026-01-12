@@ -80,7 +80,7 @@ class BdayEvoucherController extends Controller
 
             $final_data[$key]['redeemed'] = number_format(UserPurchasedReward::where([['status', 'Redeemed'], ['reward_id', $row->id]])->count());
 
-            $duration = $row->created_at->format(config('shilla.date-format'));
+            $duration = $row->created_at->format(config('safra.date-format'));
 
             if (!empty($row->voucher_image)) {
 
@@ -96,20 +96,20 @@ class BdayEvoucherController extends Controller
             }
 
             if ($row->end_date) {
-                $duration .= ' to ' . $row->end_date->format(config('shilla.date-format'));
+                $duration .= ' to ' . $row->end_date->format(config('safra.date-format'));
             } else {
                 $duration .= " - No Expiry";
             }
             $final_data[$key]['duration']   = $duration;
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
             $fromMonth = $row->from_month
                 ? Carbon::createFromFormat('Y-m', $row->from_month)
-                    ->format(config('shilla.month-format'))
+                    ->format(config('safra.month-format'))
                 : null;
 
             $toMonth = $row->to_month
                 ? Carbon::createFromFormat('Y-m', $row->to_month)
-                    ->format(config('shilla.month-format'))
+                    ->format(config('safra.month-format'))
                 : null;
 
             if ($fromMonth && $toMonth) {
@@ -120,7 +120,7 @@ class BdayEvoucherController extends Controller
                 $final_data[$key]['month'] = '-';
             }
             $final_data[$key]['status'] = $row->status;
-            $final_data[$key]['month'] =  $row->month ? Carbon::createFromFormat('Y-m', $row->month)->format(config('shilla.month-format')): null;
+            $final_data[$key]['month'] =  $row->month ? Carbon::createFromFormat('Y-m', $row->month)->format(config('safra.month-format')): null;
 
             
             $action = "<div class='d-flex gap-3'>";
@@ -283,39 +283,39 @@ class BdayEvoucherController extends Controller
                 $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/image'), $filename);
                 $validated['voucher_image'] = $filename;
-            }           
+            }    
 
+            $current = $startMonth->copy();
 
-          
+                while ($current->lte($endMonth)) {
 
-
-            while ($current->lte($endMonth)) {
-
-                $reward = Reward::create([
-                    'type'                => '2',
-                    'month'                 => $current->format('Y-m'),
-                    'from_month'          => $current->format('Y-m'),
-                    'to_month'            => $current->format('Y-m'), // single month per voucher
-                    'voucher_image'       => $validated['voucher_image'],
-                    'name'                => $validated['name'],
-                    'description'         => $validated['description'],
-                    'term_of_use'         => $validated['term_of_use'],
-                    'how_to_use'          => $validated['how_to_use'],
-                    'merchant_id'         => $validated['merchant_id'],
-                    'reward_type'         => 0,
-                    'voucher_validity'    => $validated['voucher_validity'],
-                    'club_location'       => $validated['club_location'],
-                    'inventory_type'      => $validated['inventory_type'],
-                    'inventory_qty'       => $validated['inventory_qty'] ?? null,
-                    'voucher_value'       => $validated['voucher_value'],
-                    'voucher_set'         => $validated['voucher_set'],
-                    'clearing_method'     => $validated['clearing_method'],
-                    'location_text'       => $request->location_text,
-                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
-                    'hide_quantity'       => $request->hide_quantity ? 1 : 0,
-                    'low_stock_1'         => $validated['low_stock_1'],
-                    'low_stock_2'         => $validated['low_stock_2'],
-                ]);
+                    $reward = Reward::create([
+                        'type'               => '2',
+                        'month'              => $current->format('Y-m'),
+                        'from_month'         => $current->format('Y-m'),
+                        'to_month'           => $current->format('Y-m'),
+                        'voucher_image'      => $validated['voucher_image'],
+                        'name'               => $validated['name'],
+                        'description'        => $validated['description'],
+                        'term_of_use'        => $validated['term_of_use'],
+                        'how_to_use'         => $validated['how_to_use'],
+                        'merchant_id'        => $validated['merchant_id'],
+                        'reward_type'        => 0,
+                        'voucher_validity'   => $validated['voucher_validity'],
+                        'club_location'      => $validated['club_location'],
+                        'inventory_type'     => $validated['inventory_type'],
+                        'inventory_qty'      => $validated['inventory_qty'] ?? null,
+                        'voucher_value'      => $validated['voucher_value'],
+                        'voucher_set'        => $validated['voucher_set'],
+                        'clearing_method'    => $validated['clearing_method'],
+                        'location_text'      => $request->location_text,
+                        'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+                        'hide_quantity'      => $request->hide_quantity ? 1 : 0,
+                        'low_stock_1'        => $validated['low_stock_1'],
+                        'low_stock_2'        => $validated['low_stock_2'],
+                    ]);
+                // -------------------------------
+                    $current->addMonth();
 
                 // -------------------------------
                 // PARTICIPATING LOCATIONS

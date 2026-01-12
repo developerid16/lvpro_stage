@@ -23,7 +23,7 @@
                             <p style="margin:0;color:#49433b;margin-bottom:15px">For more details on the event, please click <a href="https://bit.ly/SAxLancomeVIPEvent24">here</a>.</p>
                             <p style="margin-top: 15px;margin-bottom:10px !important;color:#49433b;">Thank you!</p>
                             <p style="margin-top: 0px;color:#49433b;margin-bottom: 0;">Best Regards,</p>
-                            <p style="margin-top: 0px;color:#49433b;margin-bottom: 0;font-weight:bold;">The Shilla Access Team</p>
+                            <p style="margin-top: 0px;color:#49433b;margin-bottom: 0;font-weight:bold;">The Safra Access Team</p>
                     </div>
             </td>
         </tr>

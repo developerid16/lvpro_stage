@@ -22,7 +22,7 @@
                     <td bgcolor="#ffffff" align="left"
                         style="padding: 50px 50px 0px 50px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 22px;">
                         <p style="margin: 0;margin-bottom:20px;">Dear *user's name*,</p>
-                        <p style="margin: 0;">We are thrilled to announce the launch of our new and improved Shilla Access App! Explore the new design with enhanced
+                        <p style="margin: 0;">We are thrilled to announce the launch of our new and improved Safra Access App! Explore the new design with enhanced
                         features such as real-time earning of Keys and more reward options.</p>
                         <br>
                         <p style="margin: 0;">Update now to enjoy the brand-new app today:</p>
@@ -34,7 +34,7 @@
                         <br>
                         <p style="margin: 0;">You'll be required to reset your password after upgrading your app.</p>
                         <br>
-                        <p style="margin: 0;">For any assistance or question, please contact us at shilla.access@samsung.com. or WhatsApp at +65 9827 6714</p>
+                        <p style="margin: 0;">For any assistance or question, please contact us at safra.access@samsung.com. or WhatsApp at +65 9827 6714</p>
                         <br>
                         <p style="margin: 0;">Thank you!</p>
                     </td>

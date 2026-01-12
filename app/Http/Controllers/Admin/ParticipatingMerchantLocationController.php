@@ -79,12 +79,12 @@ class ParticipatingMerchantLocationController extends Controller
                 'sr_no'        => $startIndex + $i + 1,
                 'name'         => $row->name,
                 'code'         => $row->code,
-                'start_date'   => $row->start_date->format(config('shilla.date-format')),
-                'end_date'     => $row->end_date->format(config('shilla.date-format')),
+                'start_date'   => $row->start_date->format(config('safra.date-format')),
+                'end_date'     => $row->end_date->format(config('safra.date-format')),
                 'club_location'=> optional($row->clubLocation)->name,
                 'status'       => $row->status,
-                'created_at'   =>  $row->created_at->format(config('shilla.date-format')),
-                'updated_at'   =>  $row->updated_at->format(config('shilla.date-format')),
+                'created_at'   =>  $row->created_at->format(config('safra.date-format')),
+                'updated_at'   =>  $row->updated_at->format(config('safra.date-format')),
 
                 'action' =>
                     "<div class='d-flex gap-3'>

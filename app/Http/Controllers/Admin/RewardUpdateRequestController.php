@@ -88,12 +88,12 @@ class RewardUpdateRequestController extends Controller
 
             $fromMonth = $row->from_month
                 ? Carbon::createFromFormat('Y-m', $row->from_month)
-                    ->format(config('shilla.month-format'))
+                    ->format(config('safra.month-format'))
                 : null;
 
             $toMonth = $row->to_month
                 ? Carbon::createFromFormat('Y-m', $row->to_month)
-                    ->format(config('shilla.month-format'))
+                    ->format(config('safra.month-format'))
                 : null;
 
             if ($fromMonth && $toMonth) {
@@ -135,7 +135,7 @@ class RewardUpdateRequestController extends Controller
 
                 // META
                 'requester' => optional($row->requester)->name ?? '-',
-                'created_at'        => optional($row->created_at)->format(config('shilla.date-format')),
+                'created_at'        => optional($row->created_at)->format(config('safra.date-format')),
             ];
 
             // ---------------- ACTIONS ----------------

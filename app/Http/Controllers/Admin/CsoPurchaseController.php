@@ -58,7 +58,7 @@ class CsoPurchaseController extends Controller
             $salesEnd = Carbon::createFromFormat(
                 'Y-m-d H:i:s',
                 $reward->sales_end_date . ' ' . $reward->sales_end_time
-            )->format(config('shilla.date-format'));
+            )->format(config('safra.date-format'));
         }
         return response()->json([
             'member' => [
@@ -138,7 +138,7 @@ class CsoPurchaseController extends Controller
             return response()->json([
                 'purchase_id' => $purchase->id,
                 'receipt_no'  => $receiptNo,
-                'date'        => now()->format(config('shilla.date-format')),
+                'date'        => now()->format(config('safra.date-format')),
                 'name'        => $reward->name,
                 'type'        => $reward->reward_type == 0 ? 'Digital' : 'Physical',
                 'qty'         => $purchase->qty,

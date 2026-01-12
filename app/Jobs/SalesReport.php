@@ -79,7 +79,7 @@ class SalesReport implements ShouldQueue
                     $sale->storage_location,
                     $sale->brand->brand_name ?? '',
                     $sale->brand->product_name ?? '',
-                    $sale->date->format(config('shilla.date-format')),
+                    $sale->date->format(config('safra.date-format')),
                     $sale->system_time,
                     $sale->ref,
                     $sale->sku,

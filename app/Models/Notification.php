@@ -5,10 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DeviceToken extends Model
+class Notification extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'user_id', 'token', 'token_id',
+        'title',
+        'img',
+        'short_desc',
+        'desc',
+        'date',
+        'type',
     ];
+     public $table = 'notifications';
 }

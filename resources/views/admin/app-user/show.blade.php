@@ -141,8 +141,8 @@
 
                                 <td>{{
                                     $reward->status == 'Redeemed' ?
-                                    $reward->redeem_date->format(config('shilla.date-format')) :
-                                    $reward->expiry_date->format(config('shilla.date-format')) }}</td>
+                                    $reward->redeem_date->format(config('safra.date-format')) :
+                                    $reward->expiry_date->format(config('safra.date-format')) }}</td>
                                 <td>
                                     @if ($reward->status != 'Redeemed')
 
@@ -285,7 +285,7 @@
 
                                 <td>{{number_format($key['keys'])}}</td>
 
-                                <td>{{ $key['date']->format(config('shilla.date-format')) }}</td>
+                                <td>{{ $key['date']->format(config('safra.date-format')) }}</td>
                                 <td>{{$key['meta_data']}}</td>
                             </tr>
                             @endforeach

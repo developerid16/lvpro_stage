@@ -474,6 +474,9 @@
                 modal.find("#participating_section").hide();
             }
         });
+        $(document).on('shown.bs.modal', '#AddModal', function () {
+            $('#clear_voucher_image').hide();
+        });
     </script>
     <script>
         function initFlatpickr() {

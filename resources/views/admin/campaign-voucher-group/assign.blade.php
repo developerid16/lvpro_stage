@@ -35,10 +35,10 @@
                             </tr>
                             <tr>
                                 @php
-                                $duration = $data->start_date->format(config('shilla.date-format'));
+                                $duration = $data->start_date->format(config('safra.date-format'));
 
                                 if ($data->end_date) {
-                                $duration .= ' to ' . $data->end_date->format(config('shilla.date-format'));
+                                $duration .= ' to ' . $data->end_date->format(config('safra.date-format'));
                                 } else {
                                 $duration .= " - No Expiry";
                                 }
@@ -171,7 +171,7 @@
 
                     </td>
                     <td>
-                        {{$log->created_at->format(config('shilla.date-format' ) . " g:i:s a") }}
+                        {{$log->created_at->format(config('safra.date-format' ) . " g:i:s a") }}
                     </td>
                 </tr>
                 @endforeach

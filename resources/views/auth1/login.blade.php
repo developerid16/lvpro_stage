@@ -20,7 +20,7 @@
                                     <div class="col-7">
                                         <div class="text-primary p-4">
                                             <h5 class="text-primary">Welcome Back !</h5>
-                                            <p>Sign in to continue to Shilla.</p>
+                                            <p>Sign in to continue to Safra.</p>
                                         </div>
                                     </div>
                                     <div class="col-5 align-self-end">
@@ -56,7 +56,7 @@
                                             <label for="username" class="form-label">Email</label>
                                             <input name="email" type="email"
                                                 class="form-control @error('email') is-invalid @enderror"
-                                                value="{{ old('email', 'admin@shilla.com') }}" id="username"
+                                                value="{{ old('email', 'admin@Safra.com') }}" id="username"
                                                 placeholder="Enter Email" autocomplete="email" autofocus>
                                             @error('email')
                                                 <span class="invalid-feedback" role="alert">
@@ -139,7 +139,7 @@
                                 <p>© <script>
                                         document.write(new Date().getFullYear())
 
-                                    </script> Shilla. Crafted with <i class="mdi mdi-heart text-danger"></i> by shilla
+                                    </script> Safra. Crafted with <i class="mdi mdi-heart text-danger"></i> by Safra
                                 </p>
                             </div>
                         </div>

@@ -72,7 +72,7 @@ class UserRightsRequestController extends Controller
                 'description' => $row->description ?? '-',
                 'status'      => ucfirst($row->status),
                 'created_at'  => optional($row->created_at)
-                                    ->format(config('shilla.date-format')),
+                                    ->format(config('safra.date-format')),
             ];
 
             // ---------------- ACTIONS ----------------

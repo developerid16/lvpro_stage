@@ -22,10 +22,7 @@ class Tier extends Model
     protected $fillable = ['code','status','tier_name', 'instore_multiplier', 'isc_multiplier', 'spend_amount', 't_order', 'detail', 'image'];
 
 
-    public function milestones(): HasMany
-    {
-        return $this->hasMany(TierMilestone::class);
-    }
+   
     public function getImageUrlAttribute()
     {
 

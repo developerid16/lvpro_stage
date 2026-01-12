@@ -35,12 +35,17 @@ return [
         'key'    => env('STRIPE_KEY'),
     ],
 
-    // config/services.php
     'azure' => [
-        'client_id' => env('AZURE_CLIENT_ID'),
-        'tenant_id' => env('AZURE_TENANT_ID'),
-        'secret_id' => env('AZURE_CLIENT_SECRET'),
+        'token_url'     => env('AZURE_TOKEN_URL'),
+        'client_id'     => env('AZURE_CLIENT_ID'),
+        'client_secret' => env('AZURE_CLIENT_SECRET'),
+        'scope'         => env('AZURE_SCOPE'),
     ],
 
-
+    'safra' => [
+        'base_url' => env('SAFRA_API_BASE_URL'),
+        'subscription_key' => env('SAFRA_SUBSCRIPTION_KEY'),
+        'merchant_id'      => env('SAFRA_MERCHANT_ID'),
+        'username'         => env('SAFRA_USERNAME'),
+    ],
 ];

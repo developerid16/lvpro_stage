@@ -21,7 +21,7 @@
                                     <div class="col-7">
                                         <div class="text-primary p-4">
                                             <h5 class="text-primary">Free Register</h5>
-                                            <p>Get your free Shilla account now.</p>
+                                            <p>Get your free Safra account now.</p>
                                         </div>
                                     </div>
                                     <div class="col-5 align-self-end">
@@ -102,7 +102,7 @@
                                         </div>
 
                                         <div class="mt-4 text-center">
-                                            <p class="mb-0">By registering you agree to the Shilla <a href="#"
+                                            <p class="mb-0">By registering you agree to the Safra <a href="#"
                                                     class="text-primary">Terms of Use</a></p>
                                         </div>
                                     </form>
@@ -118,7 +118,7 @@
                                 <p>© <script>
                                         document.write(new Date().getFullYear())
 
-                                    </script> Shilla. Crafted with <i class="mdi mdi-heart text-danger"></i> by shilla
+                                    </script> Safra. Crafted with <i class="mdi mdi-heart text-danger"></i> by Safra
                                 </p>
                             </div>
                         </div>

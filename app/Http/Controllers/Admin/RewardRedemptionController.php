@@ -65,8 +65,8 @@ class RewardRedemptionController extends Controller
             $final_data[$key]['reward'] =  $row->reward->code . "-" .  $row->reward->name;
             $final_data[$key]['key_use'] =
                 number_format($row->key_use);
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
-            $final_data[$key]['expiry_date'] = $row->expiry_date->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
+            $final_data[$key]['expiry_date'] = $row->expiry_date->format(config('safra.date-format'));
             $final_data[$key]['status'] = $row->status === 'Purchased' ? 'Issued' : $row->status;
 
 
@@ -116,8 +116,8 @@ class RewardRedemptionController extends Controller
             $final_data[$key]['name'] = $row->user->name;
             $final_data[$key]['reward'] =   $row->reward->code . "-" .   $row->reward->name;
             $final_data[$key]['key_use'] = number_format($row->key_use);
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
-            $final_data[$key]['expiry_date'] = $row->expiry_date->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
+            $final_data[$key]['expiry_date'] = $row->expiry_date->format(config('safra.date-format'));
             $final_data[$key]['status'] = $row->status === 'Purchased' ? 'Issued' : $row->status;
 
 

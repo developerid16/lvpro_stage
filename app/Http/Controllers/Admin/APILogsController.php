@@ -61,12 +61,12 @@ class APILogsController extends Controller
          
             $final_data[$key]['request_id'] = $row->request_id;
             $final_data[$key]['response_data'] = json_encode($row->response_data);
-            $final_data[$key]['start_time'] = $row->start_time->format(config('shilla.date-format') . " g:i:s a");
+            $final_data[$key]['start_time'] = $row->start_time->format(config('safra.date-format') . " g:i:s a");
             $final_data[$key]['end_time']="-";
             if($row->end_time){
-            $final_data[$key]['end_time'] = $row->end_time->format(config('shilla.date-format') . " g:i:s a");
+            $final_data[$key]['end_time'] = $row->end_time->format(config('safra.date-format') . " g:i:s a");
         }
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'));
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
         }
         $data = [];
         $data['items'] = $final_data;
@@ -126,9 +126,9 @@ class APILogsController extends Controller
             }
             $temp['request_id'] = $row->request_id;
             $temp['response_data'] = json_encode($row->response_data);
-            $temp['start_time'] = $row->start_time->format(config('shilla.date-format') . " g:i:s a");
-            $temp['end_time'] = $row->end_time->format(config('shilla.date-format') . " g:i:s a");
-            $temp['created_at'] = $row->created_at->format(config('shilla.date-format'));
+            $temp['start_time'] = $row->start_time->format(config('safra.date-format') . " g:i:s a");
+            $temp['end_time'] = $row->end_time->format(config('safra.date-format') . " g:i:s a");
+            $temp['created_at'] = $row->created_at->format(config('safra.date-format'));
             if($tempStatus){
 array_push($final_data,$temp);
             }
@@ -161,7 +161,7 @@ array_push($final_data,$temp);
             $final_data[$key]['from_where'] = $row->from_where;
             $final_data[$key]['remark'] = $row->remark;
  
-            $final_data[$key]['created_at'] = $row->created_at->format(config('shilla.date-format'). " g:i:s a");
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'). " g:i:s a");
         }
         $data = [];
         $data['items'] = $final_data;

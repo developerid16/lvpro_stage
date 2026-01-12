@@ -56,8 +56,8 @@ class ParticipatingMerchantController extends Controller
 
             $index = $startIndex + $i + 1;
 
-            $createdAt =  $row->created_at->format(config('shilla.date-format'));
-            $updatedAt =  $row->updated_at->format(config('shilla.date-format'));
+            $createdAt =  $row->created_at->format(config('safra.date-format'));
+            $updatedAt =  $row->updated_at->format(config('safra.date-format'));
 
             // ACTION BUTTONS
             $action = "<div class='d-flex gap-3'>";

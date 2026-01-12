@@ -44,11 +44,11 @@ if (!function_exists('smsSend')) {
     function smsSend($sms, $number): void
     {
 
-        $apiusername = config('shilla.apiusername');
-        $apipassword = config('shilla.apipassword');
+        $apiusername = config('safra.apiusername');
+        $apipassword = config('safra.apipassword');
         $mobileno = '65' . $number;
-        $senderid = urlencode(config('shilla.senderid'));
-        $languagetype = config('shilla.languagetype');
+        $senderid = urlencode(config('safra.senderid'));
+        $languagetype = config('safra.languagetype');
         $message = urlencode("$sms");
 
         $curl = curl_init();

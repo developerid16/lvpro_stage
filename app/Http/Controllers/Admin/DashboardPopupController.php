@@ -70,9 +70,9 @@ class DashboardPopupController extends Controller
                 'status'    => $row->status,
                 'frequency' => $row->frequency,
                 'date'      =>
-                    optional($row->start_date)->format(config('shilla.date-format')) .
+                    optional($row->start_date)->format(config('safra.date-format')) .
                     ' to ' .
-                    optional($row->end_date)->format(config('shilla.date-format')),
+                    optional($row->end_date)->format(config('safra.date-format')),
                 'image'     => "<a href='" . asset("images/$row->image") . "' data-lightbox='set-$row->id'>
                                     <img src='" . asset("images/$row->image") . "'
                                         class='avatar-sm me-3 mx-lg-auto mb-3 mt-1

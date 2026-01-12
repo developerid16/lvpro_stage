@@ -119,8 +119,8 @@ class CsoIssuanceController extends Controller
                 'payment_mode'        => strtoupper($row->payment_mode),
                 'reward_type'          => $rewardType,
                 'status'              => $status,
-                'receipt_datetime'    => optional($row->created_at)->format(config('shilla.date-format')),
-                'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('shilla.date-format')) : '-',
+                'receipt_datetime'    => optional($row->created_at)->format(config('safra.date-format')),
+                'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('safra.date-format')) : '-',
                 'action'              => $action,
                 'remark'              => $row->remark,
             ];
@@ -155,8 +155,8 @@ class CsoIssuanceController extends Controller
              'status_badge' => "<span class='badge bg-{$statusData['class']}'>
                         {$statusData['label']}
                    </span>",
-            'receipt_datetime'  => optional($purchase->created_at)->format(config('shilla.date-format')),
-            'redeemed_datetime' => $purchase->redeemed_at ? $purchase->redeemed_at->format(config('shilla.date-format')) : '-',
+            'receipt_datetime'  => optional($purchase->created_at)->format(config('safra.date-format')),
+            'redeemed_datetime' => $purchase->redeemed_at ? $purchase->redeemed_at->format(config('safra.date-format')) : '-',
             'remark'            => $purchase->remark,
         ]);
     }
