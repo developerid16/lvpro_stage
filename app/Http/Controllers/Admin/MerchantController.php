@@ -83,10 +83,10 @@ class MerchantController extends Controller
 
 
 
-            $final_data[$i] = [
+            $final_data[$i] = [             
                 'sr_no'     => $index,
                 'name'      => $row->name,
-                'logo' => "<img src='" . asset($row->logo) . "' width='50' height='50'>",
+                'logo' => "<img src='" . asset('uploads/image/'.$row->logo) . "' width='50' height='50'>",
                 'status'    => $row->status,
                 'created_at'=> $createdAt,
                 'updated_at'=> $updatedAt,
@@ -101,7 +101,6 @@ class MerchantController extends Controller
             'count' => $result['count'] ?? $rowsQueryBuilder->count(),
         ];
     }
-
 
     /* -----------------------------------------------------
      * SHOW CREATE FORM MODAL
