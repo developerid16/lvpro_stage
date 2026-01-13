@@ -26,15 +26,12 @@ class MicrosoftAuthController extends Controller
         if ($existingUser) {
             // ✅ Existing user → login
             auth()->login($existingUser);
-            return response()->json(['success' => true, 'redirect' => '/dashboard']);
+            return redirect('/dashboard');
         }
 
-        $user = User::create([ 'email' => $email, 'name'  => $decoded->name ?? '', ]);
+        // $user = User::create([ 'email' => $email, 'name'  => $decoded->name ?? '', ]);
 
-        return response()->json([
-            'success'  => true,
-            'redirect' => '/user-rights-form'
-        ]);
+        return redirect('/user-rights-form');
     }
 
 }

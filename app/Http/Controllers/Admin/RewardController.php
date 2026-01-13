@@ -205,6 +205,7 @@ class RewardController extends Controller
                 'how_to_use'         => 'required|string',
                 'merchant_id'        => 'required|exists:merchants,id',
                 'reward_type'        => 'required|in:0,1',
+                'voucher_validity'   => 'required',
                 'usual_price'        => 'required|numeric|min:0',
                 'publish_start'      => 'required',
                 'publish_end'        => 'required',
@@ -613,7 +614,7 @@ class RewardController extends Controller
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
-
+                'voucher_validity'   => 'required',
                 'usual_price' => 'required|numeric|min:0',
 
                 'publish_start' => 'required',

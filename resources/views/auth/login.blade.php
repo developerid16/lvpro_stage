@@ -149,7 +149,7 @@
             auth: {
                 clientId: "{{ config('services.azure.client_id') }}",
                 authority: "https://login.microsoftonline.com/{{ config('services.azure.tenant_id') }}",
-                redirectUri: "{{ url('/sso-callback' )}}"
+                redirectUri: "{{ config('services.azure.redirect_url') }}"
             }
         };
 
@@ -160,6 +160,8 @@
                 scopes: ["openid", "profile", "email"]
             });
         }
+
+        
         
     </script>
     @endsection

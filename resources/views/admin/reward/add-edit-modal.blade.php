@@ -7,8 +7,8 @@
         
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
-         initFlatpickr(this);
-         initFlatpickrDate(this);    
+        initFlatpickr(this);
+        initFlatpickrDate(this);    
         $(".max_order").hide();
         $("#common_section").show();
         if (rewardType == "1") {
@@ -321,6 +321,13 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
+                                <input id="voucher_validity" type="text" class="sh_dec form-control js-flat-date" name="voucher_validity"
+                                    value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}" placeholder="YYYY-MM-DD"/>
+                            </div>
+                        </div>
                         
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
@@ -430,13 +437,7 @@
                                         <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_digital"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
-                                        <input id="voucher_validity" type="text" class="sh_dec form-control js-flat-date" name="voucher_validity"
-                                            value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}" placeholder="YYYY-MM-DD"/>
-                                    </div>
-                                </div>
+                               
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="inventory_type">Inventory Type <span class="required-hash">*</span></label>
