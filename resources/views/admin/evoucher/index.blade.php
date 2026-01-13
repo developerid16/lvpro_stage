@@ -761,5 +761,4 @@
             });
         });
     </script>
-    <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

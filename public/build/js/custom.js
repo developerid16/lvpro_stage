@@ -15,7 +15,6 @@ $(function () {
         }
     });
 
-    console.log("ready!");
 
     $('body').on('click', '.delete-btn', function () {
         const btn = $(this)

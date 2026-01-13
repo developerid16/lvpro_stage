@@ -111,13 +111,22 @@
                         _token: csrf
                     },
                     success: function (response) {
-                        Swal.fire( 'Approved!', response.message,'success' );
+                        console.log(response,'res');
+                        
+                        Swal.fire('Approved!', response.message, 'success');
                         $('#bstable').bootstrapTable('refresh');
                     },
                     error: function (xhr) {
-                        Swal.fire('Error',  xhr.responseJSON?.message || 'Something went wrong.','error');
+                        console.log(xhr.responseJSON);
+
+                        Swal.fire(
+                            'Error',
+                            xhr.responseJSON?.message || xhr.responseText,
+                            'error'
+                        );
                     }
                 });
+
             }
         });
     });

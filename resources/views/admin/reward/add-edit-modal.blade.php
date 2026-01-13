@@ -2,6 +2,10 @@
     $data = $data ?? null;
 @endphp
 <script>
+    $(document).on('submit', '#edit_frm, #add_frm', function (e) {
+        console.log('FORM SUBMIT TRIGGERED');
+    });
+
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let rewardType = $('#EditModal .reward_type').val();
         

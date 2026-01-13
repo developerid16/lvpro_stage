@@ -55,7 +55,6 @@ $(document).ready(function () {
             success: function (response) {
                 savedLocations = response.savedLocations;
                 participatingLocations = response.participatingLocations;
-                console.log(participatingLocations,'participatingLocations');
                 
                 $("body").append(response.html);
                 $("#EditModal .select2").select2({
@@ -121,6 +120,7 @@ $(document).ready(function () {
     $(document).on("submit", "#edit_frm", function (e) {
         e.preventDefault();
         var id = $(this).data('id');
+
         var form_data = new FormData($(this)[0]);
         $.ajax({
             url: ModuleBaseUrl + id,
@@ -132,6 +132,7 @@ $(document).ready(function () {
             processData: false,
             contentType: false,
             success: function (response) {
+
                 if (response.status == 'success') {
                     show_message(response.status, response.message);
                     $("#EditModal").modal('hide').remove();
@@ -147,6 +148,7 @@ $(document).ready(function () {
             }
         });
     });
+   
 
     $(document).on("click", ".delete_btn", function (e) {
         var id = $(this).data('id');

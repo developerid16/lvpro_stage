@@ -244,98 +244,90 @@ class RewardUpdateRequestController extends Controller
 
    
     public function approve(Request $request)
-    {
-        DB::beginTransaction();
+{
+    DB::beginTransaction();
 
-        try {
-
-            $update = RewardUpdateRequest::findOrFail($request->id);
-            $reward = Reward::findOrFail($update->reward_id);
-
-            $reward->update([
-                'from_month'          => $update->from_month,
-                'to_month'          => $update->to_month,
-                'voucher_image'      => $update->voucher_image,
-                'name'               => $update->name,
-                'description'        => $update->description,
-                'term_of_use'        => $update->term_of_use,
-                'how_to_use'         => $update->how_to_use,
-
-                'merchant_id'        => $update->merchant_id,
-                'reward_type'        => $update->reward_type,
-
-                'voucher_validity'   => $update->voucher_validity,
-                'club_location'      => $update->club_location,
-                'inventory_type'     => $update->inventory_type,
-                'inventory_qty'      => $update->inventory_qty,
-
-                'voucher_value'      => $update->voucher_value,
-                'voucher_set'        => $update->voucher_set,
-                'clearing_method'    => $update->clearing_method,
-
-                'location_text'      => $update->location_text,
-                'participating_merchant_id' => $update->participating_merchant_id,
-                'hide_quantity'      => $update->hide_quantity,
-                'low_stock_1'        => $update->low_stock_1,
-                'low_stock_2'        => $update->low_stock_2,
-            ]);
-
-            $update->update([
-                'status'      => 'approved',
-            ]);
-
-
-            if ($update->clearing_method == '2') {
-
-                // Fetch pending locations for this reward
-                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->get();
-
-                // If nothing pending, do nothing
-                if ($pendingLocations->isEmpty()) {
-                    return; // or just skip silently
-                }
-
-                // Remove old approved locations
-                ParticipatingLocations::where('reward_id', $reward->id)->delete();
-
-                // Approve each pending location (1 row = 1 merchant + 1 location)
-                foreach ($pendingLocations as $loc) {
-
-                    $locData = ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $loc->participating_merchant_id, // ✅ single ID
-                        'location_id'               => $loc->location_id,
-                        'is_selected'               => $loc->is_selected ?? 1,
-                    ]);
-                }
-
-                // Cleanup pending table after approval
-                RewardParticipatingMerchantLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->delete();
-            }
-
-
-
-            DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Reward updated successfully'
-            ]);
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
+    try {
+        if (!$request->id) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'message' => 'ID is missing'
+            ], 422);
         }
+
+        $update = RewardUpdateRequest::findOrFail($request->id);
+        $reward = Reward::findOrFail($update->reward_id);
+
+        $reward->update([
+            'from_month' => $update->from_month,
+            'to_month' => $update->to_month,
+            'voucher_image' => $update->voucher_image,
+            'name' => $update->name,
+            'description' => $update->description,
+            'term_of_use' => $update->term_of_use,
+            'how_to_use' => $update->how_to_use,
+            'merchant_id' => $update->merchant_id,
+            'reward_type' => $update->reward_type,
+            'voucher_validity' => $update->voucher_validity,
+            'club_location' => $update->club_location,
+            'inventory_type' => $update->inventory_type,
+            'inventory_qty' => $update->inventory_qty,
+            'voucher_value' => $update->voucher_value,
+            'voucher_set' => $update->voucher_set,
+            'clearing_method' => $update->clearing_method,
+            'location_text' => $update->location_text,
+            'participating_merchant_id' => $update->participating_merchant_id,
+            'hide_quantity' => $update->hide_quantity,
+            'low_stock_1' => $update->low_stock_1,
+            'low_stock_2' => $update->low_stock_2,
+        ]);
+
+        $update->update([
+            'status' => 'approved',
+        ]);
+
+        if ($update->clearing_method == '2') {
+
+            $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
+                'reward_id',
+                $reward->id
+            )->get();
+
+            ParticipatingLocations::where('reward_id', $reward->id)->delete();
+
+            foreach ($pendingLocations as $loc) {
+                ParticipatingLocations::create([
+                    'reward_id' => $reward->id,
+                    'participating_merchant_id' => $loc->participating_merchant_id,
+                    'location_id' => $loc->location_id,
+                    'is_selected' => $loc->is_selected ?? 1,
+                ]);
+            }
+
+            RewardParticipatingMerchantLocationUpdate::where(
+                'reward_id',
+                $reward->id
+            )->delete();
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Reward updated successfully'
+        ]);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),   // 👈 ACTUAL ERROR
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
     }
+}
 
 
     public function reject($id)

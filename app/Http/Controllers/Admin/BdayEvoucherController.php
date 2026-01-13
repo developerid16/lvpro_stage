@@ -83,17 +83,18 @@ class BdayEvoucherController extends Controller
             $duration = $row->created_at->format(config('safra.date-format'));
 
             if (!empty($row->voucher_image)) {
+                $imgUrl = asset("uploads/image/{$row->voucher_image}");
 
-                $csvUrl = asset("uploads/image/$row->voucher_image");
-                $icon   = asset("build/images/csv-icon.png");
-
-                $final_data[$key]['image'] = "
-                    <a href='$csvUrl' target='_blank'>
-                        <img src='$csvUrl' 
-                            class='avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle' 
-                            alt='CSV File'>
-                    </a>";
+                $final_data[$key]['image'] = '
+                    <a href="'.$imgUrl.'" target="_blank">
+                        <img src="'.$imgUrl.'"
+                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+                            alt="Voucher Image">
+                    </a>';
+            } else {
+                $final_data[$key]['image'] = ''; // nothing shown
             }
+
 
             if ($row->end_date) {
                 $duration .= ' to ' . $row->end_date->format(config('safra.date-format'));

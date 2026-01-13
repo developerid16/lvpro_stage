@@ -19,7 +19,7 @@
 <script src="{{ URL::asset('/build/libs/apexcharts/apexcharts.min.js') }}"></script>
 
 <!-- dashboard init -->
-<script src="{{ URL::asset('build/js/pages/dashboard.init.js') }}"></script>
+{{-- <script src="{{ URL::asset('build/js/pages/dashboard.init.js') }}"></script> --}}
 
 <script>
     function scroll_div(div_class) {

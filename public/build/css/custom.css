@@ -2,10 +2,10 @@
     font-family: Helvetica-Regular;
     src: url(public\build\fonts\Helvetica.ttf);
 }
-@font-face {
-    font-family: Helvetica-Bold;
-    src: url(public\build\fonts\Helvetica-Bold.ttf);
-}
+/* @font-face { */
+    /* font-family: Helvetica-Bold; */
+    /* src: url(public\build\fonts\Helvetica-Bold.ttf); */
+/* } */
 /*
 font-family: 'Helvetica-Regular', sans-serif;
 font-family: 'Helvetica-Bold', sans-serif;

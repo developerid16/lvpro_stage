@@ -182,9 +182,7 @@
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
                             <label class="sh_dec"><b>Date & Time</b></label>
-
-                            <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
-                                
+                            <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">                                
                                 <div class="row">
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
@@ -353,7 +351,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
  
                     <div class="row align-items-center mb-3">
@@ -365,6 +362,7 @@
                             </label>
                         </div>
                     </div>
+
                     <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Low Stock Reminder Threshold</label>
 
@@ -401,7 +399,6 @@
                                     @endforeach
                                 @endif
                             </select>
-                        </div>
                         </div>
                     </div>
                                                                 

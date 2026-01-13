@@ -68,8 +68,6 @@
 @endsection
 
 @section('script')
-    <script src="{{ URL::asset('build/js/crud.js') }}"></script>
-
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
         var type = "{{ $type }}";
