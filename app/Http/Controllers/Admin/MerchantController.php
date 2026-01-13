@@ -163,7 +163,7 @@ class MerchantController extends Controller
         Merchant::create([
             'name'   => $request->name,
             'status' => $request->status,
-            'logo'   => 'uploads/image/' . $filename,
+            'logo'   => $filename,
         ]);
 
         return response()->json([
@@ -241,7 +241,7 @@ class MerchantController extends Controller
 
             $file->move($path, $filename);
 
-            $post_data['logo'] = 'uploads/image/' . $filename;
+            $post_data['logo'] = $filename;
         }
 
         // -------------------------
