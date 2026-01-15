@@ -69,13 +69,12 @@ class MerchantController extends Controller
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             }
-            $action .= "<a href='" . url('admin/merchant/' . $row->id . '/club-location') . "' 
-            class=''>
+            $action .= "<a href='" . url('admin/merchant/' . $row->id . '/club-location') . "'  class=''>
                 <i class='mdi mdi-map-marker-multiple text-primary action-icon font-size-18'></i>
             </a>
-             <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
-                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                        </a>";
+            <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+            </a>";
             
 
 

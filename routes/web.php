@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
 use App\Http\Controllers\Admin\CsoIssuanceController;
+use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ParticipatingMerchantController;
@@ -287,5 +288,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('notification/datatable', [NotificationController::class, 'datatable'])->name('notification.datatable');
     Route::resource('notification', NotificationController::class);
 
+    Route::get('home-banner/datatable', [HomeBannerController::class, 'datatable'])->name('home-banner.datatable');
+    Route::resource('home-banner', HomeBannerController::class);
 });
 
