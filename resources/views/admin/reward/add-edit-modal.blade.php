@@ -307,7 +307,7 @@
                                     Voucher Catalogue Image <span class="required-hash">*</span>
                                 </label>
                                 <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
-                                <span class="text-secondary">(316 px X 140 px)</span>
+                                <span class="text-secondary">(100 px X 100 px)</span>
                                 <div class="d-flex justify-items-start gap-2">
                                     <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
                                     <a href="javascript:void(0);" class="text-danger" id="clear_voucher_image" style="display:none;">
@@ -323,7 +323,7 @@
                                     Voucher Details Image <span class="required-hash">*</span>
                                 </label>
                                 <input id="voucher_detail_img" type="file" class="sh_dec form-control voucher_detail_img" name="voucher_detail_img" accept=".png,.jpg,.jpeg">
-                                <span class="text-secondary">(316 px X 140 px)</span>
+                                <span class="text-secondary">(351 px X 190 px)</span>
                                 <div class="d-flex justify-items-start gap-2">
                                     <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_detail_img) ? 'block' : 'none' }};">
                                     <a href="javascript:void(0);" class="text-danger" id="clear_voucher_detail_img" style="display:none;">
