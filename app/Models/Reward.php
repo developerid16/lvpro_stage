@@ -12,6 +12,7 @@ class Reward extends Model
     use HasFactory, SoftDeletes;
     protected $fillable = [
         'voucher_image',
+        'voucher_detail_img',
         'name',
         'description',
         'term_of_use',
@@ -44,7 +45,8 @@ class Reward extends Model
         'max_order',     
         'location_text',     
         'participating_merchant_id',     
-        'voucher_validity',  
+        'voucher_validity',
+        'where_use',  
         'inventory_qty',
         'inventory_type',
         'voucher_value' ,  

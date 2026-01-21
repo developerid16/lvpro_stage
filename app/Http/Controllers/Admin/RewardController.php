@@ -198,7 +198,8 @@ class RewardController extends Controller
 
         try {
             $rules = [
-                'voucher_image'      => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_image'      => 'required|image',
+                'voucher_detail_img' => 'required|image',
                 'name'               => 'required|string|max:191',
                 'description'        => 'required|string',
                 'term_of_use'        => 'required|string',
@@ -210,9 +211,7 @@ class RewardController extends Controller
                 'publish_start'      => 'required',
                 'publish_end'        => 'required',
                 'sales_start'        => 'required',
-                'sales_end'          => 'required',
-                'low_stock_1'        => 'required|integer|min:0',
-                'low_stock_2'        => 'required|integer|min:0',
+                'sales_end'          => 'required',                
                 'send_reminder'      => 'required|boolean',
             ];
 
@@ -333,6 +332,22 @@ class RewardController extends Controller
                 $validated['voucher_image'] = $filename;
             }
 
+            if ($request->hasFile('voucher_detail_img')) {
+
+                $path = public_path('uploads/image');
+
+                // Create directory if not exists
+                if (!is_dir($path)) {
+                    mkdir($path, 0775, true);
+                }
+
+                $file = $request->file('voucher_detail_img');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($path, $filename);
+
+                $validated['voucher_detail_img'] = $filename;
+            }
+
 
             if ($request->publish_start) {
                 $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
@@ -363,6 +378,7 @@ class RewardController extends Controller
             $reward = Reward::create([
                 'type'               => '0',
                 'voucher_image'      => $validated['voucher_image'],
+                'voucher_detail_img' => $validated['voucher_detail_img'],
                 'name'               => $validated['name'],
                 'description'        => $validated['description'],
                 'term_of_use'        => $validated['term_of_use'],
@@ -404,6 +420,7 @@ class RewardController extends Controller
                 'send_reminder'          => $request->send_reminder ?? 0,
 
                 'voucher_validity'           => $request->voucher_validity,
+                'where_use'                  => $request->where_use,
                 'inventory_type'             => $request->inventory_type,
                 'inventory_qty'              => $request->inventory_qty,
                 'voucher_value'              => $request->voucher_value,
@@ -605,7 +622,8 @@ class RewardController extends Controller
             $reward = Reward::findOrFail($id);
 
             $rules = [
-                'voucher_image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_image' => 'nullable|image|max:2048',
+                'voucher_detail_img' => 'nullable|image|max:2048',
 
                 'name'        => 'required|string|max:191',
                 'description' => 'required|string',
@@ -643,9 +661,7 @@ class RewardController extends Controller
                 if ((int) $request->reward_type === 1) {
     
                     $rules = array_merge($rules, [
-                        'max_quantity_physical' => 'required|integer|min:1',
-                        'low_stock_1'           => 'required|integer|min:0',
-                        'low_stock_2'           => 'required|integer|min:0',
+                        'max_quantity_physical' => 'required|integer|min:1',                       
                         'send_reminder'         => 'required|boolean',
     
                         'publish_independent'   => 'required_without_all:publish_inhouse|boolean',
@@ -846,6 +862,41 @@ class RewardController extends Controller
                 $validated['voucher_image'] = $filename;
             }
 
+            if ($request->hasFile('voucher_detail_img')) {
+
+                $uploadPath = public_path('uploads/image');
+
+                // Ensure directory exists
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0775, true);
+                }
+
+                // Ensure directory is writable
+                if (!is_writable($uploadPath)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Upload directory is not writable: reward_images'
+                    ], 500);
+                }
+
+                // Delete old image (ignore errors)
+                if (!empty($reward->voucher_detail_img)) {
+                    $oldFile = $uploadPath . '/' . $reward->voucher_detail_img;
+
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile); // <-- the @ prevents warning if permission denied
+                    }
+                }
+
+                // Upload new image
+                $file = $request->file('voucher_detail_img');
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                $file->move($uploadPath, $filename);
+
+                $validated['voucher_detail_img'] = $filename;
+            }
+
 
             if ($request->publish_start) {
                 $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
@@ -916,6 +967,7 @@ class RewardController extends Controller
 
                 // Digital
                 'voucher_validity'          => $request->voucher_validity,
+                'where_use'                  => $request->where_use,
                 'inventory_type'            => $request->inventory_type,
                 'inventory_qty'             => $request->inventory_qty,
                 'voucher_value'             => $request->voucher_value,

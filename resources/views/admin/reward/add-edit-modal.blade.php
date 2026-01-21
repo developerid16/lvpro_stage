@@ -91,6 +91,41 @@
         preview.attr('src', '').hide();
         $(this).hide();
     });
+    $(document).on("change", ".voucher_detail_img", function (e) {
+
+        const modal = $('#EditModal');
+        const file = e.target.files[0];
+
+        const preview = modal.find('#voucher_detail_img_preview');
+        const clearBtn = modal.find('#clear_voucher_detail_img');
+
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            preview
+                .attr('src', event.target.result) // data:image/*
+                .show();
+
+            clearBtn.show();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    $(document).on('click', '#clear_voucher_detail_img', function () {
+
+        const modal = $(this).closest('.modal'); // auto-detect modal
+        const input = modal.find('#voucher_detail_img')[0];
+        const preview = modal.find('#voucher_detail_img_preview');
+
+        if (input) {
+            input.value = '';   // reset file input
+        }
+
+        preview.attr('src', '').hide();
+        $(this).hide();
+    });
 
     function initFlatpickr(modal) {
         bindStartEndFlatpickrEdit(
@@ -260,7 +295,7 @@
                     @endif
                     <div class="row">
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
@@ -269,7 +304,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_image">
-                                    Voucher Image <span class="required-hash">*</span>
+                                    Voucher Catalogue Image <span class="required-hash">*</span>
                                 </label>
                                 <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
                                 <span class="text-secondary">(316 px X 140 px)</span>
@@ -280,8 +315,25 @@
                                     </a>
                                 </div>
                             </div>
+                        </div> 
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="voucher_detail_img">
+                                    Voucher Details Image <span class="required-hash">*</span>
+                                </label>
+                                <input id="voucher_detail_img" type="file" class="sh_dec form-control voucher_detail_img" name="voucher_detail_img" accept=".png,.jpg,.jpeg">
+                                <span class="text-secondary">(316 px X 140 px)</span>
+                                <div class="d-flex justify-items-start gap-2">
+                                    <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_detail_img) ? 'block' : 'none' }};">
+                                    <a href="javascript:void(0);" class="text-danger" id="clear_voucher_detail_img" style="display:none;">
+                                        Clear
+                                    </a>
+                                </div>
+                            </div>
                         </div>                       
 
+                     
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
@@ -325,6 +377,7 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
@@ -332,6 +385,15 @@
                                     value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}" placeholder="YYYY-MM-DD"/>
                             </div>
                         </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="where_use">Where To Use <span class="required-hash">*</span></label>
+                                <input id="where_use" type="text" class="sh_dec form-control" name="where_use"
+                                    value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use"/>
+                            </div>
+                        </div>
+                        
                         
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
@@ -505,13 +567,13 @@
                                             <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
                                                 Barcode 
                                             </option>
-                                            <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
+                                            <option class="sh_dec" value="4" {{ isset($data->clearing_method) && $data->clearing_method == '4' ? 'selected' : '' }}>
                                                 External Code 
                                             </option>
                                             <option class="sh_dec" value="3" {{ isset($data->clearing_method) && $data->clearing_method == '3' ? 'selected' : '' }}>
                                                 External Link 
                                             </option>
-                                            <option class="sh_dec" value="4" {{ isset($data->clearing_method) && $data->clearing_method == '4' ? 'selected' : '' }}>
+                                            <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
                                                 Merchant Code 
                                             </option>
                                         </select>
@@ -580,11 +642,11 @@
 
                                 <div class="col-md-6 d-flex">
                                     <div class="me-3">
-                                        <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash">*</span></label>
+                                        <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
                                         <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
                                     </div>
                                     <div>
-                                        <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash">*</span></label>
+                                        <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
                                         <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
                                     </div>
                                 </div>                               

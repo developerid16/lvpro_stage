@@ -50,4 +50,6 @@ return [
         'merchant_id'      => env('SAFRA_MERCHANT_ID'),
         'username'         => env('SAFRA_USERNAME'),
     ],
+
+   
 ];

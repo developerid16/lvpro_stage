@@ -5,6 +5,8 @@
 @endsection
 
 @section('css')
+<script src="{{ asset('/build/libs/jquery/jquery.min.js') }}"></script>
+
 <script src="{{ asset('/build/js/msal-browser.min.js') }}"></script>
 
 <!-- owl.carousel css -->
@@ -98,9 +100,9 @@
 
                                             <div class="mt-3 d-grid">
                                                 <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
-                                                <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button>
+                                                {{-- <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button> --}}
 
-                                                    {{-- <a href="{{ url('user-rights-form') }}" class="text-muted mt-2">Request for user rights</a> --}}
+                                                    <a href="{{ url('sso-redirect') }}" class="mt-2 btn btn-primary waves-effect waves-light mt-2 text-white">Login with Microsoft</a>
                                             </div>
 
                                         </form>
@@ -145,23 +147,6 @@
             })
         });
 
-        const msalConfig = {
-            auth: {
-                clientId: "{{ config('services.azure.client_id') }}",
-                authority: "https://login.microsoftonline.com/{{ config('services.azure.tenant_id') }}",
-                redirectUri: "{{ config('services.azure.redirect_url') }}"
-            }
-        };
-
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
-
-        function login() {
-            msalInstance.loginRedirect({
-                scopes: ["openid", "profile", "email"]
-            });
-        }
-
-        
-        
+       
     </script>
     @endsection

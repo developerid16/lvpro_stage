@@ -100,6 +100,23 @@
                 preview.attr("src", "").hide();
             }
         });       
+        $(document).on("change", "#voucher_detail_img", function () {
+            let preview = $("#voucher_detail_img_preview");
+            let file = this.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.attr("src", e.target.result).show();
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                // When user clears the file input
+                preview.attr("src", "").hide();
+            }
+        });       
 
         $(".max_order").hide();
         $("#common_section").hide();
@@ -264,6 +281,7 @@
             $(".max_order").hide();
             $("#common_section").hide();
             $("#voucher_image_preview").hide();
+            $("#voucher_detail_img_preview").hide();
             $(".file").hide();
             $(".inventory_qty").hide();
             $("#location_section").hide();
@@ -333,7 +351,38 @@
             initFlatpickrDate();
         });
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
+        });
+
+       
+    </script>
+
+    <script>
+        tinymce.init({
+            selector: 'textarea.wysiwyg',
+            height: 300,
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    const text = editor.getContent({ format: 'text' });
+                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                        e.preventDefault();
+                    }
+                });
+            },
+            images_upload_url: '{{ url("admin/image-upload-editor") }}',
+            images_upload_base_path: '{{ asset("images") }}/',
+            plugins: [
+                'advlist autolink link image lists charmap preview hr anchor pagebreak',
+                'searchreplace wordcount visualblocks code fullscreen insertdatetime media',
+                'table emoticons'
+            ],
+            toolbar:
+                'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | link image | forecolor backcolor emoticons'
         });
     </script>
 @endsection

@@ -76,7 +76,7 @@
                         <hr class="dashed">
                         {{-- MESSAGE --}}
                         
-                        <div class="col-12 col-md-12 slider-type-amount"  >
+                        <div class="col-12 col-md-12 slider-type-amount">
                             <div class="mb-3">
                                 <label class="sh_dec" for="amount">Message <span class="required-hash">*</span></label>
                                 <textarea class="elm1" name="description"> {{$data->message ?? ''}} </textarea>
