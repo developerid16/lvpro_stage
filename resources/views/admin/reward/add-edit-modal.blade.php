@@ -276,6 +276,44 @@
     });
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+$(document).on('shown.bs.modal', '#EditModal', function () {
+
+    const fileInput = document.getElementById('csvFile');
+    if (!fileInput) return;
+
+    fileInput.addEventListener('change', function (e) {
+
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            const count = rows.filter((row, index) =>
+                index !== 0 && row[0] && row[0].toString().trim() !== ''
+            ).length;
+
+            $('#EditModal #collection_reminder_title').text(`Total records in file: ${count}`);
+            
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+});
+</script>
+
+
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -517,6 +555,8 @@
                                 <div class="col-12 col-md-6 file" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
+                                        <span id="excelCount" class="small text-success"></span>
+
                                         <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
                                         <div class="d-flex justify-content-between">
                                             <div class="mt-1">
@@ -525,6 +565,7 @@
                                                     <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold">
                                                         Click here
                                                     </a>
+
                                                 </label>
                                             </div>
                                             @if(isset($data->csvFile))

@@ -68,6 +68,38 @@
 @endsection
 
 @section('script')
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+document.getElementById('csvFile').addEventListener('change', function (e) {
+
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // remove header + empty rows
+        const count = rows.filter((row, index) =>
+            index !== 0 && row[0] && row[0].toString().trim() !== ''
+        ).length;
+
+        document.getElementById('excelCount').innerText =
+            `Total records in file: ${count}`;
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+</script>
+
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
         var type = "{{ $type }}";
