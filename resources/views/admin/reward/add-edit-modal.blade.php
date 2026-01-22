@@ -582,7 +582,7 @@
                                 <div class="col-12 col-md-6 location_text" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="location_text">Location <span class="required-hash">*</span></label>    
-                                        <input id="location_text" type="text" class="sh_dec form-control"   name="location_text" value="{{ $data->location_text ?? '' }}"> 
+                                        <input id="location_text" type="text" class="sh_dec form-control"   name="location_text" value="{{ $location_text ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6 participating_merchant" style="display: none">

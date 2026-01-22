@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
+use App\Models\CustomLocation;
 
 class RewardController extends Controller
 {
@@ -282,7 +283,7 @@ class RewardController extends Controller
                         $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                         $rules['participating_merchant_locations'] = 'required|array|min:1';
                     }
-                    if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                    if ($request->clearing_method != 2) {
                         $rules['location_text'] = 'required';
                         $messages = [
                             'location_text.required' => 'Location is required',
@@ -370,6 +371,10 @@ class RewardController extends Controller
             }
 
 
+            $locationTextId = CustomLocation::getOrCreate(
+                $request->location_text ?? ''
+            );
+
             /* ---------------------------------------------------
             * 7) CREATE REWARD
             * ---------------------------------------------------*/
@@ -426,9 +431,9 @@ class RewardController extends Controller
                 'voucher_value'              => $request->voucher_value,
                 'voucher_set'                => $request->voucher_set,
                 'clearing_method'            => $request->clearing_method,
-                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
-                'location_text'  => $request->location_text,
-                'max_order'  => $request->max_order,                
+                'participating_merchant_id'  => $request->participating_merchant_id ?? 0,
+                'location_text'              => $locationTextId ?? '',
+                'max_order'                   => $request->max_order,                
             ]);
 
 
@@ -577,7 +582,14 @@ class RewardController extends Controller
     public function edit(string $id)
     {
         $reward = Reward::with(['tierRates','rewardLocations','participatingLocations'])->find($id);
+        
         $this->layout_data['data'] = $reward;
+        $this->layout_data['location_text'] = null;
+
+        if (!empty($reward->location_text)) {
+            $this->layout_data['location_text'] = CustomLocation::where('id', $reward->location_text)
+                ->value('name');
+        }
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
@@ -712,7 +724,7 @@ class RewardController extends Controller
                         }
                     }
     
-                    if ($request->clearing_method != 2 && $request->clearing_method != 4) {
+                    if ($request->clearing_method != 2) {
                         $rules['location_text'] = 'required';
                         $messages = [
                             'location_text.required' => 'Location is required',
@@ -924,6 +936,9 @@ class RewardController extends Controller
             * ---------------------------------------------------*/
             $maxQty = $request->reward_type == 0 ? $request->max_quantity_digital : $request->max_quantity_physical;
 
+            $locationTextId = CustomLocation::getOrCreate(
+                $request->location_text ?? ''
+            );
 
             $reward->update([
                  'type'               => '0',
@@ -974,7 +989,7 @@ class RewardController extends Controller
                 'voucher_set'               => $request->voucher_set,
                 'clearing_method'           => $request->clearing_method,
                 'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
-                'location_text'             => $request->location_text,
+                'location_text'             => $locationTextId ?? '',
                 'max_order'                 => $request->max_order,
             ]);
 
