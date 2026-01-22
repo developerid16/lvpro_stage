@@ -506,6 +506,38 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * XLSX / CSV UPLOAD (merchant inventory)
             * ---------------------------------------------------*/
+            // if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+
+            //     $file = $request->file('csvFile');
+            //     $filename = time().'_'.$file->getClientOriginalName();
+            //     $file->move(public_path('uploads/csv'), $filename);
+
+            //     $reward->csvFile = $filename;
+            //     $reward->save();
+
+            //     $filePath = public_path('uploads/csv/'.$filename);
+
+            //     // READ XLSX OR CSV SAFELY
+            //     $rows = Excel::toArray([], $filePath);
+
+            //     foreach ($rows[0] as $row) {
+
+            //         $code = trim($row[0] ?? '');
+
+            //         if ($code === '' || strtolower($code) === 'code') {
+            //             continue;
+            //         }
+
+            //         RewardVoucher::create([
+            //             'type'      => '0',
+            //             'reward_id' => $reward->id,
+            //             'code'      => $code,
+            //             'is_used'   => 0
+            //         ]);
+            //     }
+            // }
+
+
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
@@ -517,8 +549,10 @@ class RewardController extends Controller
 
                 $filePath = public_path('uploads/csv/'.$filename);
 
-                // READ XLSX OR CSV SAFELY
+                // READ XLSX OR CSV
                 $rows = Excel::toArray([], $filePath);
+
+                $count = 0;
 
                 foreach ($rows[0] as $row) {
 
@@ -534,7 +568,13 @@ class RewardController extends Controller
                         'code'      => $code,
                         'is_used'   => 0
                     ]);
+
+                    $count++; // ✅ count valid codes
                 }
+
+                // ✅ store count in inventory_qty
+                $reward->inventory_qty = $count;
+                $reward->save();
             }
 
 
@@ -668,7 +708,7 @@ class RewardController extends Controller
             /* ---------------- VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
             
-            $validator->after(function ($validator) use ($request, $tiers, &$rules) {
+            $validator->after(function ($validator) use ($request, $tiers, &$rules, $reward) {
                 /* ---------------- PHYSICAL ---------------- */
                 if ((int) $request->reward_type === 1) {
     
@@ -1098,7 +1138,39 @@ class RewardController extends Controller
          * DIGITAL CSV UPLOAD (ONLY MERCHANT TYPE)
          * ---------------------------------- */
 
-        if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+        // if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+
+        //         $file = $request->file('csvFile');
+        //         $filename = time().'_'.$file->getClientOriginalName();
+        //         $file->move(public_path('uploads/csv'), $filename);
+
+        //         $reward->csvFile = $filename;
+        //         $reward->save();
+
+        //         $filePath = public_path('uploads/csv/'.$filename);
+
+        //         // READ XLSX OR CSV SAFELY
+        //         $rows = Excel::toArray([], $filePath);
+
+        //         foreach ($rows[0] as $row) {
+
+        //             $code = trim($row[0] ?? '');
+
+        //             if ($code === '' || strtolower($code) === 'code') {
+        //                 continue;
+        //             }
+
+        //             RewardVoucher::create([
+        //                 'type'      => '0',
+        //                 'reward_id' => $reward->id,
+        //                 'code'      => $code,
+        //                 'is_used'   => 0
+        //             ]);
+        //         }
+        //     }
+
+
+         if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
                 $filename = time().'_'.$file->getClientOriginalName();
@@ -1109,8 +1181,10 @@ class RewardController extends Controller
 
                 $filePath = public_path('uploads/csv/'.$filename);
 
-                // READ XLSX OR CSV SAFELY
+                // READ XLSX OR CSV
                 $rows = Excel::toArray([], $filePath);
+
+                $count = 0;
 
                 foreach ($rows[0] as $row) {
 
@@ -1126,8 +1200,15 @@ class RewardController extends Controller
                         'code'      => $code,
                         'is_used'   => 0
                     ]);
+
+                    $count++; // ✅ count valid codes
                 }
+
+                // ✅ store count in inventory_qty
+                $reward->inventory_qty = $count;
+                $reward->save();
             }
+
 
             /* ---------------------------------------------------
             * SUCCESS
