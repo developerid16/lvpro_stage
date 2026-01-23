@@ -10,6 +10,8 @@
     });
 
     $(document).on('shown.bs.modal', '#EditModal', function () {
+        $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
+
         let rewardType = $('#EditModal .reward_type').val();
         
         let merchantId = $('#EditModal #merchant_id').val();
@@ -312,6 +314,9 @@
     $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
     });
+
+    // when inventory changes
+
 
 </script>
 

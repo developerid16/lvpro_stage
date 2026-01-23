@@ -399,6 +399,17 @@
         // when voucher_set changes
         $(document).on('input', '#voucher_set', calculateSetQty);
 
+        $(document).on('input', '#voucher_value', calculateSetQty);
+
+        function calculateSetQty() {
+            let inventoryQty = parseFloat($('#inventory_qty').val());
+            let voucherSet   = parseFloat($('#voucher_set').val());
+            if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
+                $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+            } else {
+                $('#set_qty').val('');
+            }
+        }
     </script>
      
 @endsection

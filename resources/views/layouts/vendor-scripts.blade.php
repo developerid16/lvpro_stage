@@ -689,14 +689,14 @@
         this.style.display = 'none';
     });
 
-    function calculateSetQty() {
-        let inventoryQty = parseFloat($('#inventory_qty').val());
-        let voucherSet   = parseFloat($('#voucher_set').val());
-
+    
+    function editCalculateSetQty() {
+        let inventoryQty = parseFloat($('#EditModal #inventory_qty').val());
+        let voucherSet   = parseFloat($('#EditModal #voucher_set').val());
         if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
-            $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+            $('#EditModal #set_qty').val(Math.floor(inventoryQty / voucherSet));
         } else {
-            $('#set_qty').val('');
+            $('#EditModal #set_qty').val('');
         }
     }
 
