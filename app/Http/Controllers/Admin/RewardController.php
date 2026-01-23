@@ -268,6 +268,7 @@ class RewardController extends Controller
                         'inventory_type'       => 'required|in:0,1',
                         'voucher_value'        => 'required|numeric|min:1',
                         'voucher_set'          => 'required|numeric|min:1',
+                        'set_qty'          => 'required|numeric|min:1',
                         'clearing_method'      => 'required|in:0,1,2,3,4',
                     ];
     
@@ -430,6 +431,7 @@ class RewardController extends Controller
                 'inventory_qty'              => $request->inventory_qty,
                 'voucher_value'              => $request->voucher_value,
                 'voucher_set'                => $request->voucher_set,
+                'set_qty'                       => $request->set_qty,
                 'clearing_method'            => $request->clearing_method,
                 'participating_merchant_id'  => $request->participating_merchant_id ?? 0,
                 'location_text'              => $locationTextId ?? '',
@@ -717,6 +719,7 @@ class RewardController extends Controller
                         'inventory_type'       => 'required|in:0,1',
                         'voucher_value'        => 'required|numeric|min:1',
                         'voucher_set'          => 'required|numeric|min:1',
+                        'set_qty'              => 'required|numeric|min:1',
                         'clearing_method'      => 'required|in:0,1,2,3,4',
                     ]);
     
@@ -993,6 +996,7 @@ class RewardController extends Controller
                 'inventory_qty'             => $request->inventory_qty,
                 'voucher_value'             => $request->voucher_value,
                 'voucher_set'               => $request->voucher_set,
+                'set_qty'                    => $request->set_qty,
                 'clearing_method'           => $request->clearing_method,
                 'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
                 'location_text'             => $locationTextId ?? '',

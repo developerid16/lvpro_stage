@@ -44,14 +44,12 @@
             $("#EditModal #location_section").show();
             editToggleInventoryFields(modal);
             editToggleClearingFields(modal);
-
             if (modal.attr("id") === "EditModal") {
                 editParticipatingMerchantLocations(modal);
             }
 
               // merchant selected later
             modal.find("#participating_merchant_id").on("change", function () {
-
                 const merchantId = $(this).val();
                 loadParticipatingMerchantLocations(modal, merchantId);
             }); 
@@ -86,6 +84,10 @@
 
                 reader.readAsArrayBuffer(file);
             });
+            
+            forceInventoryReadonly(modal);
+
+
         }        
     
     });
@@ -183,7 +185,8 @@
             return;
         }
         let voucherSet = usualPrice / voucherValue;
-        $('#EditModal #voucher_set').val(Math.floor(voucherSet));        
+        $('#EditModal #voucher_set').val(Math.floor(voucherSet));  
+        calculateSetQty();      
     }
 
     $(document).on('change', '.reward_type', function () {
@@ -553,7 +556,6 @@
                                 <div class="col-12 col-md-6 file" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                        {{-- <span id="excelCount" class="small text-success"></span> --}}
 
                                         <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls,.csv">
                                         <div class="d-flex justify-content-between">
@@ -590,7 +592,13 @@
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="voucher_set">Voucher Set <span class="required-hash">*</span></label>    
-                                        <input id="voucher_set" type="number" min="0" readonly  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                        <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
+                                        <input id="set_qty" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">

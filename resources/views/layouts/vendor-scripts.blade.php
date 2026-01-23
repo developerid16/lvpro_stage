@@ -448,9 +448,12 @@
         selectedOutletMap = {};
 
         // backend-provided array
-        participatingLocations.forEach(loc => {
-            selectedOutletMap[loc.id] = loc.name;
-        });
+        if (Array.isArray(participatingLocations)) {
+            participatingLocations.forEach(loc => {
+                selectedOutletMap[loc.id] = loc.name;
+            });
+        }
+
 
         updateSelectedLocationsSummary(modal);
         syncHiddenSelectedLocations(modal);
@@ -580,21 +583,22 @@
     }
 
     function editToggleInventoryFields(modal) {
-        let type = modal.find('.inventory_type').val();
 
+        let type = modal.find('.inventory_type').val();
         let fileField = modal.find('.file');
         let qtyField  = modal.find('.inventory_qty');
+        modal.find('#inventory_qty').prop('readonly', false);
 
         if (type === "1") {
             fileField.show();
-            qtyField.hide();
-            qtyField.find("input").val(""); // clear
+            qtyField.show();
+            
         } else if (type === "0") {
+            modal.find('#inventory_qty').prop('readonly', false);
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
         } else {
-            // nothing selected → hide both
             fileField.hide();
             qtyField.hide();
         }
@@ -605,12 +609,14 @@
 
         let fileField = modal.find('.file');
         let qtyField  = modal.find('.inventory_qty');
+        modal.find('#inventory_qty').prop('readonly', false);
 
         if (type === "1") {
             fileField.show();
             qtyField.hide();
             qtyField.find("input").val(""); // clear
         } else if (type === "0") {
+            modal.find('#inventory_qty').val('');
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
@@ -620,6 +626,18 @@
             qtyField.hide();
         }
     }
+
+    function forceInventoryReadonly(modal) {
+        let type = modal.find('.inventory_type').val();
+        let qtyInput = modal.find('#inventory_qty');
+
+        if (type === "0") {
+            qtyInput.prop('readonly', false); // manual entry
+        } else if (type === "1") {
+            qtyInput.prop('readonly', true);  // excel-controlled
+        }
+    }
+
   
     // Show preview when selecting a new image
     document.getElementById('voucher_image').addEventListener('change', function (e) {
@@ -670,6 +688,17 @@
         preview.style.display = 'none';
         this.style.display = 'none';
     });
+
+    function calculateSetQty() {
+        let inventoryQty = parseFloat($('#inventory_qty').val());
+        let voucherSet   = parseFloat($('#voucher_set').val());
+
+        if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
+            $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+        } else {
+            $('#set_qty').val('');
+        }
+    }
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>

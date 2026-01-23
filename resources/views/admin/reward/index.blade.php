@@ -93,7 +93,9 @@
             inventoryDiv.style.display = 'block';
 
             const inventoryInput = document.getElementById('inventory_qty');
+            calculateSetQty();
             inventoryInput.value = count;
+
             inventoryInput.readOnly = true;
         };
 
@@ -362,9 +364,7 @@
 
             // If you want integer only (recommended)
             $('#voucher_set').val(Math.floor(voucherSet));
-
-            // If you want decimals instead, use this:
-            // $('#voucher_set').val(voucherSet.toFixed(2));
+            calculateSetQty();
         }
 
         // Run on input change
@@ -392,8 +392,13 @@
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
         });
+      
+        // when inventory changes
+        $(document).on('input', '#inventory_qty', calculateSetQty);
 
-       
+        // when voucher_set changes
+        $(document).on('input', '#voucher_set', calculateSetQty);
+
     </script>
      
 @endsection
