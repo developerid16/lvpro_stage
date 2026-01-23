@@ -502,41 +502,7 @@ class RewardController extends Controller
                     }
                 }
             }
-
-            /* ---------------------------------------------------
-            * XLSX / CSV UPLOAD (merchant inventory)
-            * ---------------------------------------------------*/
-            // if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-            //     $file = $request->file('csvFile');
-            //     $filename = time().'_'.$file->getClientOriginalName();
-            //     $file->move(public_path('uploads/csv'), $filename);
-
-            //     $reward->csvFile = $filename;
-            //     $reward->save();
-
-            //     $filePath = public_path('uploads/csv/'.$filename);
-
-            //     // READ XLSX OR CSV SAFELY
-            //     $rows = Excel::toArray([], $filePath);
-
-            //     foreach ($rows[0] as $row) {
-
-            //         $code = trim($row[0] ?? '');
-
-            //         if ($code === '' || strtolower($code) === 'code') {
-            //             continue;
-            //         }
-
-            //         RewardVoucher::create([
-            //             'type'      => '0',
-            //             'reward_id' => $reward->id,
-            //             'code'      => $code,
-            //             'is_used'   => 0
-            //         ]);
-            //     }
-            // }
-
+            
 
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 

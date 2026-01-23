@@ -68,36 +68,35 @@
 @endsection
 
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
-document.getElementById('csvFile').addEventListener('change', function (e) {
+    document.getElementById('csvFile').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    const file = e.target.files[0];
-    if (!file) return;
+        const reader = new FileReader();
 
-    const reader = new FileReader();
+        reader.onload = function (evt) {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
 
-    reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
 
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
+            const count = rows.length;
 
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            // show inventory field
+            const inventoryDiv = document.querySelector('.inventory_qty');
+            inventoryDiv.style.display = 'block';
 
-        // remove header + empty rows
-        const count = rows.filter((row, index) =>
-            index !== 0 && row[0] && row[0].toString().trim() !== ''
-        ).length;
+            const inventoryInput = document.getElementById('inventory_qty');
+            inventoryInput.value = count;
+            inventoryInput.readOnly = true;
+        };
 
-        document.getElementById('excelCount').innerText =
-            `Total records in file: ${count}`;
-    };
+        reader.readAsArrayBuffer(file);
+    });
 
-    reader.readAsArrayBuffer(file);
-});
 </script>
 
     <script>
@@ -389,32 +388,5 @@ document.getElementById('csvFile').addEventListener('change', function (e) {
 
        
     </script>
-
-    <script>
-        tinymce.init({
-            selector: 'textarea.wysiwyg',
-            height: 300,
-            relative_urls: false,
-            remove_script_host: false,
-            convert_urls: true,
-            setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    const text = editor.getContent({ format: 'text' });
-                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                        e.preventDefault();
-                    }
-                });
-            },
-            images_upload_url: '{{ url("admin/image-upload-editor") }}',
-            images_upload_base_path: '{{ asset("images") }}/',
-            plugins: [
-                'advlist autolink link image lists charmap preview hr anchor pagebreak',
-                'searchreplace wordcount visualblocks code fullscreen insertdatetime media',
-                'table emoticons'
-            ],
-            toolbar:
-                'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
-                'bullist numlist outdent indent | link image | forecolor backcolor emoticons'
-        });
-    </script>
+     
 @endsection

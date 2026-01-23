@@ -1,7 +1,10 @@
  @php
     $data = $data ?? null;
 @endphp
+
 <script>
+
+
     $(document).on('submit', '#edit_frm, #add_frm', function (e) {
         console.log('FORM SUBMIT TRIGGERED');
     });
@@ -51,7 +54,38 @@
 
                 const merchantId = $(this).val();
                 loadParticipatingMerchantLocations(modal, merchantId);
-            });  
+            }); 
+            
+            const $fileInput = $('#EditModal #csvFile');
+            const $inventoryDiv = $('#EditModal .inventory_qty');
+            const $inventoryInput = $('#EditModal #inventory_qty');
+
+            // EDIT MODE
+            if ($inventoryInput.val() !== '') {
+                $inventoryDiv.show();
+                $inventoryInput.prop('readonly', true);
+            }
+
+            // ON FILE CHANGE
+            $fileInput.on('change', function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                    $inventoryDiv.show();
+                    $inventoryInput.val(rows.length).prop('readonly', true);
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
         }        
     
     });
@@ -276,43 +310,6 @@
     });
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-
-<script>
-$(document).on('shown.bs.modal', '#EditModal', function () {
-
-    const fileInput = document.getElementById('csvFile');
-    if (!fileInput) return;
-
-    fileInput.addEventListener('change', function (e) {
-
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-
-            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-            const count = rows.filter((row, index) =>
-                index !== 0 && row[0] && row[0].toString().trim() !== ''
-            ).length;
-
-            $('#EditModal #collection_reminder_title').text(`Total records in file: ${count}`);
-            
-        };
-
-        reader.readAsArrayBuffer(file);
-    });
-});
-</script>
-
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -490,12 +487,12 @@ $(document).on('shown.bs.modal', '#EditModal', function () {
                                 <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_physical"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 max_order">
+                        {{-- <div class="col-12 col-md-6 max_order">
                             <div class="mb-3">
                                 <label class="sh_dec" for="max_order">Maximum Order <span class="required-hash">*</span></label>
                                 <input id="max_order" type="number" min="0" class="sh_dec form-control" name="max_order"   placeholder="Enter Maximum Order" value="{{ $data->max_order ?? '' }}">
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="col-12 col-md-12 ">
                             <div class="row">
@@ -555,7 +552,7 @@ $(document).on('shown.bs.modal', '#EditModal', function () {
                                 <div class="col-12 col-md-6 file" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
-                                        <span id="excelCount" class="small text-success"></span>
+                                        {{-- <span id="excelCount" class="small text-success"></span> --}}
 
                                         <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
                                         <div class="d-flex justify-content-between">
@@ -565,7 +562,6 @@ $(document).on('shown.bs.modal', '#EditModal', function () {
                                                     <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold">
                                                         Click here
                                                     </a>
-
                                                 </label>
                                             </div>
                                             @if(isset($data->csvFile))
