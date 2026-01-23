@@ -554,7 +554,7 @@
                                         <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
                                         {{-- <span id="excelCount" class="small text-success"></span> --}}
 
-                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls">
+                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls,.csv">
                                         <div class="d-flex justify-content-between">
                                             <div class="mt-1">
                                                 <label class="small text-muted">
