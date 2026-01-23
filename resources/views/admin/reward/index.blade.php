@@ -70,6 +70,9 @@
 @section('script')
 
 <script>
+    let savedLocations = {};
+    let participatingLocations = {};
+
     document.getElementById('csvFile').addEventListener('change', function (e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -164,8 +167,11 @@
                 $("#participating_merchant_location").hide(); // also show location section
                 $('#collection_reminder_title').text('Send Collection Reminder');
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
+
                  let merchantId = $('#merchant_id').val();
-                loadLocations(merchantId);
+                if(merchantId){
+                    loadLocations(merchantId);
+                }
                 
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
@@ -176,6 +182,7 @@
                 $("#location_section").hide(); // also show location section
                 $('#collection_reminder_title').text('Send Reminder');
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Reminder';
+
             }else {
                 $("#common_section").hide();
                 $("#physical").hide();

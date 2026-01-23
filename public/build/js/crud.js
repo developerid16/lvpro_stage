@@ -46,6 +46,7 @@ $(document).ready(function () {
 
     $(document).on("click", ".edit", function (e) {
         $("#EditModal").modal('hide').remove();
+    
         var id = $(this).data('id');
         $.ajax({
             url: ModuleBaseUrl + id + "/edit",
@@ -53,8 +54,12 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                savedLocations = response.savedLocations;
-                participatingLocations = response.participatingLocations;
+                if (response && response.savedLocations && response.savedLocations.length > 0) {
+                    savedLocations = response.savedLocations;
+                }
+                if (response && response.participatingLocations && response.participatingLocations.length > 0){
+                    participatingLocations = response.participatingLocations;
+                }
                 
                 $("body").append(response.html);
                 $("#EditModal .select2").select2({

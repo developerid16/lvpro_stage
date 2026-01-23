@@ -254,8 +254,9 @@
 
                 res.locations.forEach(loc => {
 
-                    let isChecked = savedLocations[loc.id] ? 'checked' : '';
-                    let qtyValue = savedLocations[loc.id] ?? '';
+                    let isChecked = (savedLocations && savedLocations[loc.id]) ? 'checked' : '';
+                    let qtyValue  = (savedLocations && savedLocations[loc.id] !== undefined) ? savedLocations[loc.id] : '';
+
 
                     html += `
                         <div class="col-md-6 col-12">
