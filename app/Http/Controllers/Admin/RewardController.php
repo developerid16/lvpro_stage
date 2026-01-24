@@ -140,12 +140,21 @@ class RewardController extends Controller
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
             $final_data[$key]['amount'] = number_format($row->usual_price);
 
-            $final_data[$key]['quantity']   = $total_quantity;
-            $final_data[$key]['purchased'] = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','purchased')->count();
+            $final_data[$key]['quantity'] = max(0, (int) $total_quantity);
 
-            $final_data[$key]['balance'] = $total_quantity - UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','purchased')->count();
+            $purchased = UserWalletVoucher::where('reward_id', $row->id)
+                ->where('reward_status', 'purchased')
+                ->count();
 
-            $final_data[$key]['redeemed'] = UserWalletVoucher::where('reward_id', $row->id)->where('status','used')->count();
+            $final_data[$key]['purchased'] = max(0, $purchased);
+
+            $final_data[$key]['balance'] = max(0, $total_quantity - $purchased);
+
+            $redeemed = UserWalletVoucher::where('reward_id', $row->id)
+                ->where('status', 'used')
+                ->count();
+
+            $final_data[$key]['redeemed'] = max(0, $redeemed);
 
             $duration = $row->created_at->format(config('safra.date-format'));
 
@@ -491,6 +500,7 @@ class RewardController extends Controller
                         'location_id'   => $locId,
                         'is_selected'   => 1,  // always 1 since only selected stored
                         'inventory_qty' => $locData['inventory_qty'] ?? 0,
+                        'total_qty' => $locData['total_qty'] ?? 0,
                     ]);
                 }
             }
@@ -1070,6 +1080,7 @@ class RewardController extends Controller
                         'location_id'   => $locId,
                         'is_selected'   => 1,
                         'inventory_qty' => $locData['inventory_qty'] ?? 0,
+                        'total_qty' => $locData['total_qty'] ?? 0,
                     ]);
                 }
             }

@@ -14,6 +14,7 @@ class RewardLocation extends Model
         'merchant_id', 
         'inventory_qty', 
         'is_selected', 
+        'total_qty',
 
     ];
   public function reward()
