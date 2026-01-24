@@ -145,7 +145,7 @@ class RewardController extends Controller
 
             $final_data[$key]['balance'] = $total_quantity - UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','purchased')->count();
 
-            $final_data[$key]['redeemed'] = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','used')->count();
+            $final_data[$key]['redeemed'] = UserWalletVoucher::where('reward_id', $row->id)->where('status','used')->count();
 
             $duration = $row->created_at->format(config('safra.date-format'));
 
