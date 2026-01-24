@@ -70,7 +70,6 @@
 @section('script')
 
 <script>
-    let savedLocations = {};
     let participatingLocations = {};
 
     document.getElementById('csvFile').addEventListener('change', function (e) {

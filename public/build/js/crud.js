@@ -45,6 +45,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".edit", function (e) {
+
         $("#EditModal").modal('hide').remove();
     
         var id = $(this).data('id');
@@ -54,9 +55,10 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                if (response && response.savedLocations && response.savedLocations.length > 0) {
-                    savedLocations = response.savedLocations;
-                }
+                // if (response && response.savedLocations && response.savedLocations.length > 0) {
+                      window.savedLocations = response.savedLocations || {};
+
+                // }
                 if (response && response.participatingLocations && response.participatingLocations.length > 0){
                     participatingLocations = response.participatingLocations;
                 }

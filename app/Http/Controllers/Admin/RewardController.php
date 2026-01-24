@@ -218,6 +218,8 @@ class RewardController extends Controller
 
             $messages = [
                 'term_of_use.required' => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
             ];
 
             /* ---------------- TIER RULES ---------------- */
@@ -663,6 +665,8 @@ class RewardController extends Controller
 
             $messages = [
                 'term_of_use.required' => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
             ];
 
             /* ---------------- TIER RULES ---------------- */

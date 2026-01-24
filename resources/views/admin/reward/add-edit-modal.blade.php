@@ -242,6 +242,7 @@
     });
 
     function editLoadLocations(modal, merchantId) {
+       
 
         modal.find('#location_wrapper').html("");
 
@@ -256,6 +257,7 @@
                 html += `<div id="location_wrapper" class="row gx-3 gy-3">`;   // UPDATED wrapper
 
                 let i = 1;
+            savedLocations = window.savedLocations;
 
                 res.locations.forEach(loc => {
 
@@ -492,7 +494,7 @@
 
                         <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum Quantity <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="required-hash">*</span></label>
                                 <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_physical"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
@@ -550,7 +552,7 @@
                                
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_type">Inventory Type <span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="inventory_type">Inventory Type (Total) <span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select inventory_type" name="inventory_type">
                                             <option class="sh_dec" value="">Select Voucher Type</option>
                                             <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
@@ -590,13 +592,13 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_value">Voucher Value <span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="required-hash">*</span></label>    
                                         <input id="voucher_value" type="number" min="0" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_set">Voucher Set <span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="voucher_set">Voucher Set (Per User) <span class="required-hash">*</span></label>    
                                         <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
