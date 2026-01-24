@@ -28,6 +28,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
 use App\Models\CustomLocation;
+use App\Models\UserWalletVoucher;
 
 class RewardController extends Controller
 {
@@ -125,18 +126,26 @@ class RewardController extends Controller
 
         $final_data = [];
         foreach ($query['data']->get() as $key => $row) {
+            $total_quantity = 0;
+            if ($row->reward_type == 1) {
+                // physical
+                $total_quantity = RewardLocation::where('reward_id', $row->id)->sum('inventory_qty');
+            } else {
+                // digital
+                $total_quantity = $row->inventory_qty;
+            }
             $final_data[$key]['sr_no']      = $key + 1;
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
-            $final_data[$key]['no_of_keys'] = number_format($row->no_of_keys);
+            $final_data[$key]['amount'] = number_format($row->usual_price);
 
-            $final_data[$key]['quantity']       = number_format($row->quantity);
-            $final_data[$key]['total_redeemed'] = number_format($row->total_redeemed);
+            $final_data[$key]['quantity']   = $total_quantity;
+            $final_data[$key]['purchased'] = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','purchased')->count();
 
-            $final_data[$key]['balance'] = $row->quantity == 0 ? 'Unlimited Stock' : number_format($row->quantity - $row->total_redeemed);
+            $final_data[$key]['balance'] = $total_quantity - UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','purchased')->count();
 
-            $final_data[$key]['redeemed'] = number_format(UserPurchasedReward::where([['status', 'Redeemed'], ['reward_id', $row->id]])->count());
+            $final_data[$key]['redeemed'] = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status','used')->count();
 
             $duration = $row->created_at->format(config('safra.date-format'));
 
@@ -153,11 +162,21 @@ class RewardController extends Controller
                 $final_data[$key]['image'] = ''; // nothing shown
             }
 
-            if ($row->end_date) {
-                $duration .= ' to ' . $row->end_date->format(config('safra.date-format'));
+           
+            if ($row->publish_start_date && $row->publish_end_date) {
+                $duration =
+                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
+                    ' to ' .
+                    Carbon::parse($row->publish_end_date)->format(config('safra.date-only'));
+
+            } elseif ($row->publish_start_date) {
+                $duration =
+                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
+                    ' - No Expiry';
             } else {
-                $duration .= " - No Expiry";
+                $duration = 'No Expiry';
             }
+
             $final_data[$key]['duration']   = $duration;
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 

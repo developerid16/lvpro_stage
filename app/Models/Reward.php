@@ -65,9 +65,12 @@ class Reward extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'sales_start_date' => 'date',
+        'sales_end_date' => 'date',
         'voucher_validity' => 'date',
+        'publish_start_date' => 'date',
+        'publish_end_date'   => 'date',      
+
     ];
 
     public function setLabelsAttribute($value)

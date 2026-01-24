@@ -41,12 +41,12 @@
                           
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                             <th data-field="reward_type" data-filter-control="input" data-sortable="true" data-escape="true">Reward Type</th>
-                            <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
+                            <th data-field="amount" data-filter-control="input" data-sortable="true">Amount</th>
                             <th data-field="balance">Balance</th>
                             <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
-                            <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
+                            <th data-field="purchased" data-filter-control="input" data-sortable="true">Issuance</th>
                             <th data-field="redeemed">Redeemed</th>
-                            <th data-field="duration">Duration</th>
+                            <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
                             <th data-field="created_at">Created On</th>
 
