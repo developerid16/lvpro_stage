@@ -545,7 +545,7 @@
                             <div class="row">
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="max_quantity">Maximum Quantity <span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="required-hash">*</span></label>
                                         <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_digital"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                                     </div>
                                 </div>
@@ -598,7 +598,7 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_set">Voucher Set (Per User) <span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="required-hash">*</span></label>    
                                         <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
