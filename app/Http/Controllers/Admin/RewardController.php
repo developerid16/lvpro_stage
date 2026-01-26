@@ -227,8 +227,8 @@ class RewardController extends Controller
 
         try {
             $rules = [
-                'voucher_image'      => 'required|image',
-                'voucher_detail_img' => 'required|image',
+                'voucher_image'      => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_detail_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
                 'name'               => 'required|string|max:191',
                 'description'        => 'required|string',
                 'term_of_use'        => 'required|string',
@@ -248,6 +248,8 @@ class RewardController extends Controller
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
             /* ---------------- TIER RULES ---------------- */
@@ -673,8 +675,8 @@ class RewardController extends Controller
             $reward = Reward::findOrFail($id);
 
             $rules = [
-                'voucher_image' => 'nullable|image|max:2048',
-                'voucher_detail_img' => 'nullable|image|max:2048',
+                'voucher_image'    => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_detail_img' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
 
                 'name'        => 'required|string|max:191',
                 'description' => 'required|string',
@@ -696,6 +698,8 @@ class RewardController extends Controller
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes', 
             ];
 
             /* ---------------- TIER RULES ---------------- */
@@ -983,8 +987,9 @@ class RewardController extends Controller
             );
 
             $reward->update([
-                 'type'               => '0',
+                'type'               => '0',
                 'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
+                'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
                 'name'               => $validated['name'],
                 'description'        => $validated['description'],
                 'term_of_use'        => $validated['term_of_use'],
@@ -1138,41 +1143,7 @@ class RewardController extends Controller
             $reward->csvFile = null;
             $reward->save();
         }
-        /* ----------------------------------
-         * DIGITAL CSV UPLOAD (ONLY MERCHANT TYPE)
-         * ---------------------------------- */
-
-        // if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-        //         $file = $request->file('csvFile');
-        //         $filename = time().'_'.$file->getClientOriginalName();
-        //         $file->move(public_path('uploads/csv'), $filename);
-
-        //         $reward->csvFile = $filename;
-        //         $reward->save();
-
-        //         $filePath = public_path('uploads/csv/'.$filename);
-
-        //         // READ XLSX OR CSV SAFELY
-        //         $rows = Excel::toArray([], $filePath);
-
-        //         foreach ($rows[0] as $row) {
-
-        //             $code = trim($row[0] ?? '');
-
-        //             if ($code === '' || strtolower($code) === 'code') {
-        //                 continue;
-        //             }
-
-        //             RewardVoucher::create([
-        //                 'type'      => '0',
-        //                 'reward_id' => $reward->id,
-        //                 'code'      => $code,
-        //                 'is_used'   => 0
-        //             ]);
-        //         }
-        //     }
-
+       
 
          if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
@@ -1254,6 +1225,10 @@ class RewardController extends Controller
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
                 unlink(public_path('uploads/image/' . $reward->voucher_image));
             }
+            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
+                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
+            }
+
             if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
                 unlink(public_path('uploads/csv/' . $reward->csvFile));
             }

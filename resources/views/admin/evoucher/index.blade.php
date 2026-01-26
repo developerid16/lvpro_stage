@@ -400,6 +400,47 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
+        let participatingLocations = {};
+
+        document.getElementById('csvFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                const count = rows.length;
+
+                // show inventory field
+                const inventoryDiv = document.querySelector('.inventory_qty');
+                inventoryDiv.style.display = 'block';
+
+                const inventoryInput = document.getElementById('inventory_qty');
+                calculateSetQty();
+                inventoryInput.value = count;
+
+                inventoryInput.readOnly = true;
+
+                $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
+                $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+        $(document).on('click', '#removeCsvFile', function () {
+            $('#csvFile').val('');
+            $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+            $('#uploadedFile').removeClass('d-flex').addClass('d-none');
+        });
+
+    </script>
+    <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
         var type = "{{ $type }}";
         var DataTableUrl = ModuleBaseUrl + "datatable";
@@ -474,7 +515,9 @@
                 modal.find("#participating_section").hide();
             }
         });
+        
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
         });
     </script>
@@ -760,5 +803,23 @@
                 }
             });
         });
+    
+        // when inventory changes
+        $(document).on('input', '#inventory_qty', calculateSetQty);
+
+        // when voucher_set changes
+        $(document).on('input', '#voucher_set', calculateSetQty);
+
+        $(document).on('input', '#voucher_value', calculateSetQty);
+
+        function calculateSetQty() {
+            let inventoryQty = parseFloat($('#inventory_qty').val());
+            let voucherSet   = parseFloat($('#voucher_set').val());
+            if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
+                $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+            } else {
+                $('#set_qty').val('');
+            }
+        }
     </script>
 @endsection

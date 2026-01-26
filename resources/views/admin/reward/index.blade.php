@@ -69,47 +69,47 @@
 
 @section('script')
 
-<script>
-    let participatingLocations = {};
+    <script>
+        let participatingLocations = {};
 
-    document.getElementById('csvFile').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
+        document.getElementById('csvFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        const reader = new FileReader();
+            const reader = new FileReader();
 
-        reader.onload = function (evt) {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
+            reader.onload = function (evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
 
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
 
-            const count = rows.length;
+                const count = rows.length;
 
-            // show inventory field
-            const inventoryDiv = document.querySelector('.inventory_qty');
-            inventoryDiv.style.display = 'block';
+                // show inventory field
+                const inventoryDiv = document.querySelector('.inventory_qty');
+                inventoryDiv.style.display = 'block';
 
-            const inventoryInput = document.getElementById('inventory_qty');
-            calculateSetQty();
-            inventoryInput.value = count;
+                const inventoryInput = document.getElementById('inventory_qty');
+                calculateSetQty();
+                inventoryInput.value = count;
 
-            inventoryInput.readOnly = true;
+                inventoryInput.readOnly = true;
 
-            $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
-            $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
-        };
+                $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
+                $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
+            };
 
-        reader.readAsArrayBuffer(file);
-    });
-    $(document).on('click', '#removeCsvFile', function () {
-        $('#csvFile').val('');
-        $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
-        $('#uploadedFile').removeClass('d-flex').addClass('d-none');
-    });
+            reader.readAsArrayBuffer(file);
+        });
+        $(document).on('click', '#removeCsvFile', function () {
+            $('#csvFile').val('');
+            $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+            $('#uploadedFile').removeClass('d-flex').addClass('d-none');
+        });
 
-</script>
+    </script>
 
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";

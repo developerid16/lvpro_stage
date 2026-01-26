@@ -143,6 +143,7 @@ class EvoucherController extends Controller
             --------------------------------------------------- */
             $rules = [
                 'voucher_image'    => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_detail_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
 
                 'name'             => 'required|string|max:191',
                 'description'      => 'required|string',
@@ -166,6 +167,7 @@ class EvoucherController extends Controller
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
+                'set_qty'          => 'required|numeric|min:1',
 
                 'clearing_method'  => 'required|in:0,1,2,3,4',
 
@@ -175,6 +177,10 @@ class EvoucherController extends Controller
 
             $messages = [
                 'term_of_use.required' => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
             /* ---------------------------------------------------
@@ -253,6 +259,22 @@ class EvoucherController extends Controller
             }
 
 
+             if ($request->hasFile('voucher_detail_img')) {
+
+                $path = public_path('uploads/image');
+
+                // Create directory if not exists
+                if (!is_dir($path)) {
+                    mkdir($path, 0775, true);
+                }
+
+                $file = $request->file('voucher_detail_img');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move($path, $filename);
+
+                $validated['voucher_detail_img'] = $filename;
+            }
+
             /* ---------------------------------------------------
             * FORMAT DATES
             * ---------------------------------------------------*/
@@ -275,6 +297,7 @@ class EvoucherController extends Controller
             $reward = Reward::create([
                 'type'  => '1',
                 'voucher_image'  => $validated['voucher_image'],
+                'voucher_detail_img' => $validated['voucher_detail_img'],
                 'name'           => $validated['name'],
                 'description'    => $validated['description'],
                 'term_of_use'    => $validated['term_of_use'],
@@ -305,6 +328,8 @@ class EvoucherController extends Controller
                 'friendly_url'      => $validated['friendly_url'],
                 'voucher_value'      => $validated['voucher_value'],
                 'voucher_set'        => $validated['voucher_set'],
+                'set_qty'            => $validated['set_qty'],
+
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
@@ -454,6 +479,7 @@ class EvoucherController extends Controller
             --------------------------------------------------- */
             $rules = [
                 'voucher_image'    => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_detail_img' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
 
                 'name'             => 'required|string|max:191',
                 'description'      => 'required|string',
@@ -479,7 +505,7 @@ class EvoucherController extends Controller
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
-
+                'set_qty'          => 'required|numeric|min:1',
                 'clearing_method'  => 'required|in:0,1,2,3,4',
 
                 'low_stock_1'      => 'required|integer|min:0',
@@ -604,6 +630,42 @@ class EvoucherController extends Controller
                 $validated['voucher_image'] = $filename;
             }
 
+            if ($request->hasFile('voucher_detail_img')) {
+
+                $uploadPath = public_path('uploads/image');
+
+                // Ensure directory exists
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0775, true);
+                }
+
+                // Ensure directory is writable
+                if (!is_writable($uploadPath)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Upload directory is not writable: reward_images'
+                    ], 500);
+                }
+
+                // Delete old image (ignore errors)
+                if (!empty($reward->voucher_detail_img)) {
+                    $oldFile = $uploadPath . '/' . $reward->voucher_detail_img;
+
+                    if (file_exists($oldFile)) {
+                        @unlink($oldFile); // <-- the @ prevents warning if permission denied
+                    }
+                }
+
+                // Upload new image
+                $file = $request->file('voucher_detail_img');
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                $file->move($uploadPath, $filename);
+
+                $validated['voucher_detail_img'] = $filename;
+            }
+
+
             /* ---------------------------------------------------
             * 5) DATE FORMATTING
             * ---------------------------------------------------*/
@@ -625,6 +687,8 @@ class EvoucherController extends Controller
             * ---------------------------------------------------*/
             $reward->update([
                 'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
+                'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
+
                 'name'               => $validated['name'],
                 'description'        => $validated['description'],
                 'term_of_use'        => $validated['term_of_use'],
@@ -656,6 +720,7 @@ class EvoucherController extends Controller
 
                 'voucher_value'      => $validated['voucher_value'],
                 'voucher_set'        => $validated['voucher_set'],
+                'set_qty'            => $validated['set_qty'],
                 'clearing_method'    => $validated['clearing_method'],
 
                 'location_text'      => $request->location_text,
@@ -771,6 +836,9 @@ class EvoucherController extends Controller
         
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
                 unlink(public_path('uploads/image/' . $reward->voucher_image));
+            }
+            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
+                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
             }
             if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
                 unlink(public_path('uploads/csv/' . $reward->csvFile));
