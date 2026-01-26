@@ -8,6 +8,24 @@
     $(document).on('submit', '#edit_frm, #add_frm', function (e) {
         console.log('FORM SUBMIT TRIGGERED');
     });
+    
+    // when file selected (ADD or EDIT)
+    $(document).on('change', '#EditModal #csvFile', function () {
+        if (this.files.length > 0) {
+            $('#EditModal #uploadedFileLink')
+                .text(this.files[0].name)
+                .attr('href', 'javascript:void(0)');
+            $('#EditModal #uploadedFile').removeClass('d-none').addClass('d-flex');
+        }
+    });
+
+    // remove file
+    $(document).on('click', '#EditModal #removeCsvFile', function () {
+        $('#EditModal #csvFile').val('');
+        $('#EditModal #uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+        $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
+    });
+
 
     $(document).on('shown.bs.modal', '#EditModal', function () {
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -353,15 +371,15 @@
                                     Voucher Catalogue Image <span class="required-hash">*</span>
                                 </label>
                                 <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
-                                <span class="text-secondary">(100 px X 100 px)</span>
-                                <div class="d-flex justify-items-start gap-2">
-                                    <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_image) ? 'block' : 'none' }};">
-                                    <a href="javascript:void(0);" class="text-danger" id="clear_voucher_image" style="display:none;">
-                                        Clear
-                                    </a>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="text-secondary">(100 px X 100 px)</span>
+                                    <div class="position-relative d-inline-block">
+                                        <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; {{ isset($data->voucher_image) ? '' : 'display:none;' }}">
+                                        <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
+                                    </div>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
@@ -369,12 +387,12 @@
                                     Voucher Details Image <span class="required-hash">*</span>
                                 </label>
                                 <input id="voucher_detail_img" type="file" class="sh_dec form-control voucher_detail_img" name="voucher_detail_img" accept=".png,.jpg,.jpeg">
-                                <span class="text-secondary">(351 px X 190 px)</span>
-                                <div class="d-flex justify-items-start gap-2">
-                                    <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; display: {{ isset($data->voucher_detail_img) ? 'block' : 'none' }};">
-                                    <a href="javascript:void(0);" class="text-danger" id="clear_voucher_detail_img" style="display:none;">
-                                        Clear
-                                    </a>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="text-secondary">(351 px X 190 px)</span>
+                                    <div class="position-relative d-inline-block">
+                                        <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; {{ isset($data->voucher_detail_img) ? '' : 'display:none;' }}">
+                                        <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>                       
@@ -560,13 +578,17 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-6 file" style="display: none">
+                                <div class="col-12 col-md-6 file" style="display:none">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="csvFile">File <span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="csvFile">
+                                            File <span class="required-hash">*</span>
+                                        </label>
 
-                                        <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls,.csv">
-                                        <div class="d-flex justify-content-between">
-                                            <div class="mt-1">
+                                        <input id="csvFile" type="file" class="sh_dec form-control"
+                                            name="csvFile" accept=".xlsx,.xls,.csv">
+
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <div>
                                                 <label class="small text-muted">
                                                     Download demo file:
                                                     <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold">
@@ -574,16 +596,30 @@
                                                     </a>
                                                 </label>
                                             </div>
-                                            @if(isset($data->csvFile))
-                                                <div class="mt-1">
-                                                    <a href="{{ asset('reward_voucher/'.$data->csvFile) }}" target="_blank" class="text-primary">
-                                                        {{ $data->csvFile }}
-                                                    </a>
-                                                </div>
-                                            @endif
+
+                                            <!-- uploaded / selected file -->
+                                            <div id="uploadedFile"
+                                                class="align-items-center gap-2 {{ isset($data->csvFile) ? 'd-flex' : 'd-none' }}">
+                                                
+                                                <a id="uploadedFileLink"
+                                                href="{{ isset($data->csvFile) ? asset('reward_voucher/'.$data->csvFile) : 'javascript:void(0)' }}"
+                                                target="_blank"
+                                                class="text-primary fw-bold">
+                                                    {{ $data->csvFile ?? '' }}
+                                                </a>
+
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger delete-btn"
+                                                        id="removeCsvFile"
+                                                        title="Remove file">
+                                                    🗑
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    

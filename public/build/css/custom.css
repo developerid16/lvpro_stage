@@ -450,3 +450,16 @@ tspan {
     margin-bottom: 4px;
     font-size: 14px;
 }
+
+.delete-btn{
+    height: 26px;
+    width: 26px;
+}
+.img-delete-btn{
+    width: 15px; 
+    height: 15px; 
+    line-height: 12px;                                            
+    display: inline-block;
+    margin-top: 7px;
+    margin-right: -8px;
+}

@@ -96,9 +96,17 @@
             inventoryInput.value = count;
 
             inventoryInput.readOnly = true;
+
+            $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
+            $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
         };
 
         reader.readAsArrayBuffer(file);
+    });
+    $(document).on('click', '#removeCsvFile', function () {
+        $('#csvFile').val('');
+        $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+        $('#uploadedFile').removeClass('d-flex').addClass('d-none');
     });
 
 </script>
