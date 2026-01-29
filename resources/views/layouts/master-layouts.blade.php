@@ -30,8 +30,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+
     <script src="{{ URL::asset('build/libs/jquery/jquery.min.js')}}"></script>
     <script src="{{ URL::asset('build/libs/xlsx/xlsx.full.min.js')}}"></script>
+    <script src='{{URL::asset("build/libs/tinymce/tinymce.min.js")}}'></script>
+
 
 </head>
 

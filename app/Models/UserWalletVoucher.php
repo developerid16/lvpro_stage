@@ -16,7 +16,8 @@ class UserWalletVoucher extends Model
         'location_type',
         'redeemed_at',
         'reward_status',
-        'reward_voucher_id'
+        'reward_voucher_id',
+        'serial_no',
     ];
 
     public function reward()

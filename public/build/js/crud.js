@@ -1,8 +1,34 @@
 $(document).ready(function () {
-    const csrf = $('meta[name="csrf-token"]').attr('content')
+    const csrf = $('meta[name="csrf-token"]').attr('content');
+
+    // 🔥 CLICK HANDLER
+    $(document).on('click', '.submit-btn', function () {
+        const action = $(this).val();
+        $('#action').val(action);
+        tinymce.triggerSave();
+
+        const editId = $('#edit_frm').data('id');
+
+        if (editId) {
+            $('#edit_frm').trigger('submit');
+        } else {
+            $('#add_frm').trigger('submit');
+        }
+    });
+  
+
     $(document).on("submit", "#add_frm", function (e) {
         e.preventDefault();
+        let $form = $(this);
+
+        // prevent double click
+        if ($form.data('submitting')) return;
+        $form.data('submitting', true);
+        
         var form_data = new FormData($(this)[0]);
+       
+
+
         $.ajax({
             url: ModuleBaseUrl.slice(0, -1),
             headers: {
@@ -12,13 +38,16 @@ $(document).ready(function () {
             data: form_data,
             processData: false,
             contentType: false,
-            success: function (response) {                
+            success: function (response) {   
+                $form.data('submitting', false);             
                 if (response.status == 'success') {
+                   
                     show_message(response.status, response.message);
                     $("#AddModal").modal('hide');
                     $("#add_frm").trigger("reset");
                     refresh_datatable("#bstable");
                     $("#add_frm .select2").val('').trigger('change');
+
                 } else {
                     show_message(response.status, response.message);
                 }
@@ -26,6 +55,7 @@ $(document).ready(function () {
             },
 
             error: function (response) {
+                $form.data('submitting', false);          
                 $(".error").html(""); // clear previous errors
                 $("#participating_merchant_locations_error").html("");
                 $("#locations_error").html("");
@@ -40,7 +70,8 @@ $(document).ready(function () {
                     return;
                 }              
                 show_errors(response.responseJSON.errors);
-            }
+            },
+            
         });
     });
 
@@ -181,8 +212,6 @@ $(document).ready(function () {
                 });
             }
         });
-    })
-
-  
+    });  
 
 });

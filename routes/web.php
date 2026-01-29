@@ -24,11 +24,14 @@ use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
 use App\Http\Controllers\Admin\CsoIssuanceController;
+use App\Http\Controllers\Admin\CsoPhysicalController;
+use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\ParticipatingMerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Auth\LoginController;
@@ -260,6 +263,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('category/datatable', [CategoryController::class, 'datatable'])->name('admin.category.datatable');
     Route::resource('category', CategoryController::class);
 
+    Route::get('departments/datatable', [DepartmentController::class, 'datatable'])->name('admin.department.datatable');
+    Route::resource('departments', DepartmentController::class);
+
+    Route::get('permissions/datatable', [PermissionController::class, 'datatable'])->name('admin.permission.datatable');
+    Route::resource('permissions', PermissionController::class);
+
+
     Route::post('evoucher/push-parameter-voucher', [EvoucherController::class, 'pushParameterVoucher'])->name('pushParameterVoucher');
     Route::post('evoucher/push-member-voucher', [EvoucherController::class, 'pushMemberVoucher'])->name('pushMemberVoucher');
     Route::get('reward/get-dates/{id}', [EvoucherController::class, 'getDates']);
@@ -278,9 +288,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('/checkout', [CsoPurchaseController::class, 'checkout']);
     Route::post('/get-member-details', [CsoPurchaseController::class, 'getMemberDetails']);
     Route::resource('cso-purchase', CsoPurchaseController::class);
+
     
-    Route::post('cso-issuance/issue', [CsoIssuanceController::class, 'issue']);
-    Route::get('cso-issuance/view/{id}', [CsoIssuanceController::class, 'view']);
+    Route::post('cso-physical/issue', [CsoPhysicalController::class, 'issue']);
+    Route::get('cso-physical/view/{id}', [CsoPhysicalController::class, 'view']);
+    Route::get('cso-physical/datatable', action: [CsoPhysicalController::class, 'datatable']);
+    Route::resource('cso-physical', CsoPhysicalController::class);    
+
     Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
     Route::resource('cso-issuance', CsoIssuanceController::class);    
 

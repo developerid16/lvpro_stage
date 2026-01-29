@@ -1,10 +1,15 @@
  @php
     $data = $data ?? null;
 @endphp
+
 <script>
+  
+
+   
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
-        
+        // tinymce.init({ selector: "textarea.wysiwyg" });
+
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
         initFlatpickr(this);
@@ -138,9 +143,21 @@
                     @if (isset($data->id))
                         @method('PATCH')
                     @endif
-                    <div class="row">
-
-                        <div class="col-12 col-md-12">
+                    <div class="row">                      
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="cso_method">CSO Method<span class="required-hash">*</span></label>
+                                <select class="sh_dec form-select cso_method" name="cso_method">
+                                    {{-- <option class="sh_dec" value="">Select CSO Method</option> --}}
+                                    <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> App/Web</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->cso_method) && $data->cso_method == '0' ? 'selected' : '' }}> CSO Issuance</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->cso_method) && $data->cso_method == '1' ? 'selected' : '' }}> Push Voucher by Member ID</option>
+                                    <option class="sh_dec" value="2" {{ isset($data->cso_method) && $data->cso_method == '2' ? 'selected' : '' }}> Push Voucher by Parameter</option>
+                                    <option class="sh_dec" value="3" {{ isset($data->cso_method) && $data->cso_method == '3' ? 'selected' : '' }}> Push by API SRP</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
@@ -155,7 +172,7 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(100 px X 100 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; {{ isset($data->voucher_image) ? '' : 'display:none;' }}">
+                                        <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" />
                                         <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
                                     </div>
                                 </div>
@@ -171,32 +188,42 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(351 px X 190 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; {{ isset($data->voucher_detail_img) ? '' : 'display:none;' }}">
+                                        <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
                                         <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
                                     </div>
                                 </div>
                             </div>
-                        </div>   
+                        </div>                       
+  
                        
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
-                                <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
+                                <label class="sh_dec">Description <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="description">
+                                    {{ $data->description ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
+                                <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use">
+                                    {{ $data->term_of_use ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
-                                <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
+                                <label class="sh_dec">How to use <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use">
+                                    {{ $data->how_to_use ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="merchant_id">Merchant <span class="required-hash">*</span></label>
@@ -264,6 +291,41 @@
                                             <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
+                                    <div class="col-12 col-md-12">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec font-12">Days <span class="required-hash">*</span></label>
+
+                                            @php
+                                                $selectedDays = is_array($data->days ?? null)
+                                                    ? $data->days
+                                                    : json_decode($data->days ?? '[]', true);
+                                            @endphp
+
+                                            <select name="days[]" id="days" class="sh_dec form-select select-multiple" multiple>
+                                                <option value="Monday"    {{ in_array('Monday', $selectedDays) ? 'selected' : '' }}>Monday</option>
+                                                <option value="Tuesday"   {{ in_array('Tuesday', $selectedDays) ? 'selected' : '' }}>Tuesday</option>
+                                                <option value="Wednesday" {{ in_array('Wednesday', $selectedDays) ? 'selected' : '' }}>Wednesday</option>
+                                                <option value="Thursday"  {{ in_array('Thursday', $selectedDays) ? 'selected' : '' }}>Thursday</option>
+                                                <option value="Friday"    {{ in_array('Friday', $selectedDays) ? 'selected' : '' }}>Friday</option>
+                                                <option value="Saturday"  {{ in_array('Saturday', $selectedDays) ? 'selected' : '' }}>Saturday</option>
+                                                <option value="Sunday"    {{ in_array('Sunday', $selectedDays) ? 'selected' : '' }}>Sunday</option>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec font-12">Start Time <span class="required-hash">*</span></label>
+                                            <input type="time"  class="form-control" name="start_time" value="{{ isset($data->start_time) ? $data->start_time  : '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <div class="mb-3 sh_dec">
+                                            <label class="sh_dec font-12">End Time <span class="required-hash">*</span></label>
+                                            <input type="time" class="form-control" name="end_time"  value="{{ isset($data->end_time) ? $data->end_time  : '' }}">
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -355,13 +417,13 @@
                                     <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
                                         Barcode 
                                     </option>
-                                    <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
+                                    <option class="sh_dec" value="4" {{ isset($data->clearing_method) && $data->clearing_method == '4' ? 'selected' : '' }}>
                                         External Code 
                                     </option>
                                     <option class="sh_dec" value="3" {{ isset($data->clearing_method) && $data->clearing_method == '3' ? 'selected' : '' }}>
                                         External Link 
                                     </option>
-                                    <option class="sh_dec" value="4" {{ isset($data->clearing_method) && $data->clearing_method == '4' ? 'selected' : '' }}>
+                                    <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
                                         Merchant Code 
                                     </option>
                                 </select>
@@ -458,13 +520,20 @@
                             </select>
                         </div>
                     </div>
+
+                    <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
+
                                                                 
                     <div class="row">
-                        <div class="col-6 mt-3 d-grid">
+                        <div class="col-4 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
                         </div>
-                        <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+
+                        <div class="col-4 mt-3 d-grid">
+                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn" name=""  value="draft" type="button" id="saveDraftBtn">Save as Draft</button>
+                        </div>
+                        <div class="col-4 mt-3 d-grid">
+                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"  name="" value="submit" type="button" id="submitBtn">Submit</button>
                         </div>
                     </div>
 

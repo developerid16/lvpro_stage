@@ -42,6 +42,7 @@
             
             $(".max_order").hide(); // also show location section
             $(".max_qty").show(); // also show location section
+            $(".where_use").show(); // also show location section
             $("#EditModal #physical").show();
             $('#EditModal #collection_reminder_title').text('Send Collection Reminder');
             $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
@@ -55,6 +56,7 @@
         }
         
         if (rewardType == "0") {
+            $(".where_use").hide();
             
             $('#EditModal #collection_reminder_title').text('Send Reminder');
             $('#EditModal #collection_reminder_label').contents().last()[0].textContent = ' Reminder';
@@ -375,8 +377,8 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(100 px X 100 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_image_preview" src="{{ isset($data->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : '' }}" style="max-width:50px; {{ isset($data->voucher_image) ? '' : 'display:none;' }}">
-                                        <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
+                                        <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" />
+                                        <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> âœ–</a>
                                     </div>
                                 </div>
                             </div>
@@ -391,8 +393,8 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(351 px X 190 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_detail_img_preview" src="{{ isset($data->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : '' }}" style="max-width:50px; {{ isset($data->voucher_detail_img) ? '' : 'display:none;' }}">
-                                        <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> ✖</a>
+                                        <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
+                                        <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> âœ–</a>
                                     </div>
                                 </div>
                             </div>
@@ -451,7 +453,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-6 where_use">
                             <div class="mb-3">
                                 <label class="sh_dec" for="where_use">Where To Use <span class="required-hash">*</span></label>
                                 <input id="where_use" type="text" class="sh_dec form-control" name="where_use"
@@ -461,7 +463,7 @@
                         
                         
 
-                        <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
+                        <!-- ðŸ”¥ LOCATION DATE BLOCK â€” insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
                             <input type="hidden" id="publish_start_original" value="{{ $data->publish_start_date ?? '' }} {{ $data->publish_start_time ?? '' }}">
                             <input type="hidden" id="publish_end_original" value="{{ $data->publish_end_date ?? '' }} {{ $data->publish_end_time ?? '' }}">
@@ -592,7 +594,7 @@
                                             <!-- uploaded / selected file -->
                                             <div id="uploadedFile" class="align-items-center gap-2 {{ isset($data->csvFile) ? 'd-flex' : 'd-none' }}">
                                                 <a id="uploadedFileLink" href="{{ isset($data->csvFile) ? asset('reward_voucher/'.$data->csvFile) : 'javascript:void(0)' }}" target="_blank" class="text-primary fw-bold"> {{ $data->csvFile ?? '' }} </a>
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" id="removeCsvFile"  title="Remove file"> 🗑 </button>
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn" id="removeCsvFile"  title="Remove file"> ðŸ—‘ </button>
                                             </div>
                                         </div>
                                     </div>
@@ -796,20 +798,22 @@
                                 </div>
                             </div>
 
-
                             <!-- All other common fields here -->
                         </div>                        
                     </div>
 
+                    <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
                     <div class="row">
-                        <div class="col-6 mt-3 d-grid">                         
+                        <div class="col-4 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
                         </div>
-                        <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+                        <div class="col-4 mt-3 d-grid">
+                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn" name=""  value="draft" type="button" id="saveDraftBtn">Save as Draft</button>
+                        </div>
+                        <div class="col-4 mt-3 d-grid">
+                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"  name="" value="submit" type="button" id="submitBtn">Submit</button>
                         </div>
                     </div>
-
                 </form>
             </div>
         </div>

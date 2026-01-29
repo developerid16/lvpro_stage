@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
+use App\Models\UserWalletVoucher;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +22,7 @@ class CsoIssuanceController extends Controller
         $permission_prefix = $this->permission_prefix = 'cso-issuance';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'CSO - Issuance',
+            'title' => 'CSO Issuance',
             'module_base_url' => url('admin/cso-issuance')
         ];       
     }
@@ -28,174 +30,92 @@ class CsoIssuanceController extends Controller
 
     public function index(Request $request)
     {
-       return view($this->view_file_path . "index")->with($this->layout_data);
+        return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
     public function datatable(Request $request)
     {
-        $qb = Purchase::query()
-            ->with('reward') // relation needed
-            ->select('purchases.*');
+        $query = Reward::where('type',  '1')->where('is_draft', 0)->where('cso_method', 0);
 
-        // --------------------------------
-        // FILTER: Member ID / Receipt No
-        // --------------------------------
-        if ($request->filled('filter_by') && $request->filled('filter_value')) {
-            if ($request->filter_by === 'member_id') {
-                $qb->where('member_id', $request->filter_value);
-            }
-
-            if ($request->filter_by === 'receipt_no') {
-                $qb->where('receipt_no', 'like', '%' . $request->filter_value . '%');
-            }
-        }
-
-        $result = $this->get_sort_offset_limit_query($request, $qb, [
-            'receipt_no',
-            'member_id',
-            'created_at',
-            'status',
-        ]);
-
-        $rows = $result['data']->get();
-        $startIndex = $result['offset'] ?? 0;
+        $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];
-        $i = 0;
+        foreach ($query['data']->get() as $key => $row) {
+            $final_data[$key]['sr_no']      = $key + 1;
+            $final_data[$key]['code']       = $row->code;
+            $final_data[$key]['name']       = $row->name;
+            $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
 
-        foreach ($rows as $row) {
-
-            $index = $startIndex + $i + 1;
-
-            // -------------------------
-            // STATUS LABEL
-            // -------------------------
-            $statusData = $this->purchaseStatus($row->status);
-
-            $status = "<span class='badge bg-{$statusData['class']}'>
-                            {$statusData['label']}
-                    </span>";
+            $final_data[$key]['quantity']       = number_format($row->inventory_qty);
+            $final_data[$key]['total_redeemed'] = number_format($row->total_redeemed);
 
 
-            // -------------------------
-            // ACTIONS
-            // -------------------------
-          $action = "<div class='d-flex gap-2'>";
+            $redeemed = UserWalletVoucher::where('reward_id', $row->id)
+                ->where('status', 'used')
+                ->count();
 
-            $action .= "
-                <a href='javascript:void(0)'
-                class='view-btn'
-                data-id='{$row->id}'
-                title='View'>
-                    <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
-                </a>";
+            $final_data[$key]['redeemed'] = max(0, $redeemed);
+            $duration = $row->created_at->format(config('safra.date-format'));
 
-            if ($row->status === 'completed') {
-                $action .= "
-                    <button 
-                        type='button'
-                        class='btn btn-sm btn-warning issue-btn'
-                        data-id='{$row->id}'
-                        data-receipt='{$row->receipt_no}'>
-                        Issue
-                    </button>";
+            if (!empty($row->voucher_image)) {
+                $imgUrl = asset("uploads/image/{$row->voucher_image}");
+
+                $final_data[$key]['image'] = '
+                    <a href="'.$imgUrl.'" target="_blank">
+                        <img src="'.$imgUrl.'"
+                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+                            alt="Voucher Image">
+                    </a>';
+            } else {
+                $imgUrl = asset("uploads/image/no-image.png");
+                $final_data[$key]['image'] = '<img src="'.$imgUrl.'" class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">';
             }
 
-            $action .= "</div>";
+            if ($row->publish_start_date && $row->publish_end_date) {
+                $duration =
+                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
+                    ' to ' .
+                    Carbon::parse($row->publish_end_date)->format(config('safra.date-only'));
 
-            
-            $rewardType = match ((int) ($row->reward->reward_type ?? 0)) {
-                0 => 'Digital',
-                1 => 'Physical',
-                default => '-',
-            };
+            } elseif ($row->publish_start_date) {
+                $duration =
+                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
+                    ' - No Expiry';
+            } else {
+                $duration = 'No Expiry';
+            }
 
-            $final_data[] = [
-                'sr_no'               => $index,
-                'receipt_no'          => $row->receipt_no,
-                'reward_name'         => $row->reward->name ?? '-',
-                'member_id'           => $row->member_id,
-                'qty'                 => $row->qty,
-                'payment_mode'        => strtoupper($row->payment_mode),
-                'reward_type'          => $rewardType,
-                'status'              => $status,
-                'receipt_datetime'    => optional($row->created_at)->format(config('safra.date-format')),
-                'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('safra.date-format')) : '-',
-                'action'              => $action,
-                'remark'              => $row->remark,
+            $final_data[$key]['duration']   = $duration;
+            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
+            $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
+
+            $final_data[$key]['status'] = $row->status;
+            $methods = [
+                0 => 'CSO Issuance',
+                1 => 'Push by Member ID',
+                2 => 'Push by Parameter',
+                3 => 'Push by API SRP',
+                4 => 'App/Web',
             ];
 
-            $i++;
+            $final_data[$key]['cso_method'] = $methods[$row->cso_method] ?? '-';
+
+            $action = "<div class='d-flex gap-3'>";
+            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            }
+            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+            }
+          
+            $final_data[$key]['action'] = $action . "</div>";
         }
-
-        return [
-            'items' => $final_data,
-            'count' => $result['count'] ?? $qb->count(),
-        ];
+        $data          = [];
+        $data['items'] = $final_data;
+        $data['count'] = $query['count'];
+        return $data;
     }
-
-    public function view($id)
-    {
-        $purchase = Purchase::with('reward')->findOrFail($id);
-        $statusData = $this->purchaseStatus($purchase->status);
-    
-        $rewardType = match ((int) ($purchase->reward->reward_type ?? 0)) {
-            0 => 'Digital',
-            1 => 'Physical',
-            default => '-',
-        };
-
-        return response()->json([
-            'receipt_no'        => $purchase->receipt_no,
-            'reward_name'       => $purchase->reward->name ?? '-',
-            'member_id'         => $purchase->member_id,
-            'qty'               => $purchase->qty,
-            'payment_mode'      => strtoupper($purchase->payment_mode),
-            'reward_type' => $rewardType,
-             'status_badge' => "<span class='badge bg-{$statusData['class']}'>
-                        {$statusData['label']}
-                   </span>",
-            'receipt_datetime'  => optional($purchase->created_at)->format(config('safra.date-format')),
-            'redeemed_datetime' => $purchase->redeemed_at ? $purchase->redeemed_at->format(config('safra.date-format')) : '-',
-            'remark'            => $purchase->remark,
-        ]);
-    }
-
-
-    public function issue(Request $request)
-    {
-        $request->validate([
-            'remark'      => 'nullable|string|max:500',
-        ]);
-
-        $purchase = Purchase::findOrFail($request->purchase_id);
-
-        $purchase->update([
-            'remark'      => $request->remark,
-            'status'      => 'redeemed', // Completed
-            'redeemed_at' => now(),
-        ]);
-
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Purchase issued successfully.'
-        ]);
-    }
-
-
-    // helper / controller private method / config
-    function purchaseStatus($status)
-    {
-        return match ($status) {
-            'pending' => ['label' => 'pending',   'class' => 'warning'],
-            'completed' => ['label' => 'completed', 'class' => 'success'],
-            'cancelled' => ['label' => 'cancelled', 'class' => 'danger'],
-            'redeemed' => ['label' => 'redeemed', 'class' => 'info'],
-            default => ['label' => 'Unknown', 'class' => 'secondary'],
-        };
-    }
-
-
+   
     /**
      * Show the form for creating a new resource.
      */

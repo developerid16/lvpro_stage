@@ -39,14 +39,14 @@
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
                           
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
-                            <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
-                            <th data-field="balance">Balance</th>
                             <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
-                            <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Duration</th>
                             <th data-field="image">Image</th>
+                            <th data-field="cso_method">CSO Method</th>
+                            <th data-field="is_draft">Is Draft</th>
                             <th data-field="created_at">Created On</th>
+
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
                         </tr>
                     </thead>
@@ -84,8 +84,8 @@
                                     <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
                                     <select class="sh_dec form-select reward_id" name="reward_id1">
                                         <option class="sh_dec" value="">Select Attached Voucher</option>
-                                         @if (isset($rewards))                                        
-                                            @foreach ($rewards as $reward)
+                                         @if (isset($parameterReward))                                        
+                                            @foreach ($parameterReward as $reward)
                                                 <option value="{{ $reward->id }}" {{ isset($data) && $data->reward_id == $reward->id ? 'selected' : '' }}>
                                                     {{ $reward->name }}
                                                 </option>
@@ -246,13 +246,13 @@
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text" readonly  class="form-control" name="publish_start"   value="">
+                                                <input type="text" readonly  class="form-control" name="publish_start_date"   value="">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Publish End Date & Time</label>
-                                                <input type="text" readonly class="form-control"  name="publish_end"  value="">
+                                                <input type="text" readonly class="form-control"  name="publish_end_date"  value="">
                                             </div>
                                         </div>
 
@@ -327,8 +327,8 @@
                                     <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
                                     <select class="sh_dec form-select reward_id" name="reward_id">
                                         <option class="sh_dec" value="">Select Attached Voucher</option>
-                                         @if (isset($rewards))                                        
-                                            @foreach ($rewards as $reward)
+                                         @if (isset($memberReward))                                        
+                                            @foreach ($memberReward as $reward)
                                                 <option value="{{ $reward->id }}" {{ isset($data) && $data->reward_id == $reward->id ? 'selected' : '' }}>
                                                     {{ $reward->name }}
                                                 </option>
@@ -349,13 +349,13 @@
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text" readonly  class="form-control" name="publish_start"   value="{{ isset($data->publish_start_date) ? $data->publish_start_date . 'T' . $data->publish_start_time : '' }}">
+                                                <input type="text" readonly  class="form-control" name="publish_start_date"   value="">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Publish End Date & Time</label>
-                                                <input type="text" readonly class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . 'T' . $data->publish_end_time : '' }}">
+                                                <input type="text" readonly class="form-control"  name="publish_end_date"  value="">
                                             </div>
                                         </div>
 
@@ -363,13 +363,13 @@
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text"  class="form-control" name="redemption_start_date" value="{{ isset($data->redemption_start_date) ? $data->redemption_start_date . 'T' . $data->redemption_start_time : '' }}">
+                                                <input type="text"  class="form-control" name="redemption_start_date" value="">
                                             </div>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <div class="mb-3 sh_dec">
                                                 <label class="sh_dec font-12">Redemption End Date & Time</label>
-                                                <input type="text" class="form-control" name="redemption_end_date"  value="{{ isset($data->redemption_end_date) ? $data->redemption_end_date . 'T' . $data->redemption_end_time : '' }}">
+                                                <input type="text" class="form-control" name="redemption_end_date"  value="">
                                             </div>
                                         </div>
                                     </div>
@@ -397,7 +397,76 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+   <script>
+        function initTinyMCE() {
+            if (typeof tinymce === 'undefined') return;
+
+            tinymce.init({
+                selector: "textarea.wysiwyg",
+                height: 300,
+                relative_urls: false,
+                remove_script_host: false,
+                convert_urls: true,
+                setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    var content = editor.getContent({ format: 'text' }); // Get plain text content
+                if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
+                    e.preventDefault();
+                }
+                });
+            },
+            images_upload_url: '{{url("admin/image-upload-editor")}}',
+            images_upload_base_path: "{{asset('images')}}/",
+            plugins: [
+                "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                "save table contextmenu directionality emoticons template textcolor"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
+                style_formats: [{
+                        title: 'Bold text',
+                        inline: 'b'
+                    },
+                    {
+                        title: 'Red text',
+                        inline: 'span',
+                        styles: {
+                            color: '#ff0000'
+                        }
+                    },
+                    {
+                        title: 'Red header',
+                        block: 'h1',
+                        styles: {
+                            color: '#ff0000'
+                        }
+                    },
+                    {
+                        title: 'Example 1',
+                        inline: 'span',
+                        classes: 'example1'
+                    },
+                    {
+                        title: 'Example 2',
+                        inline: 'span',
+                        classes: 'example2'
+                    },
+                    {
+                        title: 'Table styles'
+                    },
+                    {
+                        title: 'Table row 1',
+                        selector: 'tr',
+                        classes: 'tablerow1'
+                    }
+                ]
+                
+            });       
+
+        }
+    </script>
+
 
     <script>
         let participatingLocations = {};
@@ -519,6 +588,8 @@
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
+            // tinymce.init({ selector: "textarea.wysiwyg" });
+
         });
     </script>
     <script>
@@ -545,29 +616,32 @@
 
         $(document).on("change", ".reward_id", function () {
             let id = $(this).val();
-
+            let modal = $(this).closest(".modal"); // 🔥 key fix
+            console.log(modal,'modal');
+        
+            let $publishStart = modal.find("input[name='publish_start_date']");
+            let $publishEnd   = modal.find("input[name='publish_end_date']");
+        
             if (!id) {
-                $("input[name='publish_start']").val("");
-                $("input[name='publish_end']").val("");
+                $publishStart.val("");
+                $publishEnd.val("");
                 return;
             }
-
+        
             $.ajax({
                 url: "{{ url('admin/reward/get-dates') }}/" + id,
                 type: "GET",
                 success: function (res) {
                     if (res.publish_start) {
-                        $("input[name='publish_start']").val(formatToAmPm(res.publish_start));
+                        $publishStart.val(res.publish_start);
                     }
-
                     if (res.publish_end) {
-                        $("input[name='publish_end']").val(formatToAmPm(res.publish_end));
+                        $publishEnd.val(res.publish_end);
                     }
-
                 }
             });
         });
-    
+
         document.getElementById("memberId").addEventListener("change", function (e) {
 
             let file = e.target.files[0];

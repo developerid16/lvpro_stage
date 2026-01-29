@@ -48,6 +48,7 @@
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
+                            <th data-field="is_draft">Is Draft</th>
                             <th data-field="created_at">Created On</th>
 
                             {{-- <th data-field="status" data-filter-control="select" data-sortable="false">Status</th> --}}
@@ -170,6 +171,7 @@
             if (type == "1") {
                 $("#physical").show(); // show physical fields
                 $("#location_section").show(); // also show location section
+                $(".where_use").show(); // also show location section
                 $(".max_qty").show(); // also show location section
                 $(".max_order").hide(); // also show location section
                 $("#digital").hide(); // show physical fields
@@ -185,6 +187,7 @@
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
                 $("#participating_merchant_location").show(); 
+                 $(".where_use").hide();
                 $(".max_qty").hide(); // also show location section
                 $(".max_order").show(); // also show location section// also show location section
                 $("#physical").hide(); // show physical fields
@@ -398,6 +401,7 @@
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
+            $(".where_use").hide();
         });
       
         // when inventory changes

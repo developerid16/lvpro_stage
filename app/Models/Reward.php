@@ -61,6 +61,12 @@ class Reward extends Model
         'club_location',
         'from_month',
         'to_month',
+        'cso_method',
+        'is_draft',
+        'days',
+        'start_time',
+        'end_time',
+        'unique_code',
         
     ];
 
@@ -69,9 +75,11 @@ class Reward extends Model
         'sales_end_date' => 'date',
         'voucher_validity' => 'date',
         'publish_start_date' => 'date',
-        'publish_end_date'   => 'date',      
+        'publish_end_date'   => 'date',  
+        'days' => 'array',    
 
     ];
+
 
     public function setLabelsAttribute($value)
     {
@@ -82,19 +90,7 @@ class Reward extends Model
     {
         return array_filter(explode(",", $value));
     }
-    public function setDaysAttribute($value)
-    {
-        $this->attributes['days'] = null;
-        if ($value) {
-            $this->attributes['days'] = implode(',', $value);
-        }
-    }
-
-    public function getDaysAttribute($value)
-    {
-        return array_filter(explode(",", $value));
-    }
-
+   
     public function setLocationIdsAttribute($value)
     {
         $this->attributes['location_ids'] = null;
@@ -113,7 +109,6 @@ class Reward extends Model
      */
     public function company()
     {
-        return $this->belongsTo(PartnerCompany::class, 'company_id');
     }
 
     /**

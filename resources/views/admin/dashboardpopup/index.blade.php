@@ -84,7 +84,7 @@
 
         tinymce.init({
             selector: "textarea.elm1",
-            height: 300,
+            height: 200,
             relative_urls: false,
             remove_script_host: false,
             convert_urls: true,

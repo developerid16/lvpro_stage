@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
+use App\Models\Department;
 use DB;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -43,7 +43,9 @@ class RoleController extends Controller
     public function index(Request $request)
     {
 
-        $this->layout_data['permission'] = Permission::get();
+        $this->layout_data['permission'] = Permission::where('status','Active')->get();
+        $this->layout_data['department'] = Department::where('status','Active')->get();
+
 
         return view($this->view_file_path . 'index')->with($this->layout_data);
     }
@@ -95,10 +97,11 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
+            'department' => 'required',
             'permission' => 'required',
         ]);
 
-        $role = Role::create(['name' => $request->input('name')]);
+        $role = Role::create(['name' => $request->input('name'), 'department' => $request->input('department'), 'status' => $request->input('status')]);
         $role->syncPermissions($request->input('permission'));
         return response()->json(['status' => 'success', 'message' => 'Role Created Successfully']);
     }
@@ -122,7 +125,8 @@ class RoleController extends Controller
     public function edit($id)
     {
         $this->layout_data['data'] = Role::find($id);
-        $this->layout_data['permission'] = Permission::get();
+        $this->layout_data['permission'] = Permission::where('status','Active')->get();
+        $this->layout_data['department'] = Department::where('status','Active')->get();
         $this->layout_data['rolePermissions'] = RoleHasPermission::where("role_id", $id)->pluck('permission_id')->toArray();
 
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
@@ -140,11 +144,14 @@ class RoleController extends Controller
     {
         $this->validate($request, [
             'name' => 'required',
+            'department' => 'required',
             'permission' => 'required',
         ]);
 
         $role = Role::find($id);
         $role->name = $request->input('name');
+        $role->department = $request->input('department');
+        $role->status = $request->input('status');
         $role->save();
         $role->syncPermissions($request->input('permission'));
         return response()->json(['status' => 'success', 'message' => 'Role Update Successfully']);

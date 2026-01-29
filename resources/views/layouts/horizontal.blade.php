@@ -365,35 +365,40 @@
 
                     @canany(['user-list', 'role-list', 'app-user-list', 'campaign-voucher-group-list'])
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CMS User Management</span>
-                            <!-- <div class="arrow-down"></div> -->
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CMS User Management</span>
+                                <!-- <div class="arrow-down"></div> -->
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
 
-                            @can('role-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('/admin/roles')}}">Roles</a>
-                            @endcan
-                            @can('user-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
-                            @endcan
-                            @can(['app-user-list'])
-                            <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
-                            @endcan
-                            @can('user-rights')
-                                {{-- <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user-rights')}}">User Rrights Request</a> --}}
-                            @endcan
-                            @can('user-rights')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">Reward Update Request</a>
-                            @endcan
-                            @can(['campaign-voucher-group-list'])
-                                <a class="dropdown-item" key="t-dashboards"
-                                    href="{{url('/admin/campaign-voucher-group')}}">Campaign Voucher Group</a>
-                            @endcan
+                                @can('role-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('/admin/roles')}}">Roles</a>
+                                @endcan
+                               
+                                @can('department-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('/admin/departments')}}">Departments</a>
+                                @endcan
+                                
+                                @can('user-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
+                                @endcan
+                                @can(['app-user-list'])
+                                <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
+                                @endcan
+                                @can('user-rights')
+                                    {{-- <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user-rights')}}">User Rrights Request</a> --}}
+                                @endcan
+                                @can('user-rights')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">Reward Update Request</a>
+                                @endcan
+                                @can(['campaign-voucher-group-list'])
+                                    <a class="dropdown-item" key="t-dashboards"
+                                        href="{{url('/admin/campaign-voucher-group')}}">Campaign Voucher Group</a>
+                                @endcan
 
-                        </div>
-                    </li>
+                            </div>
+                        </li>
 
                     @endcan
                     @canany(['content-management', 'app-management', 'slider-list', 'about-app-banner-list', 'learn-more-page', 'faq-list', 'app-content-management'])
@@ -490,6 +495,9 @@
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             @can('cso-purchase-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
+                            @endcan                           
+                            @can('cso-physical-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-physical')}}">CSO Physical Collection</a>
                             @endcan                           
                             @can('cso-issuance-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance')}}">CSO Issuance</a>
