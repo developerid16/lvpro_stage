@@ -6,7 +6,7 @@
    
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
-        // tinymce.init({ selector: "textarea.wysiwyg" });
+        tinymce.init({ selector: "textarea.wysiwyg" });
 
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
