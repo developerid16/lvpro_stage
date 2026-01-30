@@ -16,7 +16,7 @@ class TierController extends Controller
     {
 
         $this->view_file_path = "admin.tier.";
-        $permission_prefix = $this->permission_prefix = 'tiers';
+        $permission_prefix = $this->permission_prefix = 'tier';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
             'title' => 'Tier',

@@ -398,6 +398,7 @@
             initFlatpickr();
             initFlatpickrDate();
         });
+        
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();

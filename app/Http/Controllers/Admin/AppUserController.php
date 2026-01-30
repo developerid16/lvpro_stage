@@ -14,7 +14,9 @@ use App\Models\UserPurchasedReward;
 use App\Http\Controllers\Controller;
 use App\Models\RefundSale;
 use App\Models\Sale;
+use App\Models\TransactionHistory;
 use App\Models\UserPurchasedRewardLogs;
+use App\Models\UserWalletVoucher;
 use App\Services\SafraService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -175,93 +177,91 @@ class AppUserController extends Controller
     }
     public function userTransactions(string $id, Request $request)
     {
-
-
         $user = Appuser::findOrFail($id);
 
-        $filter  =  $request->all();
-
-
-
-
+        $filter   = $request->filter;
+        $lastYear = Carbon::today()->subYears(2);
 
         $masterData = collect([]);
 
-        $lastYear = Carbon::today()->subYears(2);
+        /*
+        |--------------------------------------------------------------------------
+        | USER WALLET VOUCHER (CLAIM / REDEEM)
+        |--------------------------------------------------------------------------
+        */
+        $wallets = UserWalletVoucher::with('reward:id,name')
+            ->where('user_id', $id)
+            ->whereDate('created_at', '>=', $lastYear)
+            ->get();
 
- 
+        foreach ($wallets as $wallet) {
 
-        // all purchase keys
-        $uprs = [];
-        if ($request->filter && $request->filter === 'purchased') {
-            $uprs = UserPurchasedReward::with('reward:name,id')->where([['user_id', $id], ['key_use', '>', 0]])->whereDate('created_at', '>=', $lastYear)->get();
-        } elseif (!$request->filter) {
-            $uprs = UserPurchasedReward::with('reward:name,id')->where([['user_id', $id], ['key_use', '>', 0]])->whereDate('created_at', '>=', $lastYear)->get();
+            if ($wallet->claimed_at) {
+                $masterData->push([
+                    'text'  => 'Voucher Claimed - '.$wallet->reward?->name.' ('.$wallet->receipt_no.')',
+                    'keys'  => $wallet->qty,
+                    'total' => 0,
+                    'type'  => 'Amount Used',
+                    'date' => Carbon::parse($wallet->claimed_at),
+
+                ]);
+            }
+
+            if ($wallet->redeemed_at) {
+                $masterData->push([
+                    'text'  => 'Voucher Redeemed - '.$wallet->reward?->name.' ('.$wallet->receipt_no.')',
+                    'keys'  => $wallet->qty,
+                    'total' => 0,
+                    'type'  => 'negative',
+                    'date' => Carbon::parse($wallet->redeemed_at),
+
+                ]);
+            }
         }
 
-        foreach ($uprs as $item) {
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT TRANSACTION HISTORY
+        |--------------------------------------------------------------------------
+        */
+        $transactions = TransactionHistory::where('user_id', $id)
+            ->whereDate('created_at', '>=', $lastYear)
+            ->get();
+
+        foreach ($transactions as $txn) {
+
+            $paymentMode = match ((int)$txn->payment_mode) {
+                1 => 'Card',
+                default => 'Other',
+            };
+
             $masterData->push([
-                "text" => $item->reward->name,
-                "keys" =>  $item->key_use,
-                "total" => 0,
-                'type' => 'negative',
-                "date" => $item->created_at
+                'text'  => 'Payment '.$txn->status.' | '.$paymentMode.' | Receipt '.$txn->receipt_no,
+                'keys'  => 0,
+                'total' => $txn->authorized_amount ?? $txn->request_amount,
+                'type'  => $txn->status === 'SUCCESS' ? 'positive' : 'negative',
+                'date' => Carbon::parse($txn->created_at),
+
             ]);
         }
 
-
-
-     
-        //  foreach ($refundSales as $item) {
-
-        //     $masterData->push([
-        //         "text" => "Receipt No: " .  $item->ref,
-        //         "text_original" => "Original Receipt No: " .  $item->org_rec_no,
-        //         "keys" =>  $item->key_earn,
-        //         "total" => $item->sale_amount,
-        //         'type' => 'negative',
-        //         "date" => Carbon::createFromFormat('Y-m-d H:i:s', $item->date->format('Y-m-d') . ' ' . $item->system_time)
-        //     ]);
-        // }
-
-   
- 
-
- 
-        // User Purchess Logs
-
-        $logs =   UserPurchasedRewardLogs::where([['user_id', $id], ['action', 'Expiry Date Change']])->whereDate('created_at', '>=', $lastYear)->get();
-        foreach ($logs as $log) {
-
-            $masterData->push([
-                "text" => $log->full_str,
-                "keys" =>  $log->keys,
-                'type' => $log->action == 'Admin Deleted' ? 'positive' : 'negative',
-                "total" => 0,
-                "date" => $log->created_at
-            ]);
-        }
-        // END
-
-        if (
-            $request->has('sort') && $request->sort === 'asc'
-        ) {
-
-            $masterData = $masterData->sortBy([
-                ['date', 'asc'],
-            ]);
-        } else {
-            $masterData = $masterData->sortBy([
-                ['date', 'desc'],
-            ]);
-        }
-
-
+        /*
+        |--------------------------------------------------------------------------
+        | SORTING
+        |--------------------------------------------------------------------------
+        */
+        $masterData = ($request->sort === 'asc')
+            ? $masterData->sortBy('date')
+            : $masterData->sortByDesc('date');
 
         $masterData = $masterData->values()->all();
 
-        return view($this->view_file_path . "transactions", compact('user', 'masterData', 'filter'));
+        return view(
+            $this->view_file_path . 'transactions',
+            compact('user', 'masterData', 'filter')
+        );
     }
+
 
     /**
      * Show the form for editing the specified resource.

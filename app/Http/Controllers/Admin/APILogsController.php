@@ -147,25 +147,26 @@ array_push($final_data,$temp);
  
     public function datatableVoucherLogs(Request $request)
     {
-        $query = VoucherLogs::query();
+        $query = VoucherLogs::whereHas('reward')->with('reward');
         $query = $this->get_sort_offset_limit_query($request, $query, []);
 
         $final_data = [];
         foreach ($query['data']->get() as $key => $row) {
-            $final_data[$key]['sr_no'] = $key + 1;
-
-            $final_data[$key]['voucher_no'] = $row->voucher_no;
-            $final_data[$key]['from_status'] = $row->from_status  === 'Purchased' ? 'Redeemed' : $row->from_status ;
-            $final_data[$key]['to_status'] = $row->to_status === 'Purchased' ? 'Redeemed' :$row->to_status;
-          
-            $final_data[$key]['from_where'] = $row->from_where;
-            $final_data[$key]['remark'] = $row->remark;
- 
-            $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'). " g:i:s a");
+            $final_data[] = [
+                'sr_no'       => $key + 1,
+                'reward'      => $row->reward->name,
+                'receipt_no'  => $row->receipt_no,
+                'status'      => $row->action,
+                // 'created_at'  => $row->created_at->format(config('safra.date-format').' g:i:s a'),
+                'created_at'  => $row->created_at->format(config('safra.date-format')),
+            ];
         }
-        $data = [];
-        $data['items'] = $final_data;
-        $data['count'] = $query['count'];
-        return $data;
+
+        return [
+            'items' => $final_data,
+            'count' => $query['count'],
+        ];
     }
+
+
 }

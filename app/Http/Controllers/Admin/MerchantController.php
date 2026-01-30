@@ -14,7 +14,7 @@ class MerchantController extends Controller
     function __construct()
     {
         $this->view_file_path = "admin.merchant.";
-        $permission_prefix = $this->permission_prefix = 'merchants';
+        $permission_prefix = $this->permission_prefix = 'merchant';
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,

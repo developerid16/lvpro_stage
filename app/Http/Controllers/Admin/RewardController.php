@@ -538,7 +538,7 @@ class RewardController extends Controller
                 }
     
                 /* ---------------- DIGITAL ---------------- */
-                if ($request->reward_type == 0) {
+                if ($request->reward_type == '0') {
     
                     $rules += [
                         'max_quantity_digital' => 'required|integer|min:1',
@@ -550,15 +550,19 @@ class RewardController extends Controller
                         'clearing_method'      => 'required|in:0,1,2,3,4',
                     ];
     
-                    if ($request->inventory_type == 0) {
+                    if ($request->inventory_type == '0') {
                         $rules['inventory_qty'] = 'required|integer|min:1';
                     }
     
-                    if ($request->inventory_type == 1) {
-                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx,xls', new SingleCodeColumnFile(),];
+                    if ($request->inventory_type == '1') {
+                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx,xls'];
+                        $messages = [
+                            'csvFile.required' => 'CSV file is required',
+                        ];
+
                     }
     
-                    if ($request->clearing_method == 2) {
+                    if  ($request->clearing_method == 2) {
                         $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
                         $rules['participating_merchant_locations'] = 'required|array|min:1';
                     }

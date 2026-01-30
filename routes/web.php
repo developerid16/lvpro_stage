@@ -33,8 +33,11 @@ use App\Http\Controllers\Admin\ParticipatingMerchantController;
 use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
+use App\Http\Controllers\Admin\TransactionHistoryController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
+use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\MicrosoftAuthController;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -303,5 +306,15 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::get('home-banner/datatable', [HomeBannerController::class, 'datatable'])->name('home-banner.datatable');
     Route::resource('home-banner', HomeBannerController::class);
+
+    Route::get('voucher-list/{id}', [VoucherListController::class,'show']);
+    Route::delete('voucher-list/{id}', [VoucherListController::class,'destroy']);
+    Route::post('voucher-list/suspend', [VoucherListController::class,'toggleSuspend'])->name('voucher.suspend');
+    Route::get('voucher-list/datatable', [VoucherListController::class, 'datatable'])->name('voucher-list.datatable');
+    Route::resource('voucher-list', VoucherListController::class);
+
+    Route::get('transaction-history/datatable', [TransactionHistoryController::class, 'datatable'])->name('transaction-history.datatable');
+    Route::resource('transaction-history', TransactionHistoryController::class);
+
 });
 

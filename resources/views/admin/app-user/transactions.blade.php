@@ -76,13 +76,13 @@
 
                                     
                                 </td>
-                                <td scope="col"> {{$data['type'] === 'negative' ? 'Amount Used:' : 'Amount Earned:' }} {{
+                                <td scope="col"> {{$data['type'] ===  'Amount Used'  }} {{
                                     number_format($data['keys'] ?? '')}} </td>
 
 
 
 
-                                <td>{{$data['date']->format(config('safra.date-format' ) . " g:i:s a") }}
+                                <td>{{$data['date']->format(config('safra.date-format' )) }}
                                 </td>
                             </tr>
                             @endforeach

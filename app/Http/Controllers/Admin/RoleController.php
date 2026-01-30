@@ -98,6 +98,7 @@ class RoleController extends Controller
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
             'department' => 'required',
+            'status' => 'required',
             'permission' => 'required',
         ]);
 
@@ -145,6 +146,7 @@ class RoleController extends Controller
         $this->validate($request, [
             'name' => 'required',
             'department' => 'required',
+            'status' => 'required',
             'permission' => 'required',
         ]);
 

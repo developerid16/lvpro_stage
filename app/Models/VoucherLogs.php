@@ -8,12 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 class VoucherLogs extends Model
 {
     use HasFactory;
-    protected $table = 'voucher_logs';
+    protected $table = 'voucher_log_new';
+
     protected $fillable = [
-        'voucher_no', 'from_status', 'to_status', 'from_where', 'remark'
+        'user_id',
+        'reward_id',
+        'reward_voucher_id',
+        'action',
+        'receipt_no',
+        'qty',
+        'from_where',
     ];
 
-    protected $casts = [
-         
-    ];
+    public $timestamps = true;
+    // VoucherLogs.php// App\Models\VoucherLogs.php
+    public function reward()
+    {
+        return $this->belongsTo(Reward::class, 'reward_id', 'id');
+    }
+
+
+
 }

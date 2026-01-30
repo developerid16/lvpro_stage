@@ -15,7 +15,7 @@ class DashboardPopupController extends Controller
     {
 
         $this->view_file_path = "admin.dashboardpopup.";
-        $permission_prefix = $this->permission_prefix = 'dashboardpopup';
+        $permission_prefix = $this->permission_prefix = 'dashboard-popup';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
             'title' => 'Dashboard popup',
