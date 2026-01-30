@@ -67,6 +67,8 @@ class Reward extends Model
         'start_time',
         'end_time',
         'unique_code',
+        'suspend_deal',
+        'suspend_voucher'
         
     ];
 

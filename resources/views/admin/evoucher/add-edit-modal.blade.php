@@ -16,7 +16,7 @@
         initFlatpickrDate(this);  
 
         const merchantId = modal.find("#participating_merchant_id").val();
-        $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
+        // $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
         // EDIT MODE
         if (modal.attr("id") === "EditModal") {
@@ -402,7 +402,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
-                                <input id="set_qty" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                <input id="set_qty" type="number" min="0"   placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -520,6 +520,38 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Suspend Deal</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="suspend_deal"
+                                    value="1"
+                                    {{ isset($data) && $data->suspend_deal == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-3">
+                    <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Suspend Voucher</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="suspend_voucher"
+                                    value="1"
+                                    {{ isset($data) && $data->suspend_voucher == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
 
                     <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
 

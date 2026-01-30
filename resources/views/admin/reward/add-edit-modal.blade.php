@@ -802,6 +802,37 @@
                         </div>                        
                     </div>
 
+                     <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Suspend Deal</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="suspend_deal"
+                                    value="1"
+                                    {{ isset($data) && $data->suspend_deal == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Suspend Voucher</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="suspend_voucher"
+                                    value="1"
+                                    {{ isset($data) && $data->suspend_voucher == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+
                     <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
                     <div class="row">
                         <div class="col-4 mt-3 d-grid">

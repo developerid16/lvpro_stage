@@ -491,7 +491,7 @@
                 inventoryDiv.style.display = 'block';
 
                 const inventoryInput = document.getElementById('inventory_qty');
-                calculateSetQty();
+                // calculateSetQty();
                 inventoryInput.value = count;
 
                 inventoryInput.readOnly = true;
@@ -879,12 +879,12 @@
         });
     
         // when inventory changes
-        $(document).on('input', '#inventory_qty', calculateSetQty);
+        // $(document).on('input', '#inventory_qty', calculateSetQty);
 
-        // when voucher_set changes
-        $(document).on('input', '#voucher_set', calculateSetQty);
+        // // when voucher_set changes
+        // $(document).on('input', '#voucher_set', calculateSetQty);
 
-        $(document).on('input', '#voucher_value', calculateSetQty);
+        // $(document).on('input', '#voucher_value', calculateSetQty);
 
         function calculateSetQty() {
             let inventoryQty = parseFloat($('#inventory_qty').val());

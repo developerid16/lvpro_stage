@@ -354,7 +354,9 @@ class RewardController extends Controller
                     'clearing_method'            => $request->clearing_method,
                     'participating_merchant_id'  => $request->participating_merchant_id ?? 0,
                     'location_text'              => $locationTextId ?? '',
-                    'max_order'                   => $request->max_order,                
+                    'max_order'                   => $request->max_order,     
+                    'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                    'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,           
                 ]);
 
 
@@ -711,7 +713,9 @@ class RewardController extends Controller
                 'clearing_method'            => $request->clearing_method,
                 'participating_merchant_id'  => $request->participating_merchant_id ?? 0,
                 'location_text'              => $locationTextId ?? '',
-                'max_order'                   => $request->max_order,                
+                'max_order'                   => $request->max_order, 
+                 'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,               
             ]);
 
 
@@ -1071,6 +1075,8 @@ class RewardController extends Controller
                     'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
                     'location_text'             => $locationTextId ?? '',
                     'max_order'                 => $request->max_order,
+                     'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                 ]);
 
 
@@ -1597,6 +1603,8 @@ class RewardController extends Controller
                 'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
                 'location_text'             => $locationTextId ?? '',
                 'max_order'                 => $request->max_order,
+                 'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
             ]);
 
 

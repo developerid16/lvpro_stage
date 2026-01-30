@@ -259,6 +259,9 @@ class EvoucherController extends Controller
                     'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                     'low_stock_1'        => $request['low_stock_1'],
                     'low_stock_2'        => $request['low_stock_2'],
+                    'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                    'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
+
                 ]);
 
                  /* ---------------------------------------------------
@@ -538,6 +541,8 @@ class EvoucherController extends Controller
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
                 'low_stock_2'        => $validated['low_stock_2'],
+                'suspend_deal'       => $validated['suspend_deal'] ?? 0,
+                'suspend_voucher'    => $validated['suspend_voucher'] ?? 0,
             ]);
 
 
@@ -798,6 +803,9 @@ class EvoucherController extends Controller
                     'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                     'low_stock_1'        => $validated['low_stock_1'],
                     'low_stock_2'        => $validated['low_stock_2'],
+                    'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                    'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
+
                 ]);
 
 
@@ -1147,6 +1155,8 @@ class EvoucherController extends Controller
                 'hide_quantity'      => $request->hide_quantity ? 1 : 0,
                 'low_stock_1'        => $validated['low_stock_1'],
                 'low_stock_2'        => $validated['low_stock_2'],
+                'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
             ]);
 
 
