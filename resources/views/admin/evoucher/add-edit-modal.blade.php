@@ -3,8 +3,6 @@
 @endphp
 
 <script>
-  
-
    
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
