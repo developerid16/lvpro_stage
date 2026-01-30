@@ -55,9 +55,9 @@ class LoginController extends Controller
                 $otp = generateNumericOTP(4);
                 $data['name'] =  $user->name;
                 $data['otp'] =   $otp;
-                Mail::to($user->email)->send(
-                    new OTPVerify($data)
-                );
+                // Mail::to($user->email)->send(
+                //     new OTPVerify($data)
+                // );
                 // Session::put('OTP_VERIFY', $otp);
                 $min = now()->addMinutes(15);
                 Cache::add('OTP_VERIFY_' . $user->id, $otp, $min);
