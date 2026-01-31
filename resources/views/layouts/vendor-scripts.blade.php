@@ -589,6 +589,9 @@
         let qtyField  = modal.find('.inventory_qty');
         modal.find('#inventory_qty').prop('readonly', false);
 
+        let clearing = modal.find('#clearing_method');
+        clearing.find('option[value="3"], option[value="4"]').show();        
+        
         if (type === "1") {
             fileField.show();
             qtyField.show();
@@ -598,6 +601,10 @@
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
+            clearing.find('option[value="3"], option[value="4"]').hide();
+            if (clearing.val() === "3" || clearing.val() === "4") {
+                clearing.val('');
+            }
         } else {
             fileField.hide();
             qtyField.hide();
@@ -611,6 +618,9 @@
         let qtyField  = modal.find('.inventory_qty');
         modal.find('#inventory_qty').prop('readonly', false);
 
+        let clearing = modal.find('#clearing_method');
+        clearing.find('option[value="3"], option[value="4"]').show();        
+        
         if (type === "1") {
             fileField.show();
             qtyField.hide();
@@ -620,6 +630,10 @@
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
+            clearing.find('option[value="3"], option[value="4"]').hide();
+            if (clearing.val() === "3" || clearing.val() === "4") {
+                clearing.val('');
+            }
         } else {
             // nothing selected → hide both
             fileField.hide();

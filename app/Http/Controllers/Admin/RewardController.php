@@ -506,9 +506,17 @@ class RewardController extends Controller
                 $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
 
+            if ((int) $request->inventory_type === 0) {
+                $rules['inventory_qty'] = 'required|integer|min:1';
+            }
+
+            if ((int) $request->inventory_type === 1) {
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+            }
             
             /* ---------------- RUN VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
+            
             
             /* ---------------- CROSS FIELD CHECK ---------------- */
             $validator->after(function ($validator) use ($request, $tiers, &$rules) {
@@ -548,19 +556,8 @@ class RewardController extends Controller
                         'voucher_set'          => 'required|numeric|min:1',
                         'set_qty'          => 'required|numeric|min:1',
                         'clearing_method'      => 'required|in:0,1,2,3,4',
-                    ];
-    
-                    if ($request->inventory_type == '0') {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    }
-    
-                    if ($request->inventory_type == '1') {
-                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx,xls'];
-                        $messages = [
-                            'csvFile.required' => 'CSV file is required',
-                        ];
-
-                    }
+                    ];   
+                  
     
                     if  ($request->clearing_method == 2) {
                         $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
@@ -1278,6 +1275,15 @@ class RewardController extends Controller
                 $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
             
+            if ((int) $request->inventory_type === 0) {
+                $rules['inventory_qty'] = 'required|integer|min:1';
+            }
+
+            if ((int) $request->inventory_type === 1) {
+                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+            }
+            
+
             /* ---------------- VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
             
@@ -1328,16 +1334,7 @@ class RewardController extends Controller
                         'clearing_method'      => 'required|in:0,1,2,3,4',
                     ]);
     
-                    if ((int) $request->inventory_type == 0) {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    } 
-    
-                    if ($request->inventory_type == 1) {
-                        if(!$reward->csvFile){
-                            $rules['csvFile'] = ['required','file','mimes:xlsx,xls,csv', new SingleCodeColumnFile(),];
-                        }
-                    }
-    
+                   
                     if ($request->clearing_method != 2) {
                         $rules['location_text'] = 'required';
                         $messages = [
