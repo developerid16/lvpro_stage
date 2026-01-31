@@ -58,7 +58,7 @@
                         <th data-field="qty">Qty</th>
                         <th data-field="payment_mode">Payment Mode</th>
                         <th data-field="reward_type">Reward Type</th>
-                        <th data-field="status">Status</th>
+                        {{-- <th data-field="status">Status</th> --}}
                         <th data-field="receipt_datetime">Receipt Date Time</th>
                         <th data-field="redeemed_datetime">Redeemed Date Time</th>
                         <th class="text-center" data-field="action" data-searchable="false"> Action</th>
