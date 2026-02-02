@@ -1275,14 +1275,7 @@ class RewardController extends Controller
                 $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
             
-            if ((int) $request->inventory_type === 0) {
-                $rules['inventory_qty'] = 'required|integer|min:1';
-            }
-
-            if ((int) $request->inventory_type === 1) {
-                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
-            }
-            
+           
 
             /* ---------------- VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
@@ -1301,6 +1294,14 @@ class RewardController extends Controller
                         'locations'             => 'required|array|min:1',
                     ]);
     
+                    if ((int) $request->inventory_type === 0) {
+                        $rules['inventory_qty'] = 'required|integer|min:1';
+                    }
+
+                    if ((int) $request->inventory_type === 1) {
+                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                    }
+            
                     $hasSelected = false;
     
                     foreach ($request->locations ?? [] as $locId => $locData) {

@@ -23,7 +23,8 @@ class Purchase extends Model
         'admin_fee',
         'total',
         'remark',
-        'redeemed_at'
+        'redeemed_at',
+        'unique_code'
     ];
 
     public $table = 'purchases';

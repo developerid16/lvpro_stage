@@ -159,7 +159,7 @@ class EvoucherController extends Controller
     public function store(Request $request)
     {
 
-        $isDraft = $request->action === 'draft'; 
+        $isDraft = $request->action === 'draft' ?? 0; 
     
         DB::beginTransaction();
 
@@ -525,7 +525,7 @@ class EvoucherController extends Controller
                 'voucher_validity'   => $validated['voucher_validity'],
 
                 'inventory_type'     => $validated['inventory_type'],
-                'inventory_qty'      => $validated['inventory_qty'] ?? null,
+                'inventory_qty'      => $request['inventory_qty'] ?? null,
 
                 'category_id'      => $validated['category_id'],
                 'friendly_url'      => $validated['friendly_url'],
@@ -670,7 +670,7 @@ class EvoucherController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $isDraft = $request->action === 'draft'; 
+        $isDraft = $request->action === 'draft' ?? 0; 
         $reward = Reward::findOrFail(id: $id);
 
         DB::beginTransaction();
@@ -790,7 +790,7 @@ class EvoucherController extends Controller
                     'category_id'     => $validated['category_id'],
                     'friendly_url'     => $validated['friendly_url'],
                     'inventory_type'     => $validated['inventory_type'],
-                    'inventory_qty'      => $validated['inventory_qty'] ?? null,
+                    'inventory_qty'      => $request['inventory_qty'] ?? null,
 
                     'voucher_value'      => $validated['voucher_value'],
                     'voucher_set'        => $validated['voucher_set'],
@@ -1106,6 +1106,7 @@ class EvoucherController extends Controller
                 $request->location_text ?? ''
             );
 
+
             /* ---------------------------------------------------
             * 6) UPDATE REWARD
             * ---------------------------------------------------*/
@@ -1142,7 +1143,7 @@ class EvoucherController extends Controller
                 'category_id'     => $validated['category_id'],
                 'friendly_url'     => $validated['friendly_url'],
                 'inventory_type'     => $validated['inventory_type'],
-                'inventory_qty'      => $validated['inventory_qty'] ?? null,
+                'inventory_qty'      => $request['inventory_qty'] ?? null,
 
                 'voucher_value'      => $validated['voucher_value'],
                 'voucher_set'        => $validated['voucher_set'],

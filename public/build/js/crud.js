@@ -16,64 +16,45 @@ $(document).ready(function () {
         }
     });
   
+$(document)
+  .off("submit", "#add_frm")
+  .on("submit", "#add_frm", function (e) {
+      e.preventDefault();
 
-    $(document).on("submit", "#add_frm", function (e) {
-        e.preventDefault();
-        let $form = $(this);
+      let $form = $(this);
+      if ($form.data('submitting')) return;
+      $form.data('submitting', true);
 
-        // prevent double click
-        if ($form.data('submitting')) return;
-        $form.data('submitting', true);
-        
-        var form_data = new FormData($(this)[0]);
-       
+      let form_data = new FormData(this);
 
+      $.ajax({
+          url: ModuleBaseUrl.slice(0, -1),
+          headers: { 'X-CSRF-Token': csrf },
+          type: "POST",
+          data: form_data,
+          processData: false,
+          contentType: false,
 
-        $.ajax({
-            url: ModuleBaseUrl.slice(0, -1),
-            headers: {
-                'X-CSRF-Token': csrf,
-            },
-            type: "POST",
-            data: form_data,
-            processData: false,
-            contentType: false,
-            success: function (response) {   
-                $form.data('submitting', false);             
-                if (response.status == 'success') {
-                   
-                    show_message(response.status, response.message);
-                    $("#AddModal").modal('hide');
-                    $("#add_frm").trigger("reset");
-                    refresh_datatable("#bstable");
-                    $("#add_frm .select2").val('').trigger('change');
+          success: function (response) {
+              $form.data('submitting', false);
+              if (response.status === 'success') {
+                  show_message(response.status, response.message);
+                  $("#AddModal").modal('hide');
+                  $form[0].reset();
+                  refresh_datatable("#bstable");
+                  $("#add_frm .select2").val('').trigger('change');
+              } else {
+                  show_message(response.status, response.message);
+              }
+              remove_errors();
+          },
 
-                } else {
-                    show_message(response.status, response.message);
-                }
-                remove_errors();
-            },
-
-            error: function (response) {
-                $form.data('submitting', false);          
-                $(".error").html(""); // clear previous errors
-                $("#participating_merchant_locations_error").html("");
-                $("#locations_error").html("");
-
-                if (response.status == "error") {
-                    if (response.errors?.participating_merchant_locations) {
-                        $("#participating_merchant_locations_error") .html(response.errors.participating_merchant_locations[0]);
-                    }
-                    if (response.errors?.locations) {
-                        $("#locations_error") .html(response.errors.locations);
-                    }
-                    return;
-                }              
-                show_errors(response.responseJSON.errors);
-            },
-            
-        });
-    });
+          error: function (response) {
+              $form.data('submitting', false);
+              show_errors(response.responseJSON?.errors || {});
+          }
+      });
+  });
 
     $(document).on("click", ".edit", function (e) {
 
