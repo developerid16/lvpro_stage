@@ -34,6 +34,9 @@
                             Requested Date
                         </th>
 
+                        <th data-field="reward_type" data-filter-control="input">
+                            Reward Type
+                        </th>                      
                         <th data-field="name" data-filter-control="input">
                             Reward Name
                         </th>                      

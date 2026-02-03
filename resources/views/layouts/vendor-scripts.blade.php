@@ -54,9 +54,10 @@
    
     
     function bindStartEndFlatpickr(startSelector, endSelector) {
-
+        
         const startEl = document.querySelector(startSelector);
         const endEl   = document.querySelector(endSelector);
+        if (startEl._flatpickr) return;
 
         if (!startEl || !endEl) return;
 
@@ -128,14 +129,34 @@
         });
     }
 
+    function normalizeDateTime(val) {
+        if (!val) return val;
+
+        const parts = val.trim().split(' ');
+
+        // format: [date, 00:00:00, real_time]
+        if (parts.length == 3) {
+            return parts[0] + ' ' + parts[2];
+        }
+
+        // normal case: [date, time]
+        return parts[0] + ' ' + parts[1];
+    }
+
+
     function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
-        const startEl = modal.querySelector(startSelector);
+
+        const startEl = modal.querySelector(startSelector);.0
         const endEl   = modal.querySelector(endSelector);
 
         if (!startEl || !endEl) return;
 
-        if (startEl._flatpickr) startEl._flatpickr.destroy();
-        if (endEl._flatpickr) endEl._flatpickr.destroy();
+        // prevent double init
+        if (startEl._flatpickr) return;
+
+        // normalize bad value like: 2026-01-23 00:00:00 01:00:00
+        startEl.value = normalizeDateTime(startEl.value);
+        endEl.value   = normalizeDateTime(endEl.value);
 
         let endPickerInstance;
 
@@ -143,23 +164,21 @@
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:S',
+            dateFormat: 'Y-m-d H:i:s',
             altInput: true,
-            altFormat: 'Y-m-d H:i:S',
-            defaultDate: startEl.value || null,
+            altFormat: 'Y-m-d H:i:s',
+            defaultDate: startEl.value
+                ? new Date(startEl.value.replace(' ', 'T'))
+                : null,
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
 
-                // ✅ SAFE: selectedDates is ready here
                 if (instance.selectedDates.length && endPickerInstance) {
                     const startDate = instance.selectedDates[0];
-
                     endPickerInstance.set('minDate', startDate);
                     endPickerInstance.set('clickOpens', true);
                     endPickerInstance.altInput.removeAttribute('disabled');
-
-                    // 🔒 prevents -1 year
                     endPickerInstance.jumpToDate(startDate);
                 }
             },
@@ -168,50 +187,62 @@
                 if (!endPickerInstance) return;
 
                 if (selectedDates.length) {
-                    const d = selectedDates[0];
-                    safeEnableEndPicker(endPickerInstance, d);
+                    safeEnableEndPicker(endPickerInstance, selectedDates[0]);
                 } else {
                     endPickerInstance.clear();
-                    endPickerInstance.set('minDate', null);
                     endPickerInstance.set('clickOpens', false);
                     endPickerInstance.altInput.setAttribute('disabled', true);
-                    endPickerInstance.jumpToDate(new Date());
                 }
             }
-
         });
 
         endPickerInstance = flatpickr(endEl, {
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:S',
+            dateFormat: 'Y-m-d H:i:s',
             altInput: true,
-            altFormat: 'Y-m-d H:i:S',
-            defaultDate: endEl.value || null,
+            altFormat: 'Y-m-d H:i:s',
+            defaultDate: endEl.value
+                ? new Date(endEl.value.replace(' ', 'T'))
+                : null,
             clickOpens: false,
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-
-                // 🔑 anchor calendar safely
-                instance.jumpToDate(
-                    instance.selectedDates[0] || new Date()
-                );
+                instance.jumpToDate(instance.selectedDates[0] || new Date());
             }
         });
 
-
         if (startPickerInstance.selectedDates.length) {
-            const d = startPickerInstance.selectedDates[0];
-            safeEnableEndPicker(endPickerInstance, d);
+            safeEnableEndPicker(endPickerInstance, startPickerInstance.selectedDates[0]);
         } else {
             endPickerInstance.altInput.setAttribute('disabled', true);
         }
-
-
     }
-  
+
+    function initFlatpickrDate(context = document) {
+
+        context.querySelectorAll('.js-flat-date').forEach(function (el) {
+
+            // prevent double init (important for edit modal)
+            if (el._flatpickr) {
+                el._flatpickr.destroy();
+            }
+
+            flatpickr(el, {
+                dateFormat: 'Y-m-d',   // backend format
+                altInput: true,
+                altFormat: 'Y-m-d',
+                allowInput: true,
+
+                onReady(_, __, instance) {
+                    instance.altInput.placeholder = 'yyyy-MM-dd';
+                }
+            });
+        });
+    }
+
     function safeEnableEndPicker(instance, anchorDate) {
         instance.set('minDate', anchorDate);
         instance.jumpToDate(anchorDate);   // 🔑 REQUIRED
@@ -219,7 +250,85 @@
         instance.altInput.removeAttribute('disabled');
     }
 
+   
 
+    // function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
+    //     const startEl = modal.querySelector(startSelector);
+    //     const endEl   = modal.querySelector(endSelector);
+
+    //     if (!startEl || !endEl) return;
+
+    //     if (startEl._flatpickr) startEl._flatpickr.destroy();
+    //     if (endEl._flatpickr) endEl._flatpickr.destroy();
+
+    //     let endPickerInstance = null;
+
+    //     const startPickerInstance = flatpickr(startEl, {
+    //         enableTime: true,
+    //         enableSeconds: true,
+    //         time_24hr: true,
+    //         dateFormat: 'Y-m-d H:i:s',
+    //         altInput: true,
+    //         altFormat: 'Y-m-d H:i:s',
+
+    //         onReady(_, __, instance) {
+    //             instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+
+    //             if (startEl.value) {
+    //                 instance.setDate(startEl.value, true); // 🔑 force date + time
+    //             }
+
+    //             if (instance.selectedDates.length && endPickerInstance) {
+    //                 const startDate = instance.selectedDates[0];
+    //                 safeEnableEndPicker(endPickerInstance, startDate);
+    //             }
+    //         },
+
+    //         onChange(selectedDates) {
+    //             if (!endPickerInstance) return;
+
+    //             if (selectedDates.length) {
+    //                 safeEnableEndPicker(endPickerInstance, selectedDates[0]);
+    //             } else {
+    //                 endPickerInstance.clear();
+    //                 endPickerInstance.set('minDate', null);
+    //                 endPickerInstance.set('clickOpens', false);
+    //                 endPickerInstance.altInput.setAttribute('disabled', true);
+    //             }
+    //         }
+    //     });
+
+    //     endPickerInstance = flatpickr(endEl, {
+    //         enableTime: true,
+    //         enableSeconds: true,
+    //         time_24hr: true,
+    //         dateFormat: 'Y-m-d H:i:s',
+    //         altInput: true,
+    //         altFormat: 'Y-m-d H:i:s',
+    //         clickOpens: false,
+
+    //         onReady(_, __, instance) {
+    //             instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+
+    //             if (endEl.value) {
+    //                 instance.setDate(endEl.value, true); // 🔑 force date + time
+    //             }
+
+    //             instance.jumpToDate(instance.selectedDates[0] || new Date());
+    //         }
+    //     });
+
+    //     if (startPickerInstance.selectedDates.length) {
+    //         safeEnableEndPicker(
+    //             endPickerInstance,
+    //             startPickerInstance.selectedDates[0]
+    //         );
+    //     } else {
+    //         endPickerInstance.altInput.setAttribute('disabled', true);
+    //     }
+    // }
+
+    
     function bindMonthFlatpickr(startSelector, endSelector) {
 
         const startEl = document.querySelector(startSelector);
@@ -326,28 +435,7 @@
         }
     }
 
-    function initFlatpickrDate(context = document) {
-
-        context.querySelectorAll('.js-flat-date').forEach(function (el) {
-
-            // prevent double init (important for edit modal)
-            if (el._flatpickr) {
-                el._flatpickr.destroy();
-            }
-
-            flatpickr(el, {
-                dateFormat: 'Y-m-d',   // backend format
-                altInput: true,
-                altFormat: 'Y-m-d',
-                allowInput: true,
-
-                onReady(_, __, instance) {
-                    instance.altInput.placeholder = 'yyyy-MM-dd';
-                }
-            });
-        });
-    }
-
+   
     function loadParticipatingMerchantLocations(modal, merchantIds) {
 
         if (!merchantIds || merchantIds.length === 0) {
@@ -591,7 +679,6 @@
 
         let clearing = modal.find('#clearing_method');
         clearing.find('option[value="3"], option[value="4"]').show();        
-        
         if (type === "1") {
             fileField.show();
             qtyField.show();
@@ -651,7 +738,6 @@
             qtyInput.prop('readonly', true);  // excel-controlled
         }
     }
-
   
     // Show preview when selecting a new image
     document.getElementById('voucher_image').addEventListener('change', function (e) {
@@ -703,7 +789,7 @@
         this.style.display = 'none';
     });
 
-    
+    //count set quantitry
     function editCalculateSetQty() {
         let inventoryQty = parseFloat($('#EditModal #inventory_qty').val());
         let voucherSet   = parseFloat($('#EditModal #voucher_set').val());
@@ -714,72 +800,74 @@
         }
     }
 
-tinymce.init({
-    selector: "textarea.wysiwyg",
-    height: 200,
-     relative_urls: false,
-    remove_script_host: false,
-    convert_urls: true,
+    tinymce.init({
+        selector: "textarea.wysiwyg",
+        height: 200,
+        relative_urls: false,
+        remove_script_host: false,
+        convert_urls: true,
 
-    setup: function (editor) {
-        editor.on('keydown', function (e) {
-            let content = editor.getContent({ format: 'text' });
-            if (content.length >= 180 && ![8, 46].includes(e.keyCode)) {
-                e.preventDefault();
+        setup: function (editor) {
+            editor.on('keydown', function (e) {
+                let content = editor.getContent({ format: 'text' });
+                if (content.length >= 180 && ![8, 46].includes(e.keyCode)) {
+                    e.preventDefault();
+                }
+            });
+        },
+
+        images_upload_url: '{{ url("admin/image-upload-editor") }}',
+        images_upload_base_path: "{{ asset('images') }}/",
+
+        plugins: [
+            "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+            "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+            "save table contextmenu directionality emoticons template textcolor"
+        ],
+
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
+        style_formats: [{
+                title: 'Bold text',
+                inline: 'b'
+            },
+            {
+                title: 'Red text',
+                inline: 'span',
+                styles: {
+                    color: '#ff0000'
+                }
+            },
+            {
+                title: 'Red header',
+                block: 'h1',
+                styles: {
+                    color: '#ff0000'
+                }
+            },
+            {
+                title: 'Example 1',
+                inline: 'span',
+                classes: 'example1'
+            },
+            {
+                title: 'Example 2',
+                inline: 'span',
+                classes: 'example2'
+            },
+            {
+                title: 'Table styles'
+            },
+            {
+                title: 'Table row 1',
+                selector: 'tr',
+                classes: 'tablerow1'
             }
-        });
-    },
+        ]
+    });
 
-    images_upload_url: '{{ url("admin/image-upload-editor") }}',
-    images_upload_base_path: "{{ asset('images') }}/",
-
-    plugins: [
-         "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
-        "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
-        "save table contextmenu directionality emoticons template textcolor"
-    ],
-
-    toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-    style_formats: [{
-            title: 'Bold text',
-            inline: 'b'
-        },
-        {
-            title: 'Red text',
-            inline: 'span',
-            styles: {
-                color: '#ff0000'
-            }
-        },
-        {
-            title: 'Red header',
-            block: 'h1',
-            styles: {
-                color: '#ff0000'
-            }
-        },
-        {
-            title: 'Example 1',
-            inline: 'span',
-            classes: 'example1'
-        },
-        {
-            title: 'Example 2',
-            inline: 'span',
-            classes: 'example2'
-        },
-        {
-            title: 'Table styles'
-        },
-        {
-            title: 'Table row 1',
-            selector: 'tr',
-            classes: 'tablerow1'
-        }
-    ]
-});
-
+    
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>

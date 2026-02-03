@@ -6,6 +6,7 @@
 
 @section('css')
     <!-- owl.carousel css -->
+
     <link rel="stylesheet" href="{{ URL::asset('/build/libs/owl.carousel/assets/owl.carousel.min.css') }}">
     <link rel="stylesheet" href="{{ URL::asset('/build/libs/owl.carousel/assets/owl.theme.default.min.css') }}">
 @endsection
@@ -116,6 +117,7 @@
         </div>
     @endsection
     @section('script')
+    <script src="{{ URL::asset('build/libs/jquery/jquery.min.js')}}"></script>
         <script>
             document.getElementById('otpverify').addEventListener('submit', function(e) {
                 const submitButton = document.getElementById('confirm');
@@ -129,6 +131,7 @@
                 // Allow form submission to proceed
             });
         </script>
+
         <!-- owl.carousel js -->
         <script src="{{ URL::asset('/build/libs/owl.carousel/owl.carousel.min.js') }}"></script>
         <!-- auth-2-carousel init -->

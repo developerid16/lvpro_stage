@@ -467,7 +467,6 @@
         }
     </script>
 
-
     <script>
         let participatingLocations = {};
 
@@ -491,7 +490,7 @@
                 inventoryDiv.style.display = 'block';
 
                 const inventoryInput = document.getElementById('inventory_qty');
-                // calculateSetQty();
+                calculateSetQty();
                 inventoryInput.value = count;
 
                 inventoryInput.readOnly = true;
@@ -502,6 +501,7 @@
 
             reader.readAsArrayBuffer(file);
         });
+        
         $(document).on('click', '#removeCsvFile', function () {
             $('#csvFile').val('');
             $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
@@ -509,6 +509,7 @@
         });
 
     </script>
+
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
         var type = "{{ $type }}";

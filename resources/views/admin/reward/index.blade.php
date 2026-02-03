@@ -70,6 +70,75 @@
 
 @section('script')
 
+   <script>
+        function initTinyMCE() {
+            if (typeof tinymce === 'undefined') return;
+
+            tinymce.init({
+                selector: "textarea.wysiwyg",
+                height: 300,
+                relative_urls: false,
+                remove_script_host: false,
+                convert_urls: true,
+                setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    var content = editor.getContent({ format: 'text' }); // Get plain text content
+                if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
+                    e.preventDefault();
+                }
+                });
+            },
+            images_upload_url: '{{url("admin/image-upload-editor")}}',
+            images_upload_base_path: "{{asset('images')}}/",
+            plugins: [
+                "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                "save table contextmenu directionality emoticons template textcolor"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
+                style_formats: [{
+                        title: 'Bold text',
+                        inline: 'b'
+                    },
+                    {
+                        title: 'Red text',
+                        inline: 'span',
+                        styles: {
+                            color: '#ff0000'
+                        }
+                    },
+                    {
+                        title: 'Red header',
+                        block: 'h1',
+                        styles: {
+                            color: '#ff0000'
+                        }
+                    },
+                    {
+                        title: 'Example 1',
+                        inline: 'span',
+                        classes: 'example1'
+                    },
+                    {
+                        title: 'Example 2',
+                        inline: 'span',
+                        classes: 'example2'
+                    },
+                    {
+                        title: 'Table styles'
+                    },
+                    {
+                        title: 'Table row 1',
+                        selector: 'tr',
+                        classes: 'tablerow1'
+                    }
+                ]
+                
+            });       
+
+        }
+    </script>
+
     <script>
         let participatingLocations = {};
 
@@ -104,6 +173,7 @@
 
             reader.readAsArrayBuffer(file);
         });
+        
         $(document).on('click', '#removeCsvFile', function () {
             $('#csvFile').val('');
             $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
@@ -383,7 +453,6 @@
         });
 
         function initFlatpickr() {
-            
             bindStartEndFlatpickr(
                 'input[name="publish_start"]',
                 'input[name="publish_end"]'
@@ -392,17 +461,15 @@
                 'input[name="sales_start"]',
                 'input[name="sales_end"]'
             );
-        }
-        
-        document.addEventListener('DOMContentLoaded', function () {
-            initFlatpickr();
-            initFlatpickrDate();
-        });
+        }       
+     
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $(".where_use").hide();
+            initFlatpickr();
+            initFlatpickrDate();
         });
       
         // when inventory changes

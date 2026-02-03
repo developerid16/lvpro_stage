@@ -3,7 +3,23 @@
 @endphp
 
 <script>
+    $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
    
+    // when file selected (ADD or EDIT)
+    $(document).on('change', '#EditModal #csvFile', function () {
+        if (this.files.length > 0) {
+            $('#EditModal #uploadedFileLink').text(this.files[0].name).attr('href', 'javascript:void(0)');
+            $('#EditModal #uploadedFile').removeClass('d-none').addClass('d-flex');
+        }
+    });
+
+    // remove file
+    $(document).on('click', '#EditModal #removeCsvFile', function () {
+        $('#EditModal #csvFile').val('');
+        $('#EditModal #uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+        $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
+    });
+
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
         tinymce.init({ selector: "textarea.wysiwyg" });
@@ -14,19 +30,51 @@
         initFlatpickrDate(this);  
 
         const merchantId = modal.find("#participating_merchant_id").val();
-        $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
         // EDIT MODE
         if (modal.attr("id") === "EditModal") {
             editParticipatingMerchantLocations(modal);
         }
-
+        
         // merchant selected later
         modal.find("#participating_merchant_id").on("change", function () {
-
+            
             const merchantId = $(this).val();
             loadParticipatingMerchantLocations(modal, merchantId);
-        });  
+        }); 
+
+        const $fileInput = $('#EditModal #csvFile');
+        const $inventoryDiv = $('#EditModal .inventory_qty');
+        const $inventoryInput = $('#EditModal #inventory_qty');
+
+         // EDIT MODE
+        if ($inventoryInput.val() !== '') {
+            $inventoryDiv.show();
+            $inventoryInput.prop('readonly', true);
+        }
+
+        // ON FILE CHANGE
+        $fileInput.on('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                $inventoryDiv.show();
+                $inventoryInput.val(rows.length).prop('readonly', true);
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+        
+        forceInventoryReadonly(modal);
     });
     
     $(document).on("change", ".voucher_image", function (e) {
@@ -103,7 +151,9 @@
     });
 
 
-    function initFlatpickr(modal) {
+    $(document).on('shown.bs.modal', '#EditModal', function () {
+        const modal = this;
+
         bindStartEndFlatpickrEdit(
             modal,
             'input[name="publish_start"]',
@@ -115,7 +165,8 @@
             'input[name="sales_start"]',
             'input[name="sales_end"]'
         );
-    }   
+    });
+
   
     //Digital Reward
     $(document).on("change", "#EditModal .clearing_method", function () {
@@ -124,6 +175,7 @@
         editToggleInventoryFields(modal);
     });
 </script>
+
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -551,7 +603,8 @@
                     </div>
 
 
-                    <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
+                    <input type="hidden" name="action" class="action-field" value="">
+                    {{-- <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}"> --}}
 
                                                                 
                     <div class="row">

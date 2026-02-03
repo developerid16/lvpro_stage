@@ -66,9 +66,10 @@ class Reward extends Model
         'days',
         'start_time',
         'end_time',
-        'unique_code',
         'suspend_deal',
-        'suspend_voucher'
+        'suspend_voucher',
+        'purchased_qty',
+        'status'
         
     ];
 
@@ -81,6 +82,18 @@ class Reward extends Model
         'days' => 'array',    
 
     ];
+
+
+
+    public static function getRewardTypeLabel(int $type): string
+    {
+        return match ($type) {
+            0 => 'Treats & Deals',
+            1 => 'eVoucher',
+            2 => 'Birthday Voucher',
+            default => '',
+        };
+    }
 
 
     public function setLabelsAttribute($value)

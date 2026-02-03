@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Mail\NewAdminRegister;
 use App\Models\ParticipatingLocations;
 use App\Models\Reward;
+use App\Models\RewardLocation;
+use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\User;
@@ -107,7 +109,8 @@ class RewardUpdateRequestController extends Controller
                 'id'                => $row->id,
                 'sr_no'             => $index,
 
-                // BASIC INFO
+                'reward_type' => Reward::getRewardTypeLabel($row->reward_type),
+
                 'reward_id'         => $row->reward_id,
                 'month'            =>  $month,
                 'name'              => $row->name,
@@ -177,9 +180,9 @@ class RewardUpdateRequestController extends Controller
         return match ((int) $method) {
             0 => 'QR',
             1 => 'Barcode',
-            2 => 'External Code',
+            4 => 'External Code',
             3 => 'External Link',
-            4 => 'Merchant Code',
+            2 => 'Merchant Code',
             default => '-',
         };
     }
@@ -241,93 +244,244 @@ class RewardUpdateRequestController extends Controller
        
     }
 
-
    
     public function approve(Request $request)
-{
-    DB::beginTransaction();
+    {
+        DB::beginTransaction();
 
-    try {
-        if (!$request->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'ID is missing'
-            ], 422);
-        }
-
-        $update = RewardUpdateRequest::findOrFail($request->id);
-        $reward = Reward::findOrFail($update->reward_id);
-
-        $reward->update([
-            'from_month' => $update->from_month,
-            'to_month' => $update->to_month,
-            'voucher_image' => $update->voucher_image,
-            'name' => $update->name,
-            'description' => $update->description,
-            'term_of_use' => $update->term_of_use,
-            'how_to_use' => $update->how_to_use,
-            'merchant_id' => $update->merchant_id,
-            'reward_type' => $update->reward_type,
-            'voucher_validity' => $update->voucher_validity,
-            'club_location' => $update->club_location,
-            'inventory_type' => $update->inventory_type,
-            'inventory_qty' => $update->inventory_qty,
-            'voucher_value' => $update->voucher_value,
-            'voucher_set' => $update->voucher_set,
-            'clearing_method' => $update->clearing_method,
-            'location_text' => $update->location_text,
-            'participating_merchant_id' => $update->participating_merchant_id,
-            'hide_quantity' => $update->hide_quantity,
-            'low_stock_1' => $update->low_stock_1,
-            'low_stock_2' => $update->low_stock_2,
-        ]);
-
-        $update->update([
-            'status' => 'approved',
-        ]);
-
-        if ($update->clearing_method == '2') {
-
-            $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
-                'reward_id',
-                $reward->id
-            )->get();
-
-            ParticipatingLocations::where('reward_id', $reward->id)->delete();
-
-            foreach ($pendingLocations as $loc) {
-                ParticipatingLocations::create([
-                    'reward_id' => $reward->id,
-                    'participating_merchant_id' => $loc->participating_merchant_id,
-                    'location_id' => $loc->location_id,
-                    'is_selected' => $loc->is_selected ?? 1,
-                ]);
+        try {
+            if (!$request->id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'ID is missing'
+                ], 422);
             }
 
-            RewardParticipatingMerchantLocationUpdate::where(
-                'reward_id',
-                $reward->id
-            )->delete();
+            $update = RewardUpdateRequest::findOrFail($request->id);
+            $reward = Reward::findOrFail($update->reward_id);
+            $type = (int) $update->type; // 0  = treat&deals, 1 = eVoucher, 2 = Birthday
+
+            // ===============================
+            // TYPE 1 → eVoucher
+            // ===============================
+            if ($type == '1') {
+
+                $reward->update([
+                    'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
+                    'voucher_detail_img'   => $update->voucher_detail_img ?? $reward->voucher_detail_img,
+
+                    'name'                 => $update->name,
+                    'description'          => $update->description,
+                    'term_of_use'          => $update->term_of_use,
+                    'how_to_use'           => $update->how_to_use,
+
+                    'merchant_id'          => $update->merchant_id,
+                    'reward_type'          => $update->reward_type,
+                    'type'                 => 1,
+
+                    'max_quantity'         => $update->max_quantity,
+                    'direct_utilization'   => $update->direct_utilization,
+
+                    'publish_start_date'   => $update->publish_start_date,
+                    'publish_start_time'   => $update->publish_start_time,
+                    'publish_end_date'     => $update->publish_end_date,
+                    'publish_end_time'     => $update->publish_end_time,
+
+                    'sales_start_date'     => $update->sales_start_date,
+                    'sales_start_time'     => $update->sales_start_time,
+                    'sales_end_date'       => $update->sales_end_date,
+                    'sales_end_time'       => $update->sales_end_time,
+
+                    'voucher_validity'     => $update->voucher_validity,
+                    'category_id'          => $update->category_id,
+                    'friendly_url'         => $update->friendly_url,
+
+                    'inventory_type'       => $update->inventory_type,
+                    'inventory_qty'        => $update->inventory_qty,
+
+                    'voucher_value'        => $update->voucher_value,
+                    'voucher_set'          => $update->voucher_set,
+                    'set_qty'              => $update->set_qty,
+
+                    'clearing_method'      => $update->clearing_method,
+                    'location_text'        => $update->location_text,
+                    'participating_merchant_id' => $update->participating_merchant_id,
+
+                    'hide_quantity'        => $update->hide_quantity,
+                    'low_stock_1'          => $update->low_stock_1,
+                    'low_stock_2'          => $update->low_stock_2,
+
+                    'suspend_deal'         => $update->suspend_deal,
+                    'suspend_voucher'      => $update->suspend_voucher,
+                    'csvFile'               => $update->csvFile,
+
+                    'is_draft'             => 0,   // 🔑 important
+                ]);
+                $update->update([
+                    'status' => 'approved',
+                ]);
+
+
+            }else if($type == '2'){
+
+                $reward->update([
+                    'from_month' => $update->from_month,
+                    'to_month' => $update->to_month,
+                    'voucher_image' => $update->voucher_image,
+                    'name' => $update->name,
+                    'description' => $update->description,
+                    'term_of_use' => $update->term_of_use,
+                    'how_to_use' => $update->how_to_use,
+                    'merchant_id' => $update->merchant_id,
+                    'reward_type' => $update->reward_type,
+                    'voucher_validity' => $update->voucher_validity,
+                    'club_location' => $update->club_location,
+                    'inventory_type' => $update->inventory_type,
+                    'inventory_qty' => $update->inventory_qty,
+                    'voucher_value' => $update->voucher_value,
+                    'voucher_set' => $update->voucher_set,
+                    'clearing_method' => $update->clearing_method,
+                    'location_text' => $update->location_text,
+                    'participating_merchant_id' => $update->participating_merchant_id,
+                    'hide_quantity' => $update->hide_quantity,
+                    'low_stock_1' => $update->low_stock_1,
+                    'low_stock_2' => $update->low_stock_2,
+                ]);
+
+                $update->update([
+                    'status' => 'approved',
+                ]);
+               
+            }else if($type == '0'){
+                
+                $reward->update([
+                    'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
+                    'voucher_detail_img'   => $update->voucher_detail_img ?? $reward->voucher_detail_img,
+                    'name'                 => $update->name,
+                    'description'          => $update->description,
+                    'term_of_use'          => $update->term_of_use,
+                    'how_to_use'           => $update->how_to_use,
+                    'merchant_id'          => $update->merchant_id,
+                    'reward_type'          => $update->reward_type,
+                    'type'                 => 0,
+                    'usual_price'         => $update->usual_price,
+                    'max_quantity'         => $update->max_quantity,
+                    'direct_utilization'   => $update->direct_utilization,
+                    'publish_start_date'   => $update->publish_start_date,
+                    'publish_start_time'   => $update->publish_start_time,
+                    'publish_end_date'     => $update->publish_end_date,
+                    'publish_end_time'     => $update->publish_end_time,
+                    'sales_start_date'     => $update->sales_start_date,
+                    'sales_start_time'     => $update->sales_start_time,
+                    'sales_end_date'       => $update->sales_end_date,
+                    'sales_end_time'       => $update->sales_end_time,
+                    'voucher_validity'     => $update->voucher_validity,
+                    'category_id'          => $update->category_id,
+                    'friendly_url'         => $update->friendly_url,
+                    'club_classification_id' => $update->club_classification_id,
+                    'fabs_category_id'       => $update->fabs_category_id,
+                    'smc_classification_id'  => $update->smc_classification_id,
+                    'ax_item_code'           => $update->ax_item_code,
+                    'inventory_type'       => $update->inventory_type,
+                    'inventory_qty'        => $update->inventory_qty,
+                    'voucher_value'        => $update->voucher_value,
+                    'voucher_set'          => $update->voucher_set,
+                    'set_qty'              => $update->set_qty,
+                    'clearing_method'      => $update->clearing_method,
+                    'location_text'        => $update->location_text,
+                    'participating_merchant_id' => $update->participating_merchant_id,
+                    'hide_quantity'        => $update->hide_quantity,
+                    'low_stock_1'          => $update->low_stock_1,
+                    'low_stock_2'          => $update->low_stock_2,
+                    'suspend_deal'         => $update->suspend_deal,
+                    'suspend_voucher'      => $update->suspend_voucher,
+                    'publish_independent'    => $update->publish_independent ?? 0,
+                    'publish_inhouse'        => $update->publish_inhouse ?? 0,
+                    'send_reminder'          => $update->send_reminder ?? 0,        
+                    'where_use'          => $update->where_use,
+                    'is_draft'             => 0,   // 🔑 important
+                    'csvFile'               => $update->csvFile,
+
+                ]);
+
+                if ($reward->reward_type == '1') {
+
+                    // Delete old rows
+                    $pendingLocations = RewardLocationUpdate::where('reward_id', $reward->id)->get();
+                  
+
+                    RewardLocation::where('reward_id', $reward->id)->delete();
+
+                    foreach ($pendingLocations as $loc) {
+                        RewardLocation::create([                           
+
+                            'reward_id'     => $reward->id,
+                            'merchant_id'   => $loc['merchant_id'],
+                            'location_id'   => $loc['location_id'],
+                            'is_selected'   => $loc['is_selected'] ?? 1,
+                            'inventory_qty' => $loc['inventory_qty'] ?? 0,
+                            'total_qty' => $loc['inventory_qty'] ?? 0,
+                        ]);
+                    }
+
+                    RewardLocationUpdate::where(
+                        'reward_id',
+                        $reward->id
+                    )->delete();
+                }
+
+                $update->update([
+                    'status' => 'approved',
+                ]);
+
+
+            }
+
+            if ($update->clearing_method == '2') {
+    
+                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->get();
+
+                ParticipatingLocations::where('reward_id', $reward->id)->delete();
+
+                foreach ($pendingLocations as $loc) {
+                    ParticipatingLocations::create([
+                        'reward_id' => $reward->id,
+                        'participating_merchant_id' => $loc->participating_merchant_id,
+                        'location_id' => $loc->location_id,
+                        'is_selected' => $loc->is_selected ?? 1,
+                    ]);
+                }
+
+                RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->delete();
+            }
+
+           
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Reward updated successfully',
+                'data' => $update
+            ]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),   // 👈 ACTUAL ERROR
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
-
-        DB::commit();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Reward updated successfully'
-        ]);
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),   // 👈 ACTUAL ERROR
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ], 500);
     }
-}
 
 
     public function reject($id)

@@ -12,6 +12,8 @@ use App\Models\Evoucher;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\PushVoucherMember;
 use App\Models\Reward;
+use App\Models\RewardParticipatingMerchantLocationUpdate;
+use App\Models\RewardUpdateRequest;
 use App\Models\RewardVoucher;
 use App\Models\UserPurchasedReward;
 use App\Models\UserWalletVoucher;
@@ -670,7 +672,7 @@ class EvoucherController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $isDraft = $request->action === 'draft' ?? 0; 
+        $isDraft = $request->action === 'draft' ? 1 : 0;
         $reward = Reward::findOrFail(id: $id);
 
         DB::beginTransaction();
@@ -1104,94 +1106,193 @@ class EvoucherController extends Controller
 
             $locationTextId = CustomLocation::getOrCreate(
                 $request->location_text ?? ''
-            );
+            );            
+            
+            
+            if ((int) $reward->is_draft == 1) {
 
+                $data = [
+                    'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
+                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
+                    'request_by'         => auth()->id(),
+                    'reward_id'          => $reward->id,
+                    'status'             => 'pending',
+                    'name'               => $validated['name'],
+                    'days'               => $request->input('days'),
+                    'start_time'         => $request['start_time'],
+                    'end_time'           => $request['end_time'],
+                    'description'        => $validated['description'],
+                    'term_of_use'        => $validated['term_of_use'],
+                    'how_to_use'         => $validated['how_to_use'],
+                    'merchant_id'        => $validated['merchant_id'],
+                    'reward_type'        => 0,
+                    'type'               => '1',
+                    'cso_method'         => $request->cso_method ?? $reward->cso_method,
+                    'max_quantity'       => $validated['max_quantity'],
+                    'direct_utilization' => $validated['direct_utilization'] ?? 0,
 
-            /* ---------------------------------------------------
-            * 6) UPDATE REWARD
-            * ---------------------------------------------------*/
-            $reward->update([
-                'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
-                'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
-                'name'               => $validated['name'],
-                'days'               => $request->input('days'), // ARRAY ONLY
-                'start_time' => $request['start_time'],
-                'end_time' => $request['end_time'],
-                'description'        => $validated['description'],
-                'term_of_use'        => $validated['term_of_use'],
-                'how_to_use'         => $validated['how_to_use'],
+                    'publish_start_date' => $validated['publish_start_date'] ?? $reward->publish_start_date,
+                    'publish_start_time' => $validated['publish_start_time'] ?? $reward->publish_start_time,
+                    'publish_end_date'   => $validated['publish_end_date'] ?? $reward->publish_end_date,
+                    'publish_end_time'   => $validated['publish_end_time'] ?? $reward->publish_end_time,
 
-                'merchant_id'        => $validated['merchant_id'],
-                'reward_type'        => 0,
-                'type'               => '1',
-                'cso_method'         => $request->cso_method ?? $reward->cso_method,
-                'max_quantity'       => $validated['max_quantity'],
-                'direct_utilization'       => $validated['direct_utilization'] ?? 0,
+                    'sales_start_date'   => $validated['sales_start_date'] ?? $reward->sales_start_date,
+                    'sales_start_time'   => $validated['sales_start_time'] ?? $reward->sales_start_time,
+                    'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
+                    'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
 
-                'publish_start_date' => $validated['publish_start_date'] ?? $reward->publish_start_date,
-                'publish_start_time' => $validated['publish_start_time'] ?? $reward->publish_start_time,
-                'publish_end_date'   => $validated['publish_end_date'] ?? $reward->publish_end_date,
-                'publish_end_time'   => $validated['publish_end_time'] ?? $reward->publish_end_time,
+                    'voucher_validity'   => $validated['voucher_validity'],
+                    'category_id'        => $validated['category_id'],
+                    'friendly_url'       => $validated['friendly_url'],
+                    'inventory_type'     => $validated['inventory_type'],
+                    'inventory_qty'      => $request['inventory_qty'] ?? null,
 
-                'sales_start_date'   => $validated['sales_start_date'] ?? $reward->sales_start_date,
-                'sales_start_time'   => $validated['sales_start_time'] ?? $reward->sales_start_time,
-                'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
-                'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
+                    'voucher_value'      => $validated['voucher_value'],
+                    'voucher_set'        => $validated['voucher_set'],
+                    'set_qty'            => $validated['set_qty'],
+                    'clearing_method'    => $validated['clearing_method'],
 
-                'voucher_validity'   => $validated['voucher_validity'],
+                    'location_text'      => $locationTextId,
+                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
 
-                'category_id'     => $validated['category_id'],
-                'friendly_url'     => $validated['friendly_url'],
-                'inventory_type'     => $validated['inventory_type'],
-                'inventory_qty'      => $request['inventory_qty'] ?? null,
+                    'hide_quantity'   => $request->hide_quantity ? 1 : 0,
+                    'low_stock_1'     => $validated['low_stock_1'],
+                    'low_stock_2'     => $validated['low_stock_2'],
+                    'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                    'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
+                ];
 
-                'voucher_value'      => $validated['voucher_value'],
-                'voucher_set'        => $validated['voucher_set'],
-                'set_qty'            => $validated['set_qty'],
-                'clearing_method'    => $validated['clearing_method'],
+                $updateRequest = RewardUpdateRequest::updateOrCreate(
+                    [
+                        'reward_id' => $reward->id,
+                        'type'    => '1',
+                        'status'    => 'pending',
+                    ],
+                    $data
+                );
 
-                'location_text'      => $locationTextId,
-                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+                 /* ---------------------------------------------------
+                * 7) UPDATE PARTICIPATING LOCATIONS
+                * ---------------------------------------------------*/
+                if ( $request->clearing_method == 2 &&  !empty($request->participating_merchant_locations)) {
 
-                'hide_quantity'      => $request->hide_quantity ? 1 : 0,
-                'low_stock_1'        => $validated['low_stock_1'],
-                'low_stock_2'        => $validated['low_stock_2'],
-                'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
-                'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
-            ]);
+                    // 1️⃣ Remove old mappings
+                    RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
 
+                    foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-            /* ---------------------------------------------------
-            * 7) UPDATE PARTICIPATING LOCATIONS
-            * ---------------------------------------------------*/
-            if ( $request->clearing_method == 2 &&  !empty($request->participating_merchant_locations)) {
+                        if (!isset($locData['selected'])) {
+                            continue;
+                        }
 
-                // 1️⃣ Remove old mappings
-                ParticipatingLocations::where('reward_id', $reward->id)->delete();
+                        // 2️⃣ Get merchant ID from location itself
+                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                            ->value('participating_merchant_id');
 
-                foreach ($request->participating_merchant_locations as $locId => $locData) {
+                        if (!$merchantId) {
+                            continue; // safety
+                        }
 
-                    if (!isset($locData['selected'])) {
-                        continue;
+                        // 3️⃣ Save correct mapping
+                        RewardParticipatingMerchantLocationUpdate::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId,
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
                     }
-
-                    // 2️⃣ Get merchant ID from location itself
-                    $merchantId = ParticipatingMerchantLocation::where('id', $locId)
-                        ->value('participating_merchant_id');
-
-                    if (!$merchantId) {
-                        continue; // safety
-                    }
-
-                    // 3️⃣ Save correct mapping
-                    ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'participating_merchant_id' => $merchantId,
-                        'location_id'               => $locId,
-                        'is_selected'               => 1,
-                    ]);
                 }
+
             }
+            else{
+
+                /* ---------------------------------------------------
+                * 6) UPDATE REWARD
+                * ---------------------------------------------------*/
+                $reward->update([
+                    'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
+                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
+                    'name'               => $validated['name'],
+                    'days'               => $request->input('days'), // ARRAY ONLY
+                    'start_time' => $request['start_time'],
+                    'end_time' => $request['end_time'],
+                    'description'        => $validated['description'],
+                    'term_of_use'        => $validated['term_of_use'],
+                    'how_to_use'         => $validated['how_to_use'],
+    
+                    'merchant_id'        => $validated['merchant_id'],
+                    'reward_type'        => 0,
+                    'type'               => '1',
+                    'cso_method'         => $request->cso_method ?? $reward->cso_method,
+                    'max_quantity'       => $validated['max_quantity'],
+                    'direct_utilization'       => $validated['direct_utilization'] ?? 0,
+    
+                    'publish_start_date' => $validated['publish_start_date'] ?? $reward->publish_start_date,
+                    'publish_start_time' => $validated['publish_start_time'] ?? $reward->publish_start_time,
+                    'publish_end_date'   => $validated['publish_end_date'] ?? $reward->publish_end_date,
+                    'publish_end_time'   => $validated['publish_end_time'] ?? $reward->publish_end_time,
+    
+                    'sales_start_date'   => $validated['sales_start_date'] ?? $reward->sales_start_date,
+                    'sales_start_time'   => $validated['sales_start_time'] ?? $reward->sales_start_time,
+                    'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
+                    'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
+    
+                    'voucher_validity'   => $validated['voucher_validity'],
+    
+                    'category_id'     => $validated['category_id'],
+                    'friendly_url'     => $validated['friendly_url'],
+                    'inventory_type'     => $validated['inventory_type'],
+                    'inventory_qty'      => $request['inventory_qty'] ?? null,
+    
+                    'voucher_value'      => $validated['voucher_value'],
+                    'voucher_set'        => $validated['voucher_set'],
+                    'set_qty'            => $validated['set_qty'],
+                    'clearing_method'    => $validated['clearing_method'],
+    
+                    'location_text'      => $locationTextId,
+                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+    
+                    'hide_quantity'      => $request->hide_quantity ? 1 : 0,
+                    'low_stock_1'        => $validated['low_stock_1'],
+                    'low_stock_2'        => $validated['low_stock_2'],
+                    'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
+                    'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
+                ]);
+
+                /* ---------------------------------------------------
+                * 7) UPDATE PARTICIPATING LOCATIONS
+                * ---------------------------------------------------*/
+                if ( $request->clearing_method == 2 &&  !empty($request->participating_merchant_locations)) {
+    
+                    // 1️⃣ Remove old mappings
+                    ParticipatingLocations::where('reward_id', $reward->id)->delete();
+    
+                    foreach ($request->participating_merchant_locations as $locId => $locData) {
+    
+                        if (!isset($locData['selected'])) {
+                            continue;
+                        }
+    
+                        // 2️⃣ Get merchant ID from location itself
+                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                            ->value('participating_merchant_id');
+    
+                        if (!$merchantId) {
+                            continue; // safety
+                        }
+    
+                        // 3️⃣ Save correct mapping
+                        ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId,
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                    }
+                }
+
+            }                
+
 
 
             /* ---------------------------------------------------
@@ -1212,8 +1313,16 @@ class EvoucherController extends Controller
                 $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/csv'), $filename);
 
-                $reward->csvFile = $filename;
-                $reward->save();
+                if ((int) $reward->is_draft == 1) {
+                    $updateRequest->csvFile = $filename;
+                    $updateRequest->save();
+                }
+                else{
+
+                    $reward->csvFile = $filename;
+                    $reward->save();
+                }
+
 
                 // SAFE XLSX/CSV READING
                 $rows = Excel::toArray([], public_path('uploads/csv/'.$filename));

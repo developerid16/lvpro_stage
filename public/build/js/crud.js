@@ -2,23 +2,36 @@ $(document).ready(function () {
     const csrf = $('meta[name="csrf-token"]').attr('content');
 
     // 🔥 CLICK HANDLER
+    // $(document).on('click', '.submit-btn', function () {
+    //     const action = $(this).val();
+    //     $('#action').val(action);
+    //     console.log(action,'action');
+        
+    //     tinymce.triggerSave();
+
+    //     const editId = $('#edit_frm').data('id');
+
+    //     console.log(editId,'editId');
+        
+    //     if (editId) {
+    //         $('#edit_frm').trigger('submit');
+    //     } else {
+    //         $('#add_frm').trigger('submit');
+    //     }
+    // });
     $(document).on('click', '.submit-btn', function () {
         const action = $(this).val();
-        $('#action').val(action);
+
+        const form = $(this).closest('form');
+        form.find('.action-field').val(action);
+
         tinymce.triggerSave();
 
-        const editId = $('#edit_frm').data('id');
-
-        if (editId) {
-            $('#edit_frm').trigger('submit');
-        } else {
-            $('#add_frm').trigger('submit');
-        }
+        form.trigger('submit');
     });
+
   
-$(document)
-  .off("submit", "#add_frm")
-  .on("submit", "#add_frm", function (e) {
+    $(document).off("submit", "#add_frm").on("submit", "#add_frm", function (e) {
       e.preventDefault();
 
       let $form = $(this);
@@ -54,7 +67,7 @@ $(document)
               show_errors(response.responseJSON?.errors || {});
           }
       });
-  });
+    });
 
     $(document).on("click", ".edit", function (e) {
 
@@ -136,7 +149,8 @@ $(document)
         });
     });
 
-    $(document).on("submit", "#edit_frm", function (e) {
+    $(document).off("submit", "#edit_frm").on("submit", "#edit_frm", function (e) {
+
         e.preventDefault();
         var id = $(this).data('id');
 

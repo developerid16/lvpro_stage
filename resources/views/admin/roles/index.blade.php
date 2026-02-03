@@ -178,5 +178,33 @@
             });
         })
     });
+
+    //hide show permissions based on status
+   $('#status-paid-free').on('change', togglePermissions);
+    
+    function togglePermissions() {
+    const status = $('#status-paid-free').val().trim().toLowerCase();
+
+    $('#permission option').each(function () {
+        const text = $(this).text().toLowerCase();
+
+        // reset
+        $(this).prop('disabled', false);
+
+        if (status === 'free' && text.includes('reward')) {
+            $(this).prop('disabled', true).prop('selected', false);
+        }
+
+        if (status === 'paid' && text.includes('evoucher')) {
+            $(this).prop('disabled', true).prop('selected', false);
+        }
+    });
+
+    // IMPORTANT
+    $('#permission').trigger('chosen:updated');
+}
+
+
+   
 </script>
 @endsection

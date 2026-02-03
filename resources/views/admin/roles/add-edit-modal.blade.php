@@ -1,3 +1,4 @@
+
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -16,7 +17,7 @@
                                 <select class="sh_dec form-select" name="department" placeholder="Select Department">
                                     <option value="">Select Department</option>
                                     @foreach($department as $value)
-                                    <option class="sh_dec" value="{{$value->id}}" {{ (isset($data->department) && $data->department == $value->id) ? 'selected' : '' }}>{{ $value->name }}</option>
+                                        <option class="sh_dec" value="{{$value->id}}" {{ (isset($data->department) && $data->department == $value->id) ? 'selected' : '' }}>{{ $value->name }}</option>
                                     @endforeach
                                 </select>
                                 <div class="error" id="department_error"></div>
@@ -32,7 +33,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="status">Paid/Free <span class="required-hash">*</span></label>
 
-                                <select class="sh_dec form-select" name="status">
+                                <select class="sh_dec form-select" name="status" id="status-paid-free">
                                     <option value="">Select</option>
                                     <option value="Paid" {{ (isset($data->status) && $data->status == 'Paid') ? 'selected' : '' }}>Paid</option>
                                     <option value="Free" {{ (isset($data->status) && $data->status == 'Free') ? 'selected' : '' }}>Free</option>
@@ -47,8 +48,7 @@
                                 <label class="sh_dec" for="permission">Select Access <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select select-multiple " name="permission[]" multiple id="permission" placeholder="Select Access">
                                     @foreach($permission as $value)
-                                    <option class="sh_dec" value="{{$value->id}}" {{(isset($rolePermissions) && in_array($value->
-                                        id,$rolePermissions)) ? 'selected' : ''}}>{{ $value->name }}</option>
+                                    <option class="sh_dec" value="{{$value->id}}" {{(isset($rolePermissions) && in_array($value->id,$rolePermissions)) ? 'selected' : ''}}>{{ $value->name }}</option>
                                     @endforeach
                                 </select>
                                 <div class="error" id="permission_error"></div>

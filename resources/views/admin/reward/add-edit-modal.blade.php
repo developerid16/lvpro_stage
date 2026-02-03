@@ -4,11 +4,6 @@
 
 <script>
 
-
-    $(document).on('submit', '#edit_frm, #add_frm', function (e) {
-        console.log('FORM SUBMIT TRIGGERED');
-    });
-    
     // when file selected (ADD or EDIT)
     $(document).on('change', '#EditModal #csvFile', function () {
         if (this.files.length > 0) {
@@ -27,14 +22,16 @@
     });
 
 
+
     $(document).on('shown.bs.modal', '#EditModal', function () {
+        tinymce.init({ selector: "textarea.wysiwyg" });
+        
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
         let rewardType = $('#EditModal .reward_type').val();
         
         let merchantId = $('#EditModal #merchant_id').val();
         let modal = $(this).closest('.modal');
-        initFlatpickr(this);
         initFlatpickrDate(this);    
         $(".max_order").hide();
         $("#common_section").show();
@@ -186,7 +183,9 @@
         $(this).hide();
     });
 
-    function initFlatpickr(modal) {
+    $(document).on('shown.bs.modal', '#EditModal', function () {
+        const modal = this;
+
         bindStartEndFlatpickrEdit(
             modal,
             'input[name="publish_start"]',
@@ -198,7 +197,8 @@
             'input[name="sales_start"]',
             'input[name="sales_end"]'
         );
-    }
+    });
+
 
     function calculateVoucherSet() {
         let usualPrice   = parseFloat($('#EditModal #usual_price').val());
@@ -338,9 +338,6 @@
         calculateVoucherSet();
     });
 
-    // when inventory changes
-
-
 </script>
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -392,7 +389,7 @@
                                 <input id="voucher_detail_img" type="file" class="sh_dec form-control voucher_detail_img" name="voucher_detail_img" accept=".png,.jpg,.jpeg">
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(351 px X 190 px)</span>
-                                    <div class="position-relative d-inline-block">
+                                    <div class="position-relative d-inline-block"> 
                                         <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
                                         <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> âœ–</a>
                                     </div>
@@ -403,22 +400,31 @@
                      
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="description">Description <span class="required-hash">*</span></label>
-                                <textarea id="description" type="text" class="sh_dec form-control" name="description"  placeholder="Enter description" value="{{ $data->description ?? '' }}">{{ $data->description ?? '' }}</textarea>
+                                <label class="sh_dec">Description <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="description">
+                                    {{ $data->description ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="term_of_use">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea id="term_of_use" type="text" class="sh_dec form-control" name="term_of_use"  placeholder="Enter Voucher T&C" value="{{ $data->term_of_use ?? '' }}">{{ $data->term_of_use ?? '' }}</textarea>
+                                <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use">
+                                    {{ $data->term_of_use ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="how_to_use">How to use <span class="required-hash">*</span></label>
-                                <textarea id="how_to_use" type="text" class="sh_dec form-control" name="how_to_use" placeholder="Enter How to use" value="{{ $data->how_to_use ?? '' }}">{{ $data->how_to_use ?? '' }}</textarea>
+                                <label class="sh_dec">How to use <span class="required-hash">*</span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use">
+                                    {{ $data->how_to_use ?? '' }}
+                                </textarea>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="merchant_id">Merchant <span class="required-hash">*</span></label>
@@ -479,13 +485,13 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text"  class="form-control" name="publish_start"  id="publish_start"  value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="publish_start"  id="publish_start"  value="{{ isset($data->publish_start_date) ? trim($data->publish_start_date . ' ' . $data->publish_start_time) : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
+                                            <input type="text" class="form-control"  name="publish_end"  id="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
                                         </div>
                                     </div>
 
@@ -493,13 +499,13 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
+                                            <input type="text"  class="form-control" name="sales_start" id="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Sales End Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
+                                            <input type="text" class="form-control" name="sales_end" id="sales_end" value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
                                 </div>
@@ -833,7 +839,7 @@
                     </div>
 
 
-                    <input type="hidden" name="action" id="action"  value="{{ isset($data) && $data->is_draft != 0 ? 'draft' : 'submit' }}">
+                    <input type="hidden" name="action" class="action-field" value="">
                     <div class="row">
                         <div class="col-4 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
