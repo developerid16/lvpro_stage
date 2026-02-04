@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class RewardLocationUpdate extends Model
 {
-    use HasFactory;
+    use HasFactory, AddsAddedBy;
     public $table = 'reward_locations_update';
     protected $fillable = [
         'reward_id', 
@@ -16,6 +17,7 @@ class RewardLocationUpdate extends Model
         'inventory_qty', 
         'is_selected', 
         'total_qty',
+        'added_by'
 
     ];
   public function reward()

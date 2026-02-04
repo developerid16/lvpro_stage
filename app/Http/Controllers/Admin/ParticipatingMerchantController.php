@@ -38,6 +38,10 @@ class ParticipatingMerchantController extends Controller
     {
         $qb = ParticipatingMerchant::query();
 
+        if (auth()->user()->role != 1) { // not Super Admin
+            $qb->where('added_by', auth()->id());
+        }
+
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'name',

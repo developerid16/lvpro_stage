@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RewardUpdateRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, AddsAddedBy;
   
 
     protected $table = "reward_update_requests";
@@ -72,7 +73,8 @@ class RewardUpdateRequest extends Model
         'suspend_deal',
         'suspend_voucher',
         'purchased_qty',
-        'status'
+        'status',
+        'added_by'
         
     
     ];

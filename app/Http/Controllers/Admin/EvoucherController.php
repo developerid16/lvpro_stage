@@ -65,6 +65,9 @@ class EvoucherController extends Controller
     {
         $query = Reward::where('type',  '1');
 
+        if (auth()->user()->role != 1) { // not Super Admin
+            $query->where('added_by', auth()->id());
+        }
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];
@@ -160,9 +163,14 @@ class EvoucherController extends Controller
      */
     public function store(Request $request)
     {
+        
+        $description  = trim($request->input('description'));
+        $termOfUse    = trim($request->input('term_of_use'));
+        $howToUse     = trim($request->input('how_to_use'));
+
 
         $isDraft = $request->action === 'draft' ?? 0; 
-    
+
         DB::beginTransaction();
 
         try {

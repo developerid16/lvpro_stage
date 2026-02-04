@@ -124,6 +124,10 @@ class RewardController extends Controller
     {
         $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $query = Reward::where('type', '0');
+        if (auth()->user()->role != 1) { // not Super Admin
+            $query->where('added_by', auth()->id());
+        }
+
 
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
@@ -508,11 +512,7 @@ class RewardController extends Controller
                 $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
                 $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
             }
-
-            if ((int) $request->inventory_type === 0) {
-                $rules['inventory_qty'] = 'required|integer|min:1';
-            }
-
+           
             if ((int) $request->inventory_type === 1) {
                 $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
             }
@@ -574,6 +574,10 @@ class RewardController extends Controller
                             'location_text.required' => 'Location is required',
                         ];
                     }
+                }
+
+                 if ((int) $request->inventory_type === 0) {
+                    $rules['inventory_qty'] = 'required|integer|min:1';
                 }
 
                 foreach ($tiers as $tier) {
@@ -1297,10 +1301,6 @@ class RewardController extends Controller
                         'locations'             => 'required|array|min:1',
                     ]);
     
-                    if ((int) $request->inventory_type === 0) {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    }
-
                     if ((int) $request->inventory_type === 1) {
                         $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
                     }
@@ -1326,7 +1326,7 @@ class RewardController extends Controller
                 }
     
                 /* ---------------- DIGITAL ---------------- */
-                if ((int) $request->reward_type === 0) {
+                if ((int) $request->reward_type == 0) {
     
                     $rules = array_merge($rules, [
                         'max_quantity_digital' => 'required|integer|min:1',
@@ -1345,6 +1345,11 @@ class RewardController extends Controller
                             'location_text.required' => 'Location is required',
                         ];
                     }
+                    
+                    if ((int) $request->inventory_type == 0) {
+                        $rules['inventory_qty'] = 'required|integer|min:1';
+                    }
+
     
                     if ((int) $request->clearing_method === 2) {
     

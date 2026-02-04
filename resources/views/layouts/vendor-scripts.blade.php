@@ -800,31 +800,27 @@
         }
     }
 
-    tinymce.init({
-        selector: "textarea.wysiwyg",
-        height: 200,
-        relative_urls: false,
-        remove_script_host: false,
-        convert_urls: true,
-
-        setup: function (editor) {
+     tinymce.init({
+            selector: "textarea.wysiwyg",
+            height: 300,
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            setup: function (editor) {
             editor.on('keydown', function (e) {
-                let content = editor.getContent({ format: 'text' });
-                if (content.length >= 180 && ![8, 46].includes(e.keyCode)) {
-                    e.preventDefault();
-                }
+                var content = editor.getContent({ format: 'text' }); // Get plain text content
+            if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
+                e.preventDefault();
+            }
             });
         },
-
-        images_upload_url: '{{ url("admin/image-upload-editor") }}',
-        images_upload_base_path: "{{ asset('images') }}/",
-
+        images_upload_url: '{{url("admin/image-upload-editor")}}',
+        images_upload_base_path: "{{asset('images')}}/",
         plugins: [
             "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
             "save table contextmenu directionality emoticons template textcolor"
         ],
-
         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
         style_formats: [{
                 title: 'Bold text',
@@ -864,6 +860,7 @@
             }
         ]
     });
+       
 
     
 </script>

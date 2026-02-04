@@ -70,7 +70,7 @@
 
 @section('script')
 
-   <script>
+    <script>
         function initTinyMCE() {
             if (typeof tinymce === 'undefined') return;
 
@@ -133,11 +133,12 @@
                         classes: 'tablerow1'
                     }
                 ]
-                
-            });       
+            });
+
 
         }
     </script>
+
 
     <script>
         let participatingLocations = {};
@@ -214,6 +215,7 @@
                 preview.attr("src", "").hide();
             }
         });       
+        
         $(document).on("change", "#voucher_detail_img", function () {
             let preview = $("#voucher_detail_img_preview");
             let file = this.files[0];
@@ -462,7 +464,6 @@
                 'input[name="sales_end"]'
             );
         }       
-     
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_detail_img').hide();
@@ -489,6 +490,5 @@
                 $('#set_qty').val('');
             }
         }
-    </script>
-     
+    </script>     
 @endsection

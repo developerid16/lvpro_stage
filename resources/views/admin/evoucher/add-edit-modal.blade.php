@@ -78,58 +78,43 @@
     });
     
     $(document).on("change", ".voucher_image", function (e) {
+    const modal = $(this).closest('.modal');
+    const file = this.files[0];
 
-        const modal = $('#EditModal');
-        const file = e.target.files[0];
+    if (!file) return;
 
-        const preview = modal.find('#voucher_image_preview');
-        const clearBtn = modal.find('#clear_voucher_image');
+    const preview = modal.find('#voucher_image_preview');
+    const clearBtn = modal.find('#clear_voucher_image');
 
-        if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        preview.attr('src', e.target.result).show();
+        clearBtn.show();
+    };
 
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            preview
-                .attr('src', event.target.result) // data:image/*
-                .show();
-
-            clearBtn.show();
-        };
-
-        reader.readAsDataURL(file);
-    });
-
+    reader.readAsDataURL(file);
+});
 
     $(document).on('click', '#clear_voucher_image', function () {
-
-        const modal = $(this).closest('.modal'); // auto-detect modal
-        const input = modal.find('#voucher_image')[0];
-        const preview = modal.find('#voucher_image_preview');
-
-        if (input) {
-            input.value = '';   // reset file input
-        }
-
-        preview.attr('src', '').hide();
+        const modal = $(this).closest('.modal');
+        modal.find('#voucher_image').val('');
+        modal.find('#voucher_image_preview')
+            .attr('src', '/uploads/image/no-image.png');
         $(this).hide();
     });
 
     $(document).on("change", ".voucher_detail_img", function (e) {
+        const modal = $(this).closest('.modal');
+        const file = this.files[0];
 
-        const modal = $('#EditModal');
-        const file = e.target.files[0];
+        if (!file) return;
 
         const preview = modal.find('#voucher_detail_img_preview');
         const clearBtn = modal.find('#clear_voucher_detail_img');
 
-        if (!file) return;
-
         const reader = new FileReader();
-        reader.onload = function (event) {
-            preview
-                .attr('src', event.target.result) // data:image/*
-                .show();
-
+        reader.onload = function (e) {
+            preview.attr('src', e.target.result).show();
             clearBtn.show();
         };
 
@@ -137,19 +122,12 @@
     });
 
     $(document).on('click', '#clear_voucher_detail_img', function () {
-
-        const modal = $(this).closest('.modal'); // auto-detect modal
-        const input = modal.find('#voucher_detail_img')[0];
-        const preview = modal.find('#voucher_detail_img_preview');
-
-        if (input) {
-            input.value = '';   // reset file input
-        }
-
-        preview.attr('src', '').hide();
+        const modal = $(this).closest('.modal');
+        modal.find('#voucher_detail_img').val('');
+        modal.find('#voucher_detail_img_preview')
+            .attr('src', '/uploads/image/no-image.png');
         $(this).hide();
     });
-
 
     $(document).on('shown.bs.modal', '#EditModal', function () {
         const modal = this;
@@ -250,7 +228,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Description <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="description">
+                                <textarea class="sh_dec form-control wysiwyg" name="description" id="description">
                                     {{ $data->description ?? '' }}
                                 </textarea>
                             </div>
@@ -259,7 +237,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use">
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="term_of_use">
                                     {{ $data->term_of_use ?? '' }}
                                 </textarea>
                             </div>
@@ -268,7 +246,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">How to use <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use">
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="how_to_use">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
                             </div>

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class RewardVoucher extends Model
 {
-    use HasFactory;
+    use HasFactory, AddsAddedBy;
 
     protected $table = 'reward_vouchers';
 
@@ -15,7 +16,8 @@ class RewardVoucher extends Model
         'reward_id',
         'code',
         'is_used',
-        'type'
+        'type',
+        'added_by'
     ];
 
     /**

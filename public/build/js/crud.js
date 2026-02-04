@@ -32,7 +32,8 @@ $(document).ready(function () {
 
   
     $(document).off("submit", "#add_frm").on("submit", "#add_frm", function (e) {
-      e.preventDefault();
+    //   e.preventDefault();
+     tinymce.triggerSave();
 
       let $form = $(this);
       if ($form.data('submitting')) return;

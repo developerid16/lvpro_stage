@@ -63,7 +63,7 @@
 
                                             <div class="mb-3">
                                                 <label class="form-label">Email</label>
-                                                <input type="email" name="email" class="form-control" required>
+                                                <input type="email" name="email" class="form-control" required value="{{ old('email') }}">
                                             </div>
 
                                             <div class="mb-3">

@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ParticipatingLocations extends Model
 {
-    use HasFactory;
+    use HasFactory, AddsAddedBy;
     protected $fillable = [
         'reward_id', 
         'location_id', 
         'participating_merchant_id', 
         'is_selected', 
+        'added_by'
 
     ];
     public $table = 'reward_participating_locations';

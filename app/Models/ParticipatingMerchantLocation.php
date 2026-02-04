@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ParticipatingMerchantLocation extends Model
 {
-    use HasFactory;
+    use HasFactory, AddsAddedBy;
 
 
     protected $table = 'participating_merchant_location';
@@ -20,6 +21,7 @@ class ParticipatingMerchantLocation extends Model
         'participating_merchant_id',
         'club_location_id',
         'status',
+        'added_by'
     ];
 
    protected $casts = [

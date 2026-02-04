@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Traits\AddsAddedBy;
 
 class Reward extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, AddsAddedBy;
     protected $fillable = [
         'voucher_image',
         'voucher_detail_img',
@@ -69,7 +70,8 @@ class Reward extends Model
         'suspend_deal',
         'suspend_voucher',
         'purchased_qty',
-        'status'
+        'status',
+        'added_by'
         
     ];
 
@@ -82,6 +84,14 @@ class Reward extends Model
         'days' => 'array',    
 
     ];
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'term_of_use' => strip_tags($this->term_of_use),
+            'how_to_use'  => strip_tags($this->how_to_use),
+        ]);
+    }
+
 
 
 

@@ -399,11 +399,12 @@
 @section('script')
 
    <script>
-        function initTinyMCE() {
+        function initEditor(selector) {
             if (typeof tinymce === 'undefined') return;
 
             tinymce.init({
-                selector: "textarea.wysiwyg",
+                valid_elements: '*[*]'
+                selector: selector,
                 height: 300,
                 relative_urls: false,
                 remove_script_host: false,
@@ -465,6 +466,11 @@
             });       
 
         }
+
+        // init in 3 different places
+        initEditor('#how_to_use');
+        initEditor('#term_of_use');
+        initEditor('#description');
     </script>
 
     <script>
@@ -541,7 +547,26 @@
                 // When user clears the file input
                 preview.attr("src", "").hide();
             }
-        });       
+        }); 
+        
+        $(document).on("change", ".voucher_detail_img", function (e) {
+            const modal = $(this).closest('.modal');
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const preview = modal.find('#voucher_detail_img_preview');
+            const clearBtn = modal.find('#clear_voucher_detail_img');
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.attr('src', e.target.result).show();
+                clearBtn.show();
+            };
+
+            reader.readAsDataURL(file);
+        });
+
        
         $(document).on('shown.bs.modal','#EditModal', function () {
             const $modal = $(this);
@@ -593,6 +618,7 @@
 
         });
     </script>
+    
     <script>
         function initFlatpickr() {
             
