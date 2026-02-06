@@ -76,11 +76,11 @@ class Reward extends Model
     ];
 
     protected $casts = [
-        'sales_start_date' => 'date',
-        'sales_end_date' => 'date',
-        'voucher_validity' => 'date',
-        'publish_start_date' => 'date',
-        'publish_end_date'   => 'date',  
+        // 'sales_start_date' => 'date',
+        // 'sales_end_date' => 'date',
+        // 'voucher_validity' => 'date:Y-m-d',
+        // 'publish_start_date' => 'date',
+        // 'publish_end_date'   => 'date', 
         'days' => 'array',    
 
     ];

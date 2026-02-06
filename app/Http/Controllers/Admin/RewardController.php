@@ -182,21 +182,32 @@ class RewardController extends Controller
             }
 
            
-            if ($row->publish_start_date && $row->publish_end_date) {
-                $duration =
-                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
-                    ' to ' .
-                    Carbon::parse($row->publish_end_date)->format(config('safra.date-only'));
+            $start = $row->publish_start_date;
+            $end   = $row->publish_end_date;
 
-            } elseif ($row->publish_start_date) {
+            $startDate = $start ? \Carbon\Carbon::parse($start) : null;
+            $endDate   = $end ? \Carbon\Carbon::parse($end) : null;
+
+            // block zero-date (-0001-11-30)
+            $isValidStart = $startDate && $startDate->year > 0;
+            $isValidEnd   = $endDate && $endDate->year > 0;
+
+            if ($isValidStart && $isValidEnd) {
                 $duration =
-                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
-                    ' - No Expiry';
+                    $startDate->format(config('safra.date-only')) .
+                    ' to ' .
+                    $endDate->format(config('safra.date-only'));
+            } elseif ($isValidStart) {
+                $duration = $startDate->format(config('safra.date-only'));
             } else {
-                $duration = 'No Expiry';
+                $duration = '-';
             }
 
-            $final_data[$key]['duration']   = $duration;
+            $final_data[$key]['duration'] = $duration;
+
+            $final_data[$key]['status'] = $duration;
+
+
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 
             $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
@@ -209,6 +220,76 @@ class RewardController extends Controller
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
+
+           $now = Carbon::now();
+
+    /* ---------------- DRAFT OVERRIDE ---------------- */
+    if (
+        $row->is_draft == 1 &&
+        !RewardUpdateRequest::where('reward_id', $row->id)->exists()
+    ) {
+        $status = '-';
+    } else {
+
+        $salesStart = ($row->sales_start_date && $row->sales_start_time)
+            ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
+            : null;
+
+        $salesEnd = ($row->sales_end_date && $row->sales_end_time)
+            ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
+            : null;
+
+        $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
+            ->where('status', 'approve')
+            ->exists();
+
+        $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
+            ->where('status', 'pending')
+            ->exists();
+
+            /*
+            FINAL PRIORITY
+            1. Expired
+            2. Pending approval
+            3. Approved (ONLY if start date is future)
+            4. Active
+            */
+
+            // 1. EXPIRED
+            if (
+                ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                ($salesEnd && $now->gt($salesEnd))
+            ) {
+                $status = 'expired';
+            }
+
+            // 2. PENDING APPROVAL
+            elseif ($hasPending) {
+                $status = 'pending approval';
+            }
+
+            // 3. APPROVED (only if sales not started yet)
+            elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                $status = 'approved';
+            }
+
+            // 4. ACTIVE (approved OR not, but within window)
+            elseif (
+                (!$salesStart || $now->gte($salesStart)) &&
+                (!$salesEnd || $now->lte($salesEnd))
+            ) {
+                $status = 'active';
+            }
+
+            // SAFETY
+            else {
+                $status = '-';
+            }
+        }
+
+
+
+            $final_data[$key]['status'] = $status;
             // if ($type === 'campaign-voucher') {
             // $url = url("admin/campaign-voucher-assign/$row->id");
             // $action .= "<a href='$url' title='Assign voucher to users.' ><i class='mdi mdi-card text-info action-icon font-size-18'></i></a>";
@@ -489,7 +570,9 @@ class RewardController extends Controller
                 'how_to_use'         => 'required|string',
                 'merchant_id'        => 'required|exists:merchants,id',
                 'reward_type'        => 'required|in:0,1',
-                'voucher_validity'   => 'required',
+               'voucher_validity' => 'required|date|after_or_equal:sales_end',
+
+                'where_use'   => 'required',
                 'usual_price'        => 'required|numeric|min:0',
                 'publish_start'      => 'required',
                 'publish_end'        => 'required',
@@ -543,12 +626,10 @@ class RewardController extends Controller
                     }
     
                     if (!$hasSelected) {
-                        return response()->json([
-                            "status" => "error",
-                            "errors" => [
-                                "locations" => ["Please select at least one location."]
-                            ]
-                        ], 422);
+                         $validator->errors()->add(
+                            'locations',
+                            'Please select at least one location.'
+                        );                       
                     }
                 }
     
@@ -557,7 +638,7 @@ class RewardController extends Controller
     
                     $rules += [
                         'max_quantity_digital' => 'required|integer|min:1',
-                        'voucher_validity'     => 'required|date',
+                        
                         'inventory_type'       => 'required|in:0,1',
                         'voucher_value'        => 'required|numeric|min:1',                       
                         'clearing_method'      => 'required|in:0,1,2,3,4',
@@ -876,7 +957,8 @@ class RewardController extends Controller
     public function edit(string $id)
     {
         $reward = Reward::with(['tierRates','rewardLocations','participatingLocations'])->find($id);
-        
+        $reward->voucher_validity =  ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
+
         $this->layout_data['data'] = $reward;
         $this->layout_data['location_text'] = null;
 
@@ -1254,7 +1336,9 @@ class RewardController extends Controller
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
-                'voucher_validity'   => 'required',
+                'voucher_validity' => 'required|date|after_or_equal:sales_end',
+
+                'where_use'   => 'required',
                 'usual_price' => 'required|numeric|min:0',
 
                 'publish_start' => 'required',
@@ -1287,134 +1371,63 @@ class RewardController extends Controller
             /* ---------------- VALIDATOR ---------------- */
             $validator = Validator::make($request->all(), $rules, $messages);
             
-            $validator->after(function ($validator) use ($request, $tiers, &$rules, $reward) {
-                /* ---------------- PHYSICAL ---------------- */
-                if ((int) $request->reward_type === 1) {
-    
-                    $rules = array_merge($rules, [
-                        'max_quantity_physical' => 'required|integer|min:1',                       
-                        'send_reminder'         => 'required|boolean',
-    
-                        'publish_independent'   => 'required_without_all:publish_inhouse|boolean',
-                        'publish_inhouse'       => 'required_without_all:publish_independent|boolean',
-    
-                        'locations'             => 'required|array|min:1',
-                    ]);
-    
-                    if ((int) $request->inventory_type === 1) {
-                        $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
-                    }
             
+            /* ---------------- CROSS FIELD CHECK ---------------- */
+            $validator->after(function ($validator) use ($request, $tiers, &$rules) {
+                /* ---------------- PHYSICAL ---------------- */
+                if ($request->reward_type == 1) {
+    
+                    $rules['max_quantity_physical'] = 'required|integer|min:1';
+                    $rules['locations'] = 'required|array|min:1';
+    
                     $hasSelected = false;
     
                     foreach ($request->locations ?? [] as $locId => $locData) {
-                        if (!empty($locData['selected'])) {
+                        if (isset($locData['selected'])) {
                             $hasSelected = true;
-                            $rules["locations.$locId.inventory_qty"] =
-                                'required|integer|min:1';
+                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
                         }
                     }
     
                     if (!$hasSelected) {
-                        return response()->json([
-                            'status' => 'error',
-                            'errors' => [
-                                'locations' => ['Please select at least one location.']
-                            ]
-                        ], 422);
+                         $validator->errors()->add(
+                            'locations',
+                            'Please select at least one location.'
+                        );                       
                     }
                 }
     
                 /* ---------------- DIGITAL ---------------- */
-                if ((int) $request->reward_type == 0) {
+                if ($request->reward_type == '0') {
     
-                    $rules = array_merge($rules, [
+                    $rules += [
                         'max_quantity_digital' => 'required|integer|min:1',
                         'voucher_validity'     => 'required|date',
                         'inventory_type'       => 'required|in:0,1',
-                        'voucher_value'        => 'required|numeric|min:1',
-                        'voucher_set'          => 'required|numeric|min:1',
-                        'set_qty'              => 'required|numeric|min:1',
+                        'voucher_value'        => 'required|numeric|min:1',                       
                         'clearing_method'      => 'required|in:0,1,2,3,4',
-                    ]);
+                    ];   
+                  
     
-                   
+                    if  ($request->clearing_method == 2) {
+                        $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                        $rules['participating_merchant_locations'] = 'required|array|min:1';
+                    }
                     if ($request->clearing_method != 2) {
                         $rules['location_text'] = 'required';
                         $messages = [
                             'location_text.required' => 'Location is required',
                         ];
                     }
-                    
-                    if ((int) $request->inventory_type == 0) {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    }
-
-    
-                    if ((int) $request->clearing_method === 2) {
-    
-                        $existingMerchantId = $reward->participating_merchant_id ?? null;
-                        $existingLocations  = $reward->participatingLocations ?? collect();
-    
-                        // -------------------------------
-                        // Participating merchant
-                        // -------------------------------
-                        if (
-                            !$request->has('participating_merchant_locations') &&
-                            !$request->filled('participating_merchant_id') &&
-                            !$existingMerchantId
-                        ) {
-                            $rules['participating_merchant_id'] =
-                                'required|exists:participating_merchants,id';
-                        }
-    
-                        // -------------------------------
-                        // Participating locations
-                        // -------------------------------
-                        if (
-                            !$request->filled('participating_merchant_locations') &&
-                            $existingLocations->isEmpty()
-                        ) {
-                            $rules['participating_merchant_locations'] =
-                                'required|array|min:1';
-                        }
-    
-                        // -------------------------------
-                        // If locations sent → check selected
-                        // -------------------------------
-                        if ($request->has('participating_merchant_locations')) {
-    
-                            $hasSelected = false;
-    
-                            foreach ($request->participating_merchant_locations as $loc) {
-                                if (!empty($loc['selected'])) {
-                                    $hasSelected = true;
-                                    break;
-                                }
-                            }
-    
-                            if (!$hasSelected) {
-                                return response()->json([
-                                    'status' => 'error',
-                                    'errors' => [
-                                        'participating_merchant_locations' => [
-                                            'Please select at least one merchant location.'
-                                        ]
-                                    ]
-                                ], 422);
-                            }
-                        }
-                    }
-    
-    
                 }
-                
-                $usual = (float) $request->usual_price;
+
+                 if ((int) $request->inventory_type === 0) {
+                    $rules['inventory_qty'] = 'required|integer|min:1';
+                }
 
                 foreach ($tiers as $tier) {
-                    $price = (float) $request->input("tier_{$tier->id}");
-
-                    if ($price > $usual) {
+                    $price = $request->input("tier_{$tier->id}");
+                    if ($price > $request->usual_price) {
                         $validator->errors()->add(
                             "tier_{$tier->id}",
                             "{$tier->tier_name} price cannot be greater than Usual Price"
@@ -1425,40 +1438,18 @@ class RewardController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => 'error',
-                    'errors' => $validator->errors()
+                    "status" => "error",
+                    "errors" => $validator->errors()
                 ], 422);
             }
 
             $validated = $validator->validated();
 
-            /* ---------------------------------------------------
-            * 6) MANUAL LOCATION CHECK (PHYSICAL ONLY)
-            * ---------------------------------------------------*/
-            if ($request->reward_type == 1) {
-
-                $locationErrors = [];
-
-                foreach ($request->locations as $locId => $locData) {
-                    if (isset($locData['selected']) &&
-                        (!isset($locData['inventory_qty']) || $locData['inventory_qty'] === "")) {
-
-                        $locationErrors["locations.$locId.inventory_qty"] =
-                            ["Inventory quantity is required for selected location."];
-                    }
-                }
-
-                if (!empty($locationErrors)) {
-                    return response()->json([
-                        "status" => "error",
-                        "errors" => $locationErrors
-                    ], 422);
-                }
-            }
 
             /* ---------------------------------------------------
             * 4) IMAGE UPLOAD
             * ---------------------------------------------------*/
+           
             if ($request->hasFile('voucher_image')) {
 
                 $uploadPath = public_path('uploads/image');

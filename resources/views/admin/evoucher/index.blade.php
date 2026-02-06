@@ -41,7 +41,7 @@
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                             <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
                             <th data-field="redeemed">Redeemed</th>
-                            <th data-field="duration">Duration</th>
+                            <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
                             <th data-field="cso_method">CSO Method</th>
                             <th data-field="is_draft">Is Draft</th>
@@ -398,82 +398,7 @@
 
 @section('script')
 
-   <script>
-        function initEditor(selector) {
-            if (typeof tinymce === 'undefined') return;
-
-            tinymce.init({
-                valid_elements: '*[*]'
-                selector: selector,
-                height: 300,
-                relative_urls: false,
-                remove_script_host: false,
-                convert_urls: true,
-                setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    var content = editor.getContent({ format: 'text' }); // Get plain text content
-                if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
-                    e.preventDefault();
-                }
-                });
-            },
-            images_upload_url: '{{url("admin/image-upload-editor")}}',
-            images_upload_base_path: "{{asset('images')}}/",
-            plugins: [
-                "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
-                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
-                "save table contextmenu directionality emoticons template textcolor"
-            ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-                style_formats: [{
-                        title: 'Bold text',
-                        inline: 'b'
-                    },
-                    {
-                        title: 'Red text',
-                        inline: 'span',
-                        styles: {
-                            color: '#ff0000'
-                        }
-                    },
-                    {
-                        title: 'Red header',
-                        block: 'h1',
-                        styles: {
-                            color: '#ff0000'
-                        }
-                    },
-                    {
-                        title: 'Example 1',
-                        inline: 'span',
-                        classes: 'example1'
-                    },
-                    {
-                        title: 'Example 2',
-                        inline: 'span',
-                        classes: 'example2'
-                    },
-                    {
-                        title: 'Table styles'
-                    },
-                    {
-                        title: 'Table row 1',
-                        selector: 'tr',
-                        classes: 'tablerow1'
-                    }
-                ]
-                
-            });       
-
-        }
-
-        // init in 3 different places
-        initEditor('#how_to_use');
-        initEditor('#term_of_use');
-        initEditor('#description');
-    </script>
-
-    <script>
+<script>
         let participatingLocations = {};
 
         document.getElementById('csvFile').addEventListener('change', function (e) {
@@ -612,10 +537,11 @@
         });
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            initEditor();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
-            // tinymce.init({ selector: "textarea.wysiwyg" });
-
+            initFlatpickr();
+            initFlatpickrDate();
         });
     </script>
     
@@ -636,10 +562,6 @@
             );
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            initFlatpickr();
-            initFlatpickrDate();
-        });
 
         $(document).on("change", ".reward_id", function () {
             let id = $(this).val();

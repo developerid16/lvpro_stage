@@ -3,8 +3,7 @@
 @endphp
 
 <script>
-    $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
-   
+    
     // when file selected (ADD or EDIT)
     $(document).on('change', '#EditModal #csvFile', function () {
         if (this.files.length > 0) {
@@ -19,14 +18,16 @@
         $('#EditModal #uploadedFileLink').text('').attr('href', 'javascript:void(0)');
         $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
     });
-
+    
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
-        tinymce.init({ selector: "textarea.wysiwyg" });
+        initTinyMCE();
+
+        $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
-        initFlatpickr(this);
+        // initFlatpickr(this);
         initFlatpickrDate(this);  
 
         const merchantId = modal.find("#participating_merchant_id").val();
@@ -228,7 +229,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Description <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="description" id="description">
+                                <textarea class="sh_dec form-control wysiwyg" name="description" id="">
                                     {{ $data->description ?? '' }}
                                 </textarea>
                             </div>
@@ -237,7 +238,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="term_of_use">
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="">
                                     {{ $data->term_of_use ?? '' }}
                                 </textarea>
                             </div>
@@ -246,7 +247,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">How to use <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="how_to_use">
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
                             </div>
@@ -368,14 +369,16 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
-                                <input
+                               <input
                                     id="voucher_validity"
                                     type="text"
                                     class="sh_dec form-control js-flat-date"
                                     name="voucher_validity"
-                                    value="{{ isset($data->voucher_validity) ? \Carbon\Carbon::parse($data->voucher_validity)->format('Y-m-d') : '' }}"
+                                    value="{{ $data?->voucher_validity ?? '' }}"
                                     placeholder="YYYY-MM-DD"
                                 />
+
+
                             </div>
                         </div>
                         <div class="col-12 col-md-6">

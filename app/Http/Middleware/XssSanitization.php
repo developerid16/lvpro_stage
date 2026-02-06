@@ -19,7 +19,7 @@ class XssSanitization
 
         $input = $request->all();
        
-        $allowd = ['value','description','answer','email_content','inapp_content'];
+        $allowd = ['value','description','answer','email_content','inapp_content','how_to_use','term_of_use'];
         array_walk_recursive($input, function (&$input,$key) use($allowd) {
             if(in_array($key,$allowd)){
                 $input = $input;

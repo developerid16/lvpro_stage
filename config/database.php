@@ -62,6 +62,7 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                 PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // keep this!
             ] : [],
+            'strict' => true,
         ],
 
         'pgsql' => [

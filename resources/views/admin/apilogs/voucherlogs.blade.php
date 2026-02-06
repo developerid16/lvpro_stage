@@ -23,8 +23,9 @@
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
                             data-width-unit="px" data-searchable="false">Sr. No.</th>
-                        <th data-field="receipt_no">Voucher No</th>
+                        <th data-field="user_id">Browser Id/Member Id</th>
                         <th data-field="reward">Reward</th>
+                        <th data-field="used_code">Unique Code</th>
                         <th data-field="status">Status</th>
                         <th data-field="created_at" style="width: 200px;">Date Time</th>
                     </tr>

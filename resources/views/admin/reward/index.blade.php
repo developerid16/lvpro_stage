@@ -49,6 +49,7 @@
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
                             <th data-field="is_draft">Is Draft</th>
+                            <th data-field="status">Status</th>
                             <th data-field="created_at">Created On</th>
 
                             {{-- <th data-field="status" data-filter-control="select" data-sortable="false">Status</th> --}}
@@ -69,76 +70,6 @@
 @endsection
 
 @section('script')
-
-    <script>
-        function initTinyMCE() {
-            if (typeof tinymce === 'undefined') return;
-
-            tinymce.init({
-                selector: "textarea.wysiwyg",
-                height: 300,
-                relative_urls: false,
-                remove_script_host: false,
-                convert_urls: true,
-                setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    var content = editor.getContent({ format: 'text' }); // Get plain text content
-                if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
-                    e.preventDefault();
-                }
-                });
-            },
-            images_upload_url: '{{url("admin/image-upload-editor")}}',
-            images_upload_base_path: "{{asset('images')}}/",
-            plugins: [
-                "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
-                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
-                "save table contextmenu directionality emoticons template textcolor"
-            ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-                style_formats: [{
-                        title: 'Bold text',
-                        inline: 'b'
-                    },
-                    {
-                        title: 'Red text',
-                        inline: 'span',
-                        styles: {
-                            color: '#ff0000'
-                        }
-                    },
-                    {
-                        title: 'Red header',
-                        block: 'h1',
-                        styles: {
-                            color: '#ff0000'
-                        }
-                    },
-                    {
-                        title: 'Example 1',
-                        inline: 'span',
-                        classes: 'example1'
-                    },
-                    {
-                        title: 'Example 2',
-                        inline: 'span',
-                        classes: 'example2'
-                    },
-                    {
-                        title: 'Table styles'
-                    },
-                    {
-                        title: 'Table row 1',
-                        selector: 'tr',
-                        classes: 'tablerow1'
-                    }
-                ]
-            });
-
-
-        }
-    </script>
-
 
     <script>
         let participatingLocations = {};
@@ -248,7 +179,8 @@
                 $(".max_order").hide(); // also show location section
                 $("#digital").hide(); // show physical fields
                 $("#participating_merchant_location").hide(); // also show location section
-                $('#collection_reminder_title').text('Send Collection Reminder');
+                $('#collection_reminder_title').html('Send Collection Reminder <span class="required-hash">*</span>');
+                
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
 
                  let merchantId = $('#merchant_id').val();
@@ -264,7 +196,8 @@
                 $(".max_order").show(); // also show location section// also show location section
                 $("#physical").hide(); // show physical fields
                 $("#location_section").hide(); // also show location section
-                $('#collection_reminder_title').text('Send Reminder');
+                $('#collection_reminder_title').html('Send Reminder <span class="required-hash">*</span>');
+
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Reminder';
 
             }else {
@@ -466,6 +399,7 @@
         }       
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            initEditor();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $(".where_use").hide();

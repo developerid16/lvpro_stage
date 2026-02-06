@@ -16,11 +16,13 @@ class VoucherListController extends Controller
         $this->view_file_path = "admin.voucher-list.";
         $permission_prefix = $this->permission_prefix = 'voucher-list';
 
-        $this->layout_data = [
+       $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Voucher List',
-            'module_base_url' => url('admin/voucher-list')
+            'title'             => 'Voucher List',
+            'reward_base_url'   => url('admin/voucher-list'),
+            'module_base_url'   => url('admin/reward'),
         ];
+
     }
 
 
@@ -38,91 +40,78 @@ class VoucherListController extends Controller
      * ----------------------------------------------------- */
     public function datatable(Request $request)
     {
-        $qb = Reward::query();
-
-        $result = $this->get_sort_offset_limit_query($request, $qb, [
-            'id',
-            'name',
-            'type',
-            'reward_type',
-            'created_at',
-            'updated_at',
-        ]);
-
-        $rowsQueryBuilder = $result['data'];
-        $startIndex = $result['offset'] ?? 0;
+        $query = Reward::where('is_draft',0);
+        $query = $this->get_sort_offset_limit_query($request, $query, ['name','status']);
 
         $final_data = [];
-        $i = 0;
+       foreach ($query['data']->get() as $key => $row) {
+        $action = '<div class="d-flex justify-content-center align-items-center gap-2">';
 
-        foreach ($rowsQueryBuilder->get() as $row) {
-            $index = $startIndex + $i + 1;
+        // VIEW (always)
+        $action .= '
+        <button type="button"
+            class="btn btn-link p-0 view"
+            data-id="'.$row->id.'"
+            title="View">
+            <i class="mdi mdi-eye text-info action-icon font-size-18"></i>
+        </button>';
 
-            $typeLabel = match ((string)$row->type) {
-                '0' => 'Treats & Deals',
-                '1' => 'E-Voucher',
-                '2' => 'Birthday Voucher',
-                default => '-',
-            };
+        // EDIT
+        if (Auth::user()->can($this->permission_prefix . '-edit')) {
+           
+            $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
 
-            $rewardTypeLabel = match ((string)$row->reward_type) {
-                '0' => 'Digital',
-                '1' => 'Physical',
-                default => '-',
-            };
+        }
 
-            $createdAt = $row->created_at->format(config('safra.date-format'));
-            $updatedAt = $row->updated_at->format(config('safra.date-format'));
+        // SUSPEND
+        if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            $action .= '
+            <div class="form-check form-switch m-0">
+                <input class="form-check-input suspend-switch"
+                    type="checkbox"
+                    data-id="'.$row->id.'"
+                    '.($row->suspend_voucher ? 'checked' : '').'
+                    title="Suspend">
+            </div>';
+        }
 
-            // ACTIONS
-            $action = "<div class='d-flex gap-3'>";
+        // DELETE
+        if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            $action .= '
+            <button type="button"
+                class="btn btn-link p-0 delete_btn"
+                data-id="'.$row->id.'"
+                title="Delete">
+                <i class="mdi mdi-delete text-danger action-icon font-size-18"></i>
+            </button>';
+        }
 
-            // VIEW
-            $action .= "<a href='javascript:void(0)' class='view' data-id='{$row->id}'>
-                            <i class='mdi mdi-eye text-info font-size-18'></i>
-                        </a>";
+        $action .= '</div>';
 
-            // EDIT
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
-                                <i class='mdi mdi-pencil text-primary font-size-18'></i>
-                            </a>";
-            }
-
-            // DELETE
-            $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
-
-            // SUSPEND SWITCH
-            $checked = $row->suspend_voucher == 1 ? 'checked' : '';
-            $action .= "
-                <div class='form-check form-switch'>
-                    <input class='form-check-input suspend-switch'
-                        type='checkbox'
-                        data-id='{$row->id}'
-                        {$checked}>
-                </div>
-            ";
-
-            $action .= "</div>";
-
+        
             $final_data[] = [
-                'sr_no'       => $index,
+                'sr_no'       => $key + 1,
                 'name'        => $row->name,
-                'type'        => $typeLabel,
-                'reward_type' => $rewardTypeLabel,
-                'created_at'  => $createdAt,
-                'updated_at'  => $updatedAt,
-                'action'      => $action,
-            ];
+                'type'        => match ((string)$row->type) {
+                    '0' => 'Treats & Deals','1' => 'E-Voucher','2' => 'Birthday Voucher', default => '-',
+                },
+                'reward_type' => match ((string)$row->reward_type) {
+                    '0' => 'Digital','1' => 'Physical', default => '-',
+                },
+                'created_at'  => $row->created_at->format(config('safra.date-format')),
+                'updated_at'  => $row->updated_at->format(config('safra.date-format')),
+                'action' => $action
 
-            $i++;
+            ];
         }
 
         return [
             'items' => $final_data,
-            'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            'count' => $query['count'] ?? 0,
         ];
     }
+
+    
 
   
     // DELETE

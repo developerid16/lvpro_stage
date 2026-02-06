@@ -109,7 +109,7 @@ class RewardUpdateRequestController extends Controller
                 'id'                => $row->id,
                 'sr_no'             => $index,
 
-                'reward_type' => Reward::getRewardTypeLabel($row->reward_type),
+                'reward_type' => Reward::getRewardTypeLabel($row->type),
 
                 'reward_id'         => $row->reward_id,
                 'month'            =>  $month,

@@ -335,6 +335,16 @@
                                     Transaction History
                                 </a>
                             @endcan
+                            @can(['voucher-logs'])
+                                <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
+                                    Voucher Logs
+                                </a>
+                            @endcan
+                            @can(['voucher-list'])
+                                <a class="dropdown-item  " href="{{url('/admin/voucher-list')}}">
+                                    Voucher List
+                                </a>
+                            @endcan
                            
 
                         </div>

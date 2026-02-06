@@ -65,9 +65,10 @@ class EvoucherController extends Controller
     {
         $query = Reward::where('type',  '1');
 
-        if (auth()->user()->role != 1) { // not Super Admin
+        if (auth()->user()->role != 1) {
             $query->where('added_by', auth()->id());
         }
+
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];
@@ -102,21 +103,29 @@ class EvoucherController extends Controller
                 $final_data[$key]['image'] = '<img src="'.$imgUrl.'" class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">';
             }
 
-            if ($row->publish_start_date && $row->publish_end_date) {
-                $duration =
-                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
-                    ' to ' .
-                    Carbon::parse($row->publish_end_date)->format(config('safra.date-only'));
+            $start = $row->publish_start_date;
+            $end   = $row->publish_end_date;
 
-            } elseif ($row->publish_start_date) {
+            $startDate = $start ? \Carbon\Carbon::parse($start) : null;
+            $endDate   = $end ? \Carbon\Carbon::parse($end) : null;
+
+            // block zero-date (-0001-11-30)
+            $isValidStart = $startDate && $startDate->year > 0;
+            $isValidEnd   = $endDate && $endDate->year > 0;
+
+            if ($isValidStart && $isValidEnd) {
                 $duration =
-                    Carbon::parse($row->publish_start_date)->format(config('safra.date-only')) .
-                    ' - No Expiry';
+                    $startDate->format(config('safra.date-only')) .
+                    ' to ' .
+                    $endDate->format(config('safra.date-only'));
+            } elseif ($isValidStart) {
+                $duration = $startDate->format(config('safra.date-only'));
             } else {
-                $duration = 'No Expiry';
+                $duration = '-';
             }
 
-            $final_data[$key]['duration']   = $duration;
+            $final_data[$key]['duration'] = $duration;
+
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
             $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
 
@@ -162,12 +171,7 @@ class EvoucherController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        
-        $description  = trim($request->input('description'));
-        $termOfUse    = trim($request->input('term_of_use'));
-        $howToUse     = trim($request->input('how_to_use'));
-
+    {     
 
         $isDraft = $request->action === 'draft' ?? 0; 
 
@@ -250,7 +254,7 @@ class EvoucherController extends Controller
                     'sales_end_date'     => $request['sales_end_date'] ?? null,
                     'sales_end_time'     => $request['sales_end_time'] ?? null,
 
-                    'voucher_validity'   => $request['voucher_validity'],
+                    'voucher_validity'   => $request['voucher_validity'] ?? null,
 
                     'inventory_type'     => $request['inventory_type'],
                     'inventory_qty'      => $request['inventory_qty'] ?? null,
@@ -366,7 +370,8 @@ class EvoucherController extends Controller
                 'direct_utilization'=> 'nullable|boolean',
 
                 'max_quantity'     => 'required|integer|min:1',
-                'voucher_validity' => 'required|date',
+                'voucher_validity' => 'required|date|after_or_equal:sales_end',
+
 
                 'category_id'      => 'nullable',
                 'inventory_type'   => 'required|in:0,1',
@@ -409,7 +414,6 @@ class EvoucherController extends Controller
                 ];
             }
 
-
             if ((int) $request->clearing_method === 2) {
 
                 $rules['participating_merchant_id'] =
@@ -433,7 +437,7 @@ class EvoucherController extends Controller
                             'participating_merchant_locations' =>
                                 ['Please select at least one merchant location.']
                         ]
-                    ], 422);
+                    ], 200);
                 }
             }
 
@@ -532,7 +536,7 @@ class EvoucherController extends Controller
                 'sales_end_date'     => $validated['sales_end_date'] ?? null,
                 'sales_end_time'     => $validated['sales_end_time'] ?? null,
 
-                'voucher_validity'   => $validated['voucher_validity'],
+                'voucher_validity'   => $validated['voucher_validity'] ?? null,
 
                 'inventory_type'     => $validated['inventory_type'],
                 'inventory_qty'      => $request['inventory_qty'] ?? null,
@@ -649,6 +653,7 @@ class EvoucherController extends Controller
     {
         $reward = Reward::with('participatingLocations')->findOrFail($id);
 
+        $reward->voucher_validity =  ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
         $this->layout_data['data'] = $reward;
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
@@ -795,7 +800,7 @@ class EvoucherController extends Controller
                     'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
                     'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
 
-                    'voucher_validity'   => $validated['voucher_validity'],
+                    'voucher_validity'   => $validated['voucher_validity'] ?? null,
 
                     'category_id'     => $validated['category_id'],
                     'friendly_url'     => $validated['friendly_url'],
@@ -929,7 +934,8 @@ class EvoucherController extends Controller
                 'direct_utilization'=> 'nullable|boolean',
 
                 'max_quantity'     => 'required|integer|min:1',
-                'voucher_validity' => 'required|date',
+                'voucher_validity' => 'required|date|after_or_equal:sales_end',
+
 
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
@@ -1149,7 +1155,7 @@ class EvoucherController extends Controller
                     'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
                     'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
 
-                    'voucher_validity'   => $validated['voucher_validity'],
+                    'voucher_validity'   => $validated['voucher_validity'] ?? null,
                     'category_id'        => $validated['category_id'],
                     'friendly_url'       => $validated['friendly_url'],
                     'inventory_type'     => $validated['inventory_type'],
@@ -1245,7 +1251,7 @@ class EvoucherController extends Controller
                     'sales_end_date'     => $validated['sales_end_date'] ?? $reward->sales_end_date,
                     'sales_end_time'     => $validated['sales_end_time'] ?? $reward->sales_end_time,
     
-                    'voucher_validity'   => $validated['voucher_validity'],
+                    'voucher_validity'   => $validated['voucher_validity'] ?? null, 
     
                     'category_id'     => $validated['category_id'],
                     'friendly_url'     => $validated['friendly_url'],

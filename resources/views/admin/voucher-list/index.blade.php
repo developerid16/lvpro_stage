@@ -75,7 +75,8 @@
 @section('script')
 <script>
     var ModuleBaseUrl = "{{ $module_base_url }}/";
-    var DataTableUrl = ModuleBaseUrl + "datatable";
+    var RewardBaseUrl = "{{ $reward_base_url }}/";
+    var DataTableUrl = RewardBaseUrl + "datatable";
 
     function ajaxRequest(params) {
         $.get(DataTableUrl + '?' + $.param(params.data))
@@ -86,7 +87,7 @@
     $(document).on('click','.view',function () {
         let id = $(this).data('id');
 
-        $.get(ModuleBaseUrl + id, function (res) {
+        $.get(RewardBaseUrl + id, function (res) {
             let d = res.data;
 
             $('#v_name').text(d.name);
@@ -103,23 +104,9 @@
         });
     });
 
-    // DELETE
-    $(document).on('click','.delete_btn',function () {
-        // if (!confirm('Delete voucher?')) return;
-
-        $.ajax({
-            url: ModuleBaseUrl + $(this).data('id'),
-            type: 'DELETE',
-            data: {_token: '{{ csrf_token() }}'},
-            success: function () {
-                $('#bstable').bootstrapTable('refresh');
-            }
-        });
-    });
-
     // SUSPEND
     $(document).on('change','.suspend-switch',function () {
-        $.post(ModuleBaseUrl + 'suspend', {
+        $.post(RewardBaseUrl + 'suspend', {
             _token: '{{ csrf_token() }}',
             id: $(this).data('id'),
             status: $(this).is(':checked') ? 1 : 0

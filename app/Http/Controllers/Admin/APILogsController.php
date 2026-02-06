@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\APILogs;
 use App\Models\RefundSale;
 use App\Models\Sale;
+use App\Models\UserWalletVoucher;
 use App\Models\VoucherLogs;
 use Illuminate\Http\Request;
 
@@ -130,7 +131,7 @@ class APILogsController extends Controller
             $temp['end_time'] = $row->end_time->format(config('safra.date-format') . " g:i:s a");
             $temp['created_at'] = $row->created_at->format(config('safra.date-format'));
             if($tempStatus){
-array_push($final_data,$temp);
+                array_push($final_data,$temp);
             }
         }
         $data = [];
@@ -152,10 +153,12 @@ array_push($final_data,$temp);
 
         $final_data = [];
         foreach ($query['data']->get() as $key => $row) {
+            $wallet = UserWalletVoucher::where('receipt_no', $row->used_code)->first();
             $final_data[] = [
                 'sr_no'       => $key + 1,
                 'reward'      => $row->reward->name,
-                'receipt_no'  => $row->receipt_no,
+                'used_code'      => $wallet->used_code ?? '-',
+                'user_id'  => $row->user_id,
                 'status'      => $row->action,
                 // 'created_at'  => $row->created_at->format(config('safra.date-format').' g:i:s a'),
                 'created_at'  => $row->created_at->format(config('safra.date-format')),

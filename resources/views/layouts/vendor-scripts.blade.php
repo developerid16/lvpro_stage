@@ -800,69 +800,124 @@
         }
     }
 
-     tinymce.init({
+ 
+    function initTinyMCE(context = document) {
+        if (typeof tinymce === 'undefined') return;
+    
+        // remove existing editors (important for edit modal)
+        tinymce.remove(context.querySelectorAll('textarea.wysiwyg'));
+    
+        tinymce.init({
             selector: "textarea.wysiwyg",
-            height: 300,
+            height: 200,
+            valid_elements: '*[*]',
             relative_urls: false,
             remove_script_host: false,
             convert_urls: true,
-            setup: function (editor) {
-            editor.on('keydown', function (e) {
-                var content = editor.getContent({ format: 'text' }); // Get plain text content
-            if (content.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) { // Allow backspace and delete
-                e.preventDefault();
-            }
-            });
-        },
-        images_upload_url: '{{url("admin/image-upload-editor")}}',
-        images_upload_base_path: "{{asset('images')}}/",
-        plugins: [
-            "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
-            "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
-            "save table contextmenu directionality emoticons template textcolor"
-        ],
-        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-        style_formats: [{
-                title: 'Bold text',
-                inline: 'b'
-            },
-            {
-                title: 'Red text',
-                inline: 'span',
-                styles: {
-                    color: '#ff0000'
-                }
-            },
-            {
-                title: 'Red header',
-                block: 'h1',
-                styles: {
-                    color: '#ff0000'
-                }
-            },
-            {
-                title: 'Example 1',
-                inline: 'span',
-                classes: 'example1'
-            },
-            {
-                title: 'Example 2',
-                inline: 'span',
-                classes: 'example2'
-            },
-            {
-                title: 'Table styles'
-            },
-            {
-                title: 'Table row 1',
-                selector: 'tr',
-                classes: 'tablerow1'
-            }
-        ]
-    });
-       
-
+            forced_root_block: false,
+            entity_encoding: 'raw',
     
+            setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    const text = editor.getContent({ format: 'text' });
+    
+                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                        e.preventDefault();
+                    }
+                });
+            },
+    
+            images_upload_url: '{{ url("admin/image-upload-editor") }}',
+            images_upload_base_path: "{{ asset('images') }}/",
+    
+            plugins: [
+                "advlist autolink link image lists charmap preview hr anchor",
+                "searchreplace wordcount visualblocks code fullscreen",
+                "table emoticons"
+            ],
+    
+            toolbar:
+                "undo redo | styleselect | bold italic | " +
+                "alignleft aligncenter alignright alignjustify | " +
+                "bullist numlist outdent indent | link image | code"
+        });
+    }
+    
+    
+    function initEditor() {
+        if (typeof tinymce === 'undefined') return;
+                
+        tinymce.init({
+            selector: "textarea.wysiwyg",
+            height: 200,
+            valid_elements: '*[*]',
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            forced_root_block: false,
+            entity_encoding: 'raw',
+    
+            setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    const text = editor.getContent({ format: 'text' });
+    
+                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                        e.preventDefault();
+                    }
+                });
+            },
+    
+            images_upload_url: '{{ url("admin/image-upload-editor") }}',
+            images_upload_base_path: "{{ asset('images') }}/",
+    
+            plugins: [
+                "advlist autolink link image lists charmap print preview hr anchor pagebreak",
+                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media",
+                "save table directionality emoticons template textcolor"
+            ],
+    
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
+            style_formats: [{
+                    title: 'Bold text',
+                    inline: 'b'
+                },
+                {
+                    title: 'Red text',
+                    inline: 'span',
+                    styles: {
+                        color: '#ff0000'
+                    }
+                },
+                {
+                    title: 'Red header',
+                    block: 'h1',
+                    styles: {
+                        color: '#ff0000'
+                    }
+                },
+                {
+                    title: 'Example 1',
+                    inline: 'span',
+                    classes: 'example1'
+                },
+                {
+                    title: 'Example 2',
+                    inline: 'span',
+                    classes: 'example2'
+                },
+                {
+                    title: 'Table styles'
+                },
+                {
+                    title: 'Table row 1',
+                    selector: 'tr',
+                    classes: 'tablerow1'
+                }
+            ]
+        });
+    
+    
+    }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>

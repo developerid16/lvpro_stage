@@ -1,39 +1,44 @@
 $(document).ready(function () {
     const csrf = $('meta[name="csrf-token"]').attr('content');
-
-    // 🔥 CLICK HANDLER
-    // $(document).on('click', '.submit-btn', function () {
-    //     const action = $(this).val();
-    //     $('#action').val(action);
-    //     console.log(action,'action');
-        
-    //     tinymce.triggerSave();
-
-    //     const editId = $('#edit_frm').data('id');
-
-    //     console.log(editId,'editId');
-        
-    //     if (editId) {
-    //         $('#edit_frm').trigger('submit');
-    //     } else {
-    //         $('#add_frm').trigger('submit');
-    //     }
-    // });
-    $(document).on('click', '.submit-btn', function () {
+    
+   
+    $(document).on('click', '.submit-btn', function (e) {
         const action = $(this).val();
-
         const form = $(this).closest('form');
-        form.find('.action-field').val(action);
+        console.log(action,'action');
+        
 
-        tinymce.triggerSave();
+        // DRAFT → submit directly
+        if (action == 'draft') {
+            form.find('.action-field').val(action);
+            tinymce.triggerSave();
+            form.trigger('submit');
+            return;
+        }
 
-        form.trigger('submit');
+        // SUBMIT → confirmation
+        // e.preventDefault();
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You want to submit this form.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, submit it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.find('.action-field').val(action);
+                tinymce.triggerSave();
+                form.trigger('submit');
+            }
+        });
     });
 
-  
+    
     $(document).off("submit", "#add_frm").on("submit", "#add_frm", function (e) {
-    //   e.preventDefault();
-     tinymce.triggerSave();
+      e.preventDefault();
 
       let $form = $(this);
       if ($form.data('submitting')) return;
@@ -153,6 +158,7 @@ $(document).ready(function () {
     $(document).off("submit", "#edit_frm").on("submit", "#edit_frm", function (e) {
 
         e.preventDefault();
+
         var id = $(this).data('id');
 
         var form_data = new FormData($(this)[0]);
@@ -176,7 +182,6 @@ $(document).ready(function () {
                 }
             },
             error: function (response) {
-                console.log(response,'response');
                 show_errors(response.responseJSON.errors);
                 show_errors(response.responseJSON.errors, "#edit_frm");
             }
@@ -208,6 +213,7 @@ $(document).ready(function () {
                 });
             }
         });
-    });  
-
+    }); 
+    
+   
 });
