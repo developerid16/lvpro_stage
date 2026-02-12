@@ -114,14 +114,6 @@
         var DataTableUrl = ModuleBaseUrl + "datatable";
         var digitalMerChants = [];
 
-        document.addEventListener("DOMContentLoaded", function () {
-            bindMonthFlatpickr(
-                'input[name="from_month"]',
-                'input[name="to_month"]'
-            );
-            initFlatpickrDate();
-        });
-
         function ajaxRequest(params) {
             params.data.type = type
             $.get(DataTableUrl + '?' + $.param(params.data)).then(function(res) {
@@ -220,7 +212,10 @@
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $(".where_use").hide();
-            initFlatpickr();
+            bindMonthFlatpickr(
+                'input[name="from_month"]',
+                'input[name="to_month"]'
+            );
             initFlatpickrDate();
         });
       
@@ -249,44 +244,46 @@
         });
 
         $(document).on("change", "#merchant_id", function () {
+            loadParticipatingMerchantLocations('AddModal');
 
-            let merchantId = $(this).val();
-            let locationDropdown = $(".club_location");
+            // let merchantId = $(this).val();
+            // let locationDropdown = $(".club_location");
 
-            locationDropdown.html('<option value="">Loading...</option>');
+            // locationDropdown.html('<option value="">Loading...</option>');
 
-            if (!merchantId) {
-                locationDropdown.html('<option value="">Select Club Location</option>');
-                return;
-            }
+            // if (!merchantId) {
+            //     locationDropdown.html('<option value="">Select Club Location</option>');
+            //     return;
+            // }
 
-            $.ajax({
-                url: "{{ url('admin/birthday-voucher/get-club-locations') }}",
-                type: "GET",
-                data: { merchant_id: merchantId },
-                success: function (res) {
+            // $.ajax({
+            //     url: "{{ url('admin/birthday-voucher/get-club-locations') }}",
+            //     type: "GET",
+            //     data: { merchant_id: merchantId },
+            //     success: function (res) {
 
-                    console.log(res.data,'res');
+            //         console.log(res.data,'res');
                     
-                    locationDropdown.empty();
-                    locationDropdown.append('<option value="">Select Club Location</option>');
+            //         locationDropdown.empty();
+            //         locationDropdown.append('<option value="">Select Club Location</option>');
 
-                    if (res.status === 'success' && res.data.length > 0) {
+            //         if (res.status === 'success' && res.data.length > 0) {
 
-                        res.data.forEach(function (loc) {
-                            locationDropdown.append(
-                                `<option value="${loc.id}">${loc.name}</option>`
-                            );
-                        });
+            //             res.data.forEach(function (loc) {
+            //                 locationDropdown.append(
+            //                     `<option value="${loc.id}">${loc.name}</option>`
+            //                 );
+            //             });
 
-                    } else {
-                        locationDropdown.append('<option value="">No locations found</option>');
-                    }
-                },
-                error: function () {
-                    locationDropdown.html('<option value="">Error loading locations</option>');
-                }
-            });
+            //         } else {
+            //             locationDropdown.append('<option value="">No locations found</option>');
+            //         }
+            //     },
+            //     error: function () {
+            //         locationDropdown.html('<option value="">Error loading locations</option>');
+            //     }
+            // });
+        
         });
 
          $(document).on('input', '#inventory_qty', calculateSetQty);

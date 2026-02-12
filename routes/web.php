@@ -284,6 +284,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('evoucher', EvoucherController::class);
 
     Route::get('birthday-voucher/datatable', [BdayEvoucherController::class, 'datatable']);
+    Route::get('birthday-voucher/get-club-locations-with-outlets', [BdayEvoucherController::class, 'getMerchantLocationsWithOutlets']);
     Route::get('birthday-voucher/get-club-locations', [BdayEvoucherController::class, 'getLocations'])->name('get.club.locations');
     Route::resource('birthday-voucher', BdayEvoucherController::class);
     

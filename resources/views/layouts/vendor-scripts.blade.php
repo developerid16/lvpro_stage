@@ -918,6 +918,69 @@
     
     
     }
+
+    
+    function loadParticipatingMerchantLocations(modal) {
+
+        $.ajax({
+            url: ModuleBaseUrl + "get-club-locations-with-outlets",
+            type: "GET",
+            success: function (res) {
+
+                let container = modal.find("#participating_merchant_location");
+                container.empty();
+
+                if (res.status !== 'success' || !res.data.length) {
+                    container.html('<p>No locations found</p>');
+                    return;
+                }
+
+                res.data.forEach(function (club, index) {
+
+                    let collapseId = "clubCollapse" + club.club_id;
+
+                    let html = `
+                        <div class="card mb-2">
+                            <div class="card-header p-2">
+                                <a class="fw-bold text-dark"
+                                data-bs-toggle="collapse"
+                                href="#${collapseId}"
+                                role="button">
+                                ${club.club_name}
+                                </a>
+                            </div>
+
+                            <div class="collapse" id="${collapseId}">
+                                <div class="card-body p-2">
+                    `;
+
+                    club.merchant_locations.forEach(function (loc) {
+                        html += `
+                            <div class="form-check">
+                                <input class="form-check-input outlet-checkbox"
+                                    type="checkbox"
+                                    name="participating_locations[]"
+                                    value="${loc.id}"
+                                    id="loc_${loc.id}">
+                                <label class="form-check-label" for="loc_${loc.id}">
+                                    ${loc.name}
+                                </label>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.append(html);
+                });
+            }
+        });
+    }
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>

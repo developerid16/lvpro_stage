@@ -5,7 +5,8 @@
 <script>
     $(document).on("change", "#merchant_id", function () {
         let merchantId = $(this).val();
-        loadClubLocations(merchantId);
+        // loadClubLocations(merchantId);
+        loadParticipatingMerchantLocations('EditModal');
     });
 
     $(document).on("change", ".voucher_image", function (e) {
@@ -56,8 +57,7 @@
         $('#EditModal #csvFile').val('');
         $('#EditModal #uploadedFileLink').text('').attr('href', 'javascript:void(0)');
         $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
-    });
-    
+    });   
     
     
     $(document).on('shown.bs.modal', '#EditModal', function () {
@@ -171,9 +171,6 @@
         editToggleClearingFields(modal);
         editToggleInventoryFields(modal);
     });
-
-    
-
    
     function loadClubLocations(merchantId, selectedLocation = null) {
 

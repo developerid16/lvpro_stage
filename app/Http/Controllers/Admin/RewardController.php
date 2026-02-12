@@ -2093,5 +2093,4 @@ class RewardController extends Controller
             'locations' => $locations
         ]);
     }
-    
 }

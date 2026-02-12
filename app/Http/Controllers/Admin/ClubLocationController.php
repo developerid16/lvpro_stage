@@ -27,12 +27,12 @@ class ClubLocationController extends Controller
      * LIST PAGE (Merchant → Club Location list)
      * ----------------------------------------------------- */
     public function index()
-{
-    // $this->layout_data['merchant_id'] = $merchant;
+    {
+        // $this->layout_data['merchant_id'] = $merchant;
 
-    return view($this->view_file_path . "index")
-        ->with($this->layout_data);
-}
+        return view($this->view_file_path . "index")
+            ->with($this->layout_data);
+    }
 
     /* -----------------------------------------------------
      * DATATABLE
