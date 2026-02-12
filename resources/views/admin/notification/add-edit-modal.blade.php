@@ -30,8 +30,9 @@
                             <select name="type" class="form-control">
                                 <option value="">Select Type</option>
                                 <option value="reminders" {{ ($data->type ?? '') === 'reminders' ? 'selected' : '' }}>Reminders</option>
-                                <option value="my_purchases" {{ ($data->type ?? '') === 'my_purchases' ? 'selected' : '' }}>My Purchases</option>
-                                <option value="redeemed" {{ ($data->type ?? '') === 'redeemed' ? 'selected' : '' }}>Redeemed</option>
+                                <option value="promotions" {{ ($data->type ?? '') === 'promotions' ? 'selected' : '' }}>Promotions</option>
+                                {{-- <option value="my_purchases" {{ ($data->type ?? '') === 'my_purchases' ? 'selected' : '' }}>My Purchases</option> 
+                               <option value="redeemed" {{ ($data->type ?? '') === 'redeemed' ? 'selected' : '' }}>Redeemed</option> --}}
                             </select>
                         </div>
 
