@@ -3,6 +3,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 
 use App\Models\Location;
@@ -165,6 +166,7 @@ class LocationController extends Controller
     public function destroy($id)
     {
         Location::where('id', $id)->delete();
+        AdminLogger::log('delete', Location::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Location Delete Successfully']);
     }
 }

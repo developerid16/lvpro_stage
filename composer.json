@@ -19,6 +19,7 @@
         "maatwebsite/excel": "^3.1",
         "opcodesio/log-viewer": "^3.1",
         "simplesoftwareio/simple-qrcode": "~4",
+        "smalot/pdfparser": "^2.12",
         "spatie/laravel-permission": "^5.10",
         "stripe/stripe-php": "^17.6"
     },
@@ -39,7 +40,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/Helper.php"
+            "app/Helpers/Helper.php",
+            "app/Helpers/AdminLogger.php"
         ]
     },
     "autoload-dev": {

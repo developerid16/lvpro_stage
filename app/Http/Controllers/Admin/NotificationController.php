@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
@@ -171,7 +172,7 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         $notification = Notification::findOrFail($id);
-
+        AdminLogger::log('delete', Notification::class, $id);
         if ($notification->img && file_exists(public_path($notification->img))) {
             unlink(public_path($notification->img));
         }

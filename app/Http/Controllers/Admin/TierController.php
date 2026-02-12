@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Models\Tier;
 use App\Models\Reward;
 use Illuminate\Http\Request;
@@ -189,6 +190,7 @@ class TierController extends Controller
     public function destroy($id)
     {
          Tier::where('id', $id)->delete();
+         AdminLogger::log('delete', Tier::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Tier Delete Successfully']);
     }
 }

@@ -460,7 +460,7 @@
 
                         <div class="col-12 col-md-6 where_use">
                             <div class="mb-3">
-                                <label class="sh_dec" for="where_use">Where To Use <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="where_use">Where To Use <span class="required-hash"></span></label>
                                 <input id="where_use" type="text" class="sh_dec form-control" name="where_use"
                                     value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use"/>
                             </div>
@@ -605,11 +605,10 @@
                                     </div>
                                 </div>
 
-
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    
-                                        <input id="inventory_qty" type="number" min="0" placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
+                                        <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="required-hash">*</span></label>    
+                                        <input id="inventory_qty" type="number" min="0" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
@@ -632,7 +631,7 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="clearing_method">Clearing Menthods <span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
 
                                             <option class="sh_dec" value="">Select Clearing Method</option>
@@ -832,6 +831,21 @@
                                     name="suspend_voucher"
                                     value="1"
                                     {{ isset($data) && $data->suspend_voucher == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Is Featured</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="is_featured"
+                                    value="1"
+                                    {{ isset($data) && $data->is_featured == 1 ? 'checked' : '' }}
                                 >
                             </div>
                         </div>

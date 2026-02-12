@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Models\User;
 
 use Illuminate\Support\Str;
@@ -192,6 +193,7 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         User::where('id', $id)->delete();
+        AdminLogger::log('delete', User::class, $id);
         return response()->json(['status' => 'success', 'message' => 'User Delete Successfully']);
     }
 

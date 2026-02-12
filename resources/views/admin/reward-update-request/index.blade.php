@@ -74,6 +74,25 @@
 </div>
 
 
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+    
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reward Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="viewForm">
+                    <div class="row g-3" id="viewContainer"></div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- end modal -->
 @endsection
 
@@ -167,6 +186,303 @@
             }
         });
     });
+
+    $(document).on('click', '.view_btn', function () {
+        const id = $(this).data('id');
+
+        $('#viewModal').modal('show');
+
+        // disable everything
+        $('#rewardViewForm')
+            .find('input, textarea, select, button')
+            .prop('disabled', true);
+
+        // allow close
+        $('#rewardViewForm .btn-close').prop('disabled', false);
+
+       $.get(ModuleBaseUrl + id, function (res) {
+            if (res.status !== 'success') return;
+
+            const d = res.data;
+            $('#viewContainer').html(''); // reset
+
+            appendImage('Voucher Catalogue Image', d.voucher_image);
+            appendImage('Voucher Details Image', d.voucher_detail_img);
+            if(d.type == 2){//bday 
+                appendField('From Month', d.from_month);
+                appendField('To Month', d.to_month);
+            }
+            appendField('Status', d.status);
+            // appendField('Requested By', d.requester?.name);
+            appendField('Reward Name', d.name);
+            if(d.type == 1){//evoucher
+                appendField('CSO Method', d.cso_method);
+            }
+            appendHtmlField('Description', d.description);
+            appendHtmlField('Voucher T&C', d.term_of_use);
+            appendHtmlField('How To Use', d.how_to_use);
+
+            appendField('Merchant', d.merchant_name ?? d.merchant_id);
+            if(d.type == 1){//evoucher
+                appendField('Voucher Type', 'E-Voucher');
+                appendField('Direct Utilization', d.direct_utilization ? 'Yes' : null);
+            }
+            if(d.type == 0){//t&d
+                appendField('Voucher Type', d.reward_type == 0 ? 'Digital' : 'Physical');
+                appendField('Voucher Validity',formatDateOnly(d.voucher_validity));
+
+
+                if(d.reward_type == 1){//physical
+                    appendField('Where To Use', d.where_use);
+                }
+            }
+            
+            appendField('Publish Start Date & Time',formatDateTime(d.publish_start_date, d.publish_start_time));
+            appendField('Publish End Date & Time',formatDateTime(d.publish_end_date, d.publish_end_time));
+            appendField('Sales Start Date & Time',formatDateTime(d.sales_start_date, d.sales_start_time));
+            appendField('Sales End Date & Time', formatDateTime(d.sales_end_date, d.sales_end_time));
+
+            if(d.type == 1){//evoucher
+                appendField('Days', d.days ? (Array.isArray(d.days) ? d.days.join(', ') : JSON.parse(d.days).join(', ')) : null);
+                appendField('Start Time', d.start_time);
+                appendField('End Time', d.end_time);
+                appendField('Maximum Quantity (Per User)', d.max_quantity);
+                appendField('Voucher Validity',formatDateOnly(d.voucher_validity));
+
+
+            }
+            
+            if(d.type == 0){//t&d
+
+                appendTierRates(d.tier_rates);
+                if(d.reward_type == 1){//physical
+                   appendLocations(d.locations);
+                }
+                appendField('Usual Price', d.usual_price);
+            }
+            if(d.type != 2){//bday 
+                appendField('Maximum Quantity (Per User)', d.max_quantity);
+            }
+            appendField('Inventory Type', d.inventory_type == 0 ? 'Non Merchant' : 'Merchant');
+            if(d.inventory_type == 0){//non merchant
+                appendField('Inventory Quantity', d.inventory_qty);
+            }
+            if(d.inventory_type == 1){//merchant
+                appendField('File', d.csvFile);
+            }
+            appendField('Voucher Value', d.voucher_value);
+            appendField('Voucher Set', d.voucher_set);
+            appendField('Set Quantity', d.set_qty);
+            appendField('Clearing Method', getClearingMethodLabel(d.clearing_method));
+
+            if(d.clearing_method == 2){//merchant code
+                appendOutlets(d.merchant_locations);
+            }else{
+                appendField('Location', d.custom_location?.name);
+            }                
+
+            appendField('Hide Quantity', d.hide_quantity ? 'Yes' : null);
+            appendField('Low Stock 1', d.low_stock_1);
+            appendField('Low Stock 2', d.low_stock_2);
+            appendField('Friendly URL Name', d.friendly_url);
+            appendField('Category', d.category);
+
+            if(d.type == 0){//t&d
+                appendField('FABS Categories Information', d.fabs_category_id);
+                appendField('AX Item Code', d.ax_item_code);
+                appendSwitch('Publish Channel Internet', d.publish_independent);
+                appendSwitch('Publish Channel Inhouse', d.publish_inhouse);
+                appendSwitch('Send Collection Reminder', d.send_reminder);
+            }  
+            if(d.type != 2){//bday 
+
+                appendSwitch('Suspend Deal', d.suspend_deal);
+                appendSwitch('Suspend Voucher', d.suspend_voucher);
+                appendSwitch('Is Featured', d.is_featured);
+                appendSwitch('Hide From Catalogue', d.hide_catalogue);
+            }
+        });
+
+    });
+
+    function appendOutlets(outlets) {
+        if (!outlets.length) return;
+
+        let rows = outlets.map(o => `
+            <tr>
+                <td>${o.name}</td>
+            </tr>
+        `).join('');
+
+        $('#viewContainer').append(`
+            <div class="col-md-12">
+                <label class="form-label">Outlets</label>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr><th>Outlet Name</th></tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `);
+    }
+
+
+    function appendLocations(locations) {
+        if (!Array.isArray(locations) || locations.length === 0) return;
+
+        let rows = locations.map(loc => `
+            <tr>
+                <td>${loc.name}</td>
+                <td>${loc.inventory_qty}</td>
+            </tr>
+        `).join('');
+
+        $('#viewContainer').append(`
+            <div class="col-md-12">
+                <label class="form-label">Locations</label>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Inventory Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `);
+    }
+
+    function appendTierRates(tierRates) {
+        if (!Array.isArray(tierRates) || tierRates.length === 0) return;
+
+        let rows = tierRates.map(t => `
+            <tr>
+                <td>${t.tier?.tier_name ?? '-'}</td>
+                <td>${t.price}</td>
+            </tr>
+        `).join('');
+
+        $('#viewContainer').append(`
+            <div class="col-md-12">
+                <label class="form-label">Tier Rates</label>
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        `);
+    }
+
+    function formatDateOnly(date) {
+        if (!date) return null;
+
+        const d = new Date(date);
+        if (isNaN(d)) return date;
+
+        const year  = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day   = String(d.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`; // Y-m-d
+    }
+
+    function formatDateTime(date, time) {
+        if (!date) return null;
+
+        // extract YYYY-MM-DD safely
+        const d = new Date(date);
+        if (isNaN(d)) return null;
+
+        const year  = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day   = String(d.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${time ?? '00:00:00'}`;
+    }
+
+    function getClearingMethodLabel(val) {
+        const map = {
+            0: 'QR',
+            1: 'Barcode',
+            2: 'Merchant Code',
+            3: 'External Link',
+            4: 'External Code',
+        };
+        return map[val] ?? val;
+    }
+
+    function appendField(label, value) {
+        if (value === null || value === undefined || value === '' || value === '-') return;
+
+        $('#viewContainer').append(`
+            <div class="col-md-6">
+                <label class="form-label">${label}</label>
+                <input type="text" class="form-control" value="${value}" readonly>
+            </div>
+        `);
+    }
+
+    function appendTextarea(label, value) {
+        if (!value) return;
+
+        $('#viewContainer').append(`
+            <div class="col-md-12">
+                <label class="form-label">${label}</label>
+                <textarea class="form-control" rows="3" readonly>${value}</textarea>
+            </div>
+        `);
+    }
+
+    function appendHtmlField(label, html, col = 12) {
+        if (!html) return;
+
+        $('#viewContainer').append(`
+            <div class="col-md-${col}">
+                <label class="form-label">${label}</label>
+                <div class="form-control" style="background:#f8f9fa" readonly>
+                    ${html}
+                </div>
+            </div>
+        `);
+    }
+
+
+    function appendImage(label, image) {
+        if (!image) return;
+
+        $('#viewContainer').append(`
+            <div class="col-md-6 text-center">
+                <label class="form-label d-block">${label}</label>
+                <img src="/uploads/image/${image}" 
+                    class="img-thumbnail"
+                    style="max-height:50px;"
+                    alt="${label}">
+            </div>
+        `);
+    }
+
+    function appendSwitch(label, checked, col = 3) {
+        if (checked === null || checked === undefined) return;
+
+        $('#viewContainer').append(`
+            <div class="col-md-${col}">
+                <label class="form-label d-block">${label}</label>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" ${checked ? 'checked' : ''} disabled>
+                    <span class="ms-2">${checked ? 'Yes' : 'No'}</span>
+                </div>
+            </div>
+        `);
+    }
 
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>

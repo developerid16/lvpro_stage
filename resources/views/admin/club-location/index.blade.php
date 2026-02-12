@@ -54,7 +54,7 @@
     var DataTableUrl = ModuleBaseUrl + "datatable";
 
     // GET merchant_id from controller
-    var merchant_id = "{{ $merchant_id }}";
+    var merchant_id = "{{ $merchant_id ?? 0 }}";
 
     function ajaxRequest(params) {
 

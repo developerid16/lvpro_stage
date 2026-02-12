@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use DB;
@@ -167,6 +168,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         Role::where('id', $id)->delete();
+        AdminLogger::log('delete', Role::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Role Delete Successfully']);
     }
 }

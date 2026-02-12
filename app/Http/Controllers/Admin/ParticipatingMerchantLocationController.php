@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ParticipatingMerchantLocation;
@@ -240,6 +241,7 @@ class ParticipatingMerchantLocationController extends Controller
     public function destroy($id)
     {
         ParticipatingMerchantLocation::destroy($id);
+        AdminLogger::log('delete', ParticipatingMerchantLocation::class, $id);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Deleted Successfully']);
     }

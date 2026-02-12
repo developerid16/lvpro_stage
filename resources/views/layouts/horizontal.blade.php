@@ -239,8 +239,11 @@
                             @can('dashboard-list')
                                 <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
                             @endcan
-                            @can('annoucement-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/announcement')}}">Announcement</a>
+                            @can('notification-list')
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
+                            @endcan
+                            @can('setting-list')
+                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
                             @endcan
                             
                         </div>
@@ -305,6 +308,9 @@
                             @can('merchant-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/merchants')}}">Merchant</a>
                             @endcan
+                            @can('club-location-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/club-location')}}">Club Location</a>
+                            @endcan
                             @can('participating-merchant-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/participating-merchant')}}">Participating Merchant</a>
                             @endcan                           
@@ -349,13 +355,29 @@
 
                         </div>
                     </li>
-                    @endcan
+                    @endcan      
 
-                    @can(['redeem-vouche'])
-                        {{-- <a class="nav-link  " href="{{url('/admin/redeem-voucher')}}">
-                            <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Redeem Voucher</span>
-                        </a> --}}
-                    @endcan
+                    @canany(['stock-management'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Stock Management</span>
+                                <div class="arrow-down"></div>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
+                            
+                                @can(['reward-stock'])
+                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-stock')}}">
+                                        Treats & Deals Stock
+                                    </a>
+                                @endcan
+                                @can(['evoucher-stock'])
+                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-stock')}}">
+                                        E-Voucher Stock
+                                    </a>
+                                @endcan
+                            </div>
+                        </li>
+                    @endcan                   
                 </ul>
             </div>
         </nav>

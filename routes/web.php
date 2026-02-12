@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
+use App\Http\Controllers\Admin\EvoucherStockController;
 use App\Http\Controllers\Admin\RewardUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\DashboardPopupController;
 use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\APILogsController;
+use App\Http\Controllers\Admin\AppContentController;
 use App\Http\Controllers\Admin\BdayEvoucherController;
 use App\Http\Controllers\Admin\RewardRedemptionController;
 use App\Http\Controllers\Admin\ContentManagementController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\TransactionHistoryController;
+use App\Http\Controllers\Admin\TreatsDealsStockController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
@@ -96,9 +99,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('user-rights/datatable', [UserRightsRequestController::class, 'datatable']);
     Route::resource('user-rights', UserRightsRequestController::class);
 
-    Route::post('reward-update-request/approve', action: [RewardUpdateRequestController::class, 'approve']);
     Route::post('reward-update-request/{id}/reject', [RewardUpdateRequestController::class, 'reject']);
     Route::get('reward-update-request/datatable', [RewardUpdateRequestController::class, 'datatable']);
+    Route::get('reward-update-request/{id}', [RewardUpdateRequestController::class, 'show']);
+    Route::post('reward-update-request/approve', action: [RewardUpdateRequestController::class, 'approve']);
     Route::resource('reward-update-request', RewardUpdateRequestController::class);
 
     Route::get('/send-sms', [App\Http\Controllers\HomeController::class, 'emailSend']);
@@ -313,8 +317,25 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('voucher-list/suspend', [VoucherListController::class,'toggleSuspend'])->name('voucher.suspend');
     Route::resource('voucher-list', VoucherListController::class);
 
+    Route::get('transaction-history/{receipt_no}/vouchers',  [TransactionHistoryController::class, 'voucherDetail'])->name('admin.transaction-history.vouchers');
     Route::get('transaction-history/datatable', [TransactionHistoryController::class, 'datatable'])->name('transaction-history.datatable');
     Route::resource('transaction-history', TransactionHistoryController::class);
+
+    Route::get('evoucher-stock/datatable', [EvoucherStockController::class, 'datatable']);
+    Route::post('evoucher-stock/adjustment', [EvoucherStockController::class, 'stockAdjustment'])->name('evoucher-stock.adjustment');
+    Route::post('evoucher-stock/hide-catalogue', [EvoucherStockController::class,'toggleHideCatalogue'])->name('evoucher-stock.hide');
+    Route::resource('evoucher-stock', EvoucherStockController::class);
+
+    Route::get('treats-deals-stock/datatable', [TreatsDealsStockController::class, 'datatable']);
+    Route::get('treats-deals-stock/get-location-stock/{id}',  [TreatsDealsStockController::class, 'getLocationStock'])->name('admin.get.location.stock');
+    Route::post('treats-deals-stock/adjustment', [TreatsDealsStockController::class, 'stockAdjustment'])->name('treats-deals-stock.adjustment');
+    Route::post('treats-deals-stock/hide-catalogue', [TreatsDealsStockController::class,'toggleHideCatalogue'])->name('treats-deals-stock.hide');
+    Route::post('treats-deals-stock/location-stock-adjustment', [TreatsDealsStockController::class, 'locationStockAdjustment'])->name('treats-deals-stock.location.adjustment');
+    Route::resource('treats-deals-stock', TreatsDealsStockController::class);
+
+    Route::get('app-content', [AppContentController::class, 'index']);
+    Route::post('app-content', [AppContentController::class, 'store']);
+
 
 });
 

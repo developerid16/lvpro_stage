@@ -45,6 +45,7 @@
                             <th data-field="image">Image</th>
                             <th data-field="cso_method">CSO Method</th>
                             <th data-field="is_draft">Is Draft</th>
+                            <th data-field="status">Status</th>
                             <th data-field="created_at">Created On</th>
 
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
@@ -398,7 +399,7 @@
 
 @section('script')
 
-<script>
+    <script>
         let participatingLocations = {};
 
         document.getElementById('csvFile').addEventListener('change', function (e) {

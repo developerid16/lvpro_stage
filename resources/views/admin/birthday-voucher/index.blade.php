@@ -39,18 +39,12 @@
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
                           
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
-                            <th data-field="no_of_keys" data-filter-control="input" data-sortable="true">Amount</th>
-                            <th data-field="balance">Balance</th>
-                            <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
-                            <th data-field="total_redeemed" data-filter-control="input" data-sortable="true">Issuance</th>
+                             <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
                             <th data-field="redeemed">Redeemed</th>
-                            <th data-field="duration">Duration</th>
-                            <th data-field="month">Voucher Creation</th>
                             <th data-field="image">Image</th>
+                            <th data-field="status">Status</th>
+                            <th data-field="month">Voucher Creation</th>
                             <th data-field="created_at">Created On</th>
-
-                            {{-- <th data-field="status" data-filter-control="select" data-sortable="false">Status</th> --}}
-
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
                         </tr>
                     </thead>
@@ -71,6 +65,49 @@
 @endsection
 
 @section('script')
+
+    <script>
+        let participatingLocations = {};
+
+        document.getElementById('csvFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = function (evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                const count = rows.length;
+
+                // show inventory field
+                const inventoryDiv = document.querySelector('.inventory_qty');
+                inventoryDiv.style.display = 'block';
+
+                const inventoryInput = document.getElementById('inventory_qty');
+                calculateSetQty();
+                inventoryInput.value = count;
+
+                inventoryInput.readOnly = true;
+
+                $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
+                $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+        
+        $(document).on('click', '#removeCsvFile', function () {
+            $('#csvFile').val('');
+            $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
+            $('#uploadedFile').removeClass('d-flex').addClass('d-none');
+        });
+
+    </script>
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
         var type = "{{ $type }}";
@@ -93,7 +130,7 @@
             })
         }  
        
-        // Show live preview on file select
+         // Show live preview on file select
         $(document).on("change", "#voucher_image", function () {
             let preview = $("#voucher_image_preview");
             let file = this.files[0];
@@ -110,8 +147,26 @@
                 // When user clears the file input
                 preview.attr("src", "").hide();
             }
-        });       
-       
+        }); 
+        
+        $(document).on("change", ".voucher_detail_img", function (e) {
+            const modal = $(this).closest('.modal');
+            const file = this.files[0];
+
+            if (!file) return;
+
+            const preview = modal.find('#voucher_detail_img_preview');
+            const clearBtn = modal.find('#clear_voucher_detail_img');
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.attr('src', e.target.result).show();
+                clearBtn.show();
+            };
+
+            reader.readAsDataURL(file);
+        });
+        
         $(document).on('shown.bs.modal','#EditModal', function () {
             const $modal = $(this);
 
@@ -154,11 +209,21 @@
                 modal.find("#participating_section").hide();
             }
         });  
+        
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $('#clear_voucher_image').hide();
         });       
     </script>
     <script>
+        $(document).on('shown.bs.modal', '#AddModal', function () {
+            initEditor();
+            $('#clear_voucher_detail_img').hide();
+            $('#clear_voucher_image').hide();
+            $(".where_use").hide();
+            initFlatpickr();
+            initFlatpickrDate();
+        });
+      
         $(document).on("change", ".reward_id", function () {
             let id = $(this).val();
 
@@ -224,6 +289,22 @@
             });
         });
 
+         $(document).on('input', '#inventory_qty', calculateSetQty);
+
+        // when voucher_set changes
+        $(document).on('input', '#voucher_set', calculateSetQty);
+
+        $(document).on('input', '#voucher_value', calculateSetQty);
+
+        function calculateSetQty() {
+            let inventoryQty = parseFloat($('#inventory_qty').val());
+            let voucherSet   = parseFloat($('#voucher_set').val());
+            if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
+                $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+            } else {
+                $('#set_qty').val('');
+            }
+        }
         function resetFormById() {
             let modal = $('#AddModal').closest(".modal");
         

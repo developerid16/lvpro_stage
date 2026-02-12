@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
@@ -113,6 +114,7 @@ class PermissionController extends Controller
     public function destroy($id)
     {
         Permission::where('id', $id)->delete();
+        AdminLogger::log('delete', Permission::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Permission Deleted']);
     }
 }

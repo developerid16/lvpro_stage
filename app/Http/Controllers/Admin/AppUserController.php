@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\AppUser;
@@ -354,17 +355,10 @@ class AppUserController extends Controller
     public function destroy(string $id)
     {
         DB::transaction(function () use ($id) {
-
-            // delete app user related data
-            KeyPassbookDebit::where('user_id', $id)->delete();
-            KeyPassbookCredit::where('user_id', $id)->delete();
-            UserPurchasedReward::where('user_id', $id)->delete();
-            UserPurchasedRewardLogs::where('user_id', $id)->delete();
-            RefundSale::where('user_id', $id)->delete();
-            Sale::where('user_id', $id)->delete();
-
+            
             // finally delete app user
             AppUser::where('id', $id)->delete();
+            AdminLogger::log('delete', AppUser::class, $id);
         });
 
         return response()->json([

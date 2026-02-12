@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
@@ -144,6 +145,7 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         Department::where('id', $id)->delete();
+        AdminLogger::log('delete', Department::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Department Deleted Successfully']);
     }
 }

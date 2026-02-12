@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
@@ -25,9 +26,9 @@ class ClubLocationController extends Controller
     /* -----------------------------------------------------
      * LIST PAGE (Merchant → Club Location list)
      * ----------------------------------------------------- */
-    public function index($merchant)
+    public function index()
 {
-    $this->layout_data['merchant_id'] = $merchant;
+    // $this->layout_data['merchant_id'] = $merchant;
 
     return view($this->view_file_path . "index")
         ->with($this->layout_data);
@@ -38,7 +39,8 @@ class ClubLocationController extends Controller
      * ----------------------------------------------------- */
     public function datatable(Request $request)
     {
-        $qb = ClubLocation::where('merchant_id', $request->merchant_id);
+        // $qb = ClubLocation::where('merchant_id', $request->merchant_id);
+        $qb = ClubLocation::query();
 
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -104,7 +106,7 @@ class ClubLocationController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'merchant_id' => 'required|exists:merchants,id',
+            // 'merchant_id' => 'required|exists:merchants,id',
             'name'        => 'required|string|max:255',
             'status'      => 'required|in:Active,Inactive',
         ], [
@@ -184,7 +186,7 @@ class ClubLocationController extends Controller
     public function destroy($id)
     {
         ClubLocation::where('id', $id)->delete();
-
+        AdminLogger::log('delete', ClubLocation::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Location Deleted Successfully']);
     }
 }

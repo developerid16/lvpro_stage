@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Models\Announcement;
 
 use Illuminate\Http\Request;
@@ -247,7 +248,8 @@ class AnnouncementController extends Controller
     public function destroy(string $id)
     {
         Announcement::where('id', $id)->delete();
-        return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
+        AdminLogger::log('delete', Announcement::class, $id);
+        return response()->json(['status' => 'success', 'message' => 'Announcement Delete Successfully']);
     }
 
     public function reorder(Request $request)

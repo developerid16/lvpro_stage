@@ -18,10 +18,10 @@ class Reward extends Model
         'description',
         'term_of_use',
         'how_to_use',
-        'merchant_id',
         'reward_type',
         'usual_price',
         'publish_start_date',
+        'merchant_id',
         'publish_start_time',
         'publish_end_date',
         'publish_end_time',
@@ -71,7 +71,11 @@ class Reward extends Model
         'suspend_voucher',
         'purchased_qty',
         'status',
-        'added_by'
+        'added_by',
+        'is_featured',
+        'hide_catalogue',
+        'hide_cat_time'
+        
         
     ];
 
@@ -197,5 +201,24 @@ class Reward extends Model
 
         return null; // ✅ valid
     }
+
+    public static function intOrZero($request, $key)
+    {
+        if ($request instanceof \Illuminate\Http\Request) {
+            return $request->filled($key)
+                ? (int) $request->input($key)
+                : 0;
+        }
+
+        return isset($request[$key]) && $request[$key] !== ''
+            ? (int) $request[$key]
+            : 0;
+    }
+
+     public function merchant()
+    {
+        return $this->belongsTo(Merchant::class, 'merchant_id');
+    }
+
 
 }

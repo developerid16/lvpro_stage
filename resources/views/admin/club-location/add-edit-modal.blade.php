@@ -15,7 +15,7 @@
                     @if(isset($data->id)) @method('PATCH') @endif
 
                     <!-- ADD THIS LINE -->
-                    <input type="hidden" name="merchant_id" value="{{ $merchant_id }}">
+                    <input type="hidden" name="merchant_id" value="{{ $merchant_id ?? 0}}">
 
                     <div class="row">
                         

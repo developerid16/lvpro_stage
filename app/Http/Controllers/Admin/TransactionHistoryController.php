@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Reward;
+use App\Models\UserWalletVoucher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -63,11 +64,13 @@ class TransactionHistoryController extends Controller
                 default => 'Other',
             };
 
-            $action = "
-                <a href='javascript:void(0)' class='view' data-id='{$row->id}'>
-                    <i class='mdi mdi-eye text-info font-size-18'></i>
-                </a>
-            ";
+           $action = "
+            <a href='javascript:void(0)' class='view_vouchers' data-receipt='{$row->receipt_no}'>
+                <i class='mdi mdi-eye text-info font-size-18'></i>
+            </a>
+        ";
+
+
 
             $final_data[] = [
                 'sr_no'            => $index,
@@ -83,8 +86,10 @@ class TransactionHistoryController extends Controller
                 'created_at'       => $row->created_at
                                         ? $row->created_at->format(config('safra.date-format'))
                                         : '-',
+                'action' => $action,
               
             ];
+
 
             $i++;
         }
@@ -94,6 +99,30 @@ class TransactionHistoryController extends Controller
             'count' => $result['count'] ?? $rows->count(),
         ];
     }
+
+    public function voucherDetail($receipt_no)
+    {
+        $vouchers = UserWalletVoucher::with(['reward.merchant'])
+            ->where('receipt_no', $receipt_no)
+            ->get();
+
+        if ($vouchers->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'html' => '<div class="p-3">No vouchers found</div>'
+            ]);
+        }
+
+        $html = view($this->view_file_path . 'voucher-detail-modal', [
+            'vouchers' => $vouchers
+        ])->render();
+
+        return response()->json([
+            'status' => true,
+            'html' => $html
+        ]);
+    }
+
 
    
 }

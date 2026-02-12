@@ -322,7 +322,7 @@
                                     </div>
                                     <div class="col-12 col-md-12">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Days <span class="required-hash">*</span></label>
+                                            <label class="sh_dec font-12">Days <span class="required-hash"></span></label>
 
                                             @php
                                                 $selectedDays = is_array($data->days ?? null)
@@ -344,13 +344,13 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Start Time <span class="required-hash">*</span></label>
+                                            <label class="sh_dec font-12">Start Time <span class="required-hash"></span></label>
                                             <input type="time"  class="form-control" name="start_time" value="{{ isset($data->start_time) ? $data->start_time  : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">End Time <span class="required-hash">*</span></label>
+                                            <label class="sh_dec font-12">End Time <span class="required-hash"></span></label>
                                             <input type="time" class="form-control" name="end_time"  value="{{ isset($data->end_time) ? $data->end_time  : '' }}">
                                         </div>
                                     </div>
@@ -518,11 +518,11 @@
 
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
-                                <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash">*</span></label>
+                                <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
                                 <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
-                                <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash">*</span></label>
+                                <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
                                 <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
@@ -582,6 +582,22 @@
                             </div>
                         </div>
                     </div>
+
+                     <div class="row align-items-center mb-3">
+                        <label class="col-md-4 fw-bold">Is Featured</label>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="is_featured"
+                                    value="1"
+                                    {{ isset($data) && $data->is_featured == 1 ? 'checked' : '' }}
+                                >
+                            </div>
+                        </div>
+                    </div>
+
 
 
                     <input type="hidden" name="action" class="action-field" value="">

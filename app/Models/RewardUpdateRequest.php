@@ -74,7 +74,10 @@ class RewardUpdateRequest extends Model
         'suspend_voucher',
         'purchased_qty',
         'status',
-        'added_by'
+        'added_by',
+        'is_featured',
+        'hide_catalogue',
+        'hide_cat_time'
         
     
     ];
@@ -86,7 +89,6 @@ class RewardUpdateRequest extends Model
         'publish_start_date' => 'date',
         'publish_end_date'   => 'date',  
         'days' => 'array',    
-
     ];
 
     public function requester()
@@ -94,4 +96,56 @@ class RewardUpdateRequest extends Model
         return $this->belongsTo(User::class, 'request_by');
     }
 
+    public function reward()
+    {
+        return $this->belongsTo(Reward::class);
+    }
+
+    public function tierRates()
+    {
+        return $this->hasMany(
+            RewardTierRate::class,
+            'reward_id',   // FK in reward_tier_rates
+            'reward_id'    // local key in reward_update_requests
+        );
+    }
+   
+
+    public function participatingLocations()
+    {
+        return $this->hasMany(
+            ParticipatingLocations::class,
+            'reward_id',
+            'reward_id'
+        );
+    }
+
+    public function locations()
+    {
+        $locationIds = $this->location_ids;
+        if (empty($locationIds)) {
+            return collect([]);
+        }
+        return Location::whereIn('id', $locationIds)->get();
+    }
+    public function rewardLocations()
+    {
+        return $this->hasMany(
+            RewardLocationUpdate::class,
+            'reward_id',
+            'reward_id'
+        );
+    }
+
+
+    public function rewardDates()
+    {
+        return $this->hasMany(\App\Models\RewardDates::class);
+    }
+   public function customLocation()
+    {
+        return $this->belongsTo(CustomLocation::class, 'location_text', 'id');
+    }
+
+   
 }

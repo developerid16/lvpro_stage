@@ -38,6 +38,7 @@
                     <th data-field="authorized_amount">Authorized Amount</th>
                     <th data-field="status">Status</th>
                     <th data-field="created_at">Created On</th>
+                    <th data-field="action">Action</th>
                 </tr>
                 </thead>
             </table>
@@ -62,6 +63,23 @@
         $.get(DataTableUrl + '?' + $.param(params.data))
             .then(res => params.success(res));
     }
+
+
+    $(document).on("click", ".view_vouchers", function() {
+
+        var receipt_no = $(this).data('receipt');
+
+        $.ajax({
+            url: ModuleBaseUrl +  receipt_no + '/vouchers',
+            type: 'GET',
+            success: function(response) {
+                if (response.status) {
+                    $("body").append(response.html);
+                    $("#VoucherDetailModal").modal('show');
+                }
+            }
+        });
+    });
 
 </script>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -71,7 +72,7 @@ class VoucherListController extends Controller
                     type="checkbox"
                     data-id="'.$row->id.'"
                     '.($row->suspend_voucher ? 'checked' : '').'
-                    title="Suspend">
+                    title="Suspend Deal">
             </div>';
         }
 
@@ -87,7 +88,6 @@ class VoucherListController extends Controller
         }
 
         $action .= '</div>';
-
         
             $final_data[] = [
                 'sr_no'       => $key + 1,
@@ -118,6 +118,7 @@ class VoucherListController extends Controller
     public function destroy($id)
     {
         // Reward::where('id', $id)->delete();
+        AdminLogger::log('delete', Reward::class, $id);
 
         return response()->json([
             'status' => true,

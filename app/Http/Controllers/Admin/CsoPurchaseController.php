@@ -29,7 +29,7 @@ class CsoPurchaseController extends Controller
 
     public function index(Request $request)
     {
-        $query = Reward::where('type','0')->withTrashed(); 
+        $query = Reward::where('type','0')->where('is_draft', 0)->where('hide_catalogue',0)->withTrashed(); 
 
         // IMPORTANT: allow 0
         if ($request->filled('reward_type')) {

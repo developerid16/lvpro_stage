@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -161,6 +162,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         Category::where('id', $id)->delete();
+        AdminLogger::log('delete', Category::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Category Deleted Successfully']);
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Mail\NewAdminRegister;
 use App\Models\ParticipatingLocations;
+use App\Models\ParticipatingMerchantLocation;
 use App\Models\Reward;
 use App\Models\RewardLocation;
 use App\Models\RewardLocationUpdate;
@@ -144,6 +145,13 @@ class RewardUpdateRequestController extends Controller
             // ---------------- ACTIONS ----------------
             $action = "<div class='d-flex gap-2 justify-content-center'>";
 
+            $action .= "<a href='javascript:void(0)'
+                class='view_btn'
+                data-id='{$row->id}'
+                title='View'>
+                <i class='mdi mdi-eye text-primary font-size-18'></i>
+            </a>";
+
             if ($row->status === 'pending') {
 
                 $action .= "<a href='javascript:void(0)' 
@@ -159,9 +167,11 @@ class RewardUpdateRequestController extends Controller
                     title='Reject'>
                     <i class='mdi mdi-close-circle text-danger font-size-18'></i>
                 </a>";
-            } else {
-                $action .= "<span class='text-muted'>—</span>";
-            }
+                
+                } else {
+                    $action .= "<span class='text-muted'>—</span>";
+                }
+              
 
             $final_data[$i]['action'] = $action . "</div>";
 
@@ -209,9 +219,72 @@ class RewardUpdateRequestController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        abort(404);
+        $data = RewardUpdateRequest::with([
+            'requester',
+            'reward',
+            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name'
+        ])->findOrFail($id);
+
+        $data['locations'] = RewardLocationUpdate::with('location:id,name')
+            ->where('reward_id', $data->reward_id)
+            ->get()
+            ->map(function ($loc) {
+                return [
+                    'id'            => $loc->location?->id,
+                    'name'          => $loc->location?->name,
+                    'inventory_qty' => $loc->inventory_qty,
+                    'total_qty'     => $loc->total_qty,
+                ];
+            });
+
+        if ($data['locations']->isEmpty()) {
+
+            $data['locations'] = RewardLocation::with('location:id,name')
+                ->where('reward_id', $data->reward_id)
+                ->get()
+                ->map(function ($loc) {
+                    return [
+                        'id'            => $loc->location?->id,
+                        'name'          => $loc->location?->name,
+                        'inventory_qty' => $loc->inventory_qty,
+                        'total_qty'     => $loc->total_qty,
+                    ];
+                });
+        }
+
+            
+        $pendingLocations = RewardParticipatingMerchantLocationUpdate::where('reward_id', $data->reward_id)->get();
+
+        if ($pendingLocations->isNotEmpty()) {
+
+            $data['merchant_locations'] = ParticipatingMerchantLocation::whereIn( 'id', $pendingLocations->pluck('location_id'))
+            ->select('id', 'name')->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
+
+        } else {
+            $pendingLocations = ParticipatingLocations::where('reward_id', $data->reward_id)->get();
+            $data['merchant_locations'] = ParticipatingMerchantLocation::whereIn( 'id', $pendingLocations->pluck('location_id') )
+            ->select('id', 'name')->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
+        }
+
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
     }
 
     /**
@@ -261,10 +334,8 @@ class RewardUpdateRequestController extends Controller
             $reward = Reward::findOrFail($update->reward_id);
             $type = (int) $update->type; // 0  = treat&deals, 1 = eVoucher, 2 = Birthday
 
-            // ===============================
-            // TYPE 1 → eVoucher
-            // ===============================
-            if ($type == '1') {
+          
+            if ($type == '1') {//evocuher
 
                 $reward->update([
                     'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
@@ -279,31 +350,31 @@ class RewardUpdateRequestController extends Controller
                     'reward_type'          => $update->reward_type,
                     'type'                 => 1,
 
-                    'max_quantity'         => $update->max_quantity,
                     'direct_utilization'   => $update->direct_utilization,
-
+                    
                     'publish_start_date'   => $update->publish_start_date,
                     'publish_start_time'   => $update->publish_start_time,
                     'publish_end_date'     => $update->publish_end_date,
                     'publish_end_time'     => $update->publish_end_time,
-
+                    
                     'sales_start_date'     => $update->sales_start_date,
                     'sales_start_time'     => $update->sales_start_time,
                     'sales_end_date'       => $update->sales_end_date,
                     'sales_end_time'       => $update->sales_end_time,
-
+                    
                     'voucher_validity'     => $update->voucher_validity,
-                    'category_id'          => $update->category_id,
                     'friendly_url'         => $update->friendly_url,
+                    
+                    'max_quantity'    => (int) ($update->max_quantity ?? 0),
+                    'category_id'     => (int) ($update->category_id ?? 0),
+                    'inventory_type'  => (int) ($update->inventory_type ?? 0),
+                    'inventory_qty'   => $update->inventory_qty !== null ? (int)$update->inventory_qty : 0,
+                    'voucher_value'   => (float) ($update->voucher_value ?? 0),
+                    'voucher_set'     => (int) ($update->voucher_set ?? 0),
+                    'set_qty'         => (int) ($update->set_qty ?? 0),
+                    'clearing_method' => (int) ($update->clearing_method ?? 0),
 
-                    'inventory_type'       => $update->inventory_type,
-                    'inventory_qty'        => $update->inventory_qty,
 
-                    'voucher_value'        => $update->voucher_value,
-                    'voucher_set'          => $update->voucher_set,
-                    'set_qty'              => $update->set_qty,
-
-                    'clearing_method'      => $update->clearing_method,
                     'location_text'        => $update->location_text,
                     'participating_merchant_id' => $update->participating_merchant_id,
 
@@ -314,20 +385,21 @@ class RewardUpdateRequestController extends Controller
                     'suspend_deal'         => $update->suspend_deal,
                     'suspend_voucher'      => $update->suspend_voucher,
                     'csvFile'               => $update->csvFile,
-
-                    'is_draft'             => 0,   // 🔑 important
+                    'is_featured' =>        $update->is_featured,
+                    'is_draft'             => 0,
                 ]);
                 $update->update([
                     'status' => 'approved',
                 ]);
 
 
-            }else if($type == '2'){
+            }else if($type == '2'){//birthday
 
                 $reward->update([
                     'from_month' => $update->from_month,
                     'to_month' => $update->to_month,
-                    'voucher_image' => $update->voucher_image,
+                    'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
+                    'voucher_detail_img'   => $update->voucher_detail_img ?? $reward->voucher_detail_img,
                     'name' => $update->name,
                     'description' => $update->description,
                     'term_of_use' => $update->term_of_use,
@@ -335,12 +407,12 @@ class RewardUpdateRequestController extends Controller
                     'merchant_id' => $update->merchant_id,
                     'reward_type' => $update->reward_type,
                     'voucher_validity' => $update->voucher_validity,
-                    'club_location' => $update->club_location,
-                    'inventory_type' => $update->inventory_type,
-                    'inventory_qty' => $update->inventory_qty,
-                    'voucher_value' => $update->voucher_value,
-                    'voucher_set' => $update->voucher_set,
-                    'clearing_method' => $update->clearing_method,
+                    'inventory_type'  => (int) ($update->inventory_type ?? 0),
+                    'inventory_qty'   => $update->inventory_qty !== null ? (int)$update->inventory_qty : 0,
+                    'voucher_value'   => (float) ($update->voucher_value ?? 0),
+                    'voucher_set'     => (int) ($update->voucher_set ?? 0),
+                    'set_qty'         => (int) ($update->set_qty ?? 0),
+                    'clearing_method' => (int) ($update->clearing_method ?? 0),
                     'location_text' => $update->location_text,
                     'participating_merchant_id' => $update->participating_merchant_id,
                     'hide_quantity' => $update->hide_quantity,
@@ -351,8 +423,8 @@ class RewardUpdateRequestController extends Controller
                 $update->update([
                     'status' => 'approved',
                 ]);
-               
-            }else if($type == '0'){
+                
+            }else if($type == '0'){//treat&deals
                 
                 $reward->update([
                     'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
@@ -364,8 +436,6 @@ class RewardUpdateRequestController extends Controller
                     'merchant_id'          => $update->merchant_id,
                     'reward_type'          => $update->reward_type,
                     'type'                 => 0,
-                    'usual_price'         => $update->usual_price,
-                    'max_quantity'         => $update->max_quantity,
                     'direct_utilization'   => $update->direct_utilization,
                     'publish_start_date'   => $update->publish_start_date,
                     'publish_start_time'   => $update->publish_start_time,
@@ -376,18 +446,23 @@ class RewardUpdateRequestController extends Controller
                     'sales_end_date'       => $update->sales_end_date,
                     'sales_end_time'       => $update->sales_end_time,
                     'voucher_validity'     => $update->voucher_validity,
-                    'category_id'          => $update->category_id,
-                    'friendly_url'         => $update->friendly_url,
-                    'club_classification_id' => $update->club_classification_id,
-                    'fabs_category_id'       => $update->fabs_category_id,
-                    'smc_classification_id'  => $update->smc_classification_id,
-                    'ax_item_code'           => $update->ax_item_code,
-                    'inventory_type'       => $update->inventory_type,
-                    'inventory_qty'        => $update->inventory_qty,
-                    'voucher_value'        => $update->voucher_value,
-                    'voucher_set'          => $update->voucher_set,
-                    'set_qty'              => $update->set_qty,
-                    'clearing_method'      => $update->clearing_method,
+                    
+                    'friendly_url'         => (int) ($update->friendly_url),
+                    'club_classification_id' => (int) ($update->club_classification_id),
+                    'fabs_category_id'       => (int) ($update->fabs_category_id),
+                    'smc_classification_id'  => (int) ($update->smc_classification_id),
+                    'ax_item_code'           => (int) ($update->ax_item_code),
+                    'usual_price'         => (int) ($update->usual_price),
+                    
+                    'max_quantity'    => (int) ($update->max_quantity ?? 0),
+                    'category_id'     => (int) ($update->category_id ?? 0),
+                    'inventory_type'  => (int) ($update->inventory_type ?? 0),
+                    'inventory_qty'   => $update->inventory_qty !== null ? (int)$update->inventory_qty : 0,
+                    'voucher_value'   => (float) ($update->voucher_value ?? 0),
+                    'voucher_set'     => (int) ($update->voucher_set ?? 0),
+                    'set_qty'         => (int) ($update->set_qty ?? 0),
+                    'clearing_method' => (int) ($update->clearing_method ?? 0),
+
                     'location_text'        => $update->location_text,
                     'participating_merchant_id' => $update->participating_merchant_id,
                     'hide_quantity'        => $update->hide_quantity,
@@ -395,6 +470,7 @@ class RewardUpdateRequestController extends Controller
                     'low_stock_2'          => $update->low_stock_2,
                     'suspend_deal'         => $update->suspend_deal,
                     'suspend_voucher'      => $update->suspend_voucher,
+                    'is_featured' =>        $update->is_featured,
                     'publish_independent'    => $update->publish_independent ?? 0,
                     'publish_inhouse'        => $update->publish_inhouse ?? 0,
                     'send_reminder'          => $update->send_reminder ?? 0,        
@@ -408,7 +484,7 @@ class RewardUpdateRequestController extends Controller
 
                     // Delete old rows
                     $pendingLocations = RewardLocationUpdate::where('reward_id', $reward->id)->get();
-                  
+                    
 
                     RewardLocation::where('reward_id', $reward->id)->delete();
 
@@ -459,12 +535,47 @@ class RewardUpdateRequestController extends Controller
                     'reward_id',
                     $reward->id
                 )->delete();
+            }        
+
+            if($reward->is_draft != 1){
+                $update->update([
+                    'status' => 'approved',
+                ]);
+                $reward->update([
+                    'is_draft' => 0,
+                ]);    
+            }   
+            
+            if ($reward->hide_catalogue == 1) {
+
+                if (!$reward->hide_cat_time) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Hide time not found'
+                    ], 400);
+                }
+
+                $allowTime = Carbon::parse($reward->hide_cat_time)->addMinutes(60);
+
+                if (now()->lt($allowTime)) {
+
+                    $remainingMinutes = now()->diffInMinutes($allowTime);
+
+                    // return response()->json([
+                    //     'status'  => false,
+                    //     'message' => "You can update inventory after {$remainingMinutes} minutes"
+                    // ], 400);
+                }else{
+                    // After 60 minutes → allow update and reset hide
+                    $reward->update([
+                        'hide_catalogue' => 0,
+                        'hide_cat_time'  => null
+                    ]);
+                }
+
             }
 
-           
-
             DB::commit();
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Reward updated successfully',

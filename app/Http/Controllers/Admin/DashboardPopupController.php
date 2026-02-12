@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use App\Models\DashboardPopup;
 
 use Illuminate\Http\Request;
@@ -241,6 +242,7 @@ class DashboardPopupController extends Controller
     public function destroy(string $id)
     {
         DashboardPopup::where('id', $id)->delete();
+        AdminLogger::log('delete', DashboardPopup::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
     }
 

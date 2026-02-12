@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchant;
@@ -69,9 +70,10 @@ class MerchantController extends Controller
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             }
-            $action .= "<a href='" . url('admin/merchant/' . $row->id . '/club-location') . "'  class=''>
-                <i class='mdi mdi-map-marker-multiple text-primary action-icon font-size-18'></i>
-            </a>
+            // <a href='" . url('admin/merchant/' . $row->id . '/club-location') . "'  class=''>
+            //     <i class='mdi mdi-map-marker-multiple text-primary action-icon font-size-18'></i>
+            // </a>
+            $action .= "
             <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
                 <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
             </a>";
@@ -260,6 +262,7 @@ class MerchantController extends Controller
     public function destroy($id)
     {
         Merchant::where('id', $id)->delete();
+        AdminLogger::log('delete', Merchant::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Merchant Deleted Successfully']);
     }
 
