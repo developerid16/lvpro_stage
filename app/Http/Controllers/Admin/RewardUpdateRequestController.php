@@ -483,10 +483,10 @@ class RewardUpdateRequestController extends Controller
                 if ($reward->reward_type == '1') {
 
                     // Delete old rows
+                    RewardLocation::where('reward_id', $reward->id)->delete();
                     $pendingLocations = RewardLocationUpdate::where('reward_id', $reward->id)->get();
                     
 
-                    RewardLocation::where('reward_id', $reward->id)->delete();
 
                     foreach ($pendingLocations as $loc) {
                         RewardLocation::create([                           

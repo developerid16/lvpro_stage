@@ -947,5 +947,30 @@ class BdayEvoucherController extends Controller
             'status' => 'success',
             'data' => $locations
         ]);
-    }   
+    }
+    
+    public function getMerchantLocationsWithOutlets()
+    {
+        $clubLocations = ClubLocation::where('status', 'Active')->select('id', 'name')->get();
+
+        $result = [];
+
+        foreach ($clubLocations as $club) {
+
+            $merchantLocations = ParticipatingMerchantLocation::where('club_location_id', $club->id)->select('id', 'name')->get();
+
+            if ($merchantLocations->count() > 0) {
+                $result[] = [
+                    'club_id' => $club->id,
+                    'club_name' => $club->name,
+                    'merchant_locations' => $merchantLocations
+                ];
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $result
+        ]);
+    }
 }

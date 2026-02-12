@@ -901,7 +901,7 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * 9) SAVE LOCATION DATA (PHYSICAL ONLY)
             * ---------------------------------------------------*/
-            if ($request->reward_type == 1 && $request->has('locations')) {
+            if ($request->reward_type == '1' && $request->has('locations')) {
 
                 foreach ($request->locations as $locId => $locData) {
 
@@ -911,6 +911,14 @@ class RewardController extends Controller
                     }
 
                     RewardLocation::create([
+                        'reward_id'     => $reward->id,
+                        'merchant_id'   => $validated['merchant_id'],
+                        'location_id'   => $locId,
+                        'is_selected'   => 1,  // always 1 since only selected stored
+                        'inventory_qty' => $locData['inventory_qty'] ?? 0,
+                        'total_qty' => $locData['inventory_qty'] ?? 0,
+                    ]);
+                    RewardLocationUpdate::create([
                         'reward_id'     => $reward->id,
                         'merchant_id'   => $validated['merchant_id'],
                         'location_id'   => $locId,
@@ -943,6 +951,12 @@ class RewardController extends Controller
                         }
 
                         ParticipatingLocations::create([
+                            'reward_id'                 => $reward->id,
+                            'participating_merchant_id' => $merchantId, // ✅ single ID
+                            'location_id'               => $locId,
+                            'is_selected'               => 1,
+                        ]);
+                        RewardParticipatingMerchantLocationUpdate::create([
                             'reward_id'                 => $reward->id,
                             'participating_merchant_id' => $merchantId, // ✅ single ID
                             'location_id'               => $locId,
@@ -1745,7 +1759,7 @@ class RewardController extends Controller
                 /* ---------------------------------------------------
                 * 7) UPDATE LOCATION DATA
                 * ---------------------------------------------------*/
-                if ($request->reward_type == 1) {
+                if ($request->reward_type == '1') {
 
                     // Delete old rows
                     RewardLocationUpdate::where('reward_id', $reward->id)->delete();

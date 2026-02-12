@@ -2,11 +2,7 @@
     $data = $data ?? null;
     $selectedLocation = $data->club_location ?? ''; // value from DB
 @endphp
-<script>
-    $(document).on("change", "#merchant_id", function () {
-        let merchantId = $(this).val();
-        loadClubLocations(merchantId);
-    });
+<script>   
 
     $(document).on("change", ".voucher_image", function (e) {
 
@@ -30,7 +26,6 @@
         reader.readAsDataURL(file);
     });
 
-
     $(document).on('click', '#clear_voucher_image', function () {
 
         const modal = $(this).closest('.modal'); // auto-detect modal
@@ -52,14 +47,12 @@
         }
     });
 
-     $(document).on('click', '#EditModal #removeCsvFile', function () {
+    $(document).on('click', '#EditModal #removeCsvFile', function () {
         $('#EditModal #csvFile').val('');
         $('#EditModal #uploadedFileLink').text('').attr('href', 'javascript:void(0)');
         $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
     });
-    
-    
-    
+        
     $(document).on('shown.bs.modal', '#EditModal', function () {
         initTinyMCE();
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -90,11 +83,11 @@
         }
 
         // merchant selected later
-        modal.find("#participating_merchant_id").on("change", function () {
+        // modal.find("#participating_merchant_id").on("change", function () {
 
-            const merchantId = $(this).val();
-            loadParticipatingMerchantLocations(modal, merchantId);
-        }); 
+        //     const merchantId = $(this).val();
+        //     loadParticipatingMerchantLocations(modal, merchantId);
+        // }); 
 
         
         const $fileInput = $('#EditModal #csvFile');
@@ -172,9 +165,6 @@
         editToggleInventoryFields(modal);
     });
 
-    
-
-   
     function loadClubLocations(merchantId, selectedLocation = null) {
 
         let locationDropdown = $(".club_location");
@@ -440,7 +430,9 @@
                             </div>
                         </div>
                     </div>
-                   <div class="row mt-3" id="participating_section" style="display:none;">
+                    <div id="location_with_outlet"></div>
+
+                    <div class="row mt-3" id="participating_section" style="display:none;">
                         <div id="selected_locations_hidden"></div>
                         <!-- LEFT: Locations -->
                         <div class="col-md-7">

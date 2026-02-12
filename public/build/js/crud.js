@@ -86,10 +86,10 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                // if (response && response.savedLocations && response.savedLocations.length > 0) {
-                      window.savedLocations = response.savedLocations || {};
+                let selectedIds = response.participatingLocations.map(l => l.id);
+                loadParticipatingMerchantLocations($("#EditModal"), selectedIds);
+                window.savedLocations = response.savedLocations || {};
 
-                // }
                 if (response && response.participatingLocations && response.participatingLocations.length > 0){
                     participatingLocations = response.participatingLocations;
                 }

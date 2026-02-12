@@ -841,8 +841,7 @@
                 "alignleft aligncenter alignright alignjustify | " +
                 "bullist numlist outdent indent | link image | code"
         });
-    }
-    
+    }    
     
     function initEditor() {
         if (typeof tinymce === 'undefined') return;
@@ -918,6 +917,76 @@
     
     
     }
+
+
+    function loadParticipatingMerchantLocations(modal, selectedIds = []) {
+
+        modal = $(modal);
+
+        $.ajax({
+            url: ModuleBaseUrl + "get-club-locations-with-outlets",
+            type: "GET",
+            success: function (res) {
+
+                let container = modal.find("#location_with_outlet");
+                modal.find("#location_with_outlet").show();
+
+                container.empty();
+
+                if (res.status !== 'success' || !res.data || !res.data.length) {
+                    container.html('<p>No locations found</p>');
+                    return;
+                }
+
+                res.data.forEach(function (club) {
+
+                    let collapseId = "clubCollapse" + club.club_id;
+
+                    let html = `
+                        <div class="card mb-2">
+                            <div class="card-header p-2">
+                                <a class="fw-bold text-dark"
+                                data-bs-toggle="collapse"
+                                href="#${collapseId}">
+                                ${club.club_name}
+                                </a>
+                            </div>
+
+                            <div class="collapse show" id="${collapseId}">
+                                <div class="card-body p-2">
+                    `;
+
+                    club.merchant_locations.forEach(function (loc) {
+
+                        let checked = selectedIds.includes(loc.id) ? 'checked' : '';
+
+                        html += `
+                            <div class="form-check">
+                                <input class="form-check-input outlet-checkbox"
+                                    type="checkbox"
+                                    name="participating_locations[]"
+                                    value="${loc.id}"
+                                    ${checked}
+                                    id="loc_${loc.id}">
+                                <label class="form-check-label" for="loc_${loc.id}">
+                                    ${loc.name}
+                                </label>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.append(html);
+                });
+            }
+        });
+    }
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
