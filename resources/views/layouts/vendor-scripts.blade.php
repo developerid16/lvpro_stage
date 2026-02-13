@@ -919,19 +919,19 @@
     }
 
 
-    function loadParticipatingMerchantLocations(modal, selectedIds = []) {
-
+    function loadParticipatingMerchantLocations(modal, selectedIds = [], merchantId = null) {
         modal = $(modal);
+
+        if (!merchantId) return;
 
         $.ajax({
             url: ModuleBaseUrl + "get-club-locations-with-outlets",
             type: "GET",
+            data: { merchant_id: merchantId },  // 🔥 send merchant
             success: function (res) {
 
                 let container = modal.find("#location_with_outlet");
-                modal.find("#location_with_outlet").show();
-
-                container.empty();
+                container.show().empty();
 
                 if (res.status !== 'success' || !res.data || !res.data.length) {
                     container.html('<p>No locations found</p>');
@@ -952,7 +952,7 @@
                                 </a>
                             </div>
 
-                            <div class="collapse show" id="${collapseId}">
+                            <div class="collapse" id="${collapseId}">
                                 <div class="card-body p-2">
                     `;
 

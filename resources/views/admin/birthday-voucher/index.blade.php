@@ -204,9 +204,22 @@
           
     </script>
     <script>
+        $(document).on('change', '#participating_merchant_id', function () {
+
+            let modal = $(this).closest('.modal');
+            let merchantId = $(this).val();
+
+            if (!merchantId) {
+                modal.find("#location_with_outlet").hide().empty();
+                return;
+            }
+
+            loadParticipatingMerchantLocations(modal, [], merchantId);
+        });
+
         $(document).on('shown.bs.modal', '#AddModal', function () {
             initEditor();
-             loadParticipatingMerchantLocations($(this), []);
+            
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $(".where_use").hide();
