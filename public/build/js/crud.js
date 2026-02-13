@@ -35,44 +35,57 @@ $(document).ready(function () {
             }
         });
     });
-
     
     $(document).off("submit", "#add_frm").on("submit", "#add_frm", function (e) {
-      e.preventDefault();
+        e.preventDefault();
 
-      let $form = $(this);
-      if ($form.data('submitting')) return;
-      $form.data('submitting', true);
+        let $form = $(this);
+        if ($form.data('submitting')) return;
+        $form.data('submitting', true);
 
-      let form_data = new FormData(this);
+        let form_data = new FormData(this);
 
-      $.ajax({
-          url: ModuleBaseUrl.slice(0, -1),
-          headers: { 'X-CSRF-Token': csrf },
-          type: "POST",
-          data: form_data,
-          processData: false,
-          contentType: false,
+        $.ajax({
+            url: ModuleBaseUrl.slice(0, -1),
+            headers: { 'X-CSRF-Token': csrf },
+            type: "POST",
+            data: form_data,
+            processData: false,
+            contentType: false,
 
-          success: function (response) {
-              $form.data('submitting', false);
-              if (response.status === 'success') {
-                  show_message(response.status, response.message);
-                  $("#AddModal").modal('hide');
-                  $form[0].reset();
-                  refresh_datatable("#bstable");
-                  $("#add_frm .select2").val('').trigger('change');
-              } else {
-                  show_message(response.status, response.message);
-              }
-              remove_errors();
-          },
+            success: function (response) {
+                $form.data('submitting', false);
+                if (response.status === 'success') {
+                    show_message(response.status, response.message);
+                    $("#AddModal").modal('hide');
+                    $form[0].reset();
+                    refresh_datatable("#bstable");
+                    $("#add_frm .select2").val('').trigger('change');
+                } else {
+                    show_message(response.status, response.message);
+                }
+                remove_errors();
+            },
 
-          error: function (response) {
-              $form.data('submitting', false);
-              show_errors(response.responseJSON?.errors || {});
-          }
-      });
+            error: function (response) {
+
+                $form.data('submitting', false);
+
+                let errors = response.responseJSON?.errors || {};
+
+                // 🔥 Handle section-level error first
+                if (errors.locations) {
+                    $('.club-location-error').text(errors.locations[0]);
+
+                    // remove it so show_errors does not render it again
+                    delete errors.locations;
+                }
+
+                // Now show normal field errors
+                show_errors(errors);
+            }
+
+        });
     });
 
     $(document).on("click", ".edit", function (e) {
@@ -86,38 +99,72 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
-                if (response && response.participatingLocations && response.participatingLocations.length > 0){
-                    
+                // $("#EditModal").remove();
+                $("body").append(response.html);
+
+                let modal = $("#EditModal");
+
+                if (response && response.participatingLocations && response.participatingLocations.length > 0){                   
+                   
                     let selectedIds = response.participatingLocations.map(l => l.id);
-                    loadParticipatingMerchantLocations($("#EditModal"), selectedIds);
+    
+                    let modal = $('#EditModal');
+    
+                    selectedIds.forEach(function (id) {
+    
+                        let checkbox = modal.find(
+                            'input[name="participating_locations[]"][value="'+id+'"]'
+                        );
+    
+                        checkbox.prop('checked', true);
+                    });
                 }
+
+                window.selectedOutletMap = response.selectedOutlets || {};
+
+                if (response.clubInventory) {
+
+                    Object.keys(response.clubInventory).forEach(function (clubId) {
+
+                        let qty = response.clubInventory[clubId];
+
+                        $('#EditModal')
+                            .find('input[name="locations[' + clubId + '][inventory_qty]"]')
+                            .val(qty);
+                    });
+                }
+              
                 window.savedLocations = response.savedLocations || {};
                 
-                $("body").append(response.html);
-                $("#EditModal .select2").select2({
-                    dropdownParent: $("#EditModal .modal-content")
-                });
-                $("#EditModal .select-multiple").chosen({
-                });
-              
+                if (modal.find(".select2").length) {
+                    modal.find(".select2").select2({
+                        dropdownParent: modal.find(".modal-content")
+                    });
+                }
 
-                var input = document.querySelector('#EditModal .select2-tags')
-                var tagify = new Tagify(input, {
-                    dropdown: {
-                        enabled: 0,
-                          delimiters: ","
-                    },
-                 })
+                if (modal.find(".select-multiple").length) {
+                    modal.find(".select-multiple").chosen();
+                }
 
                 // tagify.addTags(["a", "b"])
+                let input = modal.find('.select2-tags')[0];
+                if (input) {
+                    new Tagify(input, {
+                        dropdown: {
+                            enabled: 0,
+                            delimiters: ","
+                        }
+                    });
+                }
 
-                if ($(".datetimepicker").length > 0) {
-                    $(".datetimepicker").flatpickr({
+                if (modal.find(".datetimepicker").length) {
+                    modal.find(".datetimepicker").flatpickr({
                         enableTime: true,
                         minDate: "today",
                         dateFormat: "Y-m-d H:i",
                     });
                 }
+
                 if ($("textarea.elm1").length > 0) {
 
                     tinymce.remove(); // Remove previous instances
@@ -145,7 +192,6 @@ $(document).ready(function () {
                             { title: 'Table row 1', selector: 'tr', classes: 'tablerow1' }
                         ]
                     });
-                    console.log('tinymce', tinymce);
                 }
 
                 $("#EditModal").modal('show');
@@ -185,8 +231,7 @@ $(document).ready(function () {
                 show_errors(response.responseJSON.errors, "#edit_frm");
             }
         });
-    });
-   
+    });   
 
     $(document).on("click", ".delete_btn", function (e) {
         var id = $(this).data('id');

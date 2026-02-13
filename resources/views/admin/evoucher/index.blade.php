@@ -494,47 +494,48 @@
         });
 
        
-        $(document).on('shown.bs.modal','#EditModal', function () {
-            const $modal = $(this);
+        // $(document).on('shown.bs.modal','#EditModal', function () {
+        //     const $modal = $(this);
 
-            function togglePhysicalSectionInModal() {
-                const val = $modal.find('.reward_type').val();
-                if (val === undefined) return;
-                $modal.find('#physical').toggle(val == "1");
-            }
+        //     function togglePhysicalSectionInModal() {
+        //         const val = $modal.find('.reward_type').val();
+        //         if (val === undefined) return;
+        //         $modal.find('#physical').toggle(val == "1");
+        //     }
 
-            // bind change (scoped to this modal)
-            $modal.find('.reward_type').off('change.togglePhysical').on('change.togglePhysical', togglePhysicalSectionInModal);
+        //     // bind change (scoped to this modal)
+        //     $modal.find('.reward_type').off('change.togglePhysical').on('change.togglePhysical', togglePhysicalSectionInModal);
 
-            // initial toggle for edit mode
-            togglePhysicalSectionInModal();
-        });
+        //     // initial toggle for edit mode
+        //     togglePhysicalSectionInModal();
+        // });
 
         $(document).on("change", ".inventory_type", function () {
             let modal = $(this).closest(".modal");
             toggleInventoryFields(modal);
         });
 
-        $(document).on("change", ".clearing_method", function () {
+         $(document).on("change", ".clearing_method", function () {
             let modal = $(this).closest(".modal");
             toggleClearingFields(modal);
         });
 
         $(document).on('change', '#AddModal #participating_merchant_id', function () {
 
-            const modal      = $(this).closest('.modal');   // ✅ modal context
-            const merchantIds = $(this).val();               // array or null
+            const modal = $(this).closest('.modal');
+            let merchantIds = $(this).val();
 
-            if (merchantIds && merchantIds.length > 0) {
-                modal.find("#participating_section").show();
-                modal.find("#participating_merchant_location").show();
-
-                loadParticipatingMerchantLocations(modal,merchantIds);
-            } else {
-                // only hide LEFT section, NOT selected summary
+            if (!merchantIds || merchantIds.length === 0) {
                 modal.find("#participating_merchant_location").empty();
                 modal.find("#participating_section").hide();
+                return;
             }
+
+            if (!Array.isArray(merchantIds)) {
+                merchantIds = [merchantIds];
+            }
+
+            loadParticipatingMerchantLocations(modal, merchantIds);
         });
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
@@ -726,7 +727,7 @@
             modal.find("#participating_merchant_location").empty();
             modal.find(".file").hide();
             modal.find(".inventory_qty").hide();
-
+            modal.find('.club-location-error').text('');
             // -------------------------------
             // 🔥 RESET SELECTED OUTLETS STATE
             // -------------------------------
@@ -845,5 +846,6 @@
                 $('#set_qty').val('');
             }
         }
+
     </script>
 @endsection

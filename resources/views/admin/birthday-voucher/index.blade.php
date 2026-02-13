@@ -12,7 +12,7 @@
             {{ url('/') }}
         @endslot
         @slot('title')
-            {{ $type === 'campaign-voucher' ? 'Campaign Voucher Management' : 'Birthday Voucher Management' }}
+            Birthday Voucher Management
         @endslot
     @endcomponent
 
@@ -67,7 +67,7 @@
 @section('script')
 
     <script>
-        let participatingLocations = {};
+        window.selectedOutletMap = {}; 
 
         document.getElementById('csvFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -110,12 +110,10 @@
     </script>
     <script>
         var ModuleBaseUrl = "{{ $module_base_url }}/";
-        var type = "{{ $type }}";
         var DataTableUrl = ModuleBaseUrl + "datatable";
         var digitalMerChants = [];
 
         function ajaxRequest(params) {
-            params.data.type = type
             $.get(DataTableUrl + '?' + $.param(params.data)).then(function(res) {
                 $('.fixed-table-body .fixed-table-loading').removeClass('open');
                 params.success(res)
@@ -193,8 +191,6 @@
             if (merchantIds && merchantIds.length > 0) {
                 modal.find("#participating_section").show();
                 modal.find("#participating_merchant_location").show();
-
-                // loadParticipatingMerchantLocations(modal);
             } else {
                 // only hide LEFT section, NOT selected summary
                 modal.find("#participating_merchant_location").empty();
@@ -204,18 +200,27 @@
           
     </script>
     <script>
-        $(document).on('change', '#participating_merchant_id', function () {
+       
 
-            let modal = $(this).closest('.modal');
-            let merchantId = $(this).val();
+        $(document).on('change', '#AddModal #participating_merchant_id', function () {
 
-            if (!merchantId) {
-                modal.find("#location_with_outlet").hide().empty();
-                return;
+            $('.club-location-error').text('');
+            const modal      = $(this).closest('.modal');   // ✅ modal context
+            const merchantIds = $(this).val();               // array or null
+
+            if (merchantIds && merchantIds.length > 0) {
+                modal.find("#participating_section").show();
+                modal.find("#participating_merchant_location").show();
+
+                loadParticipatingMerchantLocationsBday(modal,merchantIds);
+            } else {
+                // only hide LEFT section, NOT selected summary
+                modal.find("#participating_merchant_location").empty();
+                modal.find("#participating_section").hide();
             }
-
-            loadParticipatingMerchantLocations(modal, [], merchantId);
         });
+        
+
 
         $(document).on('shown.bs.modal', '#AddModal', function () {
             initEditor();

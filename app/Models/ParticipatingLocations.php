@@ -14,7 +14,8 @@ class ParticipatingLocations extends Model
         'location_id', 
         'participating_merchant_id', 
         'is_selected', 
-        'added_by'
+        'added_by',
+        'club_location_id'
 
     ];
     public $table = 'reward_participating_locations';

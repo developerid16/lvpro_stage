@@ -418,7 +418,7 @@ class EvoucherController extends Controller
                 }
 
                 DB::commit();
-                return response()->json(['status'=>'success','message'=>'Saved as draft successfully']);
+                return response()->json(['status'=>'success','message'=>'Saved As Draft Successfully  And Sent For Approval Successfully']);
                 
             }else{
 
@@ -762,7 +762,7 @@ class EvoucherController extends Controller
             }
 
             DB::commit();
-            return response()->json(['status'=>'success','message'=>'Reward Created Successfully']);
+            return response()->json(['status'=>'success','message'=>'Reward Created Successfully And Sent For Approval Successfully']);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -1040,7 +1040,7 @@ class EvoucherController extends Controller
                 * SUCCESS
                 * ---------------------------------------------------*/
                 DB::commit();
-                return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully']);
+                return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully And Sent For Approval Successfully']);
 
 
             }
@@ -1091,6 +1091,10 @@ class EvoucherController extends Controller
 
             $messages = [
                 'term_of_use.required' => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
             /* --------------------------------------------
@@ -1491,7 +1495,7 @@ class EvoucherController extends Controller
             * SUCCESS
             * ---------------------------------------------------*/
             DB::commit();
-            return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully']);
+            return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully And Sent For Approval Successfully']);
 
         } catch (\Throwable $e) {
 

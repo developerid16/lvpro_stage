@@ -563,7 +563,7 @@ class RewardController extends Controller
 
 
                  DB::commit();
-                return response()->json(['status'=>'success','message'=>'Saved as draft successfully']);
+                return response()->json(['status'=>'success','message'=>'Saved As Draft Successfully And Sent For Approval Successfully']);
             }else{
 
             
@@ -1016,7 +1016,7 @@ class RewardController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Reward Created Successfully'
+                'message' => 'Reward Created Successfully And Sent For Approval Successfully'
             ]);
 
         } catch (\Throwable $e) {
@@ -1994,7 +1994,7 @@ class RewardController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Reward Updated Successfully'
+                'message' => 'Reward Updated Successfully And Sent For Approval Successfully'
             ]);
 
         } catch (\Throwable $e) {

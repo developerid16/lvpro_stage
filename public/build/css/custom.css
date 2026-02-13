@@ -473,3 +473,49 @@ tspan {
     background: #f5f5f5 !important;
     cursor: not-allowed;
 }
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotate {
+    transform: rotate(180deg);
+}
+
+/* Accordion Card */
+#location_with_outlet .card {
+    background: #ffffff !important;
+    border: 1px solid #e5e5e5;
+}
+
+/* Header */
+#location_with_outlet .card-header {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Club Name */
+#location_with_outlet .card-header strong {
+    color: #000000 !important;
+}
+
+/* Collapse Body */
+#location_with_outlet .accordion-body,
+#location_with_outlet .club-body {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Remove blue highlight on focus */
+#location_with_outlet .card-header:focus,
+#location_with_outlet .card-header:active {
+    box-shadow: none !important;
+}
+
+/* Remove default accordion arrow background */
+#location_with_outlet .accordion-button {
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+}

@@ -10,6 +10,8 @@
 
 <script>
     let selectedOutletMap = [];    
+    window.selectedOutletMap = {}; 
+
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -250,85 +252,6 @@
         instance.altInput.removeAttribute('disabled');
     }
 
-   
-
-    // function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
-    //     const startEl = modal.querySelector(startSelector);
-    //     const endEl   = modal.querySelector(endSelector);
-
-    //     if (!startEl || !endEl) return;
-
-    //     if (startEl._flatpickr) startEl._flatpickr.destroy();
-    //     if (endEl._flatpickr) endEl._flatpickr.destroy();
-
-    //     let endPickerInstance = null;
-
-    //     const startPickerInstance = flatpickr(startEl, {
-    //         enableTime: true,
-    //         enableSeconds: true,
-    //         time_24hr: true,
-    //         dateFormat: 'Y-m-d H:i:s',
-    //         altInput: true,
-    //         altFormat: 'Y-m-d H:i:s',
-
-    //         onReady(_, __, instance) {
-    //             instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-
-    //             if (startEl.value) {
-    //                 instance.setDate(startEl.value, true); // 🔑 force date + time
-    //             }
-
-    //             if (instance.selectedDates.length && endPickerInstance) {
-    //                 const startDate = instance.selectedDates[0];
-    //                 safeEnableEndPicker(endPickerInstance, startDate);
-    //             }
-    //         },
-
-    //         onChange(selectedDates) {
-    //             if (!endPickerInstance) return;
-
-    //             if (selectedDates.length) {
-    //                 safeEnableEndPicker(endPickerInstance, selectedDates[0]);
-    //             } else {
-    //                 endPickerInstance.clear();
-    //                 endPickerInstance.set('minDate', null);
-    //                 endPickerInstance.set('clickOpens', false);
-    //                 endPickerInstance.altInput.setAttribute('disabled', true);
-    //             }
-    //         }
-    //     });
-
-    //     endPickerInstance = flatpickr(endEl, {
-    //         enableTime: true,
-    //         enableSeconds: true,
-    //         time_24hr: true,
-    //         dateFormat: 'Y-m-d H:i:s',
-    //         altInput: true,
-    //         altFormat: 'Y-m-d H:i:s',
-    //         clickOpens: false,
-
-    //         onReady(_, __, instance) {
-    //             instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-
-    //             if (endEl.value) {
-    //                 instance.setDate(endEl.value, true); // 🔑 force date + time
-    //             }
-
-    //             instance.jumpToDate(instance.selectedDates[0] || new Date());
-    //         }
-    //     });
-
-    //     if (startPickerInstance.selectedDates.length) {
-    //         safeEnableEndPicker(
-    //             endPickerInstance,
-    //             startPickerInstance.selectedDates[0]
-    //         );
-    //     } else {
-    //         endPickerInstance.altInput.setAttribute('disabled', true);
-    //     }
-    // }
-
-    
     function bindMonthFlatpickr(startSelector, endSelector) {
 
         const startEl = document.querySelector(startSelector);
@@ -437,7 +360,6 @@
 
    
     function loadParticipatingMerchantLocations(modal, merchantIds) {
-
         if (!merchantIds || merchantIds.length === 0) {
             modal.find("#participating_merchant_location").empty();
             modal.find("#participating_section").hide();
@@ -534,6 +456,10 @@
     function editParticipatingMerchantLocations(modal) {
         // reset map
         selectedOutletMap = {};
+        if (typeof participatingLocations === "undefined" ||
+            !Array.isArray(participatingLocations)) {
+            return;
+        }
 
         // backend-provided array
         if (Array.isArray(participatingLocations)) {
@@ -919,72 +845,172 @@
     }
 
 
-    function loadParticipatingMerchantLocations(modal, selectedIds = [], merchantId = null) {
-        modal = $(modal);
+    $(document).on('change', '.merchant-dropdown', function () {
 
-        if (!merchantId) return;
+        let clubId     = $(this).data('club');
+        let merchantId = $(this).val();
+        let modal      = $(this).closest('.modal');
+
+        if (!merchantId) {
+            $('#outlet_container_' + clubId).empty();
+            return;
+        }
+
+        loadParticipatingMerchantLocationsBday(modal, clubId, merchantId);
+    });
+
+    // $(document).on('click', '.show-outlets-btn', function () {
+
+    //     let clubId = $(this).data('club');
+    //     let modal  = $(this).closest('.modal');
+
+    //     let merchantId = modal.find(
+    //         '.merchant-dropdown[data-club="'+clubId+'"]'
+    //     ).val();
+
+    //     if (!merchantId) {
+    //         alert('Please select merchant');
+    //         return;
+    //     }
+
+    //     loadParticipatingMerchantLocations(modal, clubId, merchantId);
+    // });
+
+
+    function loadParticipatingMerchantLocationsBday(modal, clubId, merchantIds) {
+        
+        if (!merchantIds) {
+            modal.find("#outlet_container_" + clubId)
+                .find(".participating-merchant-location")
+                .empty();
+            return;
+        }
+
+        if (!Array.isArray(merchantIds)) {
+            merchantIds = [merchantIds];
+        }
 
         $.ajax({
-            url: ModuleBaseUrl + "get-club-locations-with-outlets",
+            url: "{{ url('admin/birthday-voucher/get-club-locations-with-outlets') }}",
             type: "GET",
-            data: { merchant_id: merchantId },  // 🔥 send merchant
+            data: { merchant_ids: merchantIds },
             success: function (res) {
 
-                let container = modal.find("#location_with_outlet");
-                container.show().empty();
-
-                if (res.status !== 'success' || !res.data || !res.data.length) {
-                    container.html('<p>No locations found</p>');
+                if (!res || res.status !== 'success' || !res.locations) {
                     return;
                 }
 
-                res.data.forEach(function (club) {
+                if(res.locations.length === 0) {
+                    let clubContainer = modal.find("#outlet_container_" + clubId);
+                    let locationBox   = clubContainer.find(".participating-merchant-location");
 
-                    let collapseId = "clubCollapse" + club.club_id;
-
-                    let html = `
-                        <div class="card mb-2">
-                            <div class="card-header p-2">
-                                <a class="fw-bold text-dark"
-                                data-bs-toggle="collapse"
-                                href="#${collapseId}">
-                                ${club.club_name}
-                                </a>
-                            </div>
-
-                            <div class="collapse" id="${collapseId}">
-                                <div class="card-body p-2">
-                    `;
-
-                    club.merchant_locations.forEach(function (loc) {
-
-                        let checked = selectedIds.includes(loc.id) ? 'checked' : '';
-
-                        html += `
-                            <div class="form-check">
-                                <input class="form-check-input outlet-checkbox"
-                                    type="checkbox"
-                                    name="participating_locations[]"
-                                    value="${loc.id}"
-                                    ${checked}
-                                    id="loc_${loc.id}">
-                                <label class="form-check-label" for="loc_${loc.id}">
-                                    ${loc.name}
-                                </label>
-                            </div>
-                        `;
-                    });
-
-                    html += `
-                                </div>
-                            </div>
+                    locationBox.html(`
+                        <div class="alert alert-danger py-1 px-2 mb-2">
+                            Outlets not found
                         </div>
-                    `;
+                    `);
+                    return;
 
-                    container.append(html);
+                }
+
+                let clubContainer = modal.find("#outlet_container_" + clubId);
+                let locationBox   = clubContainer.find(".participating-merchant-location");
+
+                locationBox.empty();   // ✅ only clear outlet list
+
+                res.locations.forEach(function (loc) {
+
+                    const checked = selectedOutletMap[clubId] &&   selectedOutletMap[clubId][loc.id]  ? 'checked'  : '';
+
+                    locationBox.append(`
+                        <div class="form-check mb-1">
+                            <input type="checkbox" class="form-check-input me-2 outlet-checkbox-bday"
+                                data-id="${loc.id}" data-name="${loc.name}"
+                                ${checked}>
+                            <label class="form-check-label">${loc.name}</label>
+                        </div>
+                    `);
                 });
+
+                modal.find("#participating_section").show();
+
+                updateSelectedLocationsSummaryBirthDayVoucher(modal);
+                syncHiddenSelectedLocations(modal);
+            }, 
+            error: function () {
+                let clubContainer = modal.find("#outlet_container_" + clubId);
+                let locationBox   = clubContainer.find(".participating-merchant-location");
+
+                locationBox.html(`
+                    <div class="alert alert-danger py-1 px-2 mb-2">
+                        Outlets not found
+                    </div>
+                `);
             }
         });
+    }
+
+    $(document).on("change", ".outlet-checkbox-bday", function () {
+
+        const modal   = $(this).closest(".modal");
+        const clubContainer = $(this).closest(".outlet-container");
+
+        const clubId = clubContainer.attr("id").replace("outlet_container_", "");
+        const id     = $(this).data("id");
+        const name   = $(this).data("name");
+
+        // ensure object exists
+        if (!selectedOutletMap[clubId]) {
+            selectedOutletMap[clubId] = {};
+        }
+
+        if (this.checked) {
+            selectedOutletMap[clubId][id] = name;
+        } else {
+            delete selectedOutletMap[clubId][id];
+        }
+
+        updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId);
+        syncHiddenSelectedLocationsBday(modal, clubId);
+    });
+
+    function syncHiddenSelectedLocationsBday(modal, clubId) {
+
+        let clubContainer = modal.find("#outlet_container_" + clubId);
+        let hiddenDiv     = clubContainer.find(".selected-locations-hidden");
+
+        hiddenDiv.empty();
+
+        if (!selectedOutletMap[clubId]) return;
+
+        Object.keys(selectedOutletMap[clubId]).forEach(function (locId) {
+
+            hiddenDiv.append(`
+                <input type="hidden"
+                    name="selected_outlets[${clubId}][]"
+                    value="${locId}">
+            `);
+        });
+    }
+
+    function updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId) {
+
+        let clubContainer = modal.find("#outlet_container_" + clubId);
+        let wrapper = clubContainer.find(".selected-locations-wrapper");
+        let summary = clubContainer.find(".selected-locations-summary");
+
+        summary.empty();
+
+        if (!selectedOutletMap[clubId] ||
+            Object.keys(selectedOutletMap[clubId]).length === 0) {
+            wrapper.hide();
+            return;
+        }
+
+        let names = Object.values(selectedOutletMap[clubId]);
+
+        summary.html(names.map(n => `<div>• ${n}</div>`).join(""));
+        wrapper.show();
     }
 
 </script>

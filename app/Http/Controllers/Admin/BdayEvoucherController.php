@@ -12,6 +12,7 @@ use App\Models\ParticipatingMerchant;
 use App\Models\Evoucher;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\Reward;
+use App\Models\RewardLocation;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\RewardVoucher;
@@ -50,15 +51,18 @@ class BdayEvoucherController extends Controller
     public function index(Request $request)
     {
 
-        $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
-        $this->layout_data['type'] = $type;
         $this->layout_data['category'] = Category::get();
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['rewards'] = Reward::get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
-        return view($this->view_file_path . "index")->with($this->layout_data);
+        // 🔥 ADD THIS
+        $this->layout_data['club_location'] = ClubLocation::where('status','Active')->get();
+
+        return view($this->view_file_path . "index")
+            ->with($this->layout_data);
     }
+
 
 
     public function datatable(Request $request)
@@ -221,6 +225,7 @@ class BdayEvoucherController extends Controller
      */
     public function store(Request $request)
     {
+
         DB::beginTransaction();
 
         try {
@@ -250,10 +255,12 @@ class BdayEvoucherController extends Controller
                 'low_stock_2'        => 'nullable|min:0',
             ];
 
-            $messages = [];
             $messages = [
                 'term_of_use.required' => 'Voucher T&C is required',
-                'term_of_use.string'   => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
 
@@ -274,33 +281,6 @@ class BdayEvoucherController extends Controller
             }
 
 
-
-            /* ---------------------------------------------------
-            * CLEARING METHOD RULES
-            * ---------------------------------------------------*/
-
-            // External link → text required
-            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
-                $rules['location_text'] = 'required';
-                $messages = [
-                    'location_text.required' => 'Location is required',
-                ];
-            }
-
-
-            // External code + Merchant code → merchant + locations required
-            if ($request->clearing_method == 2) {
-                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-
-                $rules['participating_merchant_locations'] = 'required|array|min:1';
-
-                foreach ($request->participating_merchant_locations ?? [] as $locId => $locData) {
-                    if (isset($locData['selected'])) {
-                        // nothing extra here – just mark as selected
-                    }
-                }
-            }
-
             /* ---------------------------------------------------
             * VALIDATE
             * ---------------------------------------------------*/
@@ -314,6 +294,50 @@ class BdayEvoucherController extends Controller
             }
 
             $validated = $validator->validated();
+
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            $validator->after(function ($validator) use ($request) {
+
+                $clubWithInventory = [];
+                $clubWithOutlets   = [];
+
+                if (!empty($request->locations)) {
+                    foreach ($request->locations as $clubId => $clubData) {
+                        if (!empty($clubData['inventory_qty'])) {
+                            $clubWithInventory[] = $clubId;
+                        }
+                    }
+                }
+
+                if (!empty($request->selected_outlets)) {
+                    foreach ($request->selected_outlets as $clubId => $outlets) {
+                        if (!empty($outlets)) {
+                            $clubWithOutlets[] = $clubId;
+                        }
+                    }
+                }
+
+                $validClub = array_intersect($clubWithInventory, $clubWithOutlets);
+
+                if (empty($validClub)) {
+                    $validator->errors()->add(
+                        'locations',
+                        'At least one club must have inventory and at least one outlet selected.'
+                    );
+                }
+            });
+
+
+            if ($validator->fails()) {
+            return response()->json([
+                "status" => "error",
+                "errors" => $validator->errors()
+            ], 422);
+        }
+
+
+            
 
               /* ---------------------------------------------------
             * CREATE REWARD (e-Voucher only)
@@ -389,6 +413,7 @@ class BdayEvoucherController extends Controller
 
                 $rows = Excel::toArray([], $filePath);
             }
+
             while ($current->lte($endMonth)) {
 
                 $reward = Reward::create([
@@ -470,28 +495,64 @@ class BdayEvoucherController extends Controller
                     }
                 }
 
-                // -------------------------------
-                // PARTICIPATING LOCATIONS
-                // -------------------------------
-                if ($request->clearing_method == 2 && !empty($request->participating_merchant_locations)) {
+                // -----------------------------------
+                // CLUB LOCATIONS (Inventory per club)
+                // -----------------------------------
+                $validClubSelected = false;
 
-                    foreach ($request->participating_merchant_locations as $locId => $locData) {
+                if (!empty($request->locations)) {
 
-                        if (!isset($locData['selected'])) continue;
+                    foreach ($request->locations as $clubId => $clubData) {
 
-                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)
-                            ->value('participating_merchant_id');
+                        $inventoryQty = isset($clubData['inventory_qty'])
+                            ? (int) $clubData['inventory_qty']
+                            : 0;
 
-                        if (!$merchantId) continue;
+                        // ❌ Skip if inventory empty or zero
+                        if ($inventoryQty <= 0) {
+                            continue;
+                        }
 
-                        ParticipatingLocations::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId,
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
+                        RewardLocation::create([
+                            'reward_id'   => $reward->id,
+                            'location_id' => $clubId,
+                            'merchant_id' => $validated['merchant_id'],
+                            'inventory_qty' => $inventoryQty,
+                            'total_qty'     => $inventoryQty,
+                            'is_selected'   => 1,
                         ]);
+
+                        $validClubSelected = true;
                     }
                 }
+
+
+
+                // -----------------------------------
+                // PARTICIPATING OUTLETS
+                // -----------------------------------
+                if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
+
+                    foreach ($request->selected_outlets as $clubId => $outletIds) {
+
+                        foreach ($outletIds as $locId) {
+
+                            $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                                ->value('participating_merchant_id');
+
+                            if (!$merchantId) continue;
+
+                            ParticipatingLocations::create([
+                                'reward_id'                 => $reward->id,
+                                'club_location_id'          => $clubId,
+                                'participating_merchant_id' => $merchantId,
+                                'location_id'               => $locId,
+                                'is_selected'               => 1,
+                            ]);
+                        }
+                    }
+                }
+
 
                 // move to next month
                 $current->addMonth();
@@ -499,7 +560,7 @@ class BdayEvoucherController extends Controller
 
 
             DB::commit();
-            return response()->json(['status'=>'success','message'=>'Reward Created Successfully']);
+            return response()->json(['status'=>'success','message'=>'Reward Created Successfully And Sent For Approval Successfully']);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -526,22 +587,33 @@ class BdayEvoucherController extends Controller
      */
     public function edit(string $id)
     {
-        $reward = Reward::with(['participatingLocations'])->find($id);
+        $reward = Reward::with([
+            'participatingLocations',
+            'rewardLocations'   // 👈 IMPORTANT
+        ])->find($id);
+
         $this->layout_data['data'] = $reward;
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['category'] = Category::get();
         $this->layout_data['club_location'] = ClubLocation::get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
-        // 🔥 Get location IDs
-        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+        // -------------------------------
+        // GROUP SELECTED OUTLETS
+        // -------------------------------
+        $groupedLocations = $reward->participatingLocations
+            ->groupBy('club_location_id')
+            ->map(function ($items) {
+                return $items->pluck('location_id')->values();
+            });
 
-        // 🔥 Fetch names from participating_merchant_locations
-        $locations = ParticipatingMerchantLocation::whereIn('id', $locationIds)->select('id', 'name')->get()
-            ->map(function ($loc) {
+        // -------------------------------
+        // GET CLUB INVENTORY
+        // -------------------------------
+        $clubInventory = $reward->rewardLocations
+            ->mapWithKeys(function ($item) {
                 return [
-                    'id'   => $loc->id,
-                    'name' => $loc->name,
+                    $item->location_id => $item->inventory_qty
                 ];
             });
 
@@ -550,9 +622,11 @@ class BdayEvoucherController extends Controller
         return response()->json([
             'status' => 'success',
             'html' => $html,
-            'participatingLocations' => $locations
+            'selectedOutlets' => $groupedLocations,
+            'clubInventory'   => $clubInventory
         ]);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -605,7 +679,7 @@ class BdayEvoucherController extends Controller
 
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Inventory updated successfully'
+                    'message' => 'Inventory Updated Successfully And Sent For Approval Successfully'
                 ]);
             }
 
@@ -634,9 +708,12 @@ class BdayEvoucherController extends Controller
                 'low_stock_2'       => 'nullable|min:0',
             ];
 
-            $messages = [
+            $messages = [              
                 'term_of_use.required' => 'Voucher T&C is required',
-                'term_of_use.string'   => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
              /* ---------------------------------------------------
@@ -874,7 +951,7 @@ class BdayEvoucherController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Update request sent for admin approval'
+                'message' => 'Voucher Updated Successfully And Sent For Approval Successfully'
             ]);
 
         } catch (\Throwable $e) {
@@ -949,29 +1026,35 @@ class BdayEvoucherController extends Controller
         ]);
     }
     
-    public function getMerchantLocationsWithOutlets(Request $request)
+    public function getClubMerchantOutletStructure(Request $request)
     {
-        $clubLocations = ClubLocation::where('status', 'Active')->get();
+        $merchantIds = $request->merchant_ids;
 
-        $result = [];
-
-        foreach ($clubLocations as $club) {
-
-            $merchantLocations = ParticipatingMerchant::select('id', 'name')->get();
-
-            if ($merchantLocations->count() > 0) {
-                $result[] = [
-                    'club_id' => $club->id,
-                    'club_name' => $club->name,
-                    'merchant_locations' => $merchantLocations
-                ];
-            }
+        if (empty($merchantIds)) {
+            return response()->json([
+                'status' => 'success',
+                'locations' => []
+            ]);
         }
+
+        // normalize to array
+        if (!is_array($merchantIds)) {
+            $merchantIds = [$merchantIds];
+        }
+
+        $locations = ParticipatingMerchantLocation::whereIn(
+                'participating_merchant_id',
+                $merchantIds
+            )
+            ->where('status', 'Active')
+            ->select('id', 'name', 'participating_merchant_id')
+            ->get();
 
         return response()->json([
             'status' => 'success',
-            'data' => $result
+            'locations' => $locations
         ]);
+        
     }
 
 }

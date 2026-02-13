@@ -21,7 +21,8 @@ class ParticipatingMerchantLocation extends Model
         'participating_merchant_id',
         'club_location_id',
         'status',
-        'added_by'
+        'added_by',
+        
     ];
 
    protected $casts = [

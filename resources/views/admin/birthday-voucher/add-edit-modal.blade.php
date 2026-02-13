@@ -59,37 +59,28 @@
 
         let modal = $(this).closest('.modal');
         initFlatpickrDate(this);  
-        bindMonthFlatpickrEdit(this,
-            'input[name="from_month"]',
-            'input[name="to_month"]'
-        );
-         
-       
-        let selectedMerchant = "{{ $data->merchant_id ?? '' }}";
-        let selectedLocation = "{{ $data->club_location ?? '' }}";
-    
-        if (selectedMerchant) {
-            loadClubLocations(selectedMerchant, selectedLocation);
-        }       
+        bindMonthFlatpickrEdit(this, 'input[name="from_month"]', 'input[name="to_month"]'); 
         toggleFieldsBasedOnMonth(modal);
        
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
 
-        const merchantId = modal.find("#participating_merchant_id").val();
-         // EDIT MODE
-        if (modal.attr("id") === "EditModal") {
-            editParticipatingMerchantLocations(modal);
+        // if (modal.attr("id") === "EditModal" && window.selectedOutletMap && Object.keys(window.selectedOutletMap).length > 0) {
+        //     editParticipatingMerchantLocations(modal);
+        // }
+
+        let merchantIds = modal.find('#participating_merchant_id').val();
+
+        if (merchantIds && merchantIds.length > 0) {
+
+            modal.find("#participating_section").show();
+            modal.find("#participating_merchant_location").show();
+
+            loadParticipatingMerchantLocationsBday(modal, merchantIds);
         }
 
-        // merchant selected later
-        // modal.find("#participating_merchant_id").on("change", function () {
+        $('.club-location-error').text('');
 
-        //     const merchantId = $(this).val();
-        //     loadParticipatingMerchantLocations(modal, merchantId);
-        // }); 
-
-        
         const $fileInput = $('#EditModal #csvFile');
         const $inventoryDiv = $('#EditModal .inventory_qty');
         const $inventoryInput = $('#EditModal #inventory_qty');
@@ -124,6 +115,29 @@
         forceInventoryReadonly(modal);
     });
 
+    $(document).on('change', '#EditModal #participating_merchant_id', function () {
+
+        $('.club-location-error').text('');
+
+        const modal       = $(this).closest('.modal');
+        const merchantIds = $(this).val();
+
+        if (merchantIds && merchantIds.length > 0) {
+
+            modal.find("#participating_section").show();
+            modal.find("#participating_merchant_location").show();
+
+            let clubId = modal.find('.merchant-dropdown').data('club'); 
+            loadParticipatingMerchantLocationsBday(modal, clubId, merchantIds);
+
+        } else {
+
+            modal.find("#participating_merchant_location").empty();
+            modal.find("#participating_section").hide();
+        }
+    });
+
+
     function toggleFieldsBasedOnMonth(modal) {
 
         let selectedMonth = "{{ $data->month ?? '' }}";
@@ -157,53 +171,7 @@
             modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]').prop('disabled', false);
         }
     }  
-   
-    //Digital Reward
-    $(document).on("change", ".clearing_method", function () {
-        let modal = $(this).closest(".modal");
-        editToggleClearingFields(modal);
-        editToggleInventoryFields(modal);
-    });
-
-    function loadClubLocations(merchantId, selectedLocation = null) {
-
-        let locationDropdown = $(".club_location");
-        locationDropdown.html('<option value="">Loading...</option>');
-
-        if (!merchantId) {
-            locationDropdown.html('<option value="">Select Club Location</option>');
-            return;
-        }
-
-        $.ajax({
-            url: "{{ url('admin/birthday-voucher/get-club-locations') }}",
-            type: "GET",
-            data: { merchant_id: merchantId },
-            success: function (res) {
-
-                locationDropdown.empty();
-                locationDropdown.append('<option value="">Select Club Location</option>');
-
-                if (res.status === 'success' && res.data.length > 0) {
-
-                    res.data.forEach(function (loc) {
-
-                        let isSelected = (selectedLocation && selectedLocation == loc.id)
-                                        ? 'selected'
-                                        : '';
-
-                        locationDropdown.append(
-                            `<option value="${loc.id}" ${isSelected}>${loc.name}</option>`
-                        );
-                    });
-
-                } else {
-                    locationDropdown.append('<option value="">No locations found</option>');
-                }
-            }
-        });
-    }
-
+     
 </script>
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -399,7 +367,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="clearing_method">Clearing Menthods <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
                                     <option class="sh_dec" value="">Select Clearing Method</option>                                   
                                     <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
@@ -407,30 +375,89 @@
                                     </option>
                                 </select>
                             </div>
-                        </div>                       
-                        <div class="col-12 col-md-6 location_text" style="display: none">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="location_text">Location <span class="required-hash">*</span></label>    
-                                <input id="location_text" type="text" class="sh_dec form-control"   name="location_text" value="{{ $data->location_text ?? '' }}"> 
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6 participating_merchant" style="display: none">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select" name="participating_merchant_id" id="participating_merchant_id">
-                                    <option value="">Select Participating Merchant</option>
-                                    @if (isset($participating_merchants))                                        
-                                        @foreach ($participating_merchants as $merchant)
-                                            <option  value="{{ $merchant->id }}">
-                                                {{ $merchant->name }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>                                
-                            </div>
-                        </div>
+                        </div>     
                     </div>
-                    <div id="location_with_outlet"></div>
+
+                    <div id="location_with_outlet" class="accordion">
+
+                        @foreach($club_location as $club)
+
+                        <div class="card mb-2 accordion-item">
+
+                            <!-- CLUB HEADER -->
+                            <div class="card-header d-flex justify-content-between align-items-center accordion-header"
+                                id="heading_{{ $club->id }}">
+
+                                <strong>{{ $club->name }}</strong>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center ms-3">
+                                        <label class="mb-0 me-2 font-12">Inventory Quantity</label>
+                                        <input type="number"
+                                            min="0"
+                                            class="form-control"
+                                            name="locations[{{ $club->id }}][inventory_qty]"
+                                            style="max-width: 56px; max-height: 30px;">
+                                    </div>
+
+                                    <!-- Toggle Button -->
+                                    <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                                            style="max-height: 30px; max-width: 30px;"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#club_body_{{ $club->id }}"
+                                            aria-expanded="false">
+                                        <i class="mdi mdi-chevron-down toggle-icon font-size-18"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- COLLAPSE SECTION -->
+                            <div id="club_body_{{ $club->id }}"
+                                class="accordion-collapse collapse club-body"
+                                data-bs-parent="#location_with_outlet">
+
+                                <div class="accordion-body p-3">
+
+                                    <!-- Merchant Dropdown -->
+                                    <div class="mb-2">
+                                        <select class="form-select merchant-dropdown"
+                                                data-club="{{ $club->id }}">
+                                            <option value="">Select Participating Merchant</option>
+                                            @foreach($participating_merchants as $pm)
+                                                <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Outlet Container (UNCHANGED) -->
+                                    <div class="outlet-container" id="outlet_container_{{ $club->id }}">
+                                        <div class="row mt-3 participating-section">
+                                            <div class="selected-locations-hidden"></div>
+
+                                            <div class="col-md-7">
+                                                <div class="participating-merchant-location"></div>
+                                            </div>
+
+                                            <div class="col-md-5 mb-2">
+                                                <div class="selected-locations-wrapper" style="display:none;">
+                                                    <label class="fw-bold">Selected Outlets</label>
+                                                    <div class="selected-locations-summary form-control"
+                                                        style="min-height:120px; background:#f8f9fa;">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        @endforeach
+                    </div>
+                   <div class="club-location-error text-danger mb-2"></div>
 
                     <div class="row mt-3" id="participating_section" style="display:none;">
                         <div id="selected_locations_hidden"></div>
