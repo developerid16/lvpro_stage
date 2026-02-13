@@ -69,22 +69,22 @@ $(document).ready(function () {
 
             error: function (response) {
 
-                $form.data('submitting', false);
-                show_errors(response.responseJSON?.errors || {});
                 // $form.data('submitting', false);
+                // show_errors(response.responseJSON?.errors || {});
+                $form.data('submitting', false);
 
-                // let errors = response.responseJSON?.errors || {};
+                let errors = response.responseJSON?.errors || {};
 
-                // // 🔥 Handle section-level error first
-                // if (errors.locations) {
-                //     $('.club-location-error').text(errors.locations[0]);
+                // 🔥 Handle section-level error first
+                if (errors.locations) {
+                    $('.club-location-error').text(errors.locations[0]);
 
-                //     // remove it so show_errors does not render it again
-                //     delete errors.locations;
-                // }
+                    // remove it so show_errors does not render it again
+                    delete errors.locations;
+                }
 
-                // // Now show normal field errors
-                // show_errors(errors);
+                // Now show normal field errors
+                show_errors(errors);
             }
 
         });
