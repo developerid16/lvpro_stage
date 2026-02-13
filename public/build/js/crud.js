@@ -86,15 +86,21 @@ $(document).ready(function () {
             data: '',
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
+<<<<<<< HEAD
                 if (response && response.participatingLocations && response.participatingLocations.length > 0){
                     let selectedIds = response.participatingLocations.map(l => l.id);
                     loadParticipatingMerchantLocations($("#EditModal"), selectedIds);
                 }
                 window.savedLocations = response.savedLocations || {};
 
+=======
+>>>>>>> 4e0d6936194109e0fc0ce536039d51e1b5582919
                 if (response && response.participatingLocations && response.participatingLocations.length > 0){
+                    let selectedIds = response.participatingLocations.map(l => l.id);
+                    loadParticipatingMerchantLocations($("#EditModal"), selectedIds);
                     participatingLocations = response.participatingLocations;
                 }
+                window.savedLocations = response.savedLocations || {};
                 
                 $("body").append(response.html);
                 $("#EditModal .select2").select2({
