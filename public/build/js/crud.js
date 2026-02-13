@@ -87,6 +87,7 @@ $(document).ready(function () {
             headers: { 'X-CSRF-Token': csrf },
             success: function (response) {
                 if (response && response.participatingLocations && response.participatingLocations.length > 0){
+                    
                     let selectedIds = response.participatingLocations.map(l => l.id);
                     loadParticipatingMerchantLocations($("#EditModal"), selectedIds);
                 }
