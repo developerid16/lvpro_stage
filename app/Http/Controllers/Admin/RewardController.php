@@ -1512,10 +1512,10 @@ class RewardController extends Controller
                     ];   
                   
     
-                    if  ($request->clearing_method == 2) {
-                        $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
-                        $rules['participating_merchant_locations'] = 'required|array|min:1';
-                    }
+                    // if  ($request->clearing_method == 2) {
+                    //     $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                    //     $rules['participating_merchant_locations'] = 'required|array|min:1';
+                    // }
                     if ($request->clearing_method != 2) {
                         $rules['location_text'] = 'required';
                         $messages = [
@@ -1538,6 +1538,61 @@ class RewardController extends Controller
                     }
                 }
             });
+
+            if ((int) $request->clearing_method === 2) {
+
+                $existingMerchantId = $reward->participating_merchant_id ?? null;
+                $existingLocations  = $reward->participatingLocations ?? collect();
+
+                // -------------------------------
+                // Participating merchant
+                // -------------------------------
+                if (
+                    !$request->has('participating_merchant_locations') &&
+                    !$request->filled('participating_merchant_id') &&
+                    !$existingMerchantId
+                ) {
+                    $rules['participating_merchant_id'] =
+                        'required|exists:participating_merchants,id';
+                }
+
+                // -------------------------------
+                // Participating locations
+                // -------------------------------
+                if (
+                    !$request->filled('participating_merchant_locations') &&
+                    $existingLocations->isEmpty()
+                ) {
+                    $rules['participating_merchant_locations'] =
+                        'required|array|min:1';
+                }
+
+                // -------------------------------
+                // If locations sent → check selected
+                // -------------------------------
+                if ($request->has('participating_merchant_locations')) {
+
+                    $hasSelected = false;
+
+                    foreach ($request->participating_merchant_locations as $loc) {
+                        if (!empty($loc['selected'])) {
+                            $hasSelected = true;
+                            break;
+                        }
+                    }
+
+                    if (!$hasSelected) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => [
+                                'participating_merchant_locations' => [
+                                    'Please select at least one merchant location.'
+                                ]
+                            ]
+                        ], 422);
+                    }
+                }
+            }
 
             if ($validator->fails()) {
                 return response()->json([
