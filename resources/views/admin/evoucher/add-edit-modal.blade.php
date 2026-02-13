@@ -438,7 +438,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="clearing_method">Clearing Menthods <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
 
                                     <option class="sh_dec" value="">Select Clearing Method</option>
