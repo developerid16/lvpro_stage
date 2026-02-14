@@ -89,6 +89,7 @@ class BdayEvoucherController extends Controller
             $final_data[$key]['redeemed'] = max(0, $redeemed);
             $duration = $row->created_at->format(config('safra.date-format'));
 
+            
             if (!empty($row->voucher_image)) {
                 $imgUrl = asset("uploads/image/{$row->voucher_image}");
 
@@ -100,8 +101,12 @@ class BdayEvoucherController extends Controller
                     </a>';
             } else {
                 $imgUrl = asset("uploads/image/no-image.png");
-                $final_data[$key]['image'] = '<img src="'.$imgUrl.'" class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">';
+                $final_data[$key]['image'] = '<img src="'.$imgUrl.'"
+                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+                            alt="Voucher Image">'; // nothing shown
             }
+
+           
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
             $fromMonth = $row->from_month
