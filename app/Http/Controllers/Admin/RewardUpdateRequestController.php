@@ -89,23 +89,14 @@ class RewardUpdateRequestController extends Controller
 
             $index = $start + $i + 1;
 
-            $fromMonth = $row->from_month
-                ? Carbon::createFromFormat('Y-m', $row->from_month)
+            $month = $row->month
+                ? Carbon::createFromFormat('Y-m', $row->month)
                     ->format(config('safra.month-format'))
                 : null;
 
-            $toMonth = $row->to_month
-                ? Carbon::createFromFormat('Y-m', $row->to_month)
-                    ->format(config('safra.month-format'))
-                : null;
 
-            if ($fromMonth && $toMonth) {
-                $month = $fromMonth . ' To ' . $toMonth;
-            } elseif ($fromMonth) {
-                $month = $fromMonth;
-            } else {
-                $month = '-';
-            }
+            $month = $month ?? '-';
+            
             $final_data[$i] = [
                 'id'                => $row->id,
                 'sr_no'             => $index,
@@ -423,6 +414,61 @@ class RewardUpdateRequestController extends Controller
                 $update->update([
                     'status' => 'approved',
                 ]);
+
+                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->get();
+
+                // Remove old live mappings
+                ParticipatingLocations::where('reward_id', $reward->id)->delete();
+
+                // Insert approved mappings
+                foreach ($pendingLocations as $loc) {
+
+                    $participating_loc = ParticipatingLocations::create([
+                        'reward_id'                 => $reward->id,
+                        'club_location_id'          => $loc->club_location_id, // ✅ missing in your code
+                        'participating_merchant_id' => $loc->participating_merchant_id,
+                        'location_id'               => $loc->location_id,
+                        'is_selected'               => $loc->is_selected ?? 1,
+                    ]);
+                }
+
+                // Clear update table
+                RewardParticipatingMerchantLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->delete();
+                
+
+
+                $pendingClubs = RewardLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->get();
+
+                // Remove old live club inventory
+                RewardLocation::where('reward_id', $reward->id)->delete();
+
+                // Insert approved club inventory
+                foreach ($pendingClubs as $club) {
+
+                    RewardLocation::create([
+                        'reward_id'     => $reward->id,
+                        'merchant_id'   => $club->merchant_id,
+                        'location_id'   => $club->location_id,
+                        'is_selected'   => $club->is_selected ?? 1,
+                        'inventory_qty' => $club->inventory_qty,
+                        'total_qty'     => $club->total_qty,
+                    ]);
+                }
+
+                // Clear update table
+                RewardLocationUpdate::where(
+                    'reward_id',
+                    $reward->id
+                )->delete();
                 
             }else if($type == '0'){//treat&deals
                 
@@ -513,7 +559,7 @@ class RewardUpdateRequestController extends Controller
 
             }
 
-            if ($update->clearing_method == '2') {
+            if ($type != '2' && $update->clearing_method == '2') {
     
                 $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
                     'reward_id',

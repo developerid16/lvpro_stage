@@ -10,8 +10,6 @@
 
 <script>
     let selectedOutletMap = [];    
-    window.selectedOutletMap = {}; 
-
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -427,6 +425,7 @@
             }
         });
     }
+    
 
     function showNoOutlets(modal) {
 
@@ -454,28 +453,27 @@
     }
 
     function editParticipatingMerchantLocations(modal) {
-        // reset map
-        selectedOutletMap = {};
-        if (typeof participatingLocations === "undefined" ||
-            !Array.isArray(participatingLocations)) {
+
+        if (!selectedOutletMap || Object.keys(selectedOutletMap).length === 0) {
             return;
         }
 
-        // backend-provided array
-        if (Array.isArray(participatingLocations)) {
-            participatingLocations.forEach(loc => {
-                selectedOutletMap[loc.id] = loc.name;
-            });
-        }
+        let locationBox = modal.find("#participating_merchant_location");
 
+        locationBox.empty();
+
+        Object.keys(selectedOutletMap).forEach(function (id) {
+
+            let name = selectedOutletMap[id];
+           
+        });
+
+        modal.find("#participating_section").show();
 
         updateSelectedLocationsSummary(modal);
         syncHiddenSelectedLocations(modal);
-
-        // do NOT load checkbox UI
-        modal.find("#participating_merchant_location").empty();
-        modal.find("#participating_section").show();
     }
+
 
     function updateSelectedLocationsSummary(modal) {
 
@@ -526,7 +524,7 @@
         selectedOutletMap = [];
         modal.find('#selected_locations_summary').empty();
         modal.find('#selected_locations_hidden').empty();
-        outletWrapper.hide();
+        // outletWrapper.hide();
 
         // 🔴 HARD RESET UI
         locationField.hide();
@@ -844,7 +842,6 @@
     
     }
 
-
     $(document).on('change', '.merchant-dropdown', function () {
 
         let clubId     = $(this).data('club');
@@ -859,30 +856,11 @@
         loadParticipatingMerchantLocationsBday(modal, clubId, merchantId);
     });
 
-    // $(document).on('click', '.show-outlets-btn', function () {
-
-    //     let clubId = $(this).data('club');
-    //     let modal  = $(this).closest('.modal');
-
-    //     let merchantId = modal.find(
-    //         '.merchant-dropdown[data-club="'+clubId+'"]'
-    //     ).val();
-
-    //     if (!merchantId) {
-    //         alert('Please select merchant');
-    //         return;
-    //     }
-
-    //     loadParticipatingMerchantLocations(modal, clubId, merchantId);
-    // });
-
-
     function loadParticipatingMerchantLocationsBday(modal, clubId, merchantIds) {
+        console.log(merchantIds,'merchantIds');
         
         if (!merchantIds) {
-            modal.find("#outlet_container_" + clubId)
-                .find(".participating-merchant-location")
-                .empty();
+            modal.find("#outlet_container_" + clubId).find(".participating-merchant-location").empty();
             return;
         }
 
@@ -895,6 +873,7 @@
             type: "GET",
             data: { merchant_ids: merchantIds },
             success: function (res) {
+                
 
                 if (!res || res.status !== 'success' || !res.locations) {
                     return;
@@ -917,18 +896,20 @@
                 let locationBox   = clubContainer.find(".participating-merchant-location");
 
                 locationBox.empty();   // ✅ only clear outlet list
-
+               
                 res.locations.forEach(function (loc) {
 
-                    const checked = selectedOutletMap[clubId] &&   selectedOutletMap[clubId][loc.id]  ? 'checked'  : '';
+                    const checked = selectedOutletMap[clubId] && selectedOutletMap[clubId][loc.id]  ? 'checked'  : '';
+                    console.log(checked,'checked');
+                    
 
                     locationBox.append(`
                         <div class="form-check mb-1">
                             <input type="checkbox" class="form-check-input me-2 outlet-checkbox-bday"
-                                data-id="${loc.id}" data-name="${loc.name}"
+                                data-id="${loc.id}" id="outlet_${loc.id}" data-name="${loc.name}"
                                 ${checked}>
-                            <label class="form-check-label">${loc.name}</label>
-                        </div>
+                            <label class="form-check-label"  for="outlet_${loc.id}">${loc.name}</label>
+                        </div>                        
                     `);
                 });
 
@@ -996,7 +977,7 @@
     function updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId) {
 
         let clubContainer = modal.find("#outlet_container_" + clubId);
-        let wrapper = clubContainer.find(".selected-locations-wrapper");
+        let wrapper = clubContainer.find(".outlet-list");
         let summary = clubContainer.find(".selected-locations-summary");
 
         summary.empty();
@@ -1012,6 +993,85 @@
         summary.html(names.map(n => `<div>• ${n}</div>`).join(""));
         wrapper.show();
     }
+
+    function loadEditSelectedOutlets(modal, clubId, outlets = []) {       
+
+        let clubContainer = modal.find("#outlet_container_" + clubId);
+        let locationBox   = clubContainer.find(".participating-merchant-location");
+
+        locationBox.empty();
+
+        if (!Array.isArray(outlets) || outlets.length === 0) {
+            locationBox.html(`
+                <div class="alert alert-danger py-1 px-2 mb-2">
+                    Outlets not found
+                </div>
+            `);
+            return;
+        }
+       
+        modal.find("#participating_section").show();
+
+        if (!selectedOutletMap[clubId]) {
+            selectedOutletMap[clubId] = {};
+        }
+
+        outlets.forEach(function (loc) {
+            selectedOutletMap[clubId][loc.id] = loc.name;
+        });
+
+        updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId);
+        syncHiddenSelectedLocationsBday(modal, clubId);
+    }
+
+    function generateMonths() {
+
+        let year = new Date().getFullYear();
+        let months = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ];
+
+        let html = "";
+
+        months.forEach((month, index) => {
+
+            let monthValue = year + "-" + String(index + 1).padStart(2, '0');
+
+            html += `
+                <div class="col-4 mb-2">
+                    <button type="button"
+                        class="btn btn-outline-primary w-100 month-btn"
+                        data-month="${monthValue}">
+                        ${month}
+                    </button>
+                </div>
+            `;
+        });
+
+        $("#monthList").html(html);
+    }
+
+    $(document).on('shown.bs.collapse', '.accordion-collapse', function () {
+
+        let icon = $(this)
+            .closest('.accordion-item')
+            .find('.toggle-icon');
+
+        icon.removeClass('mdi-chevron-down')
+            .addClass('mdi-chevron-up');
+    });
+
+    $(document).on('hidden.bs.collapse', '.accordion-collapse', function () {
+
+        let icon = $(this)
+            .closest('.accordion-item')
+            .find('.toggle-icon');
+
+        icon.removeClass('mdi-chevron-up')
+            .addClass('mdi-chevron-down');
+    });
+
 
 </script>
 

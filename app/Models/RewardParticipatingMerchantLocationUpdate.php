@@ -14,6 +14,7 @@ class RewardParticipatingMerchantLocationUpdate extends Model
    protected $fillable = [
         'reward_id', 
         'location_id', 
+        'club_location_id',
         'participating_merchant_id', 
         'is_selected', 
         'added_by'

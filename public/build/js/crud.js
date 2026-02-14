@@ -1,12 +1,9 @@
 $(document).ready(function () {
     const csrf = $('meta[name="csrf-token"]').attr('content');
-    
    
     $(document).on('click', '.submit-btn', function (e) {
         const action = $(this).val();
         const form = $(this).closest('form');
-        console.log(action,'action');
-        
 
         // DRAFT → submit directly
         if (action == 'draft') {
@@ -15,9 +12,6 @@ $(document).ready(function () {
             form.trigger('submit');
             return;
         }
-
-        // SUBMIT → confirmation
-        // e.preventDefault();
 
         Swal.fire({
             title: 'Are you sure?',
@@ -69,21 +63,24 @@ $(document).ready(function () {
 
             error: function (response) {
 
-                // $form.data('submitting', false);
-                // show_errors(response.responseJSON?.errors || {});
                 $form.data('submitting', false);
+                $('.participating-location-error').text('');
 
                 let errors = response.responseJSON?.errors || {};
 
-                // 🔥 Handle section-level error first
+                // 🔥 Handle club locations error
                 if (errors.locations) {
                     $('.club-location-error').text(errors.locations[0]);
-
-                    // remove it so show_errors does not render it again
                     delete errors.locations;
                 }
 
-                // Now show normal field errors
+                // 🔥 Handle participating merchant locations error
+                if (errors.participating_merchant_locations) {
+                    $('.participating-location-error').text(errors.participating_merchant_locations[0]);
+                    delete errors.participating_merchant_locations;
+                }
+
+                // Show remaining normal field errors
                 show_errors(errors);
             }
 
@@ -106,24 +103,30 @@ $(document).ready(function () {
 
                 let modal = $("#EditModal");
 
-                if (response && response.participatingLocations && response.participatingLocations.length > 0){                   
-                   
-                    let selectedIds = response.participatingLocations.map(l => l.id);
-    
-                    let modal = $('#EditModal');
-    
-                    selectedIds.forEach(function (id) {
-    
-                        let checkbox = modal.find(
-                            'input[name="participating_locations[]"][value="'+id+'"]'
-                        );
-    
-                        checkbox.prop('checked', true);
+                selectedOutletMap = {};
+                selectedOutlets = response.selectedOutlets || {};
+
+                if (response.participatingLocations && response.participatingLocations.length > 0) {
+
+                    response.participatingLocations.forEach(function (loc) {
+                        selectedOutletMap[loc.id] = loc.name;
+                    });
+                }
+                
+                
+                if (response.selectedOutlets) {
+                    Object.keys(response.selectedOutlets).forEach(function (clubId) {
+
+                        selectedOutletMap[clubId] = {};
+
+                        response.selectedOutlets[clubId].forEach(function (loc) {
+                            selectedOutletMap[clubId][loc.id] = loc.name;
+                        });
+
                     });
                 }
 
-                window.selectedOutletMap = response.selectedOutlets || {};
-
+                
                 if (response.clubInventory) {
 
                     Object.keys(response.clubInventory).forEach(function (clubId) {
@@ -260,6 +263,168 @@ $(document).ready(function () {
             }
         });
     }); 
+
+   // Add Birthday Voucher Validation Start
+        function openClub(club) {
+            bootstrap.Collapse
+                .getOrCreateInstance(club.find(".accordion-collapse")[0])
+                .show();
+        }
+
+        const req = (el, cond = true) => el.toggleClass("is-invalid", cond && !el.val());
+
+        $(document).on("click", "#submitBtnBV", function () {
+            const formId = $(this).closest('.modal').find('form').attr('id'); 
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You want to submit this form.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, submit it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then(result => {
+
+                if (!result.isConfirmed) return;
+
+                let isValid = true;
+                let anyLocationUsed = false;
+
+                // ---- Basic Required Fields ----
+                if (formId === "add_frm") {
+
+                    req($('input[name="from_month"]'));
+                    req($('input[name="to_month"]'), $('input[name="from_month"]').val());
+                    req($('input[name="voucher_image"]'));
+                    req($('input[name="voucher_detail_img"]'));
+                    req($('input[name="name"]'));
+                    req($('textarea[name="description"]'));
+                    req($('textarea[name="how_to_use"]'));
+                    req($('textarea[name="term_of_use"]'));
+                    req($('select[name="merchant_id"]'));
+                    req($('input[name="voucher_validity"]'));
+                    req($('select[name="inventory_type"]'));
+                    req($('input[name="voucher_value"]'));
+                    req($('input[name="voucher_set"]'));
+                    req($('input[name="set_qty"]'));
+                    req($('select[name="clearing_method"]'));
+
+                    const inventoryType = $('select[name="inventory_type"]').val();
+
+                    if (inventoryType === "0")
+                        req($('input[name="inventory_qty"]'));
+
+                    if (inventoryType === "1")
+                        req($('input[name="csvFile"]'));
+
+                    if($('input[name="voucher_validity"]').val() === ""){
+                    $('.voucher_validity').addClass("is-invalid");
+                        $('.voucher_validity').next('.invalid-feedback').add();
+                    }else{
+                        $('.voucher_validity').removeClass("is-invalid");
+                        $('.voucher_validity').next('.invalid-feedback').remove();
+                    }
+                }
+
+                // ---- Accordion Locations ----
+                $("#location_with_outlet .accordion-item").each(function () {
+
+                    let club = $(this);
+                    let inventory = club.find("input[name*='[inventory_qty]']").val();
+                    let merchant = club.find(".merchant-dropdown").val();
+                    let outlets = club.find(".outlet-checkbox-bday:checked").length;
+
+                    if ((inventory > 0) || outlets) anyLocationUsed = true;
+
+                    // Inventory → Merchant required
+                    // if (inventory > 0 && !merchant) {
+                    //     club.find(".merchant-dropdown")
+                    //         .addClass("is-invalid")
+                    //         .after('<div class="invalid-feedback">Select merchant</div>');
+                    //     isValid = false;
+                    //     openClub(club);
+                    // }
+
+                    // // Merchant → Outlet required
+                    // if (merchant && !outlets) {
+                    //     club.find(".participating-merchant-location")
+                    //         .after('<div class="text-danger outlet-error">Select outlet</div>');
+                    //     isValid = false;
+                    //     openClub(club);
+                    // }
+
+                });
+
+                if (!anyLocationUsed) {
+                    $(".club-location-error")
+                        .text("Please fill at least one location");
+                    isValid = false;
+                }
+                tinymce.triggerSave();
+
+               if (isValid) {
+
+                    generateMonths();
+
+                    let monthModalEl = document.getElementById('monthSelectModal');
+                    let monthModal = new bootstrap.Modal(monthModalEl);
+
+                    monthModal.show();
+
+                    // If modal is closed without selecting month → submit normally
+                    monthModalEl.addEventListener('hidden.bs.modal', function handler() {
+
+                        monthModalEl.removeEventListener('hidden.bs.modal', handler);
+
+                        // If no month selected → submit form normally
+                        if (!$("#selected_month").val()) {
+                            submitMainForm();
+                        }
+                    });
+                }
+
+
+            });
+        });
+
+        $(document).on("click", ".month-btn", function () {
+
+            let selectedMonth = $(this).data("month");
+
+            // prevent duplicate months
+            let exists = false;
+
+            $('input[name="month[]"]').each(function () {
+                if ($(this).val() === selectedMonth) {
+                    exists = true;
+                }
+            });
+
+            if (!exists) {
+                $('<input>')
+                    .attr('type', 'hidden')
+                    .attr('name', 'month[]')
+                    .val(selectedMonth)
+                    .appendTo('#add_frm, #edit_frm');
+            }
+
+            $("#monthSelectModal").modal("hide");
+
+            submitMainForm();
+        });
+        function submitMainForm() {
+
+            if ($("#edit_frm").length) {
+                $("#edit_frm").submit();
+            } else {
+                $("#add_frm").submit();
+            }
+        }
+
+
+
+    // Add Birthday Voucher Validation End
     
    
 });

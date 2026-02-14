@@ -681,8 +681,10 @@
                                 <div id="selected_locations_hidden"></div>
 
                                 <!-- LEFT: Locations -->
-                                <div class="col-md-7">
+                                <div class="col-md-7 mb-2">
                                     <div id="participating_merchant_location"></div>
+                                    <div class="text-danger participating-location-error"></div>
+
                                 </div>
 
                                 <!-- RIGHT: Selected Outlets -->
@@ -692,10 +694,11 @@
                                         <div id="selected_locations_summary"
                                             class="form-control"
                                             style="min-height:120px; background:#f8f9fa;">
+
+                                            Mayru
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
 
                         </div>

@@ -480,43 +480,25 @@ class EvoucherController extends Controller
                     $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
                 }
     
+            
                 /* ---------------------------------------------------
                 | CLEARING METHOD RULES
                 --------------------------------------------------- */
-                if ($request->clearing_method != 2) {
-                    $rules['location_text'] = 'required';
-                    $messages = [
-                        'location_text.required' => 'Location is required',
-                    ];
-                }
-    
+
                 if ((int) $request->clearing_method === 2) {
-    
-                    $rules['participating_merchant_id'] =
-                        'required|exists:participating_merchants,id';
-    
-                    $rules['participating_merchant_locations'] =
-                        'required|array|min:1';
-    
-                    $hasSelected = false;
-    
-                    foreach ($request->participating_merchant_locations ?? [] as $loc) {
-                        if (!empty($loc['selected'])) {
-                            $hasSelected = true;
-                        }
-                    }
-    
-                    if (!$hasSelected) {
-                        return response()->json([
-                            'status' => 'error',
-                            'errors' => [
-                                'participating_merchant_locations' =>
-                                    ['Please select at least one merchant location.']
-                            ]
-                        ], 200);
-                    }
+
+                    $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+
+                    $rules['participating_merchant_locations'] = 'required_with:participating_merchant_id|array';
+                
+                    $messages['participating_merchant_locations.required_with'] = 'Participating merchant outlets is required.';
                 }
-    
+                else{
+                     $rules['location_text'] = 'required';
+                    $messages['location_text.required'] = 'Location is required';
+
+                }
+
                 /* ---------------------------------------------------
                 | VALIDATE
                 --------------------------------------------------- */
@@ -1113,66 +1095,18 @@ class EvoucherController extends Controller
             /* --------------------------------------------
             | CLEARING METHOD RULES
             -------------------------------------------- */
-            if ($request->clearing_method != 2 && $request->clearing_method != 4) {
-                $rules['location_text'] = 'required';
-                $messages = [
-                    'location_text.required' => 'Location is required',
-                ];
-            }
-
             if ((int) $request->clearing_method === 2) {
 
-                $existingMerchantId = $reward->participating_merchant_id ?? null;
-                $existingLocations  = $reward->participatingLocations ?? collect();
+                $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
 
-                // -------------------------------
-                // Participating merchant
-                // -------------------------------
-                if (
-                    !$request->has('participating_merchant_locations') &&
-                    !$request->filled('participating_merchant_id') &&
-                    !$existingMerchantId
-                ) {
-                    $rules['participating_merchant_id'] =
-                        'required|exists:participating_merchants,id';
-                }
+                $rules['participating_merchant_locations'] = 'required_with:participating_merchant_id|array';
+            
+                $messages['participating_merchant_locations.required_with'] = 'Participating merchant outlets is required.';
+            }
+            else{
+                    $rules['location_text'] = 'required';
+                $messages['location_text.required'] = 'Location is required';
 
-                // -------------------------------
-                // Participating locations
-                // -------------------------------
-                if (
-                    !$request->filled('participating_merchant_locations') &&
-                    $existingLocations->isEmpty()
-                ) {
-                    $rules['participating_merchant_locations'] =
-                        'required|array|min:1';
-                }
-
-                // -------------------------------
-                // If locations sent → check selected
-                // -------------------------------
-                if ($request->has('participating_merchant_locations')) {
-
-                    $hasSelected = false;
-
-                    foreach ($request->participating_merchant_locations as $loc) {
-                        if (!empty($loc['selected'])) {
-                            $hasSelected = true;
-                            break;
-                        }
-                    }
-
-                    if (!$hasSelected) {
-                        return response()->json([
-                            'status' => 'error',
-                            'errors' => [
-                                'participating_merchant_locations' => [
-                                    'Please select at least one merchant location.'
-                                ]
-                            ]
-                        ], 422);
-                    }
-                }
             }
 
             /* ---------------------------------------------------

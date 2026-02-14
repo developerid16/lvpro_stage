@@ -64,20 +64,40 @@
        
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
-
-        // if (modal.attr("id") === "EditModal" && window.selectedOutletMap && Object.keys(window.selectedOutletMap).length > 0) {
-        //     editParticipatingMerchantLocations(modal);
-        // }
-
-        let merchantIds = modal.find('#participating_merchant_id').val();
-
-        if (merchantIds && merchantIds.length > 0) {
-
-            modal.find("#participating_section").show();
-            modal.find("#participating_merchant_location").show();
-
-            loadParticipatingMerchantLocationsBday(modal, merchantIds);
+        console.log(selectedOutlets,'selectedOutlets34');
+        
+          // 🔥 Load saved outlet selection properly
+        if (!selectedOutlets || Object.keys(selectedOutlets).length === 0) {
         }
+
+        Object.keys(selectedOutlets).forEach(function (clubId) {
+
+            loadEditSelectedOutlets(
+                modal,
+                clubId,
+                selectedOutlets[clubId]   // 🔥 pass correct array
+            );
+
+        });
+
+        // modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
+
+        //     let qty = $(this).val();
+
+        //     if (qty && parseInt(qty) > 0) {
+
+        //         let card = $(this).closest('.accordion-item');
+        //         let collapse = card.find('.accordion-collapse');
+
+        //         collapse.addClass('show');
+
+        //         // Optional: rotate icon
+        //         card.find('.toggle-icon')
+        //             .removeClass('mdi-chevron-down')
+        //             .addClass('mdi-chevron-up');
+        //     }
+
+        // });
 
         $('.club-location-error').text('');
 
@@ -113,8 +133,8 @@
         });
         
         forceInventoryReadonly(modal);
+       
     });
-
     $(document).on('change', '#EditModal #participating_merchant_id', function () {
 
         $('.club-location-error').text('');
@@ -186,30 +206,37 @@
                     @csrf
                     @if (isset($type))
                         <input type="hidden" name="parent_type" value="{{ $type }}">
+
                     @endif
                     @if (isset($data->id))
                         @method('PATCH')
                     @endif
                     <div class="row">
                         <div class="col-12 col-md-6">
-                            <div class="mb-3 sh_dec">
-                                <label class="sh_dec">
-                                    Reward Creation: From Month<span class="required-hash">*</span>
-                                </label>
-                                <div class="d-flex">
-                                    <input type="text" id="from_month" class="form-control" name="from_month" value="{{ isset($data->from_month) ? $data->from_month : '' }}">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec">
-                                    To Month<span class="required-hash">*</span>
+                                    Select Month <span class="required-hash">*</span>
                                 </label>
-                                <input type="text" id="to_month" class="form-control" name="to_month"value="{{ isset($data->to_month) ? $data->to_month : '' }}">
+                                <input type="month"
+                                        name="month[]"
+                                        id="month"
+                                        class="form-control"
+                                        value="{{ $data->month ?? '' }}"
+                                        min="{{ date('Y') }}-01"
+                                        max="{{ date('Y') }}-12">
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
+                                <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
+
+
                         
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
@@ -243,12 +270,7 @@
                             </div>
                         </div>                       
   
-                       <div class="col-12 col-md-12">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
-                            </div>
-                        </div>
+                       
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
@@ -306,7 +328,7 @@
                                <input
                                     id="voucher_validity"
                                     type="text"
-                                    class="sh_dec form-control js-flat-date"
+                                    class="sh_dec form-control js-flat-date voucher_validity"
                                     name="voucher_validity"
                                     value="{{ $data?->voucher_validity ?? '' }}"
                                     placeholder="YYYY-MM-DD"
@@ -439,7 +461,7 @@
                                             </div>
 
                                             <div class="col-md-5 mb-2">
-                                                <div class="selected-locations-wrapper" style="display:none;">
+                                                <div class="selected-locations-wrapper outlet-list" style="display:none;">
                                                     <label class="fw-bold">Selected Outlets</label>
                                                     <div class="selected-locations-summary form-control"
                                                         style="min-height:120px; background:#f8f9fa;">
@@ -518,7 +540,7 @@
 
                         
                         <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"  name="" value="submit" type="button" id="submitBtn">Submit</button>
+                            <button class="sh_btn btn btn-primary waves-effect waves-light"  name="" value="submit" type="button" id="submitBtnBV">Submit</button>
                         </div>
                     </div>
                 </form>

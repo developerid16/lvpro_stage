@@ -60,7 +60,28 @@
     <!-- end modal -->
 
   
-  
+    <div class="modal fade" id="monthSelectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Select Month ({{ now()->year }})
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+
+                    <p class="mb-3">
+                        You want to add this voucher in which month?
+                    </p>
+
+                    <div class="row" id="monthList"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 
