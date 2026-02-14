@@ -80,6 +80,18 @@ $(document).ready(function () {
                     delete errors.participating_merchant_locations;
                 }
 
+                if (errors.month) {
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: errors.month[0]
+                    });
+
+                    // OR show below input
+                    $("#month").addClass("is-invalid");
+                }
+
                 // Show remaining normal field errors
                 show_errors(errors);
             }
