@@ -1419,639 +1419,502 @@ class RewardController extends Controller
                     'message' => 'Reward Updated Successfully'
                 ]);
     
-            }
-
-            /* ---------------------------------------------------
-            * 1) BASE RULES
-            * ---------------------------------------------------*/
-
-            $rules = [
-                'voucher_image'        => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-                'voucher_detail_img'   => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-
-                'name'        => 'required|string|max:191',
-                'description' => 'required|string',
-                'term_of_use' => 'required|string',
-                'how_to_use'  => 'required|string',
-
-                'merchant_id' => 'required|exists:merchants,id',
-                'reward_type' => 'required|in:0,1',
-
-                'usual_price' => 'required|numeric|min:0',
-
-                'publish_start' => 'required',
-                'publish_end'   => 'required',
-                'sales_start'   => 'required',
-                'sales_end'     => 'required',
-
-                'low_stock_1' => 'nullable|min:0',
-                'low_stock_2' => 'nullable|min:0',
-            ];
-
-            $messages = [
-                'term_of_use.required' => 'Voucher T&C is required',
-            ];
-
-            /* ---------------------------------------------------
-            * 2) TIER RULES
-            * ---------------------------------------------------*/
-
-            $tiers = Tier::where('status', 'Active')->get();
-
-            foreach ($tiers as $tier) {
-                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
-                $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
-            }
-
-            /* ---------------------------------------------------
-            * 3) CONDITIONAL RULES (BEFORE VALIDATOR)
-            * ---------------------------------------------------*/
-
-            if ((int) $request->reward_type === 1) {
-
-                // PHYSICAL
-                $rules['max_quantity_physical'] = 'required|integer|min:1';
-                $rules['max_quantity_physical'] = 'required|integer|min:1';
-                $rules['locations'] = 'required|array|min:1';
-
-                foreach ($request->locations ?? [] as $locId => $locData) {
-                    if (!empty($locData['selected'])) {
-                        $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
-                    }
-                }
-
-            } else {
-
-                // DIGITAL
-                $rules['voucher_set']          = 'required|numeric|min:1';
-                $rules['set_qty']              = 'required|numeric|min:1';
-                $rules['max_quantity_digital'] = 'required|integer|min:1';
-                $rules['voucher_validity']     = 'required|date|after_or_equal:sales_end';
-                $rules['inventory_type']       = 'required|in:0,1';
-                $rules['voucher_value']        = 'required|numeric|min:1';
-                $rules['clearing_method']      = 'required|in:0,1,2,3,4';
+            }else{
 
     
-                if ((int) $request->clearing_method === 2) {
-
-                    $existingMerchantId = $reward->participating_merchant_id ?? null;
-                    $existingLocations  = $reward->participatingLocations ?? collect();
-
-                    $locationsInput = $request->input('participating_merchant_locations', []);
-
-                    $hasLocations = false;
-
-                    if (!empty($locationsInput)) {
-                        foreach ($locationsInput as $loc) {
-                            if (!empty($loc['selected'])) {
-                                $hasLocations = true;
+                /* ---------------------------------------------------
+                * 1) BASE RULES
+                * ---------------------------------------------------*/
+    
+                $rules = [
+                    'voucher_image'        => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+                    'voucher_detail_img'   => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+    
+                    'name'        => 'required|string|max:191',
+                    'description' => 'required|string',
+                    'term_of_use' => 'required|string',
+                    'how_to_use'  => 'required|string',
+    
+                    'merchant_id' => 'required|exists:merchants,id',
+                    'reward_type' => 'required|in:0,1',
+    
+                    'usual_price' => 'required|numeric|min:0',
+    
+                    'publish_start' => 'required',
+                    'publish_end'   => 'required',
+                    'sales_start'   => 'required',
+                    'sales_end'     => 'required',
+    
+                    'low_stock_1' => 'nullable|min:0',
+                    'low_stock_2' => 'nullable|min:0',
+                ];
+    
+                $messages = [
+                    'term_of_use.required' => 'Voucher T&C is required',
+                ];
+    
+                /* ---------------------------------------------------
+                * 2) TIER RULES
+                * ---------------------------------------------------*/
+    
+                $tiers = Tier::where('status', 'Active')->get();
+    
+                foreach ($tiers as $tier) {
+                    $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
+                    $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
+                }
+    
+                /* ---------------------------------------------------
+                * 3) CONDITIONAL RULES (BEFORE VALIDATOR)
+                * ---------------------------------------------------*/
+    
+                if ((int) $request->reward_type === 1) {
+    
+                    // PHYSICAL
+                    $rules['max_quantity_physical'] = 'required|integer|min:1';
+                    $rules['max_quantity_physical'] = 'required|integer|min:1';
+                    $rules['locations'] = 'required|array|min:1';
+    
+                    foreach ($request->locations ?? [] as $locId => $locData) {
+                        if (!empty($locData['selected'])) {
+                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+                        }
+                    }
+    
+                } else {
+    
+                    // DIGITAL
+                    $rules['voucher_set']          = 'required|numeric|min:1';
+                    $rules['set_qty']              = 'required|numeric|min:1';
+                    $rules['max_quantity_digital'] = 'required|integer|min:1';
+                    $rules['voucher_validity']     = 'required|date|after_or_equal:sales_end';
+                    $rules['inventory_type']       = 'required|in:0,1';
+                    $rules['voucher_value']        = 'required|numeric|min:1';
+                    $rules['clearing_method']      = 'required|in:0,1,2,3,4';
+    
+        
+                    if ((int) $request->clearing_method === 2) {
+    
+                        $existingMerchantId = $reward->participating_merchant_id ?? null;
+                        $existingLocations  = $reward->participatingLocations ?? collect();
+    
+                        $locationsInput = $request->input('participating_merchant_locations', []);
+    
+                        $hasLocations = false;
+    
+                        if (!empty($locationsInput)) {
+                            foreach ($locationsInput as $loc) {
+                                if (!empty($loc['selected'])) {
+                                    $hasLocations = true;
+                                    break;
+                                }
+                            }
+                        }
+    
+                        // ------------------------------------
+                        // Merchant required ONLY if:
+                        // no locations selected AND
+                        // no existing merchant
+                        // ------------------------------------
+                        if (!$hasLocations && !$existingMerchantId) {
+                            $rules['participating_merchant_id'] =
+                                'required|exists:participating_merchants,id';
+                        }
+    
+                        // ------------------------------------
+                        // Locations required if:
+                        // no locations selected AND
+                        // no existing locations
+                        // ------------------------------------
+                        if (!$hasLocations && $existingLocations->isEmpty()) {
+                            $rules['participating_merchant_locations'] =
+                                'required|array|min:1';
+                        }
+    
+                        // ------------------------------------
+                        // Extra safety: if locations sent but none selected
+                        // ------------------------------------
+                        if ($request->has('participating_merchant_locations') && !$hasLocations) {
+                            return response()->json([
+                                'status' => 'error',
+                                'errors' => [
+                                    'participating_merchant_locations' => [
+                                        'Please select at least one merchant location.'
+                                    ]
+                                ]
+                            ], 422);
+                        }
+                    }
+                    else{
+                        $rules['location_text'] = 'required';
+                        $messages['location_text.required'] = 'Location is required';
+    
+                    }
+                    
+    
+                    if ((int) $request->inventory_type === 0) {
+                        $rules['inventory_qty'] = 'required|integer|min:1';
+                    }
+                }
+    
+                /* ---------------------------------------------------
+                * 4) VALIDATOR
+                * ---------------------------------------------------*/
+    
+                $validator = Validator::make($request->all(), $rules, $messages);
+    
+                /* ---------------------------------------------------
+                * 5) EXTRA CROSS CHECKS
+                * ---------------------------------------------------*/
+    
+                $validator->after(function ($validator) use ($request, $tiers) {
+    
+                    // Check at least one physical location selected
+                    if ((int) $request->reward_type === 1) {
+    
+                        $hasSelected = false;
+    
+                        foreach ($request->locations ?? [] as $locData) {
+                            if (!empty($locData['selected'])) {
+                                $hasSelected = true;
                                 break;
                             }
                         }
+    
+                        if (!$hasSelected) {
+                            $validator->errors()->add(
+                                'locations',
+                                'Please select at least one location.'
+                            );
+                        }
                     }
-
-                    // ------------------------------------
-                    // Merchant required ONLY if:
-                    // no locations selected AND
-                    // no existing merchant
-                    // ------------------------------------
-                    if (!$hasLocations && !$existingMerchantId) {
-                        $rules['participating_merchant_id'] =
-                            'required|exists:participating_merchants,id';
+    
+                    // Tier price cannot exceed usual price
+                    foreach ($tiers as $tier) {
+                        $price = $request->input("tier_{$tier->id}");
+                        if ($price > $request->usual_price) {
+                            $validator->errors()->add(
+                                "tier_{$tier->id}",
+                                "{$tier->tier_name} price cannot be greater than Usual Price"
+                            );
+                        }
                     }
-
-                    // ------------------------------------
-                    // Locations required if:
-                    // no locations selected AND
-                    // no existing locations
-                    // ------------------------------------
-                    if (!$hasLocations && $existingLocations->isEmpty()) {
-                        $rules['participating_merchant_locations'] =
-                            'required|array|min:1';
+                });
+    
+                /* ---------------------------------------------------
+                * 6) FAIL CHECK
+                * ---------------------------------------------------*/
+    
+                if ($validator->fails()) {
+                    return response()->json([
+                        "status" => "error",
+                        "errors" => $validator->errors()
+                    ], 422);
+                }
+    
+                $validated = $validator->validated();
+    
+    
+    
+                /* ---------------------------------------------------
+                * 4) IMAGE UPLOAD
+                * ---------------------------------------------------*/
+                
+                if ($request->hasFile('voucher_image')) {
+    
+                    $uploadPath = public_path('uploads/image');
+    
+                    // Ensure directory exists
+                    if (!is_dir($uploadPath)) {
+                        mkdir($uploadPath, 0775, true);
                     }
-
-                    // ------------------------------------
-                    // Extra safety: if locations sent but none selected
-                    // ------------------------------------
-                    if ($request->has('participating_merchant_locations') && !$hasLocations) {
+    
+                    // Ensure directory is writable
+                    if (!is_writable($uploadPath)) {
                         return response()->json([
                             'status' => 'error',
-                            'errors' => [
-                                'participating_merchant_locations' => [
-                                    'Please select at least one merchant location.'
-                                ]
-                            ]
-                        ], 422);
+                            'message' => 'Upload directory is not writable: reward_images'
+                        ], 500);
                     }
-                }
-                else{
-                    $rules['location_text'] = 'required';
-                    $messages['location_text.required'] = 'Location is required';
-
-                }
-                
-
-                if ((int) $request->inventory_type === 0) {
-                    $rules['inventory_qty'] = 'required|integer|min:1';
-                }
-            }
-
-            /* ---------------------------------------------------
-            * 4) VALIDATOR
-            * ---------------------------------------------------*/
-
-            $validator = Validator::make($request->all(), $rules, $messages);
-
-            /* ---------------------------------------------------
-            * 5) EXTRA CROSS CHECKS
-            * ---------------------------------------------------*/
-
-            $validator->after(function ($validator) use ($request, $tiers) {
-
-                // Check at least one physical location selected
-                if ((int) $request->reward_type === 1) {
-
-                    $hasSelected = false;
-
-                    foreach ($request->locations ?? [] as $locData) {
-                        if (!empty($locData['selected'])) {
-                            $hasSelected = true;
-                            break;
+    
+                    // Delete old image (ignore errors)
+                    if (!empty($reward->voucher_image)) {
+                        $oldFile = $uploadPath . '/' . $reward->voucher_image;
+    
+                        if (file_exists($oldFile)) {
+                            @unlink($oldFile); // <-- the @ prevents warning if permission denied
                         }
                     }
-
-                    if (!$hasSelected) {
-                        $validator->errors()->add(
-                            'locations',
-                            'Please select at least one location.'
-                        );
+    
+                    // Upload new image
+                    $file = $request->file('voucher_image');
+                    $filename = time() . '_' . $file->getClientOriginalName();
+    
+                    $file->move($uploadPath, $filename);
+    
+                    $validated['voucher_image'] = $filename;
+                }
+    
+                if ($request->hasFile('voucher_detail_img')) {
+    
+                    $uploadPath = public_path('uploads/image');
+    
+                    // Ensure directory exists
+                    if (!is_dir($uploadPath)) {
+                        mkdir($uploadPath, 0775, true);
                     }
-                }
-
-                // Tier price cannot exceed usual price
-                foreach ($tiers as $tier) {
-                    $price = $request->input("tier_{$tier->id}");
-                    if ($price > $request->usual_price) {
-                        $validator->errors()->add(
-                            "tier_{$tier->id}",
-                            "{$tier->tier_name} price cannot be greater than Usual Price"
-                        );
+    
+                    // Ensure directory is writable
+                    if (!is_writable($uploadPath)) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Upload directory is not writable: reward_images'
+                        ], 500);
                     }
-                }
-            });
-
-            /* ---------------------------------------------------
-            * 6) FAIL CHECK
-            * ---------------------------------------------------*/
-
-            if ($validator->fails()) {
-                return response()->json([
-                    "status" => "error",
-                    "errors" => $validator->errors()
-                ], 422);
-            }
-
-            $validated = $validator->validated();
-
-
-
-            /* ---------------------------------------------------
-            * 4) IMAGE UPLOAD
-            * ---------------------------------------------------*/
-           
-            if ($request->hasFile('voucher_image')) {
-
-                $uploadPath = public_path('uploads/image');
-
-                // Ensure directory exists
-                if (!is_dir($uploadPath)) {
-                    mkdir($uploadPath, 0775, true);
-                }
-
-                // Ensure directory is writable
-                if (!is_writable($uploadPath)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Upload directory is not writable: reward_images'
-                    ], 500);
-                }
-
-                // Delete old image (ignore errors)
-                if (!empty($reward->voucher_image)) {
-                    $oldFile = $uploadPath . '/' . $reward->voucher_image;
-
-                    if (file_exists($oldFile)) {
-                        @unlink($oldFile); // <-- the @ prevents warning if permission denied
-                    }
-                }
-
-                // Upload new image
-                $file = $request->file('voucher_image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-
-                $file->move($uploadPath, $filename);
-
-                $validated['voucher_image'] = $filename;
-            }
-
-            if ($request->hasFile('voucher_detail_img')) {
-
-                $uploadPath = public_path('uploads/image');
-
-                // Ensure directory exists
-                if (!is_dir($uploadPath)) {
-                    mkdir($uploadPath, 0775, true);
-                }
-
-                // Ensure directory is writable
-                if (!is_writable($uploadPath)) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Upload directory is not writable: reward_images'
-                    ], 500);
-                }
-
-                // Delete old image (ignore errors)
-                if (!empty($reward->voucher_detail_img)) {
-                    $oldFile = $uploadPath . '/' . $reward->voucher_detail_img;
-
-                    if (file_exists($oldFile)) {
-                        @unlink($oldFile); // <-- the @ prevents warning if permission denied
-                    }
-                }
-
-                // Upload new image
-                $file = $request->file('voucher_detail_img');
-                $filename = time() . '_' . $file->getClientOriginalName();
-
-                $file->move($uploadPath, $filename);
-
-                $validated['voucher_detail_img'] = $filename;
-            }
-
-
-            if ($request->publish_start) {
-                $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
-                $validated['publish_start_time'] = date('H:i:s', strtotime($request->publish_start));
-            }
-
-            if ($request->publish_end) {
-                $validated['publish_end_date'] = date('Y-m-d', strtotime($request->publish_end));
-                $validated['publish_end_time'] = date('H:i:s', strtotime($request->publish_end));
-            }
-
-            if ($request->sales_start) {
-                $validated['sales_start_date'] = date('Y-m-d', strtotime($request->sales_start));
-                $validated['sales_start_time'] = date('H:i:s', strtotime($request->sales_start));
-            }
-
-            if ($request->sales_end) {
-                $validated['sales_end_date'] = date('Y-m-d', strtotime($request->sales_end));
-                $validated['sales_end_time'] = date('H:i:s', strtotime($request->sales_end));
-            }
-
-
-            /* ---------------------------------------------------
-            * 5) UPDATE REWARD
-            * ---------------------------------------------------*/
-            $maxQty = $request->reward_type == 0 ? $request->max_quantity_digital : $request->max_quantity_physical;
-
-            $locationTextId = CustomLocation::getOrCreate(
-                $request->location_text ?? ''
-            );
-
-            if ((int) $reward->is_draft != 1) {
-                $updateRequest = RewardUpdateRequest::updateOrCreate(
-                    [
-                        'reward_id' => $reward->id,
-                        'status'    => 'pending',
-                        'type'      => '0',
-                    ],
-                    [
-                        'request_by'          => auth()->id(),
-                        'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
-                        'voucher_detail_img'  => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
-                        'name'                => $validated['name'],
-                        'description'         => $validated['description'],
-                        'term_of_use'         => $validated['term_of_use'],
-                        'how_to_use'          => $validated['how_to_use'],
-
-                        'merchant_id'         => $validated['merchant_id'] ?? 0,
-                        'reward_type' => isset($validated['reward_type']) && $validated['reward_type'] !== ''
-                            ? (int) $validated['reward_type']
-                            : 0,
-
-                        'usual_price' => isset($validated['usual_price']) && $validated['usual_price'] !== ''
-                            ? (float) $validated['usual_price']
-                            : 0,
-
-                        'max_quantity' => isset($maxQty) && $maxQty !== ''
-                            ? (int) $maxQty
-                            : 0,
-
-
-                        'publish_start_date'  => $validated['publish_start_date'] ?? '',
-                        'publish_start_time'  => $validated['publish_start_time'] ?? '',
-                        'publish_end_date'    => $validated['publish_end_date'] ?? '',
-                        'publish_end_time'    => $validated['publish_end_time'] ?? '',
-
-                        'sales_start_date'    => $validated['sales_start_date'] ?? '',
-                        'sales_start_time'    => $validated['sales_start_time'] ?? '',
-                        'sales_end_date'      => $validated['sales_end_date'] ?? '',
-                        'sales_end_time'      => $validated['sales_end_time'] ?? '',
-
-                        'hide_quantity'       => $request->hide_quantity,
-                        'low_stock_1'         => $request->low_stock_1,
-                        'low_stock_2'         => $request->low_stock_2,
-                        'friendly_url'        => $request->friendly_url,
-
-                        'category_id'            => $request->category_id ?? 0,
-                        'club_classification_id' => $request->club_classification_id ?? 0,
-                        'fabs_category_id'       => $request->fabs_category_id ?? 0,
-                        'smc_classification_id'  => $request->smc_classification_id ?? 0,
-                        'ax_item_code'           => $request->ax_item_code ?? 0,
-
-                        'publish_independent' => $request->publish_independent ?? 0,
-                        'publish_inhouse'     => $request->publish_inhouse ?? 0,
-                        'send_reminder'       => $request->send_reminder ?? 0,
-
-                        'voucher_validity'    => $request->voucher_validity,
-                        'where_use'           => $request->where_use,
-                        'inventory_type'      => $request->inventory_type ?? 0,
-                        'inventory_qty'       => $request->inventory_qty ?? 0,
-                        'voucher_value'       => $request->voucher_value ?? 0,
-                        'voucher_set'         => $request->voucher_set ?? 0,
-                        'set_qty'             => $request->set_qty ?? 0,
-                        'clearing_method'     => $request->clearing_method,
-                        'participating_merchant_id' => $request->participating_merchant_id ?? 0,
-                        'location_text'       => $locationTextId ?? '',
-                        'max_order'           => $request->max_order,
-                        'suspend_deal'        => $request->has('suspend_deal') ? 1 : 0,
-                        'suspend_voucher'     => $request->has('suspend_voucher') ? 1 : 0,
-                        'is_featured' => $request->boolean('is_featured'),
-                    ]
-                );
-
-
-                if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
-
-                    // 1️⃣ Remove old mappings
-                    RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
-
-                    foreach ($request->participating_merchant_locations as $locId => $locData) {
-
-                        if (!isset($locData['selected'])) {
-                            continue;
+    
+                    // Delete old image (ignore errors)
+                    if (!empty($reward->voucher_detail_img)) {
+                        $oldFile = $uploadPath . '/' . $reward->voucher_detail_img;
+    
+                        if (file_exists($oldFile)) {
+                            @unlink($oldFile); // <-- the @ prevents warning if permission denied
                         }
-
-                        // 2️⃣ Get merchant ID from location itself
-                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)
-                            ->value('participating_merchant_id');
-
-                        if (!$merchantId) {
-                            continue; // safety
-                        }
-
-                        // 3️⃣ Save correct mapping
-                        RewardParticipatingMerchantLocationUpdate::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId,
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
                     }
+    
+                    // Upload new image
+                    $file = $request->file('voucher_detail_img');
+                    $filename = time() . '_' . $file->getClientOriginalName();
+    
+                    $file->move($uploadPath, $filename);
+    
+                    $validated['voucher_detail_img'] = $filename;
                 }
-
+    
+    
+                if ($request->publish_start) {
+                    $validated['publish_start_date'] = date('Y-m-d', strtotime($request->publish_start));
+                    $validated['publish_start_time'] = date('H:i:s', strtotime($request->publish_start));
+                }
+    
+                if ($request->publish_end) {
+                    $validated['publish_end_date'] = date('Y-m-d', strtotime($request->publish_end));
+                    $validated['publish_end_time'] = date('H:i:s', strtotime($request->publish_end));
+                }
+    
+                if ($request->sales_start) {
+                    $validated['sales_start_date'] = date('Y-m-d', strtotime($request->sales_start));
+                    $validated['sales_start_time'] = date('H:i:s', strtotime($request->sales_start));
+                }
+    
+                if ($request->sales_end) {
+                    $validated['sales_end_date'] = date('Y-m-d', strtotime($request->sales_end));
+                    $validated['sales_end_time'] = date('H:i:s', strtotime($request->sales_end));
+                }
+    
+    
                 /* ---------------------------------------------------
-                * 7) UPDATE LOCATION DATA
+                * 5) UPDATE REWARD
                 * ---------------------------------------------------*/
-                if ($request->reward_type == '1') {
-
-                    // Delete old rows
-                    RewardLocationUpdate::where('reward_id', $reward->id)->delete();
-
-                    // Insert fresh
-                    foreach ($request->locations as $locId => $locData) {
-
-                        if (!isset($locData['selected'])) {
-                            continue;
+                $maxQty = $request->reward_type == 0 ? $request->max_quantity_digital : $request->max_quantity_physical;
+    
+                $locationTextId = CustomLocation::getOrCreate(
+                    $request->location_text ?? ''
+                );
+    
+                // if ((int) $reward->is_draft != 1) {
+                    $updateRequest = RewardUpdateRequest::updateOrCreate(
+                        [
+                            'reward_id' => $reward->id,
+                            'status'    => 'pending',
+                            'type'      => '0',
+                        ],
+                        [
+                            'request_by'          => auth()->id(),
+                            'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
+                            'voucher_detail_img'  => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
+                            'name'                => $validated['name'],
+                            'description'         => $validated['description'],
+                            'term_of_use'         => $validated['term_of_use'],
+                            'how_to_use'          => $validated['how_to_use'],
+    
+                            'merchant_id'         => $validated['merchant_id'] ?? 0,
+                            'reward_type' => isset($validated['reward_type']) && $validated['reward_type'] !== ''
+                                ? (int) $validated['reward_type']
+                                : 0,
+    
+                            'usual_price' => isset($validated['usual_price']) && $validated['usual_price'] !== ''
+                                ? (float) $validated['usual_price']
+                                : 0,
+    
+                            'max_quantity' => isset($maxQty) && $maxQty !== ''
+                                ? (int) $maxQty
+                                : 0,
+    
+    
+                            'publish_start_date'  => $validated['publish_start_date'] ?? '',
+                            'publish_start_time'  => $validated['publish_start_time'] ?? '',
+                            'publish_end_date'    => $validated['publish_end_date'] ?? '',
+                            'publish_end_time'    => $validated['publish_end_time'] ?? '',
+    
+                            'sales_start_date'    => $validated['sales_start_date'] ?? '',
+                            'sales_start_time'    => $validated['sales_start_time'] ?? '',
+                            'sales_end_date'      => $validated['sales_end_date'] ?? '',
+                            'sales_end_time'      => $validated['sales_end_time'] ?? '',
+    
+                            'hide_quantity'       => $request->hide_quantity,
+                            'low_stock_1'         => $request->low_stock_1,
+                            'low_stock_2'         => $request->low_stock_2,
+                            'friendly_url'        => $request->friendly_url,
+    
+                            'category_id'            => $request->category_id ?? 0,
+                            'club_classification_id' => $request->club_classification_id ?? 0,
+                            'fabs_category_id'       => $request->fabs_category_id ?? 0,
+                            'smc_classification_id'  => $request->smc_classification_id ?? 0,
+                            'ax_item_code'           => $request->ax_item_code ?? 0,
+    
+                            'publish_independent' => $request->publish_independent ?? 0,
+                            'publish_inhouse'     => $request->publish_inhouse ?? 0,
+                            'send_reminder'       => $request->send_reminder ?? 0,
+    
+                            'voucher_validity'    => $request->voucher_validity,
+                            'where_use'           => $request->where_use,
+                            'inventory_type'      => $request->inventory_type ?? 0,
+                            'inventory_qty'       => $request->inventory_qty ?? 0,
+                            'voucher_value'       => $request->voucher_value ?? 0,
+                            'voucher_set'         => $request->voucher_set ?? 0,
+                            'set_qty'             => $request->set_qty ?? 0,
+                            'clearing_method'     => $request->clearing_method,
+                            'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+                            'location_text'       => $locationTextId ?? '',
+                            'max_order'           => $request->max_order,
+                            'suspend_deal'        => $request->has('suspend_deal') ? 1 : 0,
+                            'suspend_voucher'     => $request->has('suspend_voucher') ? 1 : 0,
+                            'is_featured' => $request->boolean('is_featured'),
+                        ]
+                    );
+    
+    
+                    if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
+    
+                        // 1️⃣ Remove old mappings
+                        RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+    
+                        foreach ($request->participating_merchant_locations as $locId => $locData) {
+    
+                            if (!isset($locData['selected'])) {
+                                continue;
+                            }
+    
+                            // 2️⃣ Get merchant ID from location itself
+                            $merchantId = ParticipatingMerchantLocation::where('id', $locId)
+                                ->value('participating_merchant_id');
+    
+                            if (!$merchantId) {
+                                continue; // safety
+                            }
+    
+                            // 3️⃣ Save correct mapping
+                            RewardParticipatingMerchantLocationUpdate::create([
+                                'reward_id'                 => $reward->id,
+                                'participating_merchant_id' => $merchantId,
+                                'location_id'               => $locId,
+                                'is_selected'               => 1,
+                            ]);
                         }
-
-                        RewardLocationUpdate::create([
-                            'reward_id'     => $reward->id,
-                            'merchant_id'   => $validated['merchant_id'],
-                            'location_id'   => $locId,
-                            'is_selected'   => 1,
-                            'inventory_qty' => $locData['inventory_qty'] ?? 0,
-                            'total_qty' => $locData['inventory_qty'] ?? 0,
-                        ]);
                     }
-                }
-
-
-            }
-            // else{
-
-            //     $reward->update([
-            //         'type'               => '0',
-            //         'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
-            //         'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
-            //         'name'               => $validated['name'],
-            //         'description'        => $validated['description'],
-            //         'term_of_use'        => $validated['term_of_use'],
-            //         'how_to_use'         => $validated['how_to_use'],
-
-            //         'merchant_id'        => $validated['merchant_id'],
-            //         'reward_type' => isset($validated['reward_type']) && $validated['reward_type'] !== '' ? (int) $validated['reward_type'] : 0,
-            //         'usual_price' => isset($validated['usual_price']) && $validated['usual_price'] !== '' ? (float) $validated['usual_price'] : 0,
-            //         'max_quantity' => isset($maxQty) && $maxQty !== '' ? (int) $maxQty : 0,
-
-            //         'publish_start_date' => $validated['publish_start_date'] ?? '',
-            //         'publish_start_time' => $validated['publish_start_time'] ?? '',
-            //         'publish_end_date'   => $validated['publish_end_date'] ?? '',
-            //         'publish_end_time'   => $validated['publish_end_time'] ?? '',
-
-            //         'sales_start_date'   => $validated['sales_start_date'] ?? '',
-            //         'sales_start_time'   => $validated['sales_start_time'] ?? '',
-            //         'sales_end_date'     => $validated['sales_end_date'] ?? '',
-            //         'sales_end_time'     => $validated['sales_end_time'] ?? '',
-
-            //         // Physical fields
-            //         'hide_quantity'            => $request->hide_quantity,
-            //         'low_stock_1'        => $request->low_stock_1,
-            //         'low_stock_2'        => $request->low_stock_2,
-            //         'friendly_url'       => $request->friendly_url,
-            //         'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
-            //         'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : 0,
-            //         'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : 0,
-            //         'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : 0,
-            //         'ax_item_code'           => $request->ax_item_code  ?? 0,
-
-            //         'publish_independent'    => $request->publish_independent ?? 0,
-            //         'publish_inhouse'        => $request->publish_inhouse ?? 0,
-            //         'send_reminder'          => $request->send_reminder ?? 0,
-
-            //         // Digital
-            //         'voucher_validity'          => $request->voucher_validity,
-            //         'where_use'                  => $request->where_use,
-            //         'inventory_type'            => $request->inventory_type,
-            //         'inventory_qty'             => $request->inventory_qty,
-            //         'voucher_value'             => $request->voucher_value,
-            //         'voucher_set'               => $request->voucher_set,
-            //         'set_qty'                    => $request->set_qty,
-            //         'clearing_method'           => $request->clearing_method,
-            //         'participating_merchant_id' =>  $request->participating_merchant_id ?? 0,
-            //         'location_text'             => $locationTextId ?? '',
-            //         'max_order'                 => $request->max_order,
-            //         'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
-            //         'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
-            //     ]);
-
-            //     /* ----------------------------------
-            //     * DIGITAL → UPDATE PARTICIPATING MERCHANT OUTLETS
-            //     * ---------------------------------- */
-            //     if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
-
-            //         // Remove old mappings
-            //         ParticipatingLocations::where('reward_id', $reward->id)->delete();
-
-            //         foreach ($request->participating_merchant_locations as $locId => $locData) {
-
-            //             if (!isset($locData['selected'])) {
-            //                 continue;
-            //             }
-
-            //             // Fetch merchant from location
-            //             $merchantId = ParticipatingMerchantLocation::where('id', $locId)
-            //                 ->value('participating_merchant_id');
-
-            //             if (!$merchantId) {
-            //                 continue;
-            //             }
-
-            //             ParticipatingLocations::create([
-            //                 'reward_id'                 => $reward->id,
-            //                 'participating_merchant_id' => $merchantId,
-            //                 'location_id'               => $locId,
-            //                 'is_selected'               => 1,
-            //             ]);
-            //         }
-            //     }
-
-            //     /* ---------------------------------------------------
-            //     * 7) UPDATE LOCATION DATA
-            //     * ---------------------------------------------------*/
-            //     if ($request->reward_type == 1) {
-
-            //         // Delete old rows
-            //         RewardLocation::where('reward_id', $reward->id)->delete();
-
-            //         // Insert fresh
-            //         foreach ($request->locations as $locId => $locData) {
-
-            //             if (!isset($locData['selected'])) {
-            //                 continue;
-            //             }
-
-            //             RewardLocation::create([
-            //                 'reward_id'     => $reward->id,
-            //                 'merchant_id'   => $validated['merchant_id'],
-            //                 'location_id'   => $locId,
-            //                 'is_selected'   => 1,
-            //                 'inventory_qty' => $locData['inventory_qty'] ?? 0,
-            //                 'total_qty' => $locData['inventory_qty'] ?? 0,
-            //             ]);
-            //         }
-            //     }
-
-
-            // }
-
-
-            /* ---------------------------------------------------
-            * 6) UPDATE TIER RATES
-            * ---------------------------------------------------*/
-
-            RewardTierRate::where('reward_id', $reward->id)->delete();
-
-            foreach ($tiers as $tier) {
-
-                $price = $request->input("tier_{$tier->id}");
-
-                // Optional safety: skip empty values
-                if ($price === null || $price === '') {
-                    continue;
-                }
-
-                RewardTierRate::create([
-                    'reward_id' => $reward->id,
-                    'tier_id'   => $tier->id,
-                    'price'     => $price,
-                ]);
-            }
-
-            /* ---------------------------------------------------
-            * DIGITAL → INVENTORY TYPE SWITCH (Merchant → Non-Merchant)
-            * ---------------------------------------------------*/
-            // if ($request->inventory_type == 0) {
-
-            //     // Delete all voucher codes
-            //     RewardVoucher::where('reward_id', $reward->id)->delete();
-
-            //     // Remove old CSV file if exists
-            //     if (!empty($reward->csvFile)) {
-            //         $oldFile = public_path('uploads/csv/' . $reward->csvFile);
-            //         if (file_exists($oldFile)) {
-            //             @unlink($oldFile);
-            //         }
-            //     }
-
-            //     // Clear DB reference
-            //     $updateRequest->csvFile = null;
-            //     $updateRequest->save();
-              
-            // }
-        
-
-            if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-                $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/csv'), $filename);
-
-
-                $filePath = public_path('uploads/csv/'.$filename);
-
-                // READ XLSX OR CSV
-                $rows = Excel::toArray([], $filePath);
-
-                $count = 0;
-
-                foreach ($rows[0] as $row) {
-
-                    $code = trim($row[0] ?? '');
-
-                    if ($code === '' || strtolower($code) === 'code') {
+    
+                    /* ---------------------------------------------------
+                    * 7) UPDATE LOCATION DATA
+                    * ---------------------------------------------------*/
+                    if ($request->reward_type == '1') {
+    
+                        // Delete old rows
+                        RewardLocationUpdate::where('reward_id', $reward->id)->delete();
+    
+                        // Insert fresh
+                        foreach ($request->locations as $locId => $locData) {
+    
+                            if (!isset($locData['selected'])) {
+                                continue;
+                            }
+    
+                            RewardLocationUpdate::create([
+                                'reward_id'     => $reward->id,
+                                'merchant_id'   => $validated['merchant_id'],
+                                'location_id'   => $locId,
+                                'is_selected'   => 1,
+                                'inventory_qty' => $locData['inventory_qty'] ?? 0,
+                                'total_qty' => $locData['inventory_qty'] ?? 0,
+                            ]);
+                        }
+                    }
+    
+    
+                /* ---------------------------------------------------
+                * 6) UPDATE TIER RATES
+                * ---------------------------------------------------*/
+    
+                RewardTierRate::where('reward_id', $reward->id)->delete();
+    
+                foreach ($tiers as $tier) {
+    
+                    $price = $request->input("tier_{$tier->id}");
+    
+                    // Optional safety: skip empty values
+                    if ($price === null || $price === '') {
                         continue;
                     }
-
-                    RewardVoucher::create([
-                        'type'      => '0',
+    
+                    RewardTierRate::create([
                         'reward_id' => $reward->id,
-                        'code'      => $code,
-                        'is_used'   => 0
+                        'tier_id'   => $tier->id,
+                        'price'     => $price,
                     ]);
-
-                    $count++; // ✅ count valid codes
+                }
+    
+                
+            
+    
+                if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
+    
+                    $file = $request->file('csvFile');
+                    $filename = time().'_'.$file->getClientOriginalName();
+                    $file->move(public_path('uploads/csv'), $filename);
+    
+    
+                    $filePath = public_path('uploads/csv/'.$filename);
+    
+                    // READ XLSX OR CSV
+                    $rows = Excel::toArray([], $filePath);
+    
+                    $count = 0;
+    
+                    foreach ($rows[0] as $row) {
+    
+                        $code = trim($row[0] ?? '');
+    
+                        if ($code === '' || strtolower($code) === 'code') {
+                            continue;
+                        }
+    
+                        RewardVoucher::create([
+                            'type'      => '0',
+                            'reward_id' => $reward->id,
+                            'code'      => $code,
+                            'is_used'   => 0
+                        ]);
+    
+                        $count++; // ✅ count valid codes
+                    }
+    
+                
+                    $updateRequest->csvFile = $filename;
+                    $updateRequest->save();
+                    
+    
                 }
 
-            
-                $updateRequest->csvFile = $filename;
-                $updateRequest->save();
-              
-
-            }
-
+            }                
 
             /* ---------------------------------------------------
             * SUCCESS
