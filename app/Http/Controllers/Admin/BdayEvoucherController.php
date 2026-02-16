@@ -192,7 +192,7 @@ class BdayEvoucherController extends Controller
 
                 // SAFETY
                 else {
-                    $status = '-';
+                    $status = 'Upcoming';
                 }
             }
 
