@@ -31,10 +31,11 @@
                                     accept="image/png, image/jpg, image/jpeg">
 
                                 <img id="logo_preview"
-                                    src="{{ isset($data) && $data->logo ? asset($data->logo) : '' }}"
+                                    src="{{ isset($data) && $data->logo ? asset('uploads/image/' . $data->logo) : '' }}"
                                     width="50"
                                     height="50"
                                     style="border:1px solid #ccc; margin-top:8px; {{ isset($data) && $data->logo ? '' : 'display:none;' }}">
+
                             </div>
                         </div>
 

@@ -59,7 +59,12 @@
 
         let modal = $(this).closest('.modal');
         initFlatpickrDate(this);  
-        bindMonthFlatpickrEdit(this, 'input[name="from_month"]', 'input[name="to_month"]'); 
+        bindSingleMonthFlatpickr(
+            document.getElementById('EditModal'),
+            '.month-picker'
+        );
+
+
         toggleFieldsBasedOnMonth(modal);
        
         editToggleInventoryFields(modal);
@@ -217,17 +222,11 @@
                                 <label class="sh_dec">
                                     Select Month <span class="required-hash">*</span>
                                 </label>
-                                <input type="month"
-                                        name="month[]"
-                                        id="month"
-                                        class="form-control"
-                                        value="{{ $data->month ?? '' }}"
-                                        min="{{ date('Y') }}-01"
-                                        max="{{ date('Y') }}-12">
-
+                                <input type="text"
+                                    name="month[]"
+                                    class="form-control month-picker"
+                                    value="{{ $data->month ?? '' }}">
                             </div>
-
-
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
@@ -235,8 +234,6 @@
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
-
-
                         
                         <div class="col-12 col-md-6">
                             <div class="mb-3">

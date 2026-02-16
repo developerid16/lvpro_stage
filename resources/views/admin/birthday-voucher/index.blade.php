@@ -63,24 +63,47 @@
     <div class="modal fade" id="monthSelectModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
+
+                <!-- HEADER -->
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Select Month ({{ now()->year }})
+                        Select Month
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
+                <!-- BODY -->
                 <div class="modal-body">
 
-                    <p class="mb-3">
+                    <!-- Year Dropdown -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Select Year</label>
+                        <select class="form-select" id="yearSelect"></select>
+                    </div>
+
+                    <p class="mb-3 text-muted">
                         You want to add this voucher in which month?
                     </p>
 
+                    <!-- Month Grid -->
                     <div class="row" id="monthList"></div>
 
                 </div>
+
+                <!-- FOOTER -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="confirmMonths">
+                        Confirm
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
+
 
 
 @endsection
@@ -248,11 +271,13 @@
             
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
+            $('.outlet-container').hide();
             $(".where_use").hide();
-            bindMonthFlatpickr(
-                'input[name="from_month"]',
-                'input[name="to_month"]'
+            bindSingleMonthFlatpickr(
+                document.getElementById('AddModal'),
+                '.month-picker'
             );
+
             initFlatpickrDate();
         });
       

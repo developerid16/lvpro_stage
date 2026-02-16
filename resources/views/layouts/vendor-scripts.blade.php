@@ -297,23 +297,25 @@
         endPicker.input.setAttribute("disabled", true);
     }
 
-    function bindMonthFlatpickrEdit(modal, startSelector, endSelector) {
+   function bindSingleMonthFlatpickr(modal, selector) {
 
-        // make sure modal is DOM element, not jQuery
-        modal = modal instanceof HTMLElement ? modal : modal[0];
+    modal = modal instanceof HTMLElement ? modal : modal[0];
 
-        const startEl = modal.querySelector(startSelector);
-        const endEl   = modal.querySelector(endSelector);
+    const elements = modal.querySelectorAll(selector);
+    if (!elements.length) return;
 
-        if (!startEl || !endEl) return;
+    const today = new Date();
 
-        // 💣 DESTROY old instances (CRITICAL for edit modal)
-        if (startEl._flatpickr) startEl._flatpickr.destroy();
-        if (endEl._flatpickr) endEl._flatpickr.destroy();
+    // First day of current month
+    const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
 
-        let endPicker;
+    elements.forEach(function(el) {
 
-        const startPicker = flatpickr(startEl, {
+        if (el._flatpickr) {
+            el._flatpickr.destroy();
+        }
+
+        flatpickr(el, {
             plugins: [
                 new monthSelectPlugin({
                     shorthand: true,
@@ -323,40 +325,13 @@
                 })
             ],
             allowInput: false,
-            onChange(selectedDates) {
-                if (!selectedDates.length) return;
-
-                const selected = selectedDates[0];
-
-                endPicker.set("minDate", selected);
-                endPicker.input.removeAttribute("disabled");
-                endPicker.open();
-            }
+            minDate: minDate   // 🔥 Only restriction
         });
+    });
+}
 
-        endPicker = flatpickr(endEl, {
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                    theme: "light"
-                })
-            ],
-            allowInput: false
-        });
 
-        // disable TO initially
-        endPicker.input.setAttribute("disabled", true);
 
-        // 🧠 EDIT MODE: if FROM already has value, enable TO
-        if (startEl.value) {
-            endPicker.input.removeAttribute("disabled");
-            endPicker.set("minDate", startEl.value);
-        }
-    }
-
-   
     function loadParticipatingMerchantLocations(modal, merchantIds) {
         if (!merchantIds || merchantIds.length === 0) {
             modal.find("#participating_merchant_location").empty();
@@ -1022,34 +997,6 @@
 
         updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId);
         syncHiddenSelectedLocationsBday(modal, clubId);
-    }
-
-    function generateMonths() {
-
-        let year = new Date().getFullYear();
-        let months = [
-            "January","February","March","April","May","June",
-            "July","August","September","October","November","December"
-        ];
-
-        let html = "";
-
-        months.forEach((month, index) => {
-
-            let monthValue = year + "-" + String(index + 1).padStart(2, '0');
-
-            html += `
-                <div class="col-4 mb-2">
-                    <button type="button"
-                        class="btn btn-outline-primary w-100 month-btn"
-                        data-month="${monthValue}">
-                        ${month}
-                    </button>
-                </div>
-            `;
-        });
-
-        $("#monthList").html(html);
     }
 
     $(document).on('shown.bs.collapse', '.accordion-collapse', function () {

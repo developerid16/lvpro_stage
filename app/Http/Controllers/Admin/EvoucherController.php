@@ -702,6 +702,12 @@ class EvoucherController extends Controller
                         'location_id'               => $locId,
                         'is_selected'               => 1,
                     ]);
+                    RewardParticipatingMerchantLocationUpdate::create([
+                        'reward_id'                 => $reward->id,
+                        'participating_merchant_id' => $merchantId,
+                        'location_id'               => $locId,
+                        'is_selected'               => 1,
+                    ]);
                 }
             }
 
