@@ -122,7 +122,7 @@ class EvoucherController extends Controller
             } elseif ($isValidStart) {
                 $duration = $startDate->format(config('safra.date-only'));
             } else {
-                $duration = 'Upcoming';
+                $duration = '-';
             }
 
             $final_data[$key]['duration'] = $duration;
@@ -202,7 +202,7 @@ class EvoucherController extends Controller
 
             // SAFETY
             else {
-                $status = '-';
+                $status = 'Upcoming';
             }
         }
 

@@ -201,7 +201,7 @@ class RewardController extends Controller
             } elseif ($isValidStart) {
                 $duration = $startDate->format(config('safra.date-only'));
             } else {
-                $duration = 'Upcoming';
+                $duration = '-';
             }
 
             $final_data[$key]['duration'] = $duration;
@@ -284,7 +284,7 @@ class RewardController extends Controller
 
             // SAFETY
             else {
-                $status = '-';
+                $status = 'Upcoming';
             }
         }
 

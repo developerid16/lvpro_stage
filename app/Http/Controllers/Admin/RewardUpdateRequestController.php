@@ -97,6 +97,17 @@ class RewardUpdateRequestController extends Controller
 
             $month = $month ?? '-';
             
+            $clearing_method = '';
+
+            if ($row->reward_type == 0) {
+                $clearing_method = $this->getClearingMethodLabel($row->clearing_method);
+            }
+
+            $final_data[$i] = [
+                // other fields...
+                'clearing_method' => $clearing_method,
+            ];
+
             $final_data[$i] = [
                 'id'                => $row->id,
                 'sr_no'             => $index,
@@ -117,7 +128,8 @@ class RewardUpdateRequestController extends Controller
                 'voucher_set'       => $row->voucher_set,
 
                 // CLEARING
-                'clearing_method'   => $this->getClearingMethodLabel($row->clearing_method),
+                'clearing_method'   => $clearing_method,
+               
                 'location_text'     => $row->location_text ?? '-',
 
                 // FLAGS
