@@ -308,6 +308,9 @@
                             @can('merchant-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/merchants')}}">Merchant</a>
                             @endcan
+                            @can('fabs-list')
+                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/fabs')}}">Fabs</a>
+                            @endcan
                             @can('club-location-list')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/club-location')}}">Club Location</a>
                             @endcan

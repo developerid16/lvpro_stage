@@ -359,7 +359,7 @@ class RewardUpdateRequestController extends Controller
                     'max_quantity'    => (int) ($update->max_quantity ?? 0),
                     'category_id'     => (int) ($update->category_id ?? 0),
                     'inventory_type'  => (int) ($update->inventory_type ?? 0),
-                    'inventory_qty'   => $update->inventory_qty !== null ? (int)$update->inventory_qty : 0,
+                    'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
                     'voucher_value'   => (float) ($update->voucher_value ?? 0),
                     'voucher_set'     => (int) ($update->voucher_set ?? 0),
                     'set_qty'         => (int) ($update->set_qty ?? 0),

@@ -1493,11 +1493,55 @@ class RewardController extends Controller
     
                 if ((int) $request->clearing_method === 2) {
 
-                    $rules['participating_merchant_id'] = 'required|exists:participating_merchants,id';
+                    $existingMerchantId = $reward->participating_merchant_id ?? null;
+                    $existingLocations  = $reward->participatingLocations ?? collect();
 
-                    $rules['participating_merchant_locations'] = 'required_with:participating_merchant_id|array';
-                
-                    $messages['participating_merchant_locations.required_with'] = 'Participating merchant outlets is required.';
+                    $locationsInput = $request->input('participating_merchant_locations', []);
+
+                    $hasLocations = false;
+
+                    if (!empty($locationsInput)) {
+                        foreach ($locationsInput as $loc) {
+                            if (!empty($loc['selected'])) {
+                                $hasLocations = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // ------------------------------------
+                    // Merchant required ONLY if:
+                    // no locations selected AND
+                    // no existing merchant
+                    // ------------------------------------
+                    if (!$hasLocations && !$existingMerchantId) {
+                        $rules['participating_merchant_id'] =
+                            'required|exists:participating_merchants,id';
+                    }
+
+                    // ------------------------------------
+                    // Locations required if:
+                    // no locations selected AND
+                    // no existing locations
+                    // ------------------------------------
+                    if (!$hasLocations && $existingLocations->isEmpty()) {
+                        $rules['participating_merchant_locations'] =
+                            'required|array|min:1';
+                    }
+
+                    // ------------------------------------
+                    // Extra safety: if locations sent but none selected
+                    // ------------------------------------
+                    if ($request->has('participating_merchant_locations') && !$hasLocations) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => [
+                                'participating_merchant_locations' => [
+                                    'Please select at least one merchant location.'
+                                ]
+                            ]
+                        ], 422);
+                    }
                 }
                 else{
                     $rules['location_text'] = 'required';

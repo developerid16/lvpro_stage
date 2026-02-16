@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') Club Location @endsection
+@section('title') Fabs @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Club Location Management @endslot
+@slot('title') Fabs Management @endslot
 @endcomponent
 
 
@@ -32,7 +32,8 @@
                         <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
                         <th data-field="code" data-filter-control="input" data-sortable="true">Code</th>
                         <th data-field="status" data-sortable="true">Status</th>
-                        <th data-field="created_at" data-sortable="false">Created Date & Time</th>
+
+                        <th data-field="created_at"  data-sortable="false">Created Date & Time</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
                 </thead>
@@ -43,7 +44,7 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
-@include('admin.club-location.add-edit-modal')
+@include('admin.fabs.add-edit-modal')
 @endcan
 <!-- end modal -->
 @endsection
@@ -51,22 +52,25 @@
 @section('script')
 <script>
     var ModuleBaseUrl = "{{ $module_base_url }}/";
-    var DataTableUrl = ModuleBaseUrl + "datatable";
-
-    // GET merchant_id from controller
-    var merchant_id = "{{ $merchant_id ?? 0 }}";
-
+    var DataTableUrl = ModuleBaseUrl+"datatable";
     function ajaxRequest(params) {
-
-        // Add merchant_id into request parameters
-        params.data.merchant_id = merchant_id;
-
         $.get(DataTableUrl + '?' + $.param(params.data)).then(function (res) {
             $('.fixed-table-body .fixed-table-loading').removeClass('open');
-            params.success(res);
-        });
-    }
-</script>
+            params.success(res)
+        })
+    } 
 
+    $(document).on('change', '#logo', function (e) {
+        let file = this.files[0];
+
+        if (!file) return;
+
+        let preview = document.getElementById('logo_preview');
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    });
+
+   
+</script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection

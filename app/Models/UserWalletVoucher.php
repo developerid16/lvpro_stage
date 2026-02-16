@@ -18,7 +18,8 @@ class UserWalletVoucher extends Model
         'reward_status',
         'reward_voucher_id',
         'serial_no',
-        'used_code'
+        'used_code',
+        'suspend_voucher'
     ];
 
     public function reward()

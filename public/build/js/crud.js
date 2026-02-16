@@ -80,17 +80,22 @@ $(document).ready(function () {
                     delete errors.participating_merchant_locations;
                 }
 
-                if (errors.month) {
+                Object.keys(errors).forEach(function(key) {
 
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: errors.month[0]
-                    });
+                    if (key.startsWith("month")) {
 
-                    // OR show below input
-                    $("#month").addClass("is-invalid");
-                }
+                        $("#month").addClass("is-invalid");
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Please select at least one month.",
+                        });
+
+                        return false;
+                    }
+
+                });
+                
 
                 // Show remaining normal field errors
                 show_errors(errors);
@@ -277,115 +282,75 @@ $(document).ready(function () {
     }); 
 
    // Add Birthday Voucher Validation Start
-        function openClub(club) {
-            bootstrap.Collapse
-                .getOrCreateInstance(club.find(".accordion-collapse")[0])
-                .show();
-        }
 
-        const req = (el, cond = true) => el.toggleClass("is-invalid", cond && !el.val());
+    $(document).on("click", "#submitBtnBV", function () {
 
-        $(document).on("click", "#submitBtnBV", function () {
-            const formId = $(this).closest('.modal').find('form').attr('id'); 
+        const formId = $(this).closest('.modal').find('form').attr('id');
+        const formSelector = "#" + formId;
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'You want to submit this form.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, submit it!',
-                cancelButtonText: 'No, cancel!',
-                reverseButtons: true
-            }).then(result => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'You want to submit this form.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, submit it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then(result => {
 
-                if (!result.isConfirmed) return;
+            if (!result.isConfirmed) return;
 
-                let isValid = true;
-                let anyLocationUsed = false;
+            tinymce.triggerSave();
 
-                // ---- Basic Required Fields ----
-                if (formId === "add_frm") {
+            generateYears();      // order fix
+            generateMonths();
 
-                    req($('input[name="from_month"]'));
-                    req($('input[name="to_month"]'), $('input[name="from_month"]').val());
-                    req($('input[name="voucher_image"]'));
-                    req($('input[name="voucher_detail_img"]'));
-                    req($('input[name="name"]'));
-                    req($('textarea[name="description"]'));
-                    req($('textarea[name="how_to_use"]'));
-                    req($('textarea[name="term_of_use"]'));
-                    req($('select[name="merchant_id"]'));
-                    req($('input[name="voucher_validity"]'));
-                    req($('select[name="inventory_type"]'));
-                    req($('input[name="voucher_value"]'));
-                    req($('input[name="voucher_set"]'));
-                    req($('input[name="set_qty"]'));
-                    req($('select[name="clearing_method"]'));
+            let monthModalEl = document.getElementById('monthSelectModal');
+            let monthModal = new bootstrap.Modal(monthModalEl);
 
-                    const inventoryType = $('select[name="inventory_type"]').val();
+            // Remove previous handlers to avoid duplication
+            monthModalEl.replaceWith(monthModalEl.cloneNode(true));
+            monthModalEl = document.getElementById('monthSelectModal');
+            monthModal = new bootstrap.Modal(monthModalEl);
 
-                    if (inventoryType === "0")
-                        req($('input[name="inventory_qty"]'));
+            // Blur main modal
+            monthModalEl.addEventListener('shown.bs.modal', function () {
 
-                    if (inventoryType === "1")
-                        req($('input[name="csvFile"]'));
-
-                    if($('input[name="voucher_validity"]').val() === ""){
-                    $('.voucher_validity').addClass("is-invalid");
-                        $('.voucher_validity').next('.invalid-feedback').add();
-                    }else{
-                        $('.voucher_validity').removeClass("is-invalid");
-                        $('.voucher_validity').next('.invalid-feedback').remove();
-                    }
+                let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+                if (mainModal) {
+                    mainModal.querySelector('.modal-content')
+                        .classList.add('modal-blur');
                 }
-
-                // ---- Accordion Locations ----
-                $("#location_with_outlet .accordion-item").each(function () {
-
-                    let club = $(this);
-                    let inventory = club.find("input[name*='[inventory_qty]']").val();
-                    let merchant = club.find(".merchant-dropdown").val();
-                    let outlets = club.find(".outlet-checkbox-bday:checked").length;
-
-                    if ((inventory > 0) || outlets) anyLocationUsed = true;
-
-                   
-
-                });
-
-                if (!anyLocationUsed) {
-                    $(".club-location-error")
-                        .text("Please fill at least one location");
-                    isValid = false;
-                }
-                tinymce.triggerSave();
-
-               if (isValid) {
-
-                    generateMonths();
-                    generateYears();
-
-                    let monthModalEl = document.getElementById('monthSelectModal');
-                    let monthModal = new bootstrap.Modal(monthModalEl);
-
-                    monthModal.show();
-
-                    // If modal is closed without selecting month → submit normally
-                    monthModalEl.addEventListener('hidden.bs.modal', function handler() {
-
-                        monthModalEl.removeEventListener('hidden.bs.modal', handler);
-
-                        // If no month selected → submit form normally
-                        if (!$("#selected_month").val()) {
-                            submitMainForm();
-                        }
-                    });
-                }
-
 
             });
+
+            // Remove blur when closing
+            monthModalEl.addEventListener('hidden.bs.modal', function () {
+
+                let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+                if (mainModal) {
+                    mainModal.querySelector('.modal-content')
+                        .classList.remove('modal-blur');
+                }
+
+            });
+
+            monthModal.show();
+
+            // Submit correct form if no month selected
+            monthModalEl.addEventListener('hidden.bs.modal', function handler() {
+
+                monthModalEl.removeEventListener('hidden.bs.modal', handler);
+
+                if (!$("#selected_month").val()) {
+                    $(formSelector).submit();
+                }
+
+            });
+
         });
 
+    });
 
     
     //generate month list based on current month and year, disable past months, and pre-check already selected months
@@ -394,13 +359,9 @@ $(document).ready(function () {
         let today = new Date();
         let currentYear = today.getFullYear();
         let currentMonthIndex = today.getMonth();
+        let selectedYear = parseInt($("#yearSelect").val()) || new Date().getFullYear();
 
-        let selectedYear = parseInt($("#yearSelect").val());
-
-        let months = [
-            "Jan","Feb","Mar","Apr","May","Jun",
-            "Jul","Aug","Sep","Oct","Nov","Dec"
-        ];
+        let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
         let html = "";
 
@@ -431,19 +392,12 @@ $(document).ready(function () {
         });
 
         $("#monthList").html(html);
-
         // Pre-check already selected months
         $('input[name="month[]"]').each(function () {
-
             let existingMonth = $(this).val();
-
-            $(`.month-checkbox[value="${existingMonth}"]`)
-                .prop("checked", true)
-                .closest(".month-card")
-                .addClass("active");
+            $(`.month-checkbox[value="${existingMonth}"]`).prop("checked", true).closest(".month-card").addClass("active");
         });
     }
-
 
     $(document).on("change", ".month-checkbox", function () {
 
@@ -455,11 +409,7 @@ $(document).ready(function () {
         if ($(this).is(":checked")) {
 
             if ($(`input[name="month[]"][value="${selectedMonth}"]`).length === 0) {
-                $('<input>')
-                    .attr('type', 'hidden')
-                    .attr('name', 'month[]')
-                    .val(selectedMonth)
-                    .appendTo(form);
+                $('<input>').attr('type', 'hidden').attr('name', 'month[]').val(selectedMonth).appendTo(form);
             }
 
         } else {
@@ -467,15 +417,6 @@ $(document).ready(function () {
             $(`input[name="month[]"][value="${selectedMonth}"]`).remove();
         }
     });
-
-    function submitMainForm() {
-
-        if ($("#edit_frm").length) {
-            $("#edit_frm").submit();
-        } else {
-            $("#add_frm").submit();
-        }
-    }
 
     function generateYears() {
 
@@ -488,6 +429,9 @@ $(document).ready(function () {
         }
 
         $("#yearSelect").html(html);
+
+        // Set default to current year
+        $("#yearSelect").val(currentYear);
     }
 
     $(document).on("change", "#yearSelect", function () {
@@ -496,8 +440,42 @@ $(document).ready(function () {
 
     $(document).on("click", "#confirmMonths", function () {
 
-        $("#monthSelectModal").modal("hide");
-        submitMainForm();
-    });
+    let checkedMonths = $(".month-checkbox:checked").length;
+    let monthModalEl = document.getElementById('monthSelectModal');
+    let monthModal = bootstrap.Modal.getInstance(monthModalEl);
+
+    // if (checkedMonths === 0) {
+
+    //     // Show error under input
+    //     // $("#monthInput").addClass("is-invalid");
+    //     $("#AddModal #monthError").show();
+
+    //     // Hide month modal
+    //     monthModal.hide();
+
+    //     // Remove blur from main modal
+    //     let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+    //     if (mainModal) {
+    //         mainModal.querySelector('.modal-content')
+    //             .classList.remove('modal-blur');
+    //     }
+
+    //     return false;
+    // }
+
+    // If valid remove error
+    $("#monthInput").removeClass("is-invalid");
+    $("#monthError").hide();
+
+    monthModal.hide();
+
+    if ($("#edit_frm").length) {
+        $("#edit_frm").submit();
+    } else {
+        $("#add_frm").submit();
+    }
+});
+
+
    
 });

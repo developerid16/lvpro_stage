@@ -16,4 +16,12 @@ class ParticipatingMerchant extends Model
         'status',
         'added_by'
     ];
+
+      public function locations()
+    {
+        return $this->hasMany(
+            ParticipatingMerchantLocation::class,
+            'participating_merchant_id'
+        );
+    }
 }

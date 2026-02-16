@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\ClubLocationController;
 use App\Http\Controllers\Admin\CsoIssuanceController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\FabsController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -337,6 +338,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('app-content', [AppContentController::class, 'index']);
     Route::post('app-content', [AppContentController::class, 'store']);
 
-
+    Route::get('fabs/datatable', [FabsController::class, 'datatable']);
+    Route::resource('fabs', FabsController::class);
+    Route::post('admin/app-user/toggle-suspend', [AppUserController::class, 'toggleSuspend']);
 });
 

@@ -8,25 +8,19 @@
             </div>
             <div class="modal-body">
                 <form class="z-index-1" method="POST" action="javascript:void(0)"
-                    id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" 
-                    data-id="{{ $data->id ?? ''}}">
-
+                    id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? ''}}">
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
-
-                    <!-- ADD THIS LINE -->
-                    <input type="hidden" name="merchant_id" value="{{ $merchant_id ?? 0}}">
-
                     <div class="row">
-                        
-                        <div class="col-12 col-md-12">
+                        <div class="col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Name <span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name" 
-                                    placeholder="Enter Name"
+                                <label>Name <span class="required-hash">*</span></label>
+                                <input type="text" class="form-control"
+                                    name="name"
                                     value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label>Code <span class="required-hash">*</span></label>
@@ -36,19 +30,21 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="status">Status <span class="required-hash">*</span></label>
-
-                                <select class="sh_dec form-select" name="status">
-                                    <option value="Active" {{ (isset($data->status) && $data->status == 'Active') ? 'selected' : '' }}>Active</option>
-                                    <option value="Inactive" {{ (isset($data->status) && $data->status == 'Inactive') ? 'selected' : '' }}>Inactive</option>
+                                <label>Status <span class="required-hash">*</span></label>
+                                <select class="form-control" name="status">
+                                    <option value="Active"
+                                        {{ (isset($data) && $data->status == 'Active') ? 'selected' : '' }}>
+                                        Active
+                                    </option>
+                                    <option value="Inactive"
+                                        {{ (isset($data) && $data->status == 'Inactive') ? 'selected' : '' }}>
+                                        Inactive
+                                    </option>
                                 </select>
-
-                                <div class="sh_dec_s error" id="status_error"></div>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="row">
@@ -62,7 +58,6 @@
                     </div>
 
                 </form>
-
             </div>
         </div>
     </div>

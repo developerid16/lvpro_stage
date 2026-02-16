@@ -27,12 +27,12 @@ class ClubLocationController extends Controller
      * LIST PAGE (Merchant → Club Location list)
      * ----------------------------------------------------- */
     public function index()
-{
-    // $this->layout_data['merchant_id'] = $merchant;
+    {
+        // $this->layout_data['merchant_id'] = $merchant;
 
-    return view($this->view_file_path . "index")
-        ->with($this->layout_data);
-}
+        return view($this->view_file_path . "index")
+            ->with($this->layout_data);
+    }
 
     /* -----------------------------------------------------
      * DATATABLE
@@ -64,6 +64,7 @@ class ClubLocationController extends Controller
                 'sr_no'      => $index,
                 'name'       => $row->name,
                 'status'     => $row->status,
+                'code'     => $row->code,
                 'created_at' =>  $row->created_at->format(config('safra.date-format')),
                 'updated_at' =>  $row->updated_at->format(config('safra.date-format')),
 
@@ -106,13 +107,14 @@ class ClubLocationController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            // 'merchant_id' => 'required|exists:merchants,id',
             'name'        => 'required|string|max:255',
+            'code'        => 'required|string|max:255',
             'status'      => 'required|in:Active,Inactive',
         ], [
             'merchant_id.required' => 'Merchant is required',
             'merchant_id.exists'   => 'Invalid merchant selected',
             'name.required'        => 'Name is required',
+            'code.required'        => 'Code is required',
             'status.required'      => 'Status is required',
             'status.in'            => 'Invalid status value',
         ]);
@@ -159,9 +161,11 @@ class ClubLocationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
+            'code'   => 'required|string|max:255',
             'status' => 'required|in:Active,Inactive',
         ], [
             'name.required'   => 'Name is required',
+            'code.required'   => 'Code is required',
             'status.required' => 'Status is required',
             'status.in'       => 'Invalid status value',
         ]);

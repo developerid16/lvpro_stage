@@ -10,7 +10,8 @@ class ClubLocation extends Model
     protected $fillable = [
         'merchant_id',
         'name',
-        'status'
+        'status',
+        'code'
     ];
 
     public function merchant()

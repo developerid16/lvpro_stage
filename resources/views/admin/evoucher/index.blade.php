@@ -55,14 +55,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Create -->
-    @can("$permission_prefix-create")
-        @include('admin.evoucher.add-edit-modal')
-    @endcan
-    <!-- end modal -->
-
-      <!--Push Parameter Voucher-->
+       <!--Push Parameter Voucher-->
     <div class="modal fade" id="AddParameterVoucher" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -393,6 +386,14 @@
         </div>
     </div>
 
+
+    <!-- Create -->
+    @can("$permission_prefix-create")
+        @include('admin.evoucher.add-edit-modal')
+    @endcan
+    <!-- end modal -->
+
+   
   
 
 @endsection

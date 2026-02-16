@@ -142,40 +142,11 @@ class AppUserController extends Controller
     {
         $user = Appuser::findOrFail($id);
         $lastYear = Carbon::now()->subDays(365);
-        $rewards = UserPurchasedReward::with('reward')->where('user_id', $user->id)->whereDate('created_at', '>=', $lastYear)->get();
+        $rewards = UserWalletVoucher::with('reward')->where('user_id', $user->id)->get();
 
-        // $keysData = collect([]);
-
-        // $keysDebit =  KeyPassbookDebit::where([['user_id', $user->id]])->whereIn('type', ['admin'])->whereDate('created_at', '>=', $lastYear)->get();
-
-        // foreach ($keysDebit as $item) {
-        //     $keysData->push([
-        //         "keys" =>  $item->key_use,
-
-        //         "total" => 0,
-        //         'type' => 'Credit',
-        //         "meta_data" => $item->meta_data,
-
-        //         "date" => $item->created_at
-        //     ]);
-        // }
-
-        // $keysCredit =  KeyPassbookCredit::where([['user_id', $user->id]])->whereIn('earn_way',  ['admin_credit'])->whereDate('created_at', '>=', $lastYear)->get();
-        // foreach ($keysCredit as $item) {
-        //     $keysData->push([
-        //         "keys" =>  $item->no_of_key,
-        //         'type' => 'Debit',
-        //         "total" => 0,
-        //         "meta_data" => $item->meta_data,
-        //         "date" => $item->created_at
-        //     ]);
-        // }
-
-        // $keysData = $keysData->sortBy([
-        //     ['date', 'desc'],
-        // ]);
         return view($this->view_file_path . "show", compact('user', 'rewards'));
     }
+
     public function userTransactions(string $id, Request $request)
     {
         $user = Appuser::findOrFail($id);
@@ -370,83 +341,24 @@ class AppUserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function adminKeyDebitCredit(Request $request)
-    {
-        $request->validate([
-            'keys' => 'required|numeric|min:1',
-            'type' => 'required',
-            'reason' => 'required|max:50',
-            'app_reason' => 'required|max:50',
-        ]);
-        $adminName = Auth::user()->name . ' (' . Auth::user()->email . ')';
-        $user = Appuser::findOrFail($request->user_id);
-
-        if ($request->type == 'debit') {
-            KeyPassbookDebit::create([
-                'user_id' => $request->user_id,
-                'key_use' => $request->keys,
-                'type' => "admin",
-                'app_reason' => $request->app_reason,
-
-                'meta_data' => 'Keys Adjustment by ' . $adminName . ' For ' . $request->reason,
-
-            ]);
-            $dk =  $request->keys;
-            // lets debit key on by one
-            $availableKeys =  KeyPassbookCredit::where([['remain_keys', '>', 0], ['user_id', $request->user_id]])->whereDate('expiry_date', '>=', Carbon::today())->orderBy('id', 'asc')->get();
-            $nokeys  = $request->keys;
-            $i = 0;
-            while ($nokeys > 0 && count($availableKeys) > $i) {
-                $ak = $availableKeys[$i];
-                if ($ak->remain_keys >= $nokeys) {
-                    // first expred key find that full fill order no need to go further
-                    $keyused = $nokeys;
-                    $nokeys = 0;
-                } else {
-                    // need to go further for next reward this reward dont have avaibaled key to fill order
-                    $keyused = $ak->remain_keys;
-                    $nokeys -= $ak->remain_keys;
-                }
-
-                $ak->decrement('remain_keys', $keyused);
-                $i++;
-            }
-            $user->decrement('available_key', $dk);
-        } else {
-
-            $rk = $request->keys;
-            // check if user has already in negative value as key
-
-            if ($user->available_key < 0) {
-                // remove nagetive value then add key to passbook
-                // dd($user->available_key, $rk, $user->available_key +  $rk);
-                $rk = $user->available_key +  $rk;
-                // $user->increment('available_key', $request->keys - $rk);
-
-                if ($rk <= 0) {
-
-                    $user->available_key = $rk;
-                    $user->save();
-                } else {
-                    $user->available_key = 0;
-                    $user->save();
-                }
-            }
-            KeyPassbookCredit::create([
-                'user_id' => $request->user_id,
-                'no_of_key' => $request->keys,
-                'remain_keys' => $rk < 0 ? 0 : $rk,
-                'earn_way' => 'admin_credit',
-                'meta_data' => 'Keys Adjustment by ' . $adminName . ' For ' . $request->reason,
-                'app_reason' => $request->app_reason,
-                'expiry_date' => keyExpiryDate()
-            ]);
-            // $user->increment('available_key', $request->keys);
-
-        }
-        return redirect()->back()->with('message', "Entry added successfully");
-    }
-
    
 
+
+    public function toggleSuspend(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:user_wallet_vouchers,id',
+            'suspend_voucher' => 'required|in:0,1'
+        ]);
+
+        $voucher = UserWalletVoucher::findOrFail($request->id);
+
+        $voucher->suspend_voucher = $request->suspend_voucher;
+        $voucher->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Suspend status updated'
+        ]);
+    }
 }

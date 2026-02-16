@@ -549,55 +549,54 @@ class EvoucherStockController extends Controller
                 $existingMerchantId = $reward->participating_merchant_id ?? null;
                 $existingLocations  = $reward->participatingLocations ?? collect();
 
-                // -------------------------------
-                // Participating merchant
-                // -------------------------------
-                if (
-                    !$request->has('participating_merchant_locations') &&
-                    !$request->filled('participating_merchant_id') &&
-                    !$existingMerchantId
-                ) {
+                $locationsInput = $request->input('participating_merchant_locations', []);
+
+                $hasLocations = false;
+
+                if (!empty($locationsInput)) {
+                    foreach ($locationsInput as $loc) {
+                        if (!empty($loc['selected'])) {
+                            $hasLocations = true;
+                            break;
+                        }
+                    }
+                }
+
+                // ------------------------------------
+                // Merchant required ONLY if:
+                // no locations selected AND
+                // no existing merchant
+                // ------------------------------------
+                if (!$hasLocations && !$existingMerchantId) {
                     $rules['participating_merchant_id'] =
                         'required|exists:participating_merchants,id';
                 }
 
-                // -------------------------------
-                // Participating locations
-                // -------------------------------
-                if (
-                    !$request->filled('participating_merchant_locations') &&
-                    $existingLocations->isEmpty()
-                ) {
+                // ------------------------------------
+                // Locations required if:
+                // no locations selected AND
+                // no existing locations
+                // ------------------------------------
+                if (!$hasLocations && $existingLocations->isEmpty()) {
                     $rules['participating_merchant_locations'] =
                         'required|array|min:1';
                 }
 
-                // -------------------------------
-                // If locations sent → check selected
-                // -------------------------------
-                if ($request->has('participating_merchant_locations')) {
-
-                    $hasSelected = false;
-
-                    foreach ($request->participating_merchant_locations as $loc) {
-                        if (!empty($loc['selected'])) {
-                            $hasSelected = true;
-                            break;
-                        }
-                    }
-
-                    if (!$hasSelected) {
-                        return response()->json([
-                            'status' => 'error',
-                            'errors' => [
-                                'participating_merchant_locations' => [
-                                    'Please select at least one merchant location.'
-                                ]
+                // ------------------------------------
+                // Extra safety: if locations sent but none selected
+                // ------------------------------------
+                if ($request->has('participating_merchant_locations') && !$hasLocations) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => [
+                            'participating_merchant_locations' => [
+                                'Please select at least one merchant location.'
                             ]
-                        ], 422);
-                    }
+                        ]
+                    ], 422);
                 }
             }
+
 
             /* ---------------------------------------------------
             | VALIDATE
