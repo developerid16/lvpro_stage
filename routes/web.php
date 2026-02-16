@@ -122,6 +122,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('redemption-reward-pos', RewardRedemptionController::class);
 
     Route::get('app-user/datatable', [AppUserController::class, 'datatable']);
+    Route::post('app-user/toggle-suspend', [AppUserController::class, 'toggleSuspend']);
     Route::resource('app-user', AppUserController::class);
     Route::get('app-user-edit/{id}', [AppUserController::class, 'editUser'])->name('app-user-edit');
     Route::get('app-user-transactions/{id}', [AppUserController::class, 'userTransactions'])->name('app-user-transactions');
@@ -340,6 +341,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::get('fabs/datatable', [FabsController::class, 'datatable']);
     Route::resource('fabs', FabsController::class);
-    Route::post('admin/app-user/toggle-suspend', [AppUserController::class, 'toggleSuspend']);
 });
+
 

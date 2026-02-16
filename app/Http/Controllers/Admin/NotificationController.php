@@ -106,10 +106,10 @@ class NotificationController extends Controller
         ]);
 
         if ($request->hasFile('img')) {
-          $image = $request->file('img');
-          $name = time().'_'.$image->getClientOriginalName();
-          $image->move(public_path('uploads/image'), $name);
-          $post_data['img'] = $name;
+            $image = $request->file('img');
+            $name = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/image'), $name);
+            $post_data['img'] = $name;
         }
 
 

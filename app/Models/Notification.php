@@ -16,6 +16,8 @@ class Notification extends Model
         'desc',
         'date',
         'type',
+        'user_id',
+        'reward_id'
     ];
      public $table = 'notifications';
 }

@@ -5,7 +5,7 @@
 <script>
     
     // when file selected (ADD or EDIT)
-    $(document).on('change', '#EditModal #csvFile', function () {
+    $(document).on('change', '#EditModal #csvFile, #AddModal #csvFile', function (){
         if (this.files.length > 0) {
             $('#EditModal #uploadedFileLink').text(this.files[0].name).attr('href', 'javascript:void(0)');
             $('#EditModal #uploadedFile').removeClass('d-none').addClass('d-flex');
@@ -268,6 +268,7 @@
                                 </select>                                
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="reward_type">Voucher Type <span class="required-hash">*</span></label>   
@@ -284,10 +285,11 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-12 col-md-12 ">
+
+                        {{-- <div class="col-12 col-md-12 ">
                             <div class="col-md-3">
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
@@ -569,7 +571,6 @@
                         </div>
                     </div>
 
-                    <div class="row align-items-center mb-3">
                     <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Suspend Voucher</label>
                         <div class="col-md-6">

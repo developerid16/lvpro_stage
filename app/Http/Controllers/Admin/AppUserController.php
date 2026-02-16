@@ -144,7 +144,7 @@ class AppUserController extends Controller
         $lastYear = Carbon::now()->subDays(365);
         $rewards = UserWalletVoucher::with('reward')->where('user_id', $user->id)->get();
 
-        return view($this->view_file_path . "show", compact('user', 'rewards'));
+        return view($this->view_file_path . "show", compact('user', 'rewards') + $this->layout_data);
     }
 
     public function userTransactions(string $id, Request $request)

@@ -1,19 +1,19 @@
 @extends('layouts.master-layouts')
 
-@section('title') Customer Management @endsection
+@section('title') User Wallet Details @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Customer Management @endslot
+@slot('title') User Wallet Details @endslot
 @endcomponent
 
 <div class="row">   
     <div class="col-xl-12">
         <div class="card">
             <div class="card-body">
-                <h5 class="sh_sub_title fw-semibold">Rewards Redemption (Last 365Days)</h5>
+                {{-- <h5 class="sh_sub_title fw-semibold">Rewards Redemption (Last 365Days)</h5> --}}
 
                 <div class="table-responsive">
                     <table class="sh_table table">
@@ -34,11 +34,8 @@
                                 <tr>
 
                                     <td>
-                                        <a class="text-danger"
-                                        href="{{ url('admin/reward/'.$reward->reward->id) }}"
-                                        target="_blank">
-                                            {{ $reward->reward->name }}
-                                        </a>
+                                       
+                                        {{ $reward->reward->name }}
                                     </td>
 
                                     <td>{{ $reward->unique_code }}</td>
@@ -186,6 +183,8 @@
 <script src="{{ URL::asset('/build/libs/flatpicker/flatpickr.js') }}"></script>
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/flatpicker/flatpickr.min.css') }}">
 <script>
+    var ModuleBaseUrl = "{{ $module_base_url }}/";
+
     $(function() {
         $(".datetimepicker").flatpickr({
         enableTime: true,
@@ -210,7 +209,7 @@
         let toggleElement = $(this);
 
         $.ajax({
-            url: "{{ url('admin/app-user/toggle-suspend') }}",
+            url: ModuleBaseUrl + "toggle-suspend",
             type: "POST",
             data: {
                 _token: "{{ csrf_token() }}",
