@@ -1350,7 +1350,7 @@ class RewardController extends Controller
                 /* ---------------------------------------------------
                 * DIGITAL → INVENTORY TYPE SWITCH (Merchant → Non-Merchant)
                 * ---------------------------------------------------*/
-                if ($request->inventory_type == 0) {
+                if ($request->inventory_type == 0 && $request->csvFile) {
 
                     // Delete all voucher codes
                     RewardVoucher::where('reward_id', $reward->id)->delete();
@@ -1470,6 +1470,7 @@ class RewardController extends Controller
             if ((int) $request->reward_type === 1) {
 
                 // PHYSICAL
+                $rules['max_quantity_physical'] = 'required|integer|min:1';
                 $rules['max_quantity_physical'] = 'required|integer|min:1';
                 $rules['locations'] = 'required|array|min:1';
 
