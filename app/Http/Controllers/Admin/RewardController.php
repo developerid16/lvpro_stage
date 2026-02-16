@@ -1993,24 +1993,24 @@ class RewardController extends Controller
             /* ---------------------------------------------------
             * DIGITAL → INVENTORY TYPE SWITCH (Merchant → Non-Merchant)
             * ---------------------------------------------------*/
-            if ($request->inventory_type == 0) {
+            // if ($request->inventory_type == 0) {
 
-                // Delete all voucher codes
-                RewardVoucher::where('reward_id', $reward->id)->delete();
+            //     // Delete all voucher codes
+            //     RewardVoucher::where('reward_id', $reward->id)->delete();
 
-                // Remove old CSV file if exists
-                if (!empty($reward->csvFile)) {
-                    $oldFile = public_path('uploads/csv/' . $reward->csvFile);
-                    if (file_exists($oldFile)) {
-                        @unlink($oldFile);
-                    }
-                }
+            //     // Remove old CSV file if exists
+            //     if (!empty($reward->csvFile)) {
+            //         $oldFile = public_path('uploads/csv/' . $reward->csvFile);
+            //         if (file_exists($oldFile)) {
+            //             @unlink($oldFile);
+            //         }
+            //     }
 
-                // Clear DB reference
-                $updateRequest->csvFile = null;
-                $updateRequest->save();
+            //     // Clear DB reference
+            //     $updateRequest->csvFile = null;
+            //     $updateRequest->save();
               
-            }
+            // }
         
 
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
