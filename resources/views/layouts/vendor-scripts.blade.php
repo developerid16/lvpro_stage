@@ -880,12 +880,19 @@
 
                     locationBox.append(`
                         <div class="form-check mb-1">
-                            <input type="checkbox" class="form-check-input me-2 outlet-checkbox-bday"
-                                data-id="${loc.id}" id="outlet_${loc.id}" data-name="${loc.name}"
+                            <input type="checkbox"
+                                class="form-check-input me-2 outlet-checkbox-bday"
+                                name="selected_outlets[${clubId}][]"
+                                value="${loc.id}"
+                                id="outlet_${loc.id}"
+                                data-name="${loc.name}"
                                 ${checked}>
-                            <label class="form-check-label"  for="outlet_${loc.id}">${loc.name}</label>
-                        </div>                        
+                            <label class="form-check-label" for="outlet_${loc.id}">
+                                ${loc.name}
+                            </label>
+                        </div>
                     `);
+
                 });
 
                 modal.find("#participating_section").show();

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class NotificationController extends Controller
 {
@@ -96,14 +97,25 @@ class NotificationController extends Controller
      * ----------------------------------------------------- */
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
+      
+        $validator = Validator::make($request->all(), [
             'title'      => 'required|string|max:255',
-            'short_desc'=> 'required|string|max:255',
+            'short_desc' => 'required|string|max:255',
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        => 'required|image|max:2048',
+            'img'        => $request->id ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
+
 
         if ($request->hasFile('img')) {
             $image = $request->file('img');
@@ -139,14 +151,25 @@ class NotificationController extends Controller
     {
         $notification = Notification::findOrFail($id);
 
-        $post_data = $this->validate($request, [
+       
+        $validator = Validator::make($request->all(), [
             'title'      => 'required|string|max:255',
-            'short_desc'=> 'nullable|string|max:255',
-            'desc'       => 'nullable|string',
+            'short_desc' => 'required|string|max:255',
+            'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        => 'nullable|image|max:2048',
+            'img'        => $request->id ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
+
 
         if ($request->hasFile('img')) {
 

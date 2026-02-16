@@ -438,7 +438,10 @@
                                     <!-- Merchant Dropdown -->
                                     <div class="mb-2">
                                         <select class="form-select merchant-dropdown"
-                                                data-club="{{ $club->id }}">
+                                        name="locations[{{ $club->id }}][merchant_id]"
+                                        data-club="{{ $club->id }}">
+
+                                       
                                             <option value="">Select Participating Merchant</option>
                                             @foreach($participating_merchants as $pm)
                                                 <option value="{{ $pm->id }}">{{ $pm->name }}</option>

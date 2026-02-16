@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Fab;
 use App\Models\Fabs;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class FabsController extends Controller
 {
@@ -108,12 +109,23 @@ class FabsController extends Controller
      * STORE
      * ----------------------------------------------------- */
     public function store(Request $request)
-    {
-        $post_data = $this->validate($request, [
+    {       
+
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
             'code'   => 'required|string|max:255|unique:fabs,code',
             'status' => 'required|in:Active,Inactive',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
+
 
         Fabs::create($post_data);
 
@@ -143,11 +155,22 @@ class FabsController extends Controller
     {
         $fab = Fabs::findOrFail($id);
 
-        $post_data = $this->validate($request, [
+        
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
-            'code'   => 'required|string|max:255|unique:fabs,code,' . $id,
+            'code'   => 'required|string|max:255|unique:fabs,code',
             'status' => 'required|in:Active,Inactive',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
+
 
         $fab->update($post_data);
 

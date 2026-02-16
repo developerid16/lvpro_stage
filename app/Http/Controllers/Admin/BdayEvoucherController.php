@@ -310,52 +310,44 @@ class BdayEvoucherController extends Controller
             $locationErrors = [];
 
             if (!empty($request->locations)) {
+
                 foreach ($request->locations as $clubId => $clubData) {
 
-                    // Convert clubId to string to match request data
                     $clubId = (string) $clubId;
 
-                    $inventoryQty = isset($clubData['inventory_qty']) ? (int) $clubData['inventory_qty'] : 0;
-                    $merchantId = isset($clubData['merchant_id']) ? $clubData['merchant_id'] : null;
+                    $inventoryQty = isset($clubData['inventory_qty'])
+                        ? (int) $clubData['inventory_qty']
+                        : 0;
 
-                    // Skip this club if no inventory quantity is set
-                    if ($inventoryQty <= 0) {
-                        continue;
-                    }
+                    $merchantId = $clubData['merchant_id'] ?? null;
 
-                    // Mark that at least one location is used
-                    $anyLocationUsed = true;
+                    if ($inventoryQty > 0) {
 
-                    // Get club name for better error messages
-                    $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
+                        $anyLocationUsed = true;
 
-                    // Only validate if clearing_method = 2 (Merchant Code)
-                    if ($request->clearing_method == 2) {
+                        $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
 
-                        // Rule 1: If inventory > 0, merchant must be selected
+                        // 🔴 Merchant required
                         if (empty($merchantId)) {
                             $locationErrors[] = "Please select Participating Merchant for {$clubName}";
                         }
 
-                        // Rule 2: If inventory > 0 and merchant selected, at least one outlet must be checked
-                        if (!empty($merchantId)) {
-                            $hasOutlets = isset($request->selected_outlets[$clubId]) && 
-                                        !empty($request->selected_outlets[$clubId]);
+                        // 🔴 Outlet required
+                        $hasOutlets = isset($request->selected_outlets[$clubId]) &&
+                                    !empty($request->selected_outlets[$clubId]);
 
-                            if (!$hasOutlets) {
-                                $locationErrors[] = "Please select at least one outlet for {$clubName}";
-                            }
+                        if (empty($request->selected_outlets[$clubId])) {
+                            $locationErrors[] = "Please select at least one outlet for {$clubName}";
                         }
                     }
                 }
             }
 
-            // Rule 3: At least one club location must have inventory
+            // At least one club must have inventory
             if (!$anyLocationUsed) {
                 $locationErrors[] = "Please set inventory quantity for at least one club location";
             }
 
-            // If there are location errors, return them
             if (!empty($locationErrors)) {
                 return response()->json([
                     "status" => "error",
@@ -364,6 +356,9 @@ class BdayEvoucherController extends Controller
                     ]
                 ], 422);
             }
+
+
+           
 
             // monthly reward → check if already exists for month
 

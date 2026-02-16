@@ -3,6 +3,22 @@
     
         initFlatpickrDate(this);  
     });  
+    $(document).on('change', '#img', function () {
+
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#img_preview')
+                .attr('src', e.target.result)
+                .show();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg">
