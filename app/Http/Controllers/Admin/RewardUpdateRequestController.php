@@ -89,13 +89,33 @@ class RewardUpdateRequestController extends Controller
 
             $index = $start + $i + 1;
 
-            $month = $row->month
-                ? Carbon::createFromFormat('Y-m', $row->month)
-                    ->format(config('safra.month-format'))
-                : null;
+            $month = '-';
 
 
-            $month = $month ?? '-';
+            if (!empty($row->month)) {
+
+                $rawMonth = $row->month;
+
+                // If JSON string like '["2025-02"]'
+                if (is_string($rawMonth) && str_starts_with(trim($rawMonth), '[')) {
+                    $rawMonth = json_decode($rawMonth, true);
+                }
+
+                // If array → take first value only
+                if (is_array($rawMonth)) {
+                    $rawMonth = $rawMonth[0] ?? null;
+                }
+
+                if (!empty($rawMonth)) {
+                    try {
+                        $month = Carbon::parse(trim($rawMonth))
+                            ->format(config('safra.month-format'));
+                    } catch (\Exception $e) {
+                        $month = '-';
+                    }
+                }
+            }
+
             
             $clearing_method = '';
 

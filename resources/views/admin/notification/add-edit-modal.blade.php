@@ -37,12 +37,12 @@
                     <div class="row">
 
                         <div class="col-md-6 mb-3">
-                            <label>Title *</label>
+                            <label>Title <span class="required-hash">*</span> (Max 35 characters)</label>
                             <input type="text" name="title" class="form-control" value="{{ $data->title ?? '' }}" placeholder="Title">
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label>Type *</label>
+                            <label>Type <span class="required-hash">*</span></label>
                             <select name="type" class="form-control">
                                 <option value="">Select Type</option>
                                 {{-- <option value="reminders" {{ ($data->type ?? '') === 'reminders' ? 'selected' : '' }}>Reminders</option> --}}
@@ -54,23 +54,23 @@
 
 
                         <div class="col-md-6 mb-3">
-                            <label>Date *</label>
+                            <label>Date <span class="required-hash">*</span></label>
                             <input id="date" type="text"  class="sh_dec form-control js-flat-date" name="date" value="{{ isset($data->date) ? \Carbon\Carbon::parse($data->date)->format('Y-m-d') : '' }}" placeholder="YYYY-MM-DD"/>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label>Image</label>
+                            <label>Image <span class="required-hash">*</span></label>
                             <input type="file" name="img" id="img" class="form-control">
                             <img id="img_preview" src="{{ isset($data->img) ? asset('uploads/image/'.$data->img) : '' }}" style="max-width:50px;  {{ isset($data->img) ? '' : 'display:none' }}">
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label>Short Description</label>
+                            <label>Short Description <span class="required-hash">*</span> (Max 180 characters)</label>
                             <input type="text" name="short_desc" placeholder="Short Description" class="form-control" value="{{ $data->short_desc ?? '' }}">
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label>Description</label>
+                            <label>Description <span class="required-hash">*</span></label>
                             <textarea name="desc" class="form-control" rows="3" placeholder="Description">{{ $data->desc ?? '' }}</textarea>
                         </div>
 

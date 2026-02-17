@@ -85,15 +85,14 @@ class AppUserController extends Controller
                 $final_data[$key]['status'] .= "<i class='mdi mdi-information text-primary action-icon font-size-18' title='$row->blacklist_reason'></i>";
             }
 
-
-
-
             $url = route('admin.app-user.show', ['app_user' => $row->id]);
+            $showurl = route('admin.app-user.show', ['app_user' => $row->id]);
             $editurl = route('admin.app-user-edit', ['id' => $row->id]);
             $transactionsurl = route('admin.app-user-transactions', ['id' => $row->id]);
             $action = "<div class='d-flex gap-3'>";
+            
 
-            $action .= "<a href='$url' class='edit' data-id='$row->id'><i class='mdi mdi-eye text-primary action-icon font-size-18'></i></a>";
+            $action .= "<a href='$showurl' class='show' data-id='$row->id'><i class='mdi mdi-eye text-primary action-icon font-size-18'></i></a>";
 
             $action .= "<a href='$editurl' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             $action .= "<a href='$transactionsurl' class='edit' data-id='$row->id'><i class='mdi mdi-credit-card text-primary action-icon font-size-18'></i></a>";
@@ -124,7 +123,7 @@ class AppUserController extends Controller
         $data = Appuser::findOrFail($id);
 
         // dd( $data );
-        return view($this->view_file_path . "edit", compact('data',));
+        return view($this->view_file_path . "edit", compact('data',) + $this->layout_data);
     }
 
     /**

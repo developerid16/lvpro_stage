@@ -17,7 +17,7 @@ use App\Http\Controllers\Admin\AppUserController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\APILogsController;
 use App\Http\Controllers\Admin\AppContentController;
-use App\Http\Controllers\Admin\BdayEvoucherController;
+use App\Http\Controllers\Admin\BirthdayEvoucherController;
 use App\Http\Controllers\Admin\RewardRedemptionController;
 use App\Http\Controllers\Admin\ContentManagementController;
 use App\Http\Controllers\Admin\LocationController;
@@ -285,10 +285,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('evoucher/datatable', [EvoucherController::class, 'datatable']);
     Route::resource('evoucher', EvoucherController::class);
 
-    Route::get('birthday-voucher/get-club-locations-with-outlets', [BdayEvoucherController::class, 'getClubMerchantOutletStructure']);
-    Route::get('birthday-voucher/datatable', [BdayEvoucherController::class, 'datatable']);
-    Route::get('birthday-voucher/get-club-locations', [BdayEvoucherController::class, 'getLocations'])->name('get.club.locations');
-    Route::resource('birthday-voucher', BdayEvoucherController::class);
+    Route::get('birthday-voucher/get-club-locations-with-outlets', [BirthdayEvoucherController::class, 'getClubMerchantOutletStructure']);
+    Route::get('birthday-voucher/datatable', [BirthdayEvoucherController::class, 'datatable']);
+    Route::get('birthday-voucher/get-club-locations', [BirthdayEvoucherController::class, 'getLocations'])->name('get.club.locations');
+    Route::resource('birthday-voucher', BirthdayEvoucherController::class);
     
     Route::get('push-voucher/datatable', action: [PushVoucherController::class, 'datatable']);
     Route::resource('push-voucher', PushVoucherController::class);

@@ -99,8 +99,8 @@ class NotificationController extends Controller
     {
       
         $validator = Validator::make($request->all(), [
-            'title'      => 'required|string|max:255',
-            'short_desc' => 'required|string|max:255',
+            'title'      => 'required|string|max:35',
+            'short_desc' => 'required|string|max:180',
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
@@ -153,8 +153,8 @@ class NotificationController extends Controller
 
        
         $validator = Validator::make($request->all(), [
-            'title'      => 'required|string|max:255',
-            'short_desc' => 'required|string|max:255',
+            'title'      => 'required|string|max:35',
+            'short_desc' => 'required|string|max:180',
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',

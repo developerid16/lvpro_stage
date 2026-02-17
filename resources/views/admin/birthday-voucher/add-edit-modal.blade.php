@@ -59,22 +59,14 @@
 
         let modal = $(this).closest('.modal');
         initFlatpickrDate(this);  
-        bindSingleMonthFlatpickr(
-            document.getElementById('EditModal'),
-            '.month-picker'
-        );
-
+        bindMonthFlatpickr(this);
 
         toggleFieldsBasedOnMonth(modal);
        
         editToggleInventoryFields(modal);
         editToggleClearingFields(modal);
-        console.log(selectedOutlets,'selectedOutlets34');
-        
-          // 🔥 Load saved outlet selection properly
-        if (!selectedOutlets || Object.keys(selectedOutlets).length === 0) {
-        }
-
+            
+       
         Object.keys(selectedOutlets).forEach(function (clubId) {
 
             loadEditSelectedOutlets(
@@ -222,7 +214,12 @@
                                 <label class="sh_dec">
                                     Select Month <span class="required-hash">*</span>
                                 </label>
-                                <input type="text" name="month[]" id="monthInput" class="form-control month-picker" value="{{ $data->month ?? '' }}">                                
+                                <input type="text"
+                                    name="month[]"
+                                    id="monthInput"
+                                    class="form-control month-picker"
+                                    value="{{ $data->month ?? '' }}"
+                                    readonly>
                             </div>
                             <span class="invalid-feedback" id="monthError" style="display:none;">Month field is required.</span>
                         </div>
@@ -231,8 +228,7 @@
                                 <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
-                        </div>
-                        
+                        </div>                        
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_image">
@@ -399,85 +395,80 @@
 
                         @foreach($club_location as $club)
 
-                        <div class="card mb-2 accordion-item">
+                            <div class="card mb-2 accordion-item">
+                                <!-- CLUB HEADER -->
+                                <div class="card-header d-flex justify-content-between align-items-center accordion-header"
+                                    id="heading_{{ $club->id }}">
 
-                            <!-- CLUB HEADER -->
-                            <div class="card-header d-flex justify-content-between align-items-center accordion-header"
-                                id="heading_{{ $club->id }}">
+                                    <strong>{{ $club->name }}</strong>
 
-                                <strong>{{ $club->name }}</strong>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="d-flex align-items-center ms-3">
+                                            <label class="mb-0 me-2 font-12">Inventory Quantity</label>
+                                            <input type="number"
+                                                min="0"
+                                                class="form-control"
+                                                name="locations[{{ $club->id }}][inventory_qty]"
+                                                style="max-width: 56px; max-height: 30px;">
+                                        </div>
 
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="d-flex align-items-center ms-3">
-                                        <label class="mb-0 me-2 font-12">Inventory Quantity</label>
-                                        <input type="number"
-                                            min="0"
-                                            class="form-control"
-                                            name="locations[{{ $club->id }}][inventory_qty]"
-                                            style="max-width: 56px; max-height: 30px;">
+                                        <!-- Toggle Button -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                                                style="max-height: 30px; max-width: 30px;"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#club_body_{{ $club->id }}"
+                                                aria-expanded="false">
+                                            <i class="mdi mdi-chevron-down toggle-icon font-size-18"></i>
+                                        </button>
                                     </div>
-
-                                    <!-- Toggle Button -->
-                                    <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                                            style="max-height: 30px; max-width: 30px;"
-                                            data-bs-toggle="collapse"
-                                            data-bs-target="#club_body_{{ $club->id }}"
-                                            aria-expanded="false">
-                                        <i class="mdi mdi-chevron-down toggle-icon font-size-18"></i>
-                                    </button>
                                 </div>
-                            </div>
 
-                            <!-- COLLAPSE SECTION -->
-                            <div id="club_body_{{ $club->id }}"
-                                class="accordion-collapse collapse club-body"
-                                data-bs-parent="#location_with_outlet">
+                                <!-- COLLAPSE SECTION -->
+                                <div id="club_body_{{ $club->id }}"
+                                    class="accordion-collapse collapse club-body"
+                                    data-bs-parent="#location_with_outlet">
 
-                                <div class="accordion-body p-3">
+                                    <div class="accordion-body p-3">
 
-                                    <!-- Merchant Dropdown -->
-                                    <div class="mb-2">
-                                        <select class="form-select merchant-dropdown"
-                                        name="locations[{{ $club->id }}][merchant_id]"
-                                        data-club="{{ $club->id }}">
+                                        <!-- Merchant Dropdown -->
+                                        <div class="mb-2">
+                                            <select class="form-select merchant-dropdown"  name="locations[{{ $club->id }}][merchant_id]"
+                                                    data-club="{{ $club->id }}">
+                                                <option value="">Select Participating Merchant</option>
+                                                @foreach($participating_merchants as $pm)
+                                                    <option value="{{ $pm->id }}">{{ $pm->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
 
-                                       
-                                            <option value="">Select Participating Merchant</option>
-                                            @foreach($participating_merchants as $pm)
-                                                <option value="{{ $pm->id }}">{{ $pm->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                        <!-- Outlet Container (UNCHANGED) -->
+                                        <div class="outlet-container" id="outlet_container_{{ $club->id }}">
+                                            <div class="row mt-3 participating-section">
+                                                <div class="selected-locations-hidden"></div>
 
-                                    <!-- Outlet Container (UNCHANGED) -->
-                                    <div class="outlet-container" id="outlet_container_{{ $club->id }}">
-                                        <div class="row mt-3 participating-section">
-                                            <div class="selected-locations-hidden"></div>
+                                                <div class="col-md-7">
+                                                    <div class="participating-merchant-location"></div>
+                                                </div>
 
-                                            <div class="col-md-7">
-                                                <div class="participating-merchant-location"></div>
-                                            </div>
-
-                                            <div class="col-md-5 mb-2">
-                                                <div class="selected-locations-wrapper outlet-list" style="display:none;">
-                                                    <label class="fw-bold">Selected Outlets</label>
-                                                    <div class="selected-locations-summary form-control"
-                                                        style="min-height:120px; background:#f8f9fa;">
+                                                <div class="col-md-5 mb-2">
+                                                    <div class="selected-locations-wrapper outlet-list" style="display:none;">
+                                                        <label class="fw-bold">Selected Outlets</label>
+                                                        <div class="selected-locations-summary form-control"
+                                                            style="min-height:120px; background:#f8f9fa;">
+                                                        </div>
                                                     </div>
                                                 </div>
+
                                             </div>
-
                                         </div>
-                                    </div>
 
+                                    </div>
                                 </div>
                             </div>
-
-                        </div>
 
                         @endforeach
                     </div>
-                   <div class="club-location-error text-danger mb-2"></div>
+                    <div class="club-location-error text-danger mb-2"></div>
 
                     <div class="row mt-3" id="participating_section" style="display:none;">
                         <div id="selected_locations_hidden"></div>

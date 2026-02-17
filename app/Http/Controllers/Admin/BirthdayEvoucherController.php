@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
 
-class BdayEvoucherController extends Controller
+class BirthdayEvoucherController extends Controller
 {
     public function __construct()
     {
@@ -74,6 +74,32 @@ class BdayEvoucherController extends Controller
 
         $final_data = [];
         foreach ($query['data']->get() as $key => $row) {
+            $month = '-';
+    
+    
+            if (!empty($row->month)) {
+    
+                $rawMonth = $row->month;
+    
+                // If JSON string like '["2025-02"]'
+                if (is_string($rawMonth) && str_starts_with(trim($rawMonth), '[')) {
+                    $rawMonth = json_decode($rawMonth, true);
+                }
+    
+                // If array → take first value only
+                if (is_array($rawMonth)) {
+                    $rawMonth = $rawMonth[0] ?? null;
+                }
+    
+                if (!empty($rawMonth)) {
+                    try {
+                        $month = Carbon::parse(trim($rawMonth))
+                            ->format(config('safra.month-format'));
+                    } catch (\Exception $e) {
+                        $month = '-';
+                    }
+                }
+            }
             $final_data[$key]['sr_no']      = $key + 1;
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
@@ -109,27 +135,8 @@ class BdayEvoucherController extends Controller
            
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
-            $fromMonth = $row->from_month
-                ? Carbon::createFromFormat('Y-m', $row->from_month)
-                    ->format(config('safra.month-format'))
-                : null;
-
-            $toMonth = $row->to_month
-                ? Carbon::createFromFormat('Y-m', $row->to_month)
-                    ->format(config('safra.month-format'))
-                : null;
-
-            if ($fromMonth && $toMonth) {
-                $final_data[$key]['month'] = $fromMonth . ' To ' . $toMonth;
-            } elseif ($fromMonth) {
-                $final_data[$key]['month'] = $fromMonth;
-            } else {
-                $final_data[$key]['month'] = '-';
-            }
-            $final_data[$key]['month'] =  $row->month ? Carbon::createFromFormat('Y-m', $row->month)->format(config('safra.month-format')): null;
-
-            
-
+            $final_data[$key]['month'] = $month;
+           
             $now = Carbon::now();
 
             /* ---------------- DRAFT OVERRIDE ---------------- */
@@ -237,62 +244,60 @@ class BdayEvoucherController extends Controller
         try {
 
             /* ---------------------------------------------------
-            * VALIDATION BASED ON BLADE FIELDS ONLY
+            * BASE VALIDATION
             * ---------------------------------------------------*/
             $rules = [
                 'month' => 'required|array|min:1',
                 'month.*' => 'required|date_format:Y-m',
 
-                'voucher_image'    => 'required|image|mimes:png,jpg,jpeg|max:2048',
-                'voucher_detail_img' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_image'       => 'required|image|mimes:png,jpg,jpeg|max:2048',
+                'voucher_detail_img'  => 'required|image|mimes:png,jpg,jpeg|max:2048',
 
-                'name'               => 'required|string|max:191',
-                'description'      => 'required|string',
-                'term_of_use'      => 'required|string',
-                'how_to_use'       => 'required|string',
-    
-                'merchant_id'        => 'required|exists:merchants,id',
-                'voucher_validity'   => 'required|date',
-                'inventory_type'     => 'required|in:0,1',
-                'voucher_value'      => 'required|numeric|min:0',
-                'voucher_set'        => 'required|integer|min:1',
+                'name'           => 'required|string|max:191',
+                'description'    => 'required|string',
+                'term_of_use'    => 'required|string',
+                'how_to_use'     => 'required|string',
+
+                'merchant_id'      => 'required|exists:merchants,id',
+                'voucher_validity' => 'required|date',
+                'inventory_type'   => 'required|in:0,1',
+                'voucher_value'    => 'required|numeric|min:0',
+                'voucher_set'      => 'required|integer|min:1',
                 'set_qty'          => 'required|numeric|min:1',
-                'clearing_method'    => 'required|in:0,1,2,3,4',
-                'low_stock_1'        => 'nullable|min:0',
-                'low_stock_2'        => 'nullable|min:0',
+                'clearing_method'  => 'required|in:0,1,2,3,4',
+                'low_stock_1'      => 'nullable|min:0',
+                'low_stock_2'      => 'nullable|min:0',
             ];
 
             $messages = [
-                
-                'term_of_use.required' => 'Voucher T&C is required',
-                'voucher_detail_img.required' => 'Voucher Detail Image is required',
-                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
-                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
-                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
+                'term_of_use.required'         => 'Voucher T&C is required',
+                'voucher_detail_img.required'  => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'     => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'     => 'Voucher Detail Image must be png, jpg, jpeg',
+                'voucher_detail_img.max'       => 'Voucher Detail Image may not be greater than 2048 KB',
             ];
 
-
-
             /* ---------------------------------------------------
-            * INVENTORY RULES
+            * INVENTORY TYPE RULES
             * ---------------------------------------------------*/
 
-            // Non-merchant → qty required
             if ($request->inventory_type == 0) {
                 $rules['inventory_qty'] = 'required|integer|min:1';
             }
 
-
-            // Merchant → file required
             if ((int) $request->inventory_type === 1) {
-                $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
+                $rules['csvFile'] = [
+                    'required',
+                    'file',
+                    'mimes:csv,xlsx',
+                    new SingleCodeColumnFile(),
+                ];
             }
-
 
             /* ---------------------------------------------------
             * VALIDATE
             * ---------------------------------------------------*/
-            $validator = Validator::make($request->all(), $rules,$messages);
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
@@ -304,16 +309,17 @@ class BdayEvoucherController extends Controller
             $validated = $validator->validated();
 
             /* ---------------------------------------------------
-            * CUSTOM VALIDATION: CLUB LOCATIONS & OUTLETS
+            * CLUB LOCATION VALIDATION
             * ---------------------------------------------------*/
-            $anyLocationUsed = false;
+
             $locationErrors = [];
+            $anyLocationUsed = false;
 
             if (!empty($request->locations)) {
 
-                foreach ($request->locations as $clubId => $clubData) {
+                $firstClubId = array_key_first($request->locations);
 
-                    $clubId = (string) $clubId;
+                foreach ($request->locations as $clubId => $clubData) {
 
                     $inventoryQty = isset($clubData['inventory_qty'])
                         ? (int) $clubData['inventory_qty']
@@ -321,29 +327,33 @@ class BdayEvoucherController extends Controller
 
                     $merchantId = $clubData['merchant_id'] ?? null;
 
+                    $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
+
+                    /* 1️⃣ First club → inventory required */
+                    if ($clubId == $firstClubId && $inventoryQty <= 0) {
+                        $locationErrors[] = "Inventory quantity is required for {$clubName}";
+                    }
+
+                    /* 2️⃣ If inventory > 0 → merchant + outlet required */
                     if ($inventoryQty > 0) {
 
                         $anyLocationUsed = true;
 
-                        $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
-
-                        // 🔴 Merchant required
                         if (empty($merchantId)) {
                             $locationErrors[] = "Please select Participating Merchant for {$clubName}";
                         }
 
-                        // 🔴 Outlet required
-                        $hasOutlets = isset($request->selected_outlets[$clubId]) &&
-                                    !empty($request->selected_outlets[$clubId]);
-
-                        if (empty($request->selected_outlets[$clubId])) {
+                        if (
+                            empty($request->selected_outlets[$clubId]) ||
+                            !is_array($request->selected_outlets[$clubId])
+                        ) {
                             $locationErrors[] = "Please select at least one outlet for {$clubName}";
                         }
                     }
                 }
             }
 
-            // At least one club must have inventory
+            /* At least one club must have inventory */
             if (!$anyLocationUsed) {
                 $locationErrors[] = "Please set inventory quantity for at least one club location";
             }
@@ -357,16 +367,10 @@ class BdayEvoucherController extends Controller
                 ], 422);
             }
 
-
-           
-
-            // monthly reward → check if already exists for month
-
-            // If month already has a reward, throw error with the month name(s)
-        
-              /* ---------------------------------------------------
-            * CREATE REWARD (e-Voucher only)
+            /* ---------------------------------------------------
+            * MONTH DUPLICATE CHECK
             * ---------------------------------------------------*/
+
             $months = $request->month;
 
             $existingMonths = Reward::whereIn('month', $months)
@@ -377,10 +381,14 @@ class BdayEvoucherController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'errors' => [
-                        'month' => ['Voucher already exists for month: ' . implode(', ', $existingMonths)]
+                        'month' => [
+                            'Voucher already exists for month: ' . implode(', ', $existingMonths)
+                        ]
                     ]
                 ], 422);
             }
+
+            // Continue your reward creation logic here...
 
 
               /* ---------------------------------------------------
@@ -734,7 +742,7 @@ class BdayEvoucherController extends Controller
             ===================================================*/
 
             $rules = [
-                'month' => 'required|date_format:Y-m',
+                'month' => 'required',
 
                 'voucher_image'    => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
                 'voucher_detail_img' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
@@ -779,61 +787,7 @@ class BdayEvoucherController extends Controller
             }
 
 
-            // if ((int) $request->clearing_method === 2) {
-
-            //     $existingMerchantId = $reward->participating_merchant_id ?? null;
-            //     $existingLocations  = $reward->participatingLocations ?? collect();
-
-            //     // -------------------------------
-            //     // Participating merchant
-            //     // -------------------------------
-            //     if (
-            //         !$request->has('participating_merchant_locations') &&
-            //         !$request->filled('participating_merchant_id') &&
-            //         !$existingMerchantId
-            //     ) {
-            //         $rules['participating_merchant_id'] =
-            //             'required|exists:participating_merchants,id';
-            //     }
-
-            //     // -------------------------------
-            //     // Participating locations
-            //     // -------------------------------
-            //     if (
-            //         !$request->filled('participating_merchant_locations') &&
-            //         $existingLocations->isEmpty()
-            //     ) {
-            //         $rules['participating_merchant_locations'] =
-            //             'required|array|min:1';
-            //     }
-
-            //     // -------------------------------
-            //     // If locations sent → check selected
-            //     // -------------------------------
-            //     if ($request->has('participating_merchant_locations')) {
-
-            //         $hasSelected = false;
-
-            //         foreach ($request->participating_merchant_locations as $loc) {
-            //             if (!empty($loc['selected'])) {
-            //                 $hasSelected = true;
-            //                 break;
-            //             }
-            //         }
-
-            //         if (!$hasSelected) {
-            //             return response()->json([
-            //                 'status' => 'error',
-            //                 'errors' => [
-            //                     'participating_merchant_locations' => [
-            //                         'Please select at least one merchant location.'
-            //                     ]
-            //                 ]
-            //             ], 422);
-            //         }
-            //     }
-            // }
-
+         
             /* ---------------------------------------------------
             * VALIDATE
             * ---------------------------------------------------*/
@@ -848,6 +802,79 @@ class BdayEvoucherController extends Controller
             }
 
             $validated = $validator->validated();
+                        /* ---------------------------------------------------
+            * CLUB LOCATION VALIDATION (UPDATE)
+            * ---------------------------------------------------*/
+
+            $locationErrors = [];
+            $anyLocationUsed = false;
+
+            if (!empty($request->locations)) {
+
+                $firstClubId = array_key_first($request->locations);
+
+                foreach ($request->locations as $clubId => $clubData) {
+
+                    $inventoryQty = isset($clubData['inventory_qty'])
+                        ? (int) $clubData['inventory_qty']
+                        : 0;
+
+                    $merchantId = $clubData['merchant_id'] ?? null;
+
+                    $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
+
+                    /* 1️⃣ FIRST CLUB → inventory required */
+                    if ($clubId == $firstClubId && $inventoryQty <= 0) {
+                        $locationErrors[] = "Inventory quantity is required for {$clubName}";
+                    }
+
+                    /* 2️⃣ If inventory > 0 → validate */
+                    if ($inventoryQty > 0) {
+
+                        $anyLocationUsed = true;
+
+                        $selectedOutlets = $request->selected_outlets[$clubId] ?? [];
+
+                        // 🔴 Outlets required
+                        if (empty($selectedOutlets) || !is_array($selectedOutlets)) {
+                            $locationErrors[] = "Please select at least one outlet for {$clubName}";
+                        }
+
+                        /*
+                        🔴 Merchant required ONLY IF:
+                        - No merchant sent
+                        - AND no existing merchant in update table
+                        */
+                        $existingMerchant = RewardLocationUpdate::where('reward_id', $reward->id)
+                                            ->where('location_id', $clubId)
+                                            ->value('merchant_id');
+
+                        if (
+                            empty($merchantId) &&
+                            empty($existingMerchant) &&
+                            (empty($selectedOutlets) || !is_array($selectedOutlets))
+                        ) {
+                            $locationErrors[] = "Please select Participating Merchant for {$clubName}";
+                        }
+
+                    }
+                }
+            }
+
+            /* At least one club must have inventory */
+            if (!$anyLocationUsed) {
+                $locationErrors[] = "Please set inventory quantity for at least one club location";
+            }
+
+            if (!empty($locationErrors)) {
+                return response()->json([
+                    "status" => "error",
+                    "errors" => [
+                        "locations" => $locationErrors
+                    ]
+                ], 422);
+            }
+
 
             /* ===================================================
             | CHECK EXISTING PENDING REQUEST
@@ -874,13 +901,20 @@ class BdayEvoucherController extends Controller
                 $validated['voucher_image'] = $filename;
             }
 
+            $month = $request->month;
+
+            if (is_array($month)) {
+                $month = $month[0];
+            }
+
             /* ===================================================
             | CREATE UPDATE REQUEST
             ===================================================*/
             $data = [
                 'type'           => '2',
-                'from_month'     => $validated['from_month'],
-                'to_month'       => $validated['to_month'],
+                'month'       => $month,
+                'from_month'  => $month,
+                'to_month'    => $month,
                 'request_by'     => auth()->id(),
                 'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
                 'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,

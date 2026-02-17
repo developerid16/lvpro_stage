@@ -131,20 +131,17 @@ $(document).ready(function () {
                 }
                 
                 
-               selectedOutletMap = {};
-                selectedOutlets = response.selectedOutlets || {};
+                if (response.selectedOutlets) {
+                    Object.keys(response.selectedOutlets).forEach(function (clubId) {
 
-                Object.keys(selectedOutlets).forEach(function (clubId) {
+                        selectedOutletMap[clubId] = {};
 
-                    selectedOutletMap[clubId] = {};
+                        response.selectedOutlets[clubId].forEach(function (loc) {
+                            selectedOutletMap[clubId][loc.id] = loc.name;
+                        });
 
-                    selectedOutlets[clubId].forEach(function (loc) {
-                        selectedOutletMap[clubId][loc.id] = loc.name;
                     });
-                });
-
-
-              
+                }
 
                 
                 if (response.clubInventory) {
@@ -252,21 +249,9 @@ $(document).ready(function () {
                 }
             },
             error: function (response) {
-
-                $('.club-location-error').text('');
-
-                let errors = response.responseJSON?.errors || {};
-
-                // 🔥 Handle club location errors
-                if (errors.locations) {
-                    $('.club-location-error').text(errors.locations.join(', '));
-                    delete errors.locations;
-                }
-
-                // Show remaining field errors
-                show_errors(errors, "#edit_frm");
+                show_errors(response.responseJSON.errors);
+                show_errors(response.responseJSON.errors, "#edit_frm");
             }
-
         });
     });   
 
@@ -317,28 +302,55 @@ $(document).ready(function () {
 
             tinymce.triggerSave();
 
-            // ✅ If EDIT → submit directly
-            if (formId === "edit_frm") {
-                $(formSelector).submit();
-                return;
-            }
+            generateYears();      // order fix
+            generateMonths();
 
-            // ✅ If ADD → open month modal
-            if (formId === "add_frm") {
+            let monthModalEl = document.getElementById('monthSelectModal');
+            let monthModal = new bootstrap.Modal(monthModalEl);
 
-                generateYears();
-                generateMonths();
+            // Remove previous handlers to avoid duplication
+            monthModalEl.replaceWith(monthModalEl.cloneNode(true));
+            monthModalEl = document.getElementById('monthSelectModal');
+            monthModal = new bootstrap.Modal(monthModalEl);
 
-                let monthModalEl = document.getElementById('monthSelectModal');
-                let monthModal = new bootstrap.Modal(monthModalEl);
+            // Blur main modal
+            monthModalEl.addEventListener('shown.bs.modal', function () {
 
-                monthModal.show();
-            }
+                let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+                if (mainModal) {
+                    mainModal.querySelector('.modal-content')
+                        .classList.add('modal-blur');
+                }
+
+            });
+
+            // Remove blur when closing
+            monthModalEl.addEventListener('hidden.bs.modal', function () {
+
+                let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+                if (mainModal) {
+                    mainModal.querySelector('.modal-content')
+                        .classList.remove('modal-blur');
+                }
+
+            });
+
+            monthModal.show();
+
+            // Submit correct form if no month selected
+            monthModalEl.addEventListener('hidden.bs.modal', function handler() {
+
+                monthModalEl.removeEventListener('hidden.bs.modal', handler);
+
+                if (!$("#selected_month").val()) {
+                    $(formSelector).submit();
+                }
+
+            });
 
         });
 
     });
-
 
     
     //generate month list based on current month and year, disable past months, and pre-check already selected months
@@ -428,26 +440,42 @@ $(document).ready(function () {
 
     $(document).on("click", "#confirmMonths", function () {
 
-        let checkedMonths = $(".month-checkbox:checked").length;
-        let monthModalEl = document.getElementById('monthSelectModal');
-        let monthModal = bootstrap.Modal.getInstance(monthModalEl);
+    let checkedMonths = $(".month-checkbox:checked").length;
+    let monthModalEl = document.getElementById('monthSelectModal');
+    let monthModal = bootstrap.Modal.getInstance(monthModalEl);
 
-    
+    // if (checkedMonths === 0) {
 
-        // If valid remove error
-        $("#monthInput").removeClass("is-invalid");
-        $("#monthError").hide();
+    //     // Show error under input
+    //     // $("#monthInput").addClass("is-invalid");
+    //     $("#AddModal #monthError").show();
 
-        monthModal.hide();
+    //     // Hide month modal
+    //     monthModal.hide();
 
-        if ($("#edit_frm").length) {
-            $("#edit_frm").submit();
-        } else {
-            $("#add_frm").submit();
-        }
-    });
+    //     // Remove blur from main modal
+    //     let mainModal = document.querySelector('#AddModal.show, #EditModal.show');
+    //     if (mainModal) {
+    //         mainModal.querySelector('.modal-content')
+    //             .classList.remove('modal-blur');
+    //     }
 
-    
+    //     return false;
+    // }
+
+    // If valid remove error
+    $("#monthInput").removeClass("is-invalid");
+    $("#monthError").hide();
+
+    monthModal.hide();
+
+    if ($("#edit_frm").length) {
+        $("#edit_frm").submit();
+    } else {
+        $("#add_frm").submit();
+    }
+});
+
 
    
 });
