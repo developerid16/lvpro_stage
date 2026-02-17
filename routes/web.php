@@ -121,13 +121,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('reward-redemption-pos', [RewardRedemptionController::class, 'posIndex']);
     Route::resource('redemption-reward-pos', RewardRedemptionController::class);
 
-    Route::get('app-user/datatable', [AppUserController::class, 'datatable']);
     Route::post('app-user/toggle-suspend', [AppUserController::class, 'toggleSuspend']);
-    Route::resource('app-user', AppUserController::class);
     Route::get('app-user-edit/{id}', [AppUserController::class, 'editUser'])->name('app-user-edit');
     Route::get('app-user-transactions/{id}', [AppUserController::class, 'userTransactions'])->name('app-user-transactions');
     Route::post('keys-credit-debit', [AppUserController::class, 'adminKeyDebitCredit']);
-
+    Route::get('app-user/datatable', [AppUserController::class, 'datatable']);
+    Route::resource('app-user', AppUserController::class);
+    
 
 
     Route::get('user/datatable', [UserController::class, 'datatable']);
