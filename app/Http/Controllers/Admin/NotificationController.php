@@ -37,7 +37,7 @@ class NotificationController extends Controller
      * ----------------------------------------------------- */
     public function datatable(Request $request)
     {
-        $qb = Notification::where('type','promotions')->query();
+        $qb = Notification::where('type', 'promotions');
 
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',

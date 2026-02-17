@@ -55,59 +55,98 @@ class AppUserController extends Controller
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
-    public function datatable(Request $request)
-    {
-        $query = AppUser::query();
+    // public function datatable(Request $request)
+    // {
+    //     $query = AppUser::query();
 
 
 
-        // • Create:
-        //  ‣Customer Type(Airport Pass Holder, Aircrew), APHID, Name, Email, Password, Mobile Number, Gender, Date of Birth, APH expiry date, Company, Employment ID, Referral Code.
-        $searched_from_relation = [];
-        $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email',  'status', 'user_type', 'unique_id', 'gender', 'phone_number'], $searched_from_relation, []);
+    //     // • Create:
+    //     //  ‣Customer Type(Airport Pass Holder, Aircrew), APHID, Name, Email, Password, Mobile Number, Gender, Date of Birth, APH expiry date, Company, Employment ID, Referral Code.
+    //     $searched_from_relation = [];
+    //     $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email',  'status', 'user_type', 'unique_id', 'gender', 'phone_number'], $searched_from_relation, []);
 
-        $final_data = [];
+    //     $final_data = [];
 
 
-        foreach ($query['data']->get() as $key => $row) {
-            $final_data[$key]['sr_no'] = $key + 1;
-            $final_data[$key]['unique_id'] = $row->unique_id;
-            $final_data[$key]['gender'] = $row->gender;
-            $final_data[$key]['phone_number'] = $row->country_code . ' ' . $row->phone_number;
-            $final_data[$key]['date_of_birth'] = $row->date_of_birth ? $row->date_of_birth->format(config('safra.date-format')) : '';
-            $final_data[$key]['created_at'] = $row->created_at ? $row->created_at->format(config('safra.date-format')) : '';
-            $final_data[$key]['expiry_date'] = $row->expiry_date ? $row->expiry_date->format(config('safra.date-format')) : '';
-            $final_data[$key]['my_code'] = $row->my_code;
-            $final_data[$key]['name'] = $row->name;
-            $final_data[$key]['email'] = $row->email;
-            $final_data[$key]['status'] = $row->status;
-            if ($row->status === 'Inactive' || $row->status === 'Blacklist') {
-                $final_data[$key]['status'] .= "<i class='mdi mdi-information text-primary action-icon font-size-18' title='$row->blacklist_reason'></i>";
-            }
+    //     foreach ($query['data']->get() as $key => $row) {
+    //         $final_data[$key]['sr_no'] = $key + 1;
+    //         $final_data[$key]['unique_id'] = $row->unique_id;
+    //         $final_data[$key]['gender'] = $row->gender;
+    //         $final_data[$key]['phone_number'] = $row->country_code . ' ' . $row->phone_number;
+    //         $final_data[$key]['date_of_birth'] = $row->date_of_birth ? $row->date_of_birth->format(config('safra.date-format')) : '';
+    //         $final_data[$key]['created_at'] = $row->created_at ? $row->created_at->format(config('safra.date-format')) : '';
+    //         $final_data[$key]['expiry_date'] = $row->expiry_date ? $row->expiry_date->format(config('safra.date-format')) : '';
+    //         $final_data[$key]['my_code'] = $row->my_code;
+    //         $final_data[$key]['name'] = $row->name;
+    //         $final_data[$key]['email'] = $row->email;
+    //         $final_data[$key]['status'] = $row->status;
+    //         if ($row->status === 'Inactive' || $row->status === 'Blacklist') {
+    //             $final_data[$key]['status'] .= "<i class='mdi mdi-information text-primary action-icon font-size-18' title='$row->blacklist_reason'></i>";
+    //         }
 
-            $url = route('admin.app-user.show', ['app_user' => $row->id]);
-            $showurl = route('admin.app-user-show', ['id' => $row->id]);
+    //         $url = route('admin.app-user.show', ['app_user' => $row->id]);
+    //         $showurl = route('admin.app-user-show', ['id' => $row->id]);
 
-            $editurl = route('admin.app-user-edit', ['id' => $row->id]);
-            $transactionsurl = route('admin.app-user-transactions', ['id' => $row->id]);
-            $action = "<div class='d-flex gap-3'>";
+    //         $editurl = route('admin.app-user-edit', ['id' => $row->id]);
+    //         $transactionsurl = route('admin.app-user-transactions', ['id' => $row->id]);
+    //         $action = "<div class='d-flex gap-3'>";
             
 
-            $action .= "<a href='$showurl' class='show' data-id='$row->id'><i class='mdi mdi-eye text-primary action-icon font-size-18'></i></a>";
+    //         $action .= "<a href='$showurl' class='show' data-id='$row->id'><i class='mdi mdi-eye text-primary action-icon font-size-18'></i></a>";
 
-            $action .= "<a href='$editurl' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
-            $action .= "<a href='$transactionsurl' class='edit' data-id='$row->id'><i class='mdi mdi-credit-card text-primary action-icon font-size-18'></i></a>";
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
-            }
+    //         $action .= "<a href='$editurl' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+    //         $action .= "<a href='$transactionsurl' class='edit' data-id='$row->id'><i class='mdi mdi-credit-card text-primary action-icon font-size-18'></i></a>";
+    //         if (Auth::user()->can($this->permission_prefix . '-delete')) {
+    //             $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+    //         }
 
-            $final_data[$key]['action'] = $action . "</div>";
+    //         $final_data[$key]['action'] = $action . "</div>";
+    //     }
+    //     $data = [];
+    //     $data['items'] = $final_data;
+    //     $data['count'] = $query['count'];
+    //     return $data;
+    // }
+
+
+    public function datatable(Request $request)
+    {
+        $data = UserWalletVoucher::select(
+                'user_id',
+                DB::raw('MAX(receipt_no) as receipt_no')
+            )
+            ->groupBy('user_id')
+            ->orderByDesc('receipt_no')
+            ->get();
+
+        $final_data = [];
+        $sr = 1;
+
+        foreach ($data as $row) {
+
+          $showUrl = route('admin.app-user-show', $row->user_id);
+
+$action = "<a href='{$showUrl}'>
+                <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
+           </a>";
+
+
+            $final_data[] = [
+                'sr_no'      => $sr++,
+                'user_id'    => $row->user_id,
+                'receipt_no' => $row->receipt_no,
+                'action'     => $action,
+            ];
         }
-        $data = [];
-        $data['items'] = $final_data;
-        $data['count'] = $query['count'];
-        return $data;
+
+        return [
+            'items' => $final_data,
+            'count' => count($final_data)
+        ];
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -138,17 +177,16 @@ class AppUserController extends Controller
     /**
      * Display the specified resource.
      */
-   public function show(string $id)
+   public function show($id)
     {
-        $user = AppUser::findOrFail($id);
 
         $rewards = UserWalletVoucher::with('reward')
-            ->where('user_id', $user->id)
+            ->where('user_id', $id)
             ->whereHas('reward')   // 👈 this removes null relations
             ->get();
 
         return view($this->view_file_path . "show",
-            compact('user', 'rewards') + $this->layout_data
+            compact( 'rewards') + $this->layout_data
         );
     }
     public function userTransactions(string $id, Request $request)

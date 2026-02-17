@@ -103,6 +103,7 @@
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/flatpicker/flatpickr.min.css') }}">
 <script>
   
+    var ModuleBaseUrl = "{{ $module_base_url }}/";
 
     $(document).on('change', '.suspend-toggle', function () {
 
