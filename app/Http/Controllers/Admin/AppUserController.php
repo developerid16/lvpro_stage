@@ -112,6 +112,8 @@ class AppUserController extends Controller
 
     public function datatable(Request $request)
     {
+
+    
         $data = UserWalletVoucher::select(
                 'user_id',
                 DB::raw('MAX(receipt_no) as receipt_no')

@@ -112,6 +112,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('roles', RoleController::class);
 
 
+    
+
     Route::get('reward-redemption/datatable', [RewardRedemptionController::class, 'datatable']);
     Route::post('reward-redemption-delete', [RewardRedemptionController::class, 'deleteReward']);
     Route::post('reward-redemption-change-date', [RewardRedemptionController::class, 'changeDateReward']);
