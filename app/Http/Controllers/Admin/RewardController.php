@@ -443,7 +443,7 @@ class RewardController extends Controller
                     'set_qty'                   => $request->filled('set_qty') ? (int) $request->set_qty : 0,
                     'clearing_method'           => $request->filled('clearing_method') ? (int) $request->clearing_method : 0,
                     'participating_merchant_id' => $request->filled('participating_merchant_id') ? (int) $request->participating_merchant_id : 0,
-                    'location_text'             => $request->filled('location_text') ? (int) $request->location_text : 0,
+                    'location_text'             => $request->filled('location_text') ? $locationTextId : '',
                     'max_order'                 => $request->filled('max_order') ? (int) $request->max_order : 0,
 
                     'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
@@ -528,9 +528,7 @@ class RewardController extends Controller
                     $filename = time().'_'.$file->getClientOriginalName();
                     $file->move(public_path('uploads/csv'), $filename);
 
-                    $reward->csvFile = $filename;
-                    $reward->save();
-
+                   
                     $filePath = public_path('uploads/csv/'.$filename);
 
                     // READ XLSX OR CSV
@@ -555,7 +553,7 @@ class RewardController extends Controller
 
                         $count++; // ✅ count valid codes
                     }
-
+                    $reward->csvFile = $filename;
                     // ✅ store count in inventory_qty
                     $reward->inventory_qty = $count;
                     $reward->save();
@@ -563,7 +561,7 @@ class RewardController extends Controller
 
 
                  DB::commit();
-                return response()->json(['status'=>'success','message'=>'Saved As Draft Successfully And Sent For Approval Successfully']);
+                return response()->json(['status'=>'success','message'=>'Saved As Draft Successfully']);
             }else{
 
             
@@ -881,7 +879,7 @@ class RewardController extends Controller
                     'set_qty'                   => $request->filled('set_qty') ? (int) $request->set_qty : 0,
                     'clearing_method'           => $request->filled('clearing_method') ? (int) $request->clearing_method : 0,
                     'participating_merchant_id' => $request->filled('participating_merchant_id') ? (int) $request->participating_merchant_id : 0,
-                    'location_text'             => $request->filled('location_text') ? (int) $request->location_text : 0,
+                    'location_text'             => $request->filled('location_text') ? $locationTextId : '',
                     'max_order'                 => $request->filled('max_order') ? (int) $request->max_order : 0,
                     'is_draft'             => 2,
                 ]);
@@ -975,12 +973,6 @@ class RewardController extends Controller
                     $filename = time().'_'.$file->getClientOriginalName();
                     $file->move(public_path('uploads/csv'), $filename);
     
-                    $updateRequest->csvFile = $filename;
-                    $updateRequest->save();
-    
-                    $reward->csvFile = $filename;
-                    $reward->save();
-    
                     $filePath = public_path('uploads/csv/'.$filename);
     
                     // READ XLSX OR CSV
@@ -1007,8 +999,12 @@ class RewardController extends Controller
                     }
     
                     // ✅ store count in inventory_qty
+                    $reward->csvFile = $filename;
                     $reward->inventory_qty = $count;
                     $reward->save();
+                    $updateRequest->inventory_qty = $count;
+                    $updateRequest->csvFile = $filename;
+                    $updateRequest->save();
                 }
             }
 
@@ -1781,6 +1777,7 @@ class RewardController extends Controller
                             'voucher_value'       => $request->voucher_value ?? 0,
                             'voucher_set'         => $request->voucher_set ?? 0,
                             'set_qty'             => $request->set_qty ?? 0,
+                            'csvFile'             => $reward->csvFile ?? 0,
                             'clearing_method'     => $request->clearing_method,
                             'participating_merchant_id' => $request->participating_merchant_id ?? 0,
                             'location_text'       => $locationTextId ?? '',

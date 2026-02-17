@@ -129,41 +129,27 @@
         }  
        
         // Show live preview on file select
-        $(document).on("change", "#voucher_image", function () {
-            let preview = $("#voucher_image_preview");
-            let file = this.files[0];
+        function imagePreview(inputSelector, previewSelector) {
+            $(document).on("change", inputSelector, function () {
+                let file = this.files[0];
+                let preview = $(previewSelector);
 
-            if (file) {
+                if (!file) {
+                    preview.attr("src", "").hide();
+                    return;
+                }
+
                 let reader = new FileReader();
-
                 reader.onload = function (e) {
                     preview.attr("src", e.target.result).show();
                 };
 
                 reader.readAsDataURL(file);
-            } else {
-                // When user clears the file input
-                preview.attr("src", "").hide();
-            }
-        });       
-        
-        $(document).on("change", "#voucher_detail_img", function () {
-            let preview = $("#voucher_detail_img_preview");
-            let file = this.files[0];
+            });
+        }
 
-            if (file) {
-                let reader = new FileReader();
-
-                reader.onload = function (e) {
-                    preview.attr("src", e.target.result).show();
-                };
-
-                reader.readAsDataURL(file);
-            } else {
-                // When user clears the file input
-                preview.attr("src", "").hide();
-            }
-        });       
+        imagePreview("#voucher_image", "#voucher_image_preview");
+        imagePreview("#voucher_detail_img", "#voucher_detail_img_preview");
 
         $(".max_order").hide();
         $("#common_section").hide();

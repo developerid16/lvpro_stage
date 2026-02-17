@@ -375,7 +375,7 @@
                                     <span class="text-secondary">(100 px X 100 px)</span>
                                     <div class="position-relative d-inline-block">
                                         <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" />
-                                        <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> âœ–</a>
+                                        <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>
                             </div>
@@ -391,7 +391,7 @@
                                     <span class="text-secondary">(351 px X 190 px)</span>
                                     <div class="position-relative d-inline-block"> 
                                         <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
-                                        <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> âœ–</a>
+                                        <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> <span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>
                             </div>
@@ -599,7 +599,7 @@
                                             <!-- uploaded / selected file -->
                                             <div id="uploadedFile" class="align-items-center gap-2 {{ isset($data->csvFile) ? 'd-flex' : 'd-none' }}">
                                                 <a id="uploadedFileLink" href="{{ isset($data->csvFile) ? asset('reward_voucher/'.$data->csvFile) : 'javascript:void(0)' }}" target="_blank" class="text-primary fw-bold"> {{ $data->csvFile ?? '' }} </a>
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" id="removeCsvFile"  title="Remove file"> ðŸ—‘ </button>
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn" id="removeCsvFile"  title="Remove file"> <span class="mdi mdi-delete"></span> </button>
                                             </div>
                                         </div>
                                     </div>
@@ -856,17 +856,41 @@
 
 
                     <input type="hidden" name="action" class="action-field" value="">
+                    @php
+                        $showDraft = !isset($data) || (($data->is_draft ?? 0) == 1);
+                        $colClass = $showDraft ? 'col-4' : 'col-6';
+                    @endphp
+
                     <div class="row">
-                        <div class="col-4 mt-3 d-grid">
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
+                        <div class="{{ $colClass }} mt-3 d-grid">
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light"
+                                    type="reset"
+                                    onclick="remove_errors()">
+                                Reset
+                            </button>
                         </div>
-                        <div class="col-4 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn" name=""  value="draft" type="button" id="saveDraftBtn">Save as Draft</button>
-                        </div>
-                        <div class="col-4 mt-3 d-grid">
-                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"  name="" value="submit" type="button" id="submitBtn">Submit</button>
+
+                        @if($showDraft)
+                            <div class="{{ $colClass }} mt-3 d-grid">
+                                <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"
+                                        type="button"
+                                        id="saveDraftBtn"
+                                        value="draft">
+                                    Save as Draft
+                                </button>
+                            </div>
+                        @endif
+
+                        <div class="{{ $colClass }} mt-3 d-grid">
+                            <button class="sh_btn btn btn-primary waves-effect waves-light submit-btn"
+                                    type="button"
+                                    id="submitBtn"
+                                    value="submit">
+                                Submit
+                            </button>
                         </div>
                     </div>
+
                 </form>
             </div>
         </div>

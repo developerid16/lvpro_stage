@@ -138,15 +138,19 @@ class AppUserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+   public function show(string $id)
     {
-        $user = Appuser::findOrFail($id);
-        $lastYear = Carbon::now()->subDays(365);
-        $rewards = UserWalletVoucher::with('reward')->where('user_id', $user->id)->get();
+        $user = AppUser::findOrFail($id);
 
-        return view($this->view_file_path . "show", compact('user', 'rewards') + $this->layout_data);
+        $rewards = UserWalletVoucher::with('reward')
+            ->where('user_id', $user->id)
+            ->whereHas('reward')   // 👈 this removes null relations
+            ->get();
+
+        return view($this->view_file_path . "show",
+            compact('user', 'rewards') + $this->layout_data
+        );
     }
-
     public function userTransactions(string $id, Request $request)
     {
         $user = Appuser::findOrFail($id);

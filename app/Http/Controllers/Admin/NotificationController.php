@@ -37,7 +37,7 @@ class NotificationController extends Controller
      * ----------------------------------------------------- */
     public function datatable(Request $request)
     {
-        $qb = Notification::query();
+        $qb = Notification::where('type','promotions')->query();
 
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -104,8 +104,13 @@ class NotificationController extends Controller
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        => $request->id ? 'nullable|image|max:2048' : 'required|image|max:2048',
-        ]);
+            'img'        =>  'nullable|image|max:2048',
+        ],
+        $messages = [
+                   'img.required' => 'Image is required',
+               ]
+        );
+    
 
         if ($validator->fails()) {
             return response()->json([
@@ -158,8 +163,13 @@ class NotificationController extends Controller
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        => $request->id ? 'nullable|image|max:2048' : 'required|image|max:2048',
-        ]);
+            'img'        =>  'nullable|image|max:2048',
+        ],
+        $messages = [
+                   'img.required' => 'Image is required',
+               ]
+        );
+    
 
         if ($validator->fails()) {
             return response()->json([

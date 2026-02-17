@@ -455,43 +455,28 @@
         }  
        
         // Show live preview on file select
-        $(document).on("change", "#voucher_image", function () {
-            let preview = $("#voucher_image_preview");
-            let file = this.files[0];
+       function imagePreview(inputSelector, previewSelector) {
+            $(document).on("change", inputSelector, function () {
+                let file = this.files[0];
+                let preview = $(previewSelector);
 
-            if (file) {
+                if (!file) {
+                    preview.attr("src", "").hide();
+                    return;
+                }
+
                 let reader = new FileReader();
-
                 reader.onload = function (e) {
                     preview.attr("src", e.target.result).show();
                 };
 
                 reader.readAsDataURL(file);
-            } else {
-                // When user clears the file input
-                preview.attr("src", "").hide();
-            }
-        }); 
-        
-        $(document).on("change", ".voucher_detail_img", function (e) {
-            const modal = $(this).closest('.modal');
-            const file = this.files[0];
+            });
+        }
 
-            if (!file) return;
+        imagePreview("#voucher_image", "#voucher_image_preview");
+        imagePreview("#voucher_detail_img", "#voucher_detail_img_preview");
 
-            const preview = modal.find('#voucher_detail_img_preview');
-            const clearBtn = modal.find('#clear_voucher_detail_img');
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.attr('src', e.target.result).show();
-                clearBtn.show();
-            };
-
-            reader.readAsDataURL(file);
-        });
-
-       
         // $(document).on('shown.bs.modal','#EditModal', function () {
         //     const $modal = $(this);
 

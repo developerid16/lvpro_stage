@@ -439,6 +439,7 @@ class RewardUpdateRequestController extends Controller
                     'location_text' => $update->location_text,
                     'participating_merchant_id' => $update->participating_merchant_id,
                     'hide_quantity' => $update->hide_quantity,
+                    'csvFile'               => $update->csvFile,
                     'low_stock_1' => $update->low_stock_1,
                     'low_stock_2' => $update->low_stock_2,
                 ]);
