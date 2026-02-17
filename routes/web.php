@@ -121,6 +121,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('reward-redemption-pos', [RewardRedemptionController::class, 'posIndex']);
     Route::resource('redemption-reward-pos', RewardRedemptionController::class);
 
+    Route::get('app-user-show/{id}', [AppUserController::class, 'show'])->name('app-user-show');
     Route::post('app-user/toggle-suspend', [AppUserController::class, 'toggleSuspend']);
     Route::get('app-user-edit/{id}', [AppUserController::class, 'editUser'])->name('app-user-edit');
     Route::get('app-user-transactions/{id}', [AppUserController::class, 'userTransactions'])->name('app-user-transactions');

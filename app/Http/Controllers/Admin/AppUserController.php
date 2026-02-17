@@ -86,7 +86,8 @@ class AppUserController extends Controller
             }
 
             $url = route('admin.app-user.show', ['app_user' => $row->id]);
-            $showurl = route('admin.app-user.show', ['app_user' => $row->id]);
+            $showurl = route('admin.app-user-show', ['id' => $row->id]);
+
             $editurl = route('admin.app-user-edit', ['id' => $row->id]);
             $transactionsurl = route('admin.app-user-transactions', ['id' => $row->id]);
             $action = "<div class='d-flex gap-3'>";
