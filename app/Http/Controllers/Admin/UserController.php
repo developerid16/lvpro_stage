@@ -107,14 +107,14 @@ class UserController extends Controller
         $post_data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required|unique:users,email',
+           'password' => 'nullable|string|min:6|max:20',
             'phone' => 'required|unique:users,phone',
             'status' => 'required',
             'role' => 'required',
-
         ]);
 
 
-        $password = Str::random(10);
+        $password = $request->password;
         $post_data['password'] = Hash::make($password);
         $role = $post_data['role'];
         unset($post_data['role']);
@@ -170,8 +170,15 @@ class UserController extends Controller
             'phone' => "required|unique:users,phone,$id",
             'status' => 'required',
             'role' => 'required',
+            'password' => 'nullable|string|min:6|max:20',
         ]);
 
+         // Update password only if provided
+        if (!empty($post_data['password'])) {
+            $post_data['password'] = Hash::make($post_data['password']);
+        } else {
+            unset($post_data['password']);
+        }
         // if (!empty($post_data['password'])) {
         //     $post_data['password'] = Hash::make($post_data['password']);
         // } else {

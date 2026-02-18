@@ -10,7 +10,7 @@
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
                     <div class="row">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Name<span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter Name" value="{{ $data->name ?? '' }}">
@@ -20,6 +20,12 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Email<span class="required-hash">*</span></label>
                                 <input id="email" type="email" class="sh_dec form-control" name="email" placeholder="Enter Email" value="{{ $data->email ?? '' }}">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="password">Password<span class="required-hash">*</span></label>
+                                <input id="password" type="password" class="sh_dec form-control" name="password" placeholder="Enter password" value="{{ $data->password ?? '' }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
