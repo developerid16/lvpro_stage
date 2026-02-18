@@ -71,20 +71,19 @@
                                                 ->format(config('safra.date-only'))
                                             : '-' }}
                                     </td>
-                                    @php
-                                        $isUsed = $value->claimed_at || $value->redeemed_at;
+                                   @php
+                                        $isRedeemed = !empty($value->redeemed_at);
                                     @endphp
 
+                                   
                                     <td>
-                                        {{
-                                            $value->claimed_at
-                                                ? \Carbon\Carbon::parse($value->claimed_at)->format(config('safra.date-only'))
-                                                : ($value->redeemed_at
-                                                    ? \Carbon\Carbon::parse($value->redeemed_at)->format(config('safra.date-only'))
-                                                    : '-')
-                                        }}
+                                        {{ $value->redeemed_at
+                                            ? \Carbon\Carbon::parse($value->redeemed_at)
+                                                ->format(config('safra.date-only'))
+                                            : '-' }}
                                     </td>
-                                    <td>{{ $value->reward_status ?? '' }}</td>
+
+                                    <td>{{ $value->status ?? '' }}</td>
 
                                     <td class="text-center">
                                         <div class="form-check form-switch d-flex justify-content-center">
@@ -92,7 +91,7 @@
                                                 type="checkbox"
                                                 data-id="{{ $value->id }}"
                                                 {{ $value->suspend_voucher ? 'checked' : '' }}
-                                                {{ $isUsed ? 'disabled' : '' }}>
+                                                {{ $isRedeemed ? 'disabled' : '' }}>
                                         </div>
                                     </td>
 
