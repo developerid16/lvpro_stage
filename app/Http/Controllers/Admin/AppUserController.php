@@ -260,11 +260,11 @@ class AppUserController extends Controller
     /**
      * Display the specified resource.
      */
-   public function show($id)
+    public function show($id)
     {
 
         $rewards = UserWalletVoucher::with('reward')
-            ->where('user_id', $id)
+            ->where('user_id', $id)->whereNotNull('status')
             ->whereHas('reward')   // 👈 this removes null relations
             ->get();
 
