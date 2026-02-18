@@ -83,7 +83,23 @@
                                             : '-' }}
                                     </td>
 
-                                    <td>{{ $value->status ?? '' }}</td>
+                                    @php
+                                        $expiryDate = optional($value->reward)->voucher_validity;
+                                        $isExpired = false;
+
+                                        if ($expiryDate) {
+                                            $isExpired = \Carbon\Carbon::parse($expiryDate)->isPast();
+                                        }
+                                    @endphp
+
+                                    <td>
+                                        @if($isExpired)
+                                            Expired
+                                        @else
+                                            {{ $value->status ?? '' }}
+                                        @endif
+                                    </td>
+
 
                                     <td class="text-center">
                                         <div class="form-check form-switch d-flex justify-content-center">

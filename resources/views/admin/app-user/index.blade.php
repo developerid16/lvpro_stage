@@ -32,6 +32,7 @@
                                 data-escape="true">
                                 User ID
                             </th>
+                            
                             <th data-field="action">Action</th>
                         </tr>
                     </thead>

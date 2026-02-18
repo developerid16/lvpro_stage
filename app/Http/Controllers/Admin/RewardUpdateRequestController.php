@@ -396,6 +396,7 @@ class RewardUpdateRequestController extends Controller
                     'voucher_set'     => (int) ($update->voucher_set ?? 0),
                     'set_qty'         => (int) ($update->set_qty ?? 0),
                     'clearing_method' => (int) ($update->clearing_method ?? 0),
+                    'cso_method' => (int) ($update->cso_method ?? 0),
 
 
                     'location_text'        => $update->location_text,

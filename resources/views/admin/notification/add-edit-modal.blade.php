@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="col-md-12 mb-3">
-                            <label>Short Description <span class="required-hash">*</span> (Max 180 characters)</label>
+                            <label>Short Description <span class="required-hash">*</span> (Max 100 characters)</label>
                             <input type="text" name="short_desc" placeholder="Short Description" class="form-control" value="{{ $data->short_desc ?? '' }}">
                         </div>
 

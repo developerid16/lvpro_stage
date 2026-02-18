@@ -640,7 +640,7 @@ class EvoucherController extends Controller
 
                 'merchant_id'          => $validated['merchant_id'],
                 'reward_type'          => 0,
-                'cso_method'           => $request->cso_method ?? 0,
+                'cso_method'     => Reward::intOrZero(request: $request, 'cso_method'),
                 'max_quantity'         => $validated['max_quantity'],
                 'direct_utilization'   => $validated['direct_utilization'] ?? 0,
 

@@ -110,56 +110,125 @@ class AppUserController extends Controller
     // }
 
 
-    public function datatable(Request $request)
-    {
+    // public function datatable(Request $request)
+    // {
        
-        $query = UserWalletVoucher::select(
-                'user_id',
-                DB::raw('MAX(receipt_no) as receipt_no')
-            )
-            ->groupBy('user_id');
+    //     $query = UserWalletVoucher::select(
+    //             'user_id',
+    //             DB::raw('MAX(receipt_no) as receipt_no')
+    //         )
+    //         ->groupBy('user_id');
 
-        $filter = $request->filter;
+    //     $filter = $request->filter;
 
-        if (!empty($filter)) {
+    //     if (!empty($filter)) {
 
-            // If filter is JSON string, decode it
-            if (is_string($filter)) {
-                $filter = json_decode($filter, true);
-            }
+    //         // If filter is JSON string, decode it
+    //         if (is_string($filter)) {
+    //             $filter = json_decode($filter, true);
+    //         }
 
-            if (!empty($filter['user_id'])) {
-                $query->having('user_id', 'LIKE', '%' . $filter['user_id'] . '%');
-            }
+    //         if (!empty($filter['user_id'])) {
+    //             $query->having('user_id', 'LIKE', '%' . $filter['user_id'] . '%');
+    //         }
+    //     }
+
+
+
+    //     $data = $query
+    //         ->orderByDesc('receipt_no')
+    //         ->get();
+
+    //     $final_data = [];
+    //     $sr = 1;
+
+    //     foreach ($data as $row) {
+
+    //         $showUrl = route('admin.app-user-show', $row->user_id);
+
+    //         $final_data[] = [
+    //             'sr_no'   => $sr++,
+    //             'user_id' => $row->user_id,
+    //             'action'  => "<a href='{$showUrl}'>
+    //                             <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
+    //                         </a>",
+    //         ];
+    //     }
+
+    //     return [
+    //         'items' => $final_data,
+    //         'count' => count($final_data)
+    //     ];
+    // }
+
+   public function datatable(Request $request)
+{
+    $baseQuery = UserWalletVoucher::select(
+            'user_id',
+            DB::raw('MAX(receipt_no) as receipt_no')
+        )
+        ->groupBy('user_id');
+
+    // FILTER
+    $filter = $request->filter;
+
+    if (!empty($filter)) {
+
+        if (is_string($filter)) {
+            $filter = json_decode($filter, true);
         }
 
-
-
-        $data = $query
-            ->orderByDesc('receipt_no')
-            ->get();
-
-        $final_data = [];
-        $sr = 1;
-
-        foreach ($data as $row) {
-
-            $showUrl = route('admin.app-user-show', $row->user_id);
-
-            $final_data[] = [
-                'sr_no'   => $sr++,
-                'user_id' => $row->user_id,
-                'action'  => "<a href='{$showUrl}'>
-                                <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
-                            </a>",
-            ];
+        if (!empty($filter['user_id'])) {
+            $baseQuery->having('user_id', 'LIKE', '%' . $filter['user_id'] . '%');
         }
+    }
 
-        return [
-            'items' => $final_data,
-            'count' => count($final_data)
+    // Wrap grouped query
+    $query = DB::query()->fromSub($baseQuery, 'sub');
+
+    // SORT
+    $sort  = $request->get('sort', 'receipt_no');
+    $order = $request->get('order', 'desc');
+
+    if (in_array($sort, ['user_id', 'receipt_no'])) {
+        $query->orderBy($sort, $order);
+    }
+
+    // TOTAL
+    $total = $query->count();
+
+    // PAGINATION
+    $limit  = $request->get('limit', 100);
+    $offset = $request->get('offset', 0);
+
+    $data = $query
+        ->offset($offset)
+        ->limit($limit)
+        ->get();
+
+    // FORMAT
+    $final_data = [];
+    $sr = $offset + 1;
+
+    foreach ($data as $row) {
+
+        $showUrl = route('admin.app-user-show', $row->user_id);
+
+        $final_data[] = [
+            'sr_no'   => $sr++,
+            'user_id' => $row->user_id,
+            'action'  => "<a href='{$showUrl}'>
+                            <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
+                          </a>",
         ];
     }
+
+    return [
+        'items' => $final_data,
+        'count' => $total
+    ];
+}
+
 
 
     /**

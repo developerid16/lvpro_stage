@@ -17,7 +17,7 @@ class ParticipatingMerchant extends Model
         'added_by'
     ];
 
-      public function locations()
+    public function locations()
     {
         return $this->hasMany(
             ParticipatingMerchantLocation::class,
