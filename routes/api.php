@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\MasterAPIController;
 use App\Http\Controllers\API\MemberInformationController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -48,4 +49,13 @@ Route::prefix('ax')->group(function () {
     Route::get('basic-detail-information-method', [MemberInformationController::class, 'infoByMethod']);
     Route::get('get-shopping-cart-no', [MemberInformationController::class, 'getShoppingCart']);
     Route::get('clear-shopping-cart', [MemberInformationController::class, 'clearShoppingCart']);
+});
+
+Route::get('master/schedule-run', function () {
+    Artisan::call('schedule:run');
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Schedule executed',
+        'output'  => Artisan::output()
+    ]);
 });
