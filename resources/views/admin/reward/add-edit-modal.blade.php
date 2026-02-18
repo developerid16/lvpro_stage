@@ -757,11 +757,17 @@
 
                             <!-- FABS Category -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">FABS Categories Information</label>
-                                <div class="col-md-6">
-                                    <select class="form-select" name="fabs_category_id" readonly>
-                                        <option value="">Select</option>                                     
-
+                                <label class="col-md-4 fw-bold" for="fabs_category_id">FABS Categories Information</label>
+                                <div class="col-md-6">                                  
+                                    <select class="form-select" name="fabs_category_id">
+                                        <option value="">Select FABS</option>
+                                        @if (isset($fabs))                                        
+                                            @foreach ($fabs as $val)
+                                                <option value="{{ $val->id }}" {{ isset($data) && $data->fabs_category_id == $val->id ? 'selected' : '' }}>
+                                                    {{ $val->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                             </div>

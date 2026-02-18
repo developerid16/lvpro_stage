@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\PaymentTransaction;
 use App\Models\Tier;
 use App\Models\Reward;
+use App\Models\VoucherLog;
 use Illuminate\Http\Request;
 use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Purchase;
+use App\Models\UserWalletVoucher;
+use App\Models\VoucherLogs;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CsoPurchaseController extends Controller
 {
@@ -161,11 +167,163 @@ class CsoPurchaseController extends Controller
 
     public function complete(Request $request)
     {
-        Purchase::where('id', $request->purchase_id)
-            ->update(['status' => 'completed']);
+        DB::beginTransaction();
 
-        return response()->json(['status' => 'ok']);
+        try {
+
+            $purchase = Purchase::where('id', $request->purchase_id)
+                ->where('status', '!=', 'completed')
+                ->lockForUpdate()
+                ->first();
+
+            if (!$purchase) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Purchase not found or already completed'
+                ]);
+            }
+
+            $userId   = $purchase->member_id;
+            $voucher  = Reward::find($purchase->reward_id);
+
+            if (!$voucher) {
+                throw new \Exception('Reward not found');
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1️⃣ UPDATE PURCHASE STATUS
+            |--------------------------------------------------------------------------
+            */
+            $purchase->update([
+                'status' => 'completed'
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2️⃣ STORE PAYMENT TRANSACTION (ALLOW BLANK)
+            |--------------------------------------------------------------------------
+            */
+            $dataReq = $request->all();
+
+            $transactionId = strtoupper(Str::random(10));
+            $mid           = strtoupper(Str::random(10));
+            PaymentTransaction::updateOrCreate(
+                [
+                    'transaction_id' => $transactionId,
+                ],
+                [
+                    'user_id'           => $userId,
+                    'mid'               => $mid ?? null,
+                    'order_id'          => $voucher->id ?? null,
+                    'payment_mode'      => 2,
+                    'request_amount'    =>  $voucher->usual_price ?? 0,
+                    'authorized_amount' => $voucher->usual_price ?? 0,
+                    'status'            => 'success',
+                    'raw_response'      => json_encode($dataReq),
+                ]
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3️⃣ CREATE WALLET VOUCHERS
+            |--------------------------------------------------------------------------
+            */
+
+            // PHYSICAL REWARD
+            if ((int)$voucher->reward_type === 1) {
+
+                for ($i = 0; $i < (int)$purchase->qty; $i++) {
+
+                    $uniqueCode = UserWalletVoucher::generateUniqueVoucherCode();
+                    $serialNo   = UserWalletVoucher::generateSerialNo($uniqueCode, $i);
+
+                    UserWalletVoucher::create([
+                        'user_id'       => $userId,
+                        'reward_id'     => $voucher->id,
+                        'qty'           => 1,
+                        'claimed_at'    => now(),
+                        'status'        => 'Active',
+                        'reward_status' => 'purchased',
+                        'receipt_no'    => $purchase->receipt_no,
+                        'unique_code'   => $uniqueCode,
+                        'serial_no'     => $serialNo,
+                    ]);
+
+                    VoucherLog::create([
+                        'user_id'   => $userId,
+                        'reward_id' => $voucher->id,
+                        'action'    => 'purchased',
+                        'receipt_no'=> $uniqueCode,
+                        'qty'       => 1,
+                    ]);
+                }
+            }
+
+            // DIGITAL REWARD
+            if ((int)$voucher->reward_type === 0) {
+
+                $total = (int)$voucher->voucher_set * (int)$purchase->qty;
+
+                for ($i = 0; $i < $total; $i++) {
+
+                    $uniqueCode = UserWalletVoucher::generateUniqueVoucherCode();
+                    $serialNo   = UserWalletVoucher::generateSerialNo($uniqueCode, $i);
+
+                    UserWalletVoucher::create([
+                        'user_id'       => $userId,
+                        'reward_id'     => $voucher->id,
+                        'qty'           => 1,
+                        'claimed_at'    => now(),
+                        'status'        => 'Active',
+                        'reward_status' => 'purchased',
+                        'receipt_no'    => $purchase->receipt_no,
+                        'unique_code'   => $uniqueCode,
+                        'serial_no'     => $serialNo,
+                    ]);
+
+                    VoucherLog::create([
+                        'user_id'   => $userId,
+                        'reward_id' => $voucher->id,
+                        'action'    => 'purchased',
+                        'receipt_no'=> $uniqueCode,
+                        'qty'       => 1,
+                    ]);
+                }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4️⃣ NOTIFICATION
+            |--------------------------------------------------------------------------
+            */
+            Notification::create([
+                'user_id'    => $userId,
+                'reward_id'  => $voucher->id,
+                'title'      => $voucher->name,
+                'img'        => $voucher->voucher_image,
+                'short_desc' => 'You purchased ' . $purchase->qty . ' Qty of ' . $voucher->name,
+                'desc'       => $voucher->how_to_use,
+                'date'       => now(),
+                'type'       => 'purchased'
+            ]);
+
+            DB::commit();
+
+            return response()->json(['status' => 'ok']);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
     }
+
+
 
     public function cancel(Request $request)
     {

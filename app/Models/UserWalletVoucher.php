@@ -1,7 +1,7 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Str;
 
 class UserWalletVoucher extends Model
 {
@@ -18,9 +18,18 @@ class UserWalletVoucher extends Model
         'reward_status',
         'reward_voucher_id',
         'serial_no',
+        'unique_code',
         'used_code',
         'suspend_voucher'
+
+        
     ];
+    protected $casts = [
+        'claimed_at'   => 'datetime',
+        'redeemed_at'  => 'datetime',
+        'created_at'   => 'datetime',
+    ];
+
 
     public function reward()
     {
@@ -35,4 +44,13 @@ class UserWalletVoucher extends Model
         return $datePart . $randomPart;
     }
     
+     public static function generateUniqueVoucherCode(): string
+    {
+        return strtoupper(Str::random(4) . '-' . Str::random(4));
+    }
+
+     public static function generateSerialNo(string $code, int $index): string
+    {
+        return $code . '-' . str_pad($index, 4, '0', STR_PAD_LEFT);
+    }
 }

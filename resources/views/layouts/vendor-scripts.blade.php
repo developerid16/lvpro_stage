@@ -10,6 +10,7 @@
 
 <script>
     let selectedOutletMap = {};    
+    let selectedOutletMapMerchant = {};    
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -379,7 +380,7 @@
 
                 res.locations.forEach(function (loc) {
 
-                    const checked = selectedOutletMap && selectedOutletMap[loc.id]
+                    const checked = selectedOutletMapMerchant && selectedOutletMapMerchant[loc.id]
                         ? 'checked'
                         : '';
 
@@ -425,7 +426,7 @@
         const container = modal.find("#selected_locations_hidden");
         container.empty();
 
-        Object.keys(selectedOutletMap).forEach(locId => {
+        Object.keys(selectedOutletMapMerchant).forEach(locId => {
             container.append(`
                 <input type="hidden"
                     name="participating_merchant_locations[${locId}][selected]"
@@ -436,7 +437,7 @@
 
     function editParticipatingMerchantLocations(modal) {
 
-        if (!selectedOutletMap || Object.keys(selectedOutletMap).length === 0) {
+        if (!selectedOutletMapMerchant || Object.keys(selectedOutletMapMerchant).length === 0) {
             return;
         }
 
@@ -444,9 +445,9 @@
 
         locationBox.empty();
 
-        Object.keys(selectedOutletMap).forEach(function (id) {
+        Object.keys(selectedOutletMapMerchant).forEach(function (id) {
 
-            let name = selectedOutletMap[id];
+            let name = selectedOutletMapMerchant[id];
            
         });
 
@@ -462,7 +463,7 @@
         const wrapper = modal.find("#selected_locations_wrapper");
         const summary = modal.find("#selected_locations_summary");
 
-        const names = Object.values(selectedOutletMap);
+        const names = Object.values(selectedOutletMapMerchant);
 
         if (!names.length) {
             summary.empty();
@@ -483,9 +484,9 @@
         const name = $(this).data("name");
 
         if (this.checked) {
-            selectedOutletMap[id] = name;
+            selectedOutletMapMerchant[id] = name;
         } else {
-            delete selectedOutletMap[id];
+            delete selectedOutletMapMerchant[id];
         }
 
         updateSelectedLocationsSummary(modal);
@@ -504,7 +505,7 @@
         const merchantSelect = modal.find('#participating_merchant_id');
 
         // 🔥 ALWAYS RESET SELECTED OUTLETS ON METHOD CHANGE
-        selectedOutletMap = [];
+        selectedOutletMapMerchant = [];
         modal.find('#selected_locations_summary').empty();
         modal.find('#selected_locations_hidden').empty();
         // outletWrapper.hide();
@@ -572,7 +573,7 @@
 
         // Everything else → reset merchant data
         merchantSelect.val(null).trigger('change');
-        selectedOutletMap = {};
+        selectedOutletMapMerchant = {};
         modal.find('#selected_locations_summary').empty();
         modal.find('#selected_locations_hidden').empty();
     }

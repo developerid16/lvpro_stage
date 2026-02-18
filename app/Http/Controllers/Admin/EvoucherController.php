@@ -799,6 +799,12 @@ class EvoucherController extends Controller
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
 
+        $this->layout_data['location_text'] = null;
+
+        if (!empty($reward->location_text)) {
+            $this->layout_data['location_text'] = CustomLocation::where('id', $reward->location_text)
+                ->value('name');
+        }
         // 🔥 Get location IDs
         $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
 

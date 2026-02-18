@@ -227,8 +227,9 @@
                             </div>
                         </li>
 
+
                     @endcan
-                    @canany(['content-management', 'app-management', 'slider-list', 'about-app-banner-list', 'learn-more-page', 'faq-list', 'app-content-management'])
+                    @canany(['dashboard-list', 'notification-list', 'setting-list'])
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
@@ -250,14 +251,14 @@
                     </li>
                     @endcan
 
-                    @canany(['reward-list', 'reward-redemption-pos', 'reward-redemption-cms'])
+                    @canany(['reward-list', 'reward-category', 'evoucher-list','bday-list'])
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                             <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            @can('reward-list')
+                            @can('reward-category')
                                 <a class="dropdown-item" key="t-alerts" href="{{url('admin/category')}}">Reward Category</a>
                             @endcan
                             @can('reward-list')

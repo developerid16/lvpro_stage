@@ -777,7 +777,7 @@
             // -------------------------------
             // 🔥 RESET SELECTED OUTLETS STATE
             // -------------------------------
-            window.selectedOutletMap = {};               // clear JS memory
+            window.selectedOutletMapMerchant = {};               // clear JS memory
             modal.find("#selected_locations_summary").empty();
             modal.find("#selected_locations_wrapper").hide();
             modal.find("#selected_locations_hidden").empty();

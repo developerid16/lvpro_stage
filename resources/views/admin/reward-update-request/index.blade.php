@@ -34,6 +34,9 @@
                             Requested Date
                         </th>
 
+                        <th data-field="type" data-filter-control="input">
+                            Type
+                        </th>                      
                         <th data-field="reward_type" data-filter-control="input">
                             Reward Type
                         </th>                      
@@ -193,9 +196,7 @@
         $('#viewModal').modal('show');
 
         // disable everything
-        $('#rewardViewForm')
-            .find('input, textarea, select, button')
-            .prop('disabled', true);
+        $('#rewardViewForm').find('input, textarea, select, button').prop('disabled', true);
 
         // allow close
         $('#rewardViewForm .btn-close').prop('disabled', false);
@@ -263,17 +264,20 @@
             if(d.type != 2){//bday 
                 appendField('Maximum Quantity (Per User)', d.max_quantity);
             }
-            appendField('Inventory Type', d.inventory_type == 0 ? 'Non Merchant' : 'Merchant');
-            if(d.inventory_type == 0){//non merchant
-                appendField('Inventory Quantity', d.inventory_qty);
+            
+            if(d.reward_type == 0){//digital
+                appendField('Inventory Type', d.inventory_type == 0 ? 'Non Merchant' : 'Merchant');
+                if(d.inventory_type == 0){//non merchant
+                    appendField('Inventory Quantity', d.inventory_qty);
+                }
+                if(d.inventory_type == 1){//merchant
+                    appendField('File', d.csvFile);
+                }
+                appendField('Voucher Value', d.voucher_value);
+                appendField('Voucher Set', d.voucher_set);
+                appendField('Set Quantity', d.set_qty);
+                appendField('Clearing Method', getClearingMethodLabel(d.clearing_method));
             }
-            if(d.inventory_type == 1){//merchant
-                appendField('File', d.csvFile);
-            }
-            appendField('Voucher Value', d.voucher_value);
-            appendField('Voucher Set', d.voucher_set);
-            appendField('Set Quantity', d.set_qty);
-            appendField('Clearing Method', getClearingMethodLabel(d.clearing_method));
 
             if(d.clearing_method == 2){//merchant code
                 appendOutlets(d.merchant_locations);

@@ -88,6 +88,10 @@ class RewardUpdateRequestController extends Controller
         foreach ($rows->get() as $key => $row) {
 
             $index = $start + $i + 1;
+            $locationQty = RewardLocationUpdate::where('reward_id',$row->reward_id)->sum('inventory_qty');
+            if(empty( $locationQty)){
+                $locationQty = RewardLocation::where('reward_id',$row->reward_id)->sum('inventory_qty');
+            }
 
             $month = '-';
 
@@ -132,16 +136,18 @@ class RewardUpdateRequestController extends Controller
                 'id'                => $row->id,
                 'sr_no'             => $index,
 
-                'reward_type' => Reward::getRewardTypeLabel($row->type),
+                'type'               => Reward::getRewardTypeLabel($row->type),
+                'reward_type' => $row->reward_type == 1 ? 'Physical' : 'Digital',
 
                 'reward_id'         => $row->reward_id,
-                'month'            =>  $month,
+                'month'             =>  $month,
                 'name'              => $row->name,
                 'description'       => $row->description ?? '-',
 
                 // INVENTORY
                 'inventory_type'    => $row->inventory_type == 0 ? 'Inventory Quantity' : 'File',
-                'inventory_qty'     => $row->inventory_qty ?? '-',
+                'inventory_qty' => $row->reward_type == 1  ? ($locationQty ?? 0)  : ($row->inventory_qty ?? '-'),
+
 
                 // VALUE
                 'voucher_value'     => $row->voucher_value,

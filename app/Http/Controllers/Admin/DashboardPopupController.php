@@ -123,7 +123,7 @@ class DashboardPopupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $rules = [
             'name'        => 'required|string|max:25',
@@ -132,7 +132,7 @@ class DashboardPopupController extends Controller
             'popup_type'  => 'required|in:once-a-day,always',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after_or_equal:start_date',
-            'description' => 'required|string',
+            'url'         => 'required|url|max:255',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
@@ -147,10 +147,10 @@ class DashboardPopupController extends Controller
 
         $validated = $validator->validated();
 
-        // Image upload
+        // Upload image
         if ($request->hasFile('image')) {
             $imageName = time() . rand() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move(public_path('uploads/image'), $imageName);
             $validated['image'] = $imageName;
         }
 
@@ -164,6 +164,7 @@ class DashboardPopupController extends Controller
             'message' => 'Dashboard Popup created successfully'
         ]);
     }
+
 
     /**
      * Display the specified resource.
@@ -191,12 +192,12 @@ class DashboardPopupController extends Controller
     {
         $rules = [
             'name'        => 'required|string|max:25',
-            'button'      => 'required|string|max:50',
-            'popup_type'   => 'required|string',
+            'button'      => 'required|string|max:10',
+            'popup_type'  => 'required|in:once-a-day,always',
             'order'       => 'required|numeric',
-            'description' => 'required|string',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after_or_equal:start_date',
+            'url'         => 'required|url|max:255',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
@@ -213,22 +214,25 @@ class DashboardPopupController extends Controller
 
         $popup = DashboardPopup::findOrFail($id);
 
-        // Image upload & replace
+        // Replace image if new uploaded
         if ($request->hasFile('image')) {
+
             $imageName = time() . rand() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            $request->image->move(public_path('uploads/image'), $imageName);
             $validated['image'] = $imageName;
 
-            // delete old image safely
+            // Delete old image
             if (!empty($popup->image)) {
-                $oldPath = public_path('images/' . $popup->image);
+                
+                $oldPath = public_path('uploads/image' . $popup->image);
                 if (file_exists($oldPath)) {
-                    @unlink($oldPath);
+                    unlink($oldPath);
                 }
             }
         }
 
         $validated['frequency'] = $validated['popup_type'];
+
         $popup->update($validated);
 
         return response()->json([
@@ -236,6 +240,7 @@ class DashboardPopupController extends Controller
             'message' => 'Dashboard Popup updated successfully'
         ]);
     }
+
     /**
      * Remove the specified resource from storage.
      */

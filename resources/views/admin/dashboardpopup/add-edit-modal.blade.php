@@ -23,7 +23,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form class="z-index-1" method="POST" action="javascript:void(0)"
+                <form class="z-index-1" method="POST" action="javascript:void(0)" enctype="multipart/form-data"
                     id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? ''}}">
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
@@ -87,14 +87,44 @@
                                 <div class="error" id="frequency_error"></div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-12 slider-type-amount"  >
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">Upload Image <span class="required-hash">*</span></label>
+                                <input 
+                                    type="file" 
+                                    name="image" 
+                                    class="form-control"
+                                    accept="image/png,image/jpeg,image/jpg"
+                                >
+
+                                @if(isset($data->image) && $data->image)
+                                    <div class="mt-2">
+                                        <img src="{{ asset('uploads/image/'.$data->image)}}"  style="max-width:100px; border-radius:6px;">
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec">URL Link<span class="required-hash">*</span></label>
+                                <input 
+                                    type="url" 
+                                    name="url" 
+                                    class="form-control"
+                                    placeholder=""
+                                    value="{{ $data->url ?? '' }}"
+                                >
+                            </div>
+                        </div>
+
+
+                        {{-- <div class="col-12 col-md-12 slider-type-amount">
                             <div class="mb-3">
                                 <label class="sh_dec" for="amount">Description <span class="required-hash">*</span></label>
                                 <textarea class="elm1" name="description"> {{$data->description ?? ''}} </textarea>
-                                {{-- <span class="sh_dec_s text-muted">Max 180 character allows</span> --}}
                                 <div class="error sh_dec" id="description_error"></div>
                             </div>
-                        </div>
+                        </div> --}}
                         <hr class="dashed">
                         <div class="col-6 mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>

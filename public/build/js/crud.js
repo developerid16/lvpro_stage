@@ -120,18 +120,18 @@ $(document).ready(function () {
 
                 let modal = $("#EditModal");
 
-                selectedOutletMap = {};
+                selectedOutletMapMerchant = {};
                 selectedOutlets = response.selectedOutlets || {};
 
                 if (response.participatingLocations && response.participatingLocations.length > 0) {
 
                     response.participatingLocations.forEach(function (loc) {
-                        selectedOutletMap[loc.id] = loc.name;
+                        selectedOutletMapMerchant[loc.id] = loc.name;
                     });
                 }
                 
                 
-               selectedOutletMap = {};
+                selectedOutletMap = {};
                 selectedOutlets = response.selectedOutlets || {};
 
                 Object.keys(selectedOutlets).forEach(function (clubId) {

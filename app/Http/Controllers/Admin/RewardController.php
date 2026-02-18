@@ -29,6 +29,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
 use App\Models\CustomLocation;
+use App\Models\Fabs;
 use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
@@ -63,6 +64,7 @@ class RewardController extends Controller
         $this->layout_data['type'] = $type;
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['category'] = Category::get();
+        $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
 
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
@@ -1059,6 +1061,8 @@ class RewardController extends Controller
             $this->layout_data['location_text'] = CustomLocation::where('id', $reward->location_text)
                 ->value('name');
         }
+        $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
+
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
