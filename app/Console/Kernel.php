@@ -38,6 +38,24 @@ class Kernel extends ConsoleKernel
         $schedule->command('spent:reset')->yearlyOn(9, 1, '00:02');
         $schedule->command('key:expiry')->yearlyOn(12, 1, '00:02');
         $schedule->command('locations:disable-expired')->daily();
+
+        // $schedule->command('safra:basic-detail-modified')->everyMinute();
+
+        // $schedule->command('safra:basic-detail-ig')->everyMinute();
+
+        // $schedule->command('safra:latest-transaction')->everyMinute();
+
+        // $schedule->command('safra:customer-zone')->everyMinute();
+
+        // $schedule->command('master:sync-all')->dailyAt('00:00'); // call manully php artisan master:sync-all
+
+        $schedule->command('master:sync-gender')->everyMinute();
+        $schedule->command('master:sync-marital-status')->everyMinute();
+        $schedule->command('master:sync-card-type')->everyMinute();
+        $schedule->command('master:sync-dependent-type')->everyMinute();
+        $schedule->command('master:sync-zone')->everyMinute();
+        $schedule->command('master:sync-membership-code')->everyMinute();
+        $schedule->command('master:sync-interest-group')->everyMinute();
     }
 
     /**

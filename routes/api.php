@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\API\MasterAPIController;
+use App\Http\Controllers\API\MemberInformationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +20,32 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/ping', function (Request $request) {
     return "pong";
+});
+
+
+// test route for member information api
+Route::prefix('member-information')->group(function () {
+    Route::get('basic-details-info-modified', [MemberInformationController::class, 'GetBasicDetailInfoByModified']);
+    Route::get('ig-basic-details', [MemberInformationController::class, 'GetBasicDetailIg']);
+    Route::get('member-latest-transaction', [MemberInformationController::class, 'GetLatestTransaction']);
+    Route::get('member-zip-code', [MemberInformationController::class, 'GetCustomerZone']);
+});
+
+// MASTER API START
+Route::prefix('master')->group(function () {
+    Route::get('gender', [MasterAPIController::class, 'gender']);
+    Route::get('interest-group', [MasterAPIController::class, 'interestGroup']);
+    Route::get('card-type', [MasterAPIController::class, 'cardType']);
+    Route::get('dependent-type', [MasterAPIController::class, 'dependentType']);
+    Route::get('membership-code', [MasterAPIController::class, 'membershipCode']);
+    Route::get('marital-status', [MasterAPIController::class, 'maritalStatus']);
+    Route::get('zone', [MasterAPIController::class, 'zone']);
+});
+// MASTER API END
+
+// ax api
+Route::prefix('ax')->group(function () {
+    Route::get('basic-detail-information-method', [MemberInformationController::class, 'infoByMethod']);
+    Route::get('get-shopping-cart-no', [MemberInformationController::class, 'getShoppingCart']);
+    Route::get('clear-shopping-cart', [MemberInformationController::class, 'clearShoppingCart']);
 });
