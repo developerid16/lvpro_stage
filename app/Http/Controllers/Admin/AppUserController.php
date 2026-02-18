@@ -264,7 +264,7 @@ class AppUserController extends Controller
     {
 
         $rewards = UserWalletVoucher::with('reward')
-            ->where('user_id', $id)->whereNotNull('status')
+            ->where('user_id', $id)->whereIn('status', ['Active', 'used', 'expired'])
             ->whereHas('reward')   // 👈 this removes null relations
             ->get();
 
