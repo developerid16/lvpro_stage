@@ -624,7 +624,7 @@ class RewardController extends Controller
                 }
                 
                 /* ---------------- RUN VALIDATOR ---------------- */
-                // $validator = Validator::make($request->all(), $rules, $messages);
+                $validator = Validator::make($request->all(), $rules, $messages);
                 
                 if ($request->reward_type == 1) {           
                     
@@ -663,11 +663,11 @@ class RewardController extends Controller
                         $messages['location_text.required'] = 'Location is required';
 
                     }
+                    if ((int) $request->inventory_type === 0) {
+                        $rules['inventory_qty'] = 'required|integer|min:1';
+                    }
                 }
 
-                if ((int) $request->inventory_type === 0) {
-                    $rules['inventory_qty'] = 'required|integer|min:1';
-                }
 
                 foreach ($tiers as $tier) {
                     $price = $request->input("tier_{$tier->id}");
@@ -786,8 +786,8 @@ class RewardController extends Controller
     
                     // physical-only fields
                     'hide_quantity'            => $request->hide_quantity ?? 0,
-                    'low_stock_1'            => $request->low_stock_1 ?? 0,
-                    'low_stock_2'            => $request->low_stock_2 ?? 0,
+                    'low_stock_1'            => $request->filled($request->low_stock_1) ? $request->low_stock_1 :  0,
+                    'low_stock_2'            => $request->filled($request->low_stock_2) ? $request->low_stock_2 : 0,
     
                     'friendly_url'           => $request->friendly_url,
     
