@@ -25,38 +25,39 @@
                                 <th>Type</th>
                                 <th>Reward Type</th>
                                 <th>Voucher Validity</th>
+                                <th>Redeemed At</th>
+                                <th>Status</th>
                                 <th class="text-center">Suspend</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach ($rewards as $reward)
+                            @foreach ($rewards as $value)
                                 <tr>
-
                                     <td>
                                        
-                                        {{ $reward->reward->name ?? '' }}
+                                        {{ $value->reward->name ?? '' }}
                                     </td>
 
-                                    <td>{{ $reward->unique_code }}</td>
-                                    <td>{{ $reward->receipt_no }}</td>
+                                    <td>{{ $value->unique_code }}</td>
+                                    <td>{{ $value->receipt_no }}</td>
 
                                     <td>
-                                        @if(optional($reward->reward)->type === 0)
+                                        @if(optional($value->reward)->type === '0')
                                             Treats & Deals
-                                        @elseif(optional($reward->reward)->type === 1)
+                                        @elseif(optional($value->reward)->type === '1')
                                             Evoucher
-                                        @elseif(optional($reward->reward)->type === 2)
-                                            Bday
+                                        @elseif(optional($value->reward)->type === '2')
+                                            Birthday
                                         @else
                                             -
                                         @endif
                                     </td>
 
                                     <td>
-                                        @if(optional($reward->reward)->reward_type === 0)
+                                        @if(optional($value->reward)->reward_type === 0)
                                             Digital Voucher
-                                        @elseif(optional($reward->reward)->reward_type === 1)
+                                        @elseif(optional($value->reward)->reward_type === 1)
                                             Physical Voucher
                                         @else
                                             -
@@ -65,36 +66,44 @@
 
 
                                     <td>
-                                        {{ optional($reward->reward)->voucher_validity
-                                            ? \Carbon\Carbon::parse(optional($reward->reward)->voucher_validity)
+                                        {{ optional($value->reward)->voucher_validity
+                                            ? \Carbon\Carbon::parse(optional($value->reward)->voucher_validity)
                                                 ->format(config('safra.date-only'))
                                             : '-' }}
                                     </td>
+                                    @php
+                                        $isUsed = $value->claimed_at || $value->redeemed_at;
+                                    @endphp
 
+                                    <td>
+                                        {{
+                                            $value->claimed_at
+                                                ? \Carbon\Carbon::parse($value->claimed_at)->format(config('safra.date-only'))
+                                                : ($value->redeemed_at
+                                                    ? \Carbon\Carbon::parse($value->redeemed_at)->format(config('safra.date-only'))
+                                                    : '-')
+                                        }}
+                                    </td>
+                                    <td>{{ $value->reward_status ?? '' }}</td>
 
                                     <td class="text-center">
                                         <div class="form-check form-switch d-flex justify-content-center">
                                             <input class="form-check-input suspend-toggle"
                                                 type="checkbox"
-                                                data-id="{{ $reward->id }}"
-                                                {{ $reward->suspend_voucher ? 'checked' : '' }}>
+                                                data-id="{{ $value->id }}"
+                                                {{ $value->suspend_voucher ? 'checked' : '' }}
+                                                {{ $isUsed ? 'disabled' : '' }}>
                                         </div>
                                     </td>
-
 
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
-
             </div>
         </div>
-
-
     </div>
-
 </div>
 
 @endsection
@@ -102,9 +111,6 @@
 <script src="{{ URL::asset('/build/libs/flatpicker/flatpickr.js') }}"></script>
 <link rel="stylesheet" href="{{ URL::asset('/build/libs/flatpicker/flatpickr.min.css') }}">
 <script>
-  
-
-  
     var ModuleBaseUrl = "{{ $module_base_url }}/";
 
     $(document).on('change', '.suspend-toggle', function () {

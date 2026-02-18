@@ -112,13 +112,30 @@ class AppUserController extends Controller
 
     public function datatable(Request $request)
     {
-
-    
-        $data = UserWalletVoucher::select(
+       
+        $query = UserWalletVoucher::select(
                 'user_id',
                 DB::raw('MAX(receipt_no) as receipt_no')
             )
-            ->groupBy('user_id')
+            ->groupBy('user_id');
+
+        $filter = $request->filter;
+
+        if (!empty($filter)) {
+
+            // If filter is JSON string, decode it
+            if (is_string($filter)) {
+                $filter = json_decode($filter, true);
+            }
+
+            if (!empty($filter['user_id'])) {
+                $query->having('user_id', 'LIKE', '%' . $filter['user_id'] . '%');
+            }
+        }
+
+
+
+        $data = $query
             ->orderByDesc('receipt_no')
             ->get();
 
@@ -127,18 +144,14 @@ class AppUserController extends Controller
 
         foreach ($data as $row) {
 
-          $showUrl = route('admin.app-user-show', $row->user_id);
-
-$action = "<a href='{$showUrl}'>
-                <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
-           </a>";
-
+            $showUrl = route('admin.app-user-show', $row->user_id);
 
             $final_data[] = [
-                'sr_no'      => $sr++,
-                'user_id'    => $row->user_id,
-                'receipt_no' => $row->receipt_no,
-                'action'     => $action,
+                'sr_no'   => $sr++,
+                'user_id' => $row->user_id,
+                'action'  => "<a href='{$showUrl}'>
+                                <i class='mdi mdi-eye text-primary action-icon font-size-18'></i>
+                            </a>",
             ];
         }
 
@@ -147,7 +160,6 @@ $action = "<a href='{$showUrl}'>
             'count' => count($final_data)
         ];
     }
-
 
 
     /**

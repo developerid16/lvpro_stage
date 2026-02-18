@@ -11,43 +11,38 @@
 
 
 
-    <div class="card">
-        {{--<div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
-            <h4 class="card-title mb-0">User Management</h4>
-
-        </div>--}}
-        <div class="card-body pt-0 mt-4">
-            <!-- <div class="wmd-view-topscroll">
-            <div class="scroll-div1">
-            </div>
-        </div> -->
+    <div class="card">      
+        <div class="card-body pt-0 mt-4">        
             <div class="table-responsive">
                 <table class="sh_table table table-bordered" id="bstable"
-    data-toggle="table"
-    data-page-size="100"
-    data-ajax="ajaxRequest"
-    data-side-pagination="server"
-    data-pagination="true"
-    data-total-field="count"
-    data-data-field="items">
-
-    <thead>
-        <tr>
-            <th data-field="sr_no">Sr. No.</th>
-            <th data-field="user_id" data-sortable="true">User ID</th>
-            <th data-field="action">Action</th>
-        </tr>
-    </thead>
-</table>
+                    data-toggle="table"
+                    data-page-size="100"
+                    data-ajax="ajaxRequest"
+                    data-side-pagination="server"
+                    data-pagination="true"
+                    data-total-field="count"
+                    data-data-field="items"
+                    data-filter-control="true">
+                    <thead>
+                        <tr>
+                            <th data-field="sr_no">Sr. No.</th>
+                           <th data-field="user_id"
+                                data-filter-control="input"
+                                data-sortable="true"
+                                data-escape="true">
+                                User ID
+                            </th>
+                            <th data-field="action">Action</th>
+                        </tr>
+                    </thead>
+                </table>
 
             </div>
         </div>
     </div>
 
     <!-- Create -->
-    @if(Auth::user()->can("$permission_prefix-create"))
-        {{-- @include('admin.user.add-edit-modal') --}}
-    @endif
+   
     <!-- end modal -->
 @endsection
 
@@ -76,7 +71,3 @@
     </script>
     <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection
-
-<script>
-   
-</script>
