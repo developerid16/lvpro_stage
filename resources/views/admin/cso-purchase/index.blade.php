@@ -75,7 +75,7 @@
                     </h6>
 
                     <p class="text-muted small mb-2">
-                        {{ Str::limit($reward->description, 70) }}
+                        {{ Str::limit(strip_tags($reward->description), 70) }}
                     </p>
 
                     <p class="fw-semibold mb-1">

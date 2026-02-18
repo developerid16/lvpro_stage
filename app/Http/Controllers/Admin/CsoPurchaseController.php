@@ -29,9 +29,10 @@ class CsoPurchaseController extends Controller
 
     public function index(Request $request)
     {
-        $query = Reward::where('type','0')->where('is_draft', 0)->where('hide_catalogue',0)->withTrashed(); 
+        $query = Reward::where('type', '0')
+            ->where('is_draft', 0)
+            ->where('hide_catalogue', 0);   // no withTrashed()
 
-        // IMPORTANT: allow 0
         if ($request->filled('reward_type')) {
             $query->where('reward_type', (int) $request->reward_type);
         }
@@ -41,6 +42,7 @@ class CsoPurchaseController extends Controller
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
+
 
     public function getMemberDetails(Request $request)
     {
@@ -73,7 +75,7 @@ class CsoPurchaseController extends Controller
                 'reward_type'  => $reward->inventory_type,
                 'type'  => $reward->inventory_type == 0 ? 'Digital' : 'Physical',
                 'name'  => $reward->name,
-                'offer' => $reward->description,
+                'offer' => strip_tags($reward->description),
                 'sales_end' => $salesEnd,
                 'remaining_qty' => 12,
                 'rates' => [
