@@ -70,7 +70,7 @@ class CsoPurchaseController extends Controller
         }
         return response()->json([
             'member' => [
-                'id'     => $member->id ?? 1,
+                'id'     => $request->member_id ?? 1,
                 'name'   => $member->name ?? 'test',
                 'email'  => $member->email ?? 'test',
                 'mobile' => $member->mobile ?? 'test',
