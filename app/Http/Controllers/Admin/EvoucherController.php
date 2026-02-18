@@ -971,6 +971,7 @@ class EvoucherController extends Controller
                     'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
                     'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                     'is_featured' => $request->boolean('is_featured'),
+                    'csvFile'             => $reward->csvFile ?? 0,
 
                 ]);
 
@@ -1323,6 +1324,7 @@ class EvoucherController extends Controller
                 'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
                 'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                 'is_featured' => $request->boolean('is_featured'),
+                'csvFile'             => $reward->csvFile ?? 0,
             ];
 
             $updateRequest = RewardUpdateRequest::updateOrCreate(
