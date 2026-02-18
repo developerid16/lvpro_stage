@@ -55,7 +55,7 @@ class BirthdayEvoucherController extends Controller
         $this->layout_data['category'] = Category::get();
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['rewards'] = Reward::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->where('added_by', auth()->id())->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
 
         // 🔥 ADD THIS
         $this->layout_data['club_location'] = ClubLocation::where('status','Active')->get();

@@ -64,7 +64,7 @@ class RewardController extends Controller
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['category'] = Category::get();
 
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->where('added_by', auth()->id())->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
