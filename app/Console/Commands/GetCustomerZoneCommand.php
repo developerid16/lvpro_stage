@@ -2,40 +2,54 @@
 
 namespace App\Console\Commands;
 
+use App\Models\API\MemberZipcode;
+use App\Services\SafraServiceAPI;
 use Illuminate\Console\Command;
-use App\Services\SafraService;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
 class GetCustomerZoneCommand extends Command
 {
-    protected $signature = 'safra:customer-zone {last_modified?} {limit?}';
+    protected $signature   = 'member:customer-zone';
     protected $description = 'Fetch Customer Zone Data';
 
-    private $lastModified;
-    private $limit;
-
-    public function __construct()
+    public function handle(SafraServiceAPI $safraServiceAPI): int
     {
-        parent::__construct();
-
-        $this->lastModified = Config::get('safra.last_modified', '2025-09-17');
-        $this->limit = Config::get('safra.limit', 5);
-    }
-
-    public function handle(SafraService $safraService)
-    {
-        // Arguments override config values
-        $lastModified = $this->argument('last_modified') ?? $this->lastModified;
-        $limit = $this->argument('limit') ?? $this->limit;
+        $lastModified = Config::get('safra.last_modified');
+        $limit        = Config::get('safra.limit');
 
         try {
-            $records = $safraService->getCustomerZone($lastModified, $limit);
-            Log::info("{$this->description}: Last Modified: {$lastModified}, Limit: {$limit}, Records Count: " . count($records));
-            $this->info("Fetched: " . count($records) . " records");
+            $this->info("Fetching Customer Zone | Last Modified: {$lastModified} | Limit: {$limit}");
+
+            $records = $safraServiceAPI->getCustomerZone($lastModified, $limit);
+            $records = is_array($records) ? $records : [];
+
+            if (empty($records)) {
+                $this->warn('No records found.');
+                Log::warning("[{$this->description}] No records found. Last Modified: {$lastModified}, Limit: {$limit}");
+                return self::SUCCESS;
+            }
+
+            foreach ($records as $item) {
+                $record = MemberZipcode::updateOrCreate(
+                    ['token' => $item['Token']],
+                    [
+                        'ZipCode' => $item['ZipCode'] ?? null,
+                        'json'    => json_encode($item),
+                    ]
+                );
+                $record->touch();
+            }
+
+            $this->info('Fetched: ' . count($records) . ' records.');
+            Log::info("[{$this->description}] Last Modified: {$lastModified}, Limit: {$limit}, Records: " . count($records));
+
+            return self::SUCCESS;
+
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
             $this->error($e->getMessage());
+            Log::error("[{$this->description}] Failed: " . $e->getMessage());
+            return self::FAILURE;
         }
     }
 }

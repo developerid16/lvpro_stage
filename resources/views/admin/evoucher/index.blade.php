@@ -95,23 +95,52 @@
                                 </div>
                             </div>                           
                            
+                            <!--- Interest Groups-->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Interest Groups</label>
+
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
+
+                                    @if(!empty($master_interest_groups) && count($master_interest_groups))
+
+                                        <select class="form-select interest-group"
+                                                name="interest_group[]"
+                                                multiple
+                                                style="width:100%">
+
+                                            @foreach ($master_interest_groups as $group)
+                                                <option value="{{ $group->id }}">
+                                                    {{ $group->interest_group_name }}
+                                                </option>
+                                            @endforeach
+
+                                        </select>
+
+                                    @else
+                                        <span class="text-muted">No interest group data available</span>
+                                    @endif
+
+                                </div>
+                            </div>
+
                             <!--publish channel-->
                            <div class="row align-items-center mb-3">
                                 <label class="col-md-3 fw-bold">Publish Channel</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @php
-                                        $publishChannels = ['All', 'AS', 'AT', 'AV', 'JH', 'JL', 'JV', 
-                                            'LF', 'OA', 'OE', 'OF', 'SH', 'SL', 'SV','VT', 'VR', 'FA'
-                                        ];
-
-                                        $selected = isset($data) ? explode(',', $data->publish_channels ?? '') : [];
-                                    @endphp
-                                    @foreach ($publishChannels as $channel)
-                                        <div class="d-flex align-items-center">
-                                            <input type="checkbox" name="publish_channels[]" value="{{ $channel }}" class="form-check-input me-1" {{ in_array($channel, $selected) ? 'checked' : '' }}>
-                                            <label class="m-0">{{ $channel }}</label>
-                                        </div>
-                                    @endforeach
+                                    @if(count($master_membership_codes) > 0)
+                                        <label class="d-flex align-items-center gap-1">
+                                            <input type="checkbox"   name="publish_channels[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
+                                        </label>
+                                        @foreach ($master_membership_codes as $master_membership_code)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="publish_channels[]" value="{{ $master_membership_code->id }}" class="form-check-input"{{ in_array($master_membership_code->id, []) ? 'checked' : '' }}>
+                                                {{ $master_membership_code->membershiptype_id }}
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No card type data available</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -119,16 +148,21 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-3 fw-bold">Card Type</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @php
-                                        $cardTypes = ['All', 'Credit Card', 'Debit Card', 'Safra'];
-                                        $selected = isset($data) ? explode(',', $data->card_types ?? '') : [];
-                                    @endphp
-                                    @foreach ($cardTypes as $type)
+                                    @if(count($master_card_types) > 0)
                                         <label class="d-flex align-items-center gap-1">
-                                            <input type="checkbox" name="card_types[]" value="{{ $type }}"  class="form-check-input" {{ in_array($type, $selected) ? 'checked' : '' }}>
-                                            {{ $type }}
+                                            <input type="checkbox"   name="card_types[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
                                         </label>
-                                    @endforeach
+                                        @foreach ($master_card_types as $master_card_type)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="card_types[]" value="{{ $master_card_type->id }}" class="form-check-input"{{ in_array($master_card_type->name, []) ? 'checked' : '' }}>
+                                                {{ $master_card_type->card_type }} ({{ $master_card_type->card_description }})
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No card type data available</span>
+                                    @endif
+
                                 </div>
                             </div>
 
@@ -136,16 +170,20 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-3 fw-bold">Dependent Type</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @php
-                                        $dependentTypes = ['All', 'Spouse', 'Child'];
-                                        $selected = isset($data) ? explode(',', $data->dependent_types ?? '') : [];
-                                    @endphp
-                                    @foreach ($dependentTypes as $type)
+                                    @if(count($master_dependent_types) > 0)
                                         <label class="d-flex align-items-center gap-1">
-                                            <input type="checkbox"  name="dependent_types[]" value="{{ $type }}" class="form-check-input" {{ in_array($type, $selected) ? 'checked' : '' }}>
-                                            {{ $type }}
+                                            <input type="checkbox"   name="dependent_types[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
                                         </label>
-                                    @endforeach
+                                        @foreach ($master_dependent_types as $master_dependent_type)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="dependent_types[]" value="{{ $master_dependent_type->id }}" class="form-check-input"{{ in_array($master_dependent_type->name, []) ? 'checked' : '' }}>
+                                                {{ $master_dependent_type->label }}
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No dependent type data available</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -153,16 +191,20 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-3 fw-bold">Marital Status</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @php
-                                        $maritalStatus = ['All', 'Single', 'Married', 'Divorced', 'Widowed', 'Not Stated'];
-                                        $selected = isset($data) ? explode(',', $data->marital_status ?? '') : [];
-                                    @endphp
-                                    @foreach ($maritalStatus as $status)
+                                    @if(count($master_marital_statuses) > 0)
                                         <label class="d-flex align-items-center gap-1">
-                                            <input type="checkbox"  name="marital_status[]" value="{{ $status }}"   class="form-check-input" {{ in_array($status, $selected) ? 'checked' : '' }}>
-                                            {{ $status }}
+                                            <input type="checkbox"   name="marital_status[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
                                         </label>
-                                    @endforeach
+                                        @foreach ($master_marital_statuses as $master_marital_status)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="marital_status[]" value="{{ $master_marital_status->id }}" class="form-check-input"{{ in_array($master_marital_status->name, []) ? 'checked' : '' }}>
+                                                {{ $master_marital_status->label }}
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No marital status data available</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -170,17 +212,20 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-3 fw-bold">Gender</label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @php
-                                        $genders = ['All', 'Male', 'Female'];
-                                        $selected = isset($data) ? explode(',', $data->gender ?? '') : [];
-                                    @endphp
-
-                                    @foreach ($genders as $gender)
+                                    @if(count($master_genders) > 0)
                                         <label class="d-flex align-items-center gap-1">
-                                            <input type="checkbox"   name="gender[]" value="{{ $gender }}" class="form-check-input"{{ in_array($gender, $selected) ? 'checked' : '' }}>
-                                            {{ $gender }}
+                                            <input type="checkbox"   name="gender[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
                                         </label>
-                                    @endforeach
+                                        @foreach ($master_genders as $master_gender)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="gender[]" value="{{ $master_gender->id }}" class="form-check-input"{{ in_array($master_gender->name, []) ? 'checked' : '' }}>
+                                                {{ $master_gender->label }}
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No gender data available</span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -234,6 +279,26 @@
                                 </div>
                             </div>
 
+                            <!--- Zones-->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Zones</label>
+                                <div class="col-md-9 d-flex flex-wrap gap-3">
+                                    @if(count($master_zones) > 0)
+                                        <label class="d-flex align-items-center gap-1">
+                                            <input type="checkbox"   name="zone[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
+                                            All
+                                        </label>
+                                        @foreach ($master_zones as $master_zone)
+                                            <label class="d-flex align-items-center gap-1">
+                                                <input type="checkbox"   name="zone[]" value="{{ $master_zone->zone_code }}" class="form-check-input"{{ in_array($master_zone->zone_code, []) ? 'checked' : '' }}>
+                                                {{ $master_zone->zone_name }}
+                                            </label>
+                                        @endforeach
+                                    @else
+                                        <span class="text-muted">No interest group data available</span>
+                                    @endif
+                                </div>
+                            </div>
 
                             <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                             <div id="location_date_container" class="col-12">
@@ -298,9 +363,8 @@
                 <div class="modal-body" style="overflow-y: auto;  max-height: 800px;">
                     <form enctype="multipart/form-data" class="z-index-1" method="POST" action="{{ url('admin/evoucher/push-member-voucher') }}" id="member_voucher">
                         @csrf
-                       
-                       
-                        <div class="row">                            
+
+                        <div class="row">
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="how_to_use">Push Voucher <span class="required-hash">*</span></label>
@@ -321,29 +385,29 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="col-6 col-md-6">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
                                     <select class="sh_dec form-select reward_id" name="reward_id">
                                         <option class="sh_dec" value="">Select Attached Voucher</option>
-                                         @if (isset($memberReward))                                        
+                                         @if (isset($memberReward))
                                             @foreach ($memberReward as $reward)
                                                 <option value="{{ $reward->id }}" {{ isset($data) && $data->reward_id == $reward->id ? 'selected' : '' }}>
                                                     {{ $reward->name }}
                                                 </option>
                                             @endforeach
                                         @endif
-                                    </select>    
+                                    </select>
                                 </div>
-                            </div>                            
-                           
+                            </div>
+
                             <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                             <div id="location_date_container" class="col-12">
                                 <label class="sh_dec"><b>Date & Time</b></label>
 
                                 <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
-                                    
+
                                     <div class="row">
 
                                         <div class="col-12 col-md-6">
@@ -374,9 +438,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>                       
-                            
-                                                                    
+                            </div>
+
                         <div class="row">
                             <div class="col-6 mt-3 d-grid">
                                 <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" data-bs-dismiss="modal" aria-label="Close">Back</button>
@@ -829,6 +892,15 @@
                 $('#set_qty').val('');
             }
         }
+
+        $('#AddParameterVoucher').on('shown.bs.modal', function () {
+            $('.interest-group').select2({
+                dropdownParent: $('#AddParameterVoucher'),
+                placeholder: "Select Interest Groups",
+                width: '100%',
+                minimumResultsForSearch: 0 
+            });
+        });
 
     </script>
 @endsection

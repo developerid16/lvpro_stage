@@ -34,18 +34,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('delete:oldreport')->dailyAt('00:01');
         $schedule->command('customer:report')->dailyAt('01:00');
         $schedule->command('expired:notification')->dailyAt('00:05');
-        $schedule->command('broadcast:notification')->everyMinute();
+        // $schedule->command('broadcast:notification')->everyMinute();
         $schedule->command('spent:reset')->yearlyOn(9, 1, '00:02');
         $schedule->command('key:expiry')->yearlyOn(12, 1, '00:02');
         $schedule->command('locations:disable-expired')->daily();
 
-        // $schedule->command('safra:basic-detail-modified')->everyMinute();
+        $schedule->command('member:basic-detail-modified')->everyMinute();
 
-        // $schedule->command('safra:basic-detail-ig')->everyMinute();
+        $schedule->command('member:basic-detail-ig')->everyMinute();
 
-        // $schedule->command('safra:latest-transaction')->everyMinute();
+        $schedule->command('member:latest-transaction')->everyMinute();
 
-        // $schedule->command('safra:customer-zone')->everyMinute();
+        $schedule->command('member:customer-zone')->everyMinute();
 
         // $schedule->command('master:sync-all')->dailyAt('00:00'); // call manully php artisan master:sync-all
 

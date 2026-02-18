@@ -6,6 +6,13 @@ use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CustomLocation;
+use App\Models\Master\MasterCardType;
+use App\Models\Master\MasterDependentType;
+use App\Models\Master\MasterGender;
+use App\Models\Master\MasterInterestGroup;
+use App\Models\Master\MasterMaritalStatus;
+use App\Models\Master\MasterMembershipCode;
+use App\Models\Master\MasterZone;
 use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
@@ -58,6 +65,14 @@ class EvoucherController extends Controller
         $this->layout_data['memberReward'] = Reward::where('cso_method',1)->get();
         $this->layout_data['parameterReward'] = Reward::where('cso_method',2)->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+
+        $this->layout_data['master_card_types'] = MasterCardType::get();
+        $this->layout_data['master_dependent_types'] = MasterDependentType::get();
+        $this->layout_data['master_genders'] = MasterGender::get();
+        $this->layout_data['master_marital_statuses'] = MasterMaritalStatus::get();
+        $this->layout_data['master_membership_codes'] = MasterMembershipCode::get();
+        $this->layout_data['master_zones'] = MasterZone::get();
+        $this->layout_data['master_interest_groups'] = MasterInterestGroup::get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }

@@ -49,6 +49,8 @@ Route::prefix('ax')->group(function () {
     Route::get('basic-detail-information-method', [MemberInformationController::class, 'infoByMethod']);
     Route::get('get-shopping-cart-no', [MemberInformationController::class, 'getShoppingCart']);
     Route::get('clear-shopping-cart', [MemberInformationController::class, 'clearShoppingCart']);
+   
+    Route::get('add-merchandise-item-cart', [MemberInformationController::class, 'addMerchandiseItemToCart']);
 });
 
 Route::get('master/schedule-run', function () {

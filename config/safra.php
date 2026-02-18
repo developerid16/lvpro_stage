@@ -8,4 +8,7 @@ return [
     'apipassword' =>  env('apipassword', 'API9LS9MPTHXAF6B2U'),
     'senderid' =>  env('senderid', 'Safra SG'),
     'languagetype' =>  env('languagetype',1),
+
+    'last_modified' => '2025-09-17',
+    'limit' => 100,
 ];

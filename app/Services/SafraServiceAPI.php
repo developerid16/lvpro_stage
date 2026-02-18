@@ -86,7 +86,6 @@ class SafraServiceAPI
     /**
      * Get Basic Detail Info By Modified
      */
-    public function basicDetailInfoModified(string $lastModified, int $limit = 5): array
     {
         $response = $this->call(
             'sfrControlMember/GetBasicDetailInfoByModified',
