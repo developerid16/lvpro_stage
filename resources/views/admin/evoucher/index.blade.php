@@ -555,10 +555,10 @@
     <script>
         function initFlatpickr() {
             
-            // bindStartEndFlatpickr(
-            //     'input[name="publish_start"]',
-            //     'input[name="publish_end"]'
-            // );
+            bindStartEndFlatpickr(
+                'input[name="publish_start"]',
+                'input[name="publish_end"]'
+            );
             bindStartEndFlatpickr(
                 'input[name="sales_start"]',
                 'input[name="sales_end"]'
@@ -570,33 +570,33 @@
         }
 
 
-        // $(document).on("change", ".reward_id", function () {
-        //     let id = $(this).val();
-        //     let modal = $(this).closest(".modal"); // 🔥 key fix
-        //     console.log(modal,'modal');
+        $(document).on("change", ".reward_id", function () {
+            let id = $(this).val();
+            let modal = $(this).closest(".modal"); // 🔥 key fix
+            console.log(modal,'modal');
         
-        //     let $publishStart = modal.find("input[name='publish_start_date']");
-        //     let $publishEnd   = modal.find("input[name='publish_end_date']");
+            let $publishStart = modal.find("input[name='publish_start_date']");
+            let $publishEnd   = modal.find("input[name='publish_end_date']");
         
-        //     if (!id) {
-        //         $publishStart.val("");
-        //         $publishEnd.val("");
-        //         return;
-        //     }
+            if (!id) {
+                $publishStart.val("");
+                $publishEnd.val("");
+                return;
+            }
         
-        //     $.ajax({
-        //         url: "{{ url('admin/reward/get-dates') }}/" + id,
-        //         type: "GET",
-        //         success: function (res) {
-        //             if (res.publish_start) {
-        //                 $publishStart.val(res.publish_start);
-        //             }
-        //             if (res.publish_end) {
-        //                 $publishEnd.val(res.publish_end);
-        //             }
-        //         }
-        //     });
-        // });
+            $.ajax({
+                url: "{{ url('admin/reward/get-dates') }}/" + id,
+                type: "GET",
+                success: function (res) {
+                    if (res.publish_start) {
+                        $publishStart.val(res.publish_start);
+                    }
+                    if (res.publish_end) {
+                        $publishEnd.val(res.publish_end);
+                    }
+                }
+            });
+        });
 
         document.getElementById("memberId").addEventListener("change", function (e) {
 
