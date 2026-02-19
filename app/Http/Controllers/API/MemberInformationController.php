@@ -5,15 +5,18 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Services\SafraServiceAPI;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 class MemberInformationController extends Controller
 {
     protected $safraServiceAPI;
     private $limit;
+    private $last_modified;
     public function __construct(SafraServiceAPI $safraServiceAPI)
     {
         $this->safraServiceAPI = $safraServiceAPI;
-        $this->limit = 5; // Default limit
+        $this->last_modified = Config::get('safra.last_modified');
+        $this->limit = Config::get('safra.limit');
     }
 
     /**
@@ -22,7 +25,7 @@ class MemberInformationController extends Controller
     public function GetBasicDetailInfoByModified(Request $request)
     {
         $limit = $request->limit ?? $this->limit;
-        $lastModified = $request->last_modified ?? '2025-09-17';
+        $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
             $records = $this->safraServiceAPI
@@ -48,7 +51,7 @@ class MemberInformationController extends Controller
     public function GetBasicDetailIg(Request $request)
     {
         $limit = $request->limit ?? $this->limit;
-        $lastModified = $request->last_modified ?? '2025-09-17';
+        $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
             $records = $this->safraServiceAPI
@@ -74,7 +77,7 @@ class MemberInformationController extends Controller
     public function GetLatestTransaction(Request $request)
     {
         $limit = $request->limit ?? $this->limit;
-        $lastModified = $request->last_modified ?? '2025-09-17';
+        $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
             $records = $this->safraServiceAPI
@@ -99,7 +102,7 @@ class MemberInformationController extends Controller
     public function GetCustomerZone(Request $request)
     {
         $limit = $request->limit ?? $this->limit;
-        $lastModified = $request->last_modified ?? '2025-09-17';
+        $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
             $records = $this->safraServiceAPI

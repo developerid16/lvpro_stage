@@ -25,7 +25,7 @@ Route::get('/ping', function (Request $request) {
 
 
 // test route for member information api
-Route::prefix('member-information')->group(function () {
+Route::prefix('memberInformation')->group(function () {
     Route::get('basic-details-info-modified', [MemberInformationController::class, 'GetBasicDetailInfoByModified']);
     Route::get('ig-basic-details', [MemberInformationController::class, 'GetBasicDetailIg']);
     Route::get('member-latest-transaction', [MemberInformationController::class, 'GetLatestTransaction']);
