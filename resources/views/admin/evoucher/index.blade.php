@@ -71,7 +71,7 @@
                 </div>
                 <div class="modal-body" style="overflow-y: auto;  max-height: 800px;">
                     <form enctype="multipart/form-data" class="z-index-1" method="POST" action="javascript:void(0)" id="AddParameterVoucherForm">
-                        @csrf                      
+                        @csrf
                         <div class="row">                            
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
@@ -82,7 +82,7 @@
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
-                                    <select class="sh_dec form-select reward_id" name="reward_id1">
+                                    <select class="sh_dec form-select reward_id" name="reward_id">
                                         <option class="sh_dec" value="">Select Attached Voucher</option>
                                          @if (isset($parameterReward))                                        
                                             @foreach ($parameterReward as $reward)
@@ -97,7 +97,7 @@
                            
                             <!--- Interest Groups-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Interest Groups</label>
+                                <label class="col-md-3 fw-bold">Interest Groups<span class="required-hash">*</span></label>
 
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
 
@@ -121,11 +121,12 @@
                                     @endif
 
                                 </div>
+                                <small class="text-danger d-block" data-field-validate="interest_group"></small>
                             </div>
 
                             <!--publish channel-->
                            <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Publish Channel</label>
+                                <label class="col-md-3 fw-bold">Publish Channel<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_membership_codes) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -142,11 +143,12 @@
                                         <span class="text-muted">No card type data available</span>
                                     @endif
                                 </div>
+                                <small class="text-danger d-block" data-field-validate="publish_channels"></small>
                             </div>
 
                             <!--card Type-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Card Type</label>
+                                <label class="col-md-3 fw-bold">Card Type<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_card_types) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -162,34 +164,13 @@
                                     @else
                                         <span class="text-muted">No card type data available</span>
                                     @endif
-
                                 </div>
-                            </div>
-
-                           <!--Dependent Type-->
-                            <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Dependent Type</label>
-                                <div class="col-md-9 d-flex flex-wrap gap-3">
-                                    @if(count($master_dependent_types) > 0)
-                                        <label class="d-flex align-items-center gap-1">
-                                            <input type="checkbox"   name="dependent_types[]" value="All" class="form-check-input"{{ in_array('All', []) ? 'checked' : '' }}>
-                                            All
-                                        </label>
-                                        @foreach ($master_dependent_types as $master_dependent_type)
-                                            <label class="d-flex align-items-center gap-1">
-                                                <input type="checkbox"   name="dependent_types[]" value="{{ $master_dependent_type->id }}" class="form-check-input"{{ in_array($master_dependent_type->name, []) ? 'checked' : '' }}>
-                                                {{ $master_dependent_type->label }}
-                                            </label>
-                                        @endforeach
-                                    @else
-                                        <span class="text-muted">No dependent type data available</span>
-                                    @endif
-                                </div>
+                                <small class="text-danger d-block" data-field-validate="card_types"></small>
                             </div>
 
                             <!--Marital Status-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Marital Status</label>
+                                <label class="col-md-3 fw-bold">Marital Status<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_marital_statuses) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -206,11 +187,12 @@
                                         <span class="text-muted">No marital status data available</span>
                                     @endif
                                 </div>
+                                <small class="text-danger d-block" data-field-validate="marital_status"></small>
                             </div>
 
                             <!--Gender-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Gender</label>
+                                <label class="col-md-3 fw-bold">Gender<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_genders) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -227,11 +209,12 @@
                                         <span class="text-muted">No gender data available</span>
                                     @endif
                                 </div>
+                                <small class="text-danger d-block" data-field-validate="gender"></small>
                             </div>
 
                             <!---Age-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Age</label>
+                                <label class="col-md-3 fw-bold">Age<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3 align-items-center">
 
                                     @php
@@ -281,7 +264,7 @@
 
                             <!--- Zones-->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Zones</label>
+                                <label class="col-md-3 fw-bold">Zones<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_zones) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -290,7 +273,7 @@
                                         </label>
                                         @foreach ($master_zones as $master_zone)
                                             <label class="d-flex align-items-center gap-1">
-                                                <input type="checkbox"   name="zone[]" value="{{ $master_zone->zone_code }}" class="form-check-input"{{ in_array($master_zone->zone_code, []) ? 'checked' : '' }}>
+                                                <input type="checkbox"   name="zone[]" value="{{ $master_zone->id }}" class="form-check-input"{{ in_array($master_zone->zone_code, []) ? 'checked' : '' }}>
                                                 {{ $master_zone->zone_name }}
                                             </label>
                                         @endforeach
@@ -298,45 +281,60 @@
                                         <span class="text-muted">No interest group data available</span>
                                     @endif
                                 </div>
+                                <small class="text-danger d-block" data-field-validate="zone"></small>
                             </div>
 
-                            <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
-                            <div id="location_date_container" class="col-12">
-                                <label class="sh_dec"><b>Date & Time</b></label>
-
-                                <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
-                                    
-                                    <div class="row">
-
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text" readonly  class="form-control" name="publish_start_date"   value="">
-                                            </div>
+                            <!-- Membership Joining Date -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Membership Joining Date<span class="required-hash">*</span> :</label>
+                                <div class="col-md-9">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">From</label>
+                                            <input type="text" name="membership_join_from" class="form-control membership-month-from" placeholder="yyyy-MM">
                                         </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Publish End Date & Time</label>
-                                                <input type="text" readonly class="form-control"  name="publish_end_date"  value="">
-                                            </div>
-                                        </div>
-
-                                        <!-- Sales fields -->
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text"  class="form-control" name="redemption_start_date" value="">
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Redemption End Date & Time</label>
-                                                <input type="text" class="form-control" name="redemption_end_date"  value="">
-                                            </div>
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">To</label>
+                                            <input type="text" name="membership_join_to" class="form-control membership-month-to" placeholder="yyyy-MM">
                                         </div>
                                     </div>
                                 </div>
-                            </div>                                  
+                            </div>
+
+                            <!-- Membership Expiry -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Membership Expiry<span class="required-hash">*</span> :</label>
+                                <div class="col-md-9">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">From</label>
+                                            <input type="text" name="membership_expiry_from" class="form-control membership-month-from" placeholder="yyyy-MM">
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">To</label>
+                                            <input type="text" name="membership_expiry_to" class="form-control membership-month-to" placeholder="yyyy-MM">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Membership Renewable Date -->
+                            <div class="row align-items-center mb-3">
+                                <label class="col-md-3 fw-bold">Membership Renewable Date<span class="required-hash">*</span> :</label>
+                                <div class="col-md-9">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">From</label>
+                                            <input type="text" name="membership_renewable_from" class="form-control membership-month-from" placeholder="yyyy-MM">
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-center gap-2">
+                                            <label class="mb-0">To</label>
+                                            <input type="text" name="membership_renewable_to" class="form-control membership-month-to" placeholder="yyyy-MM">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="row">
                             <div class="col-6 mt-3 d-grid">
@@ -399,44 +397,6 @@
                                             @endforeach
                                         @endif
                                     </select>
-                                </div>
-                            </div>
-
-                            <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
-                            <div id="location_date_container" class="col-12">
-                                <label class="sh_dec"><b>Date & Time</b></label>
-
-                                <div class="location-date-block mt-2" data-location-id="1" style="padding:10px; border:1px dashed #e0e0e0;">
-
-                                    <div class="row">
-
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text" readonly  class="form-control" name="publish_start_date"   value="">
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Publish End Date & Time</label>
-                                                <input type="text" readonly class="form-control"  name="publish_end_date"  value="">
-                                            </div>
-                                        </div>
-
-                                        <!-- Sales fields -->
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash"></span></label>
-                                                <input type="text"  class="form-control" name="redemption_start_date" value="">
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="mb-3 sh_dec">
-                                                <label class="sh_dec font-12">Redemption End Date & Time</label>
-                                                <input type="text" class="form-control" name="redemption_end_date"  value="">
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -539,22 +499,6 @@
 
         imagePreview("#voucher_image", "#voucher_image_preview");
         imagePreview("#voucher_detail_img", "#voucher_detail_img_preview");
-
-        // $(document).on('shown.bs.modal','#EditModal', function () {
-        //     const $modal = $(this);
-
-        //     function togglePhysicalSectionInModal() {
-        //         const val = $modal.find('.reward_type').val();
-        //         if (val === undefined) return;
-        //         $modal.find('#physical').toggle(val == "1");
-        //     }
-
-        //     // bind change (scoped to this modal)
-        //     $modal.find('.reward_type').off('change.togglePhysical').on('change.togglePhysical', togglePhysicalSectionInModal);
-
-        //     // initial toggle for edit mode
-        //     togglePhysicalSectionInModal();
-        // });
 
         $(document).on("change", ".inventory_type", function () {
             let modal = $(this).closest(".modal");
@@ -740,7 +684,24 @@
 
                 error: function (xhr) {
                     if (xhr.status === 422) {
-                        show_errors(xhr.responseJSON.errors);
+                        $('[data-field-validate]').html('');
+                        $('.field-error').remove(); // remove appended single errors
+
+                        $.each(xhr.responseJSON.errors, function (key, value) {
+
+                            let baseKey = key.includes('.') ? key.split('.')[0] : key;
+                            let errorContainer = $('[data-field-validate="'+baseKey+'"]');
+                            if (errorContainer.length) {
+                                errorContainer.html(value[0]);
+                            } else {
+                                let field = $('[name="'+baseKey+'"]');
+                                if (field.length) {
+                                    field.last().after(
+                                        '<small class="text-danger field-error d-block">'+value[0]+'</small>'
+                                    );
+                                }
+                            }
+                        });
                     } else {
                         Swal.fire({
                             icon: "error",
@@ -893,12 +854,106 @@
             }
         }
 
-        $('#AddParameterVoucher').on('shown.bs.modal', function () {
+        $('#AddParameterVoucher').on('shown.bs.modal', function () 
+        {    
+            // Interest Group Select2
             $('.interest-group').select2({
                 dropdownParent: $('#AddParameterVoucher'),
                 placeholder: "Select Interest Groups",
                 width: '100%',
-                minimumResultsForSearch: 0 
+            });
+
+            // Month pickers — FROM fields
+            document.querySelectorAll('#AddParameterVoucher .membership-month-from').forEach(function (fromEl) {
+                const row = fromEl.closest('.row');
+                const toEl = row.querySelector('.membership-month-to');
+
+                if (fromEl._flatpickr) fromEl._flatpickr.destroy();
+                if (toEl && toEl._flatpickr) toEl._flatpickr.destroy();
+
+                let toPicker;
+
+                flatpickr(fromEl, {
+                    plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "F Y", theme: "light" })],
+                    allowInput: false,
+                    onChange(selectedDates) {
+                        if (!selectedDates.length || !toPicker) return;
+                        toPicker.set("minDate", selectedDates[0]);
+                        toEl.removeAttribute("disabled");
+                    }
+                });
+
+                if (toEl) {
+                    toPicker = flatpickr(toEl, {
+                        plugins: [new monthSelectPlugin({ shorthand: true, dateFormat: "Y-m", altFormat: "F Y", theme: "light" })],
+                        allowInput: false,
+                    });
+                    toEl.setAttribute("disabled", true);
+                }
+            });
+        });
+
+        $('#AddParameterVoucher').on('hidden.bs.modal', function () {
+
+            // Reset form
+            document.getElementById('AddParameterVoucherForm').reset();
+
+            // Clear all validation error messages
+            $('[data-field-validate]').html('');
+            $('.field-error').remove();
+
+            // Clear textarea
+            $('#voucher').val('');
+
+            // Reset Select2
+            $('.interest-group').val(null).trigger('change');
+
+            // Reset checkboxes
+            $('#AddParameterVoucher input[type="checkbox"]').prop('checked', false);
+
+            // Reset radio to default All
+            $('#AddParameterVoucher input[name="age_mode"][value="All"]').prop('checked', true);
+
+            // Disable age range
+            $('#AddParameterVoucher .age-range').prop('disabled', true).val('');
+
+            // Destroy flatpickr + disable TO fields
+            const membershipSelectors = [
+                {
+                    from: 'input[name="membership_join_from"]',
+                    to:   'input[name="membership_join_to"]'
+                },
+                {
+                    from: 'input[name="membership_expiry_from"]',
+                    to:   'input[name="membership_expiry_to"]'
+                },
+                {
+                    from: 'input[name="membership_renewable_from"]',
+                    to:   'input[name="membership_renewable_to"]'
+                },
+            ];
+
+            membershipSelectors.forEach(function (group) {
+
+                const fromEl = document.querySelector('#AddParameterVoucher ' + group.from);
+                const toEl   = document.querySelector('#AddParameterVoucher ' + group.to);
+
+                if (fromEl && fromEl._flatpickr) {
+                    fromEl._flatpickr.clear();
+                    fromEl._flatpickr.destroy();
+                }
+
+                if (toEl && toEl._flatpickr) {
+                    toEl._flatpickr.clear();
+                    toEl._flatpickr.destroy();
+                }
+
+                // Reset input values + disable TO
+                if (fromEl) fromEl.value = '';
+                if (toEl) {
+                    toEl.value = '';
+                    toEl.setAttribute('disabled', true);
+                }
             });
         });
 

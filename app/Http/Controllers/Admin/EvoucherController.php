@@ -1671,94 +1671,95 @@ class EvoucherController extends Controller
 
     public function pushParameterVoucher(Request $request)
     {
-        try {
+        $ageMode = $request->input('age_mode');
 
-            // --------------------------
-            // VALIDATION
-            // --------------------------
-            $validator = Validator::make($request->all(), [
-                'voucher'            => 'required',
-                'reward_id1'         => 'required|exists:rewards,id',
+        $rules = [
+            // 'voucher'    => 'required|string',
+            'reward_id' => 'required|exists:rewards,id',
 
-                'publish_channels'   => 'nullable|array',
-                'card_types'         => 'nullable|array',
-                'dependent_types'    => 'nullable|array',
-                'marital_status'     => 'nullable|array',
-                'gender'             => 'nullable|array',
+            'interest_group'   => 'required|array',
+            'interest_group.*' => 'exists:master_interest_groups,id',
 
-                'age_mode'           => 'required',
-                'age_from'           => 'nullable',
-                'age_to'             => 'nullable',
+            'publish_channels' => 'required|array',
+            'card_types'       => 'required|array',
+            'marital_status'   => 'required|array',
+            'gender'           => 'required|array',
+            'zone'             => 'required|array',
 
-                'redemption_start_date' => 'nullable|date',
-                'redemption_end_date'   => 'nullable|date',
-            ]);
+            'age_mode' => 'required|in:All,custom',
+            'age_from' => $ageMode === 'custom'
+                ? 'required|integer|min:1|max:100'
+                : 'nullable|integer|min:1|max:100',
+            'age_to'   => $ageMode === 'custom'
+                ? 'required|integer|min:1|max:100|gte:age_from'
+                : 'nullable|integer|min:1|max:100',
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => 'error',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
+            // Membership dates — nullable, format Y-m
+            'membership_join_from'      => 'required|date_format:Y-m',
+            'membership_join_to'        => 'required|date_format:Y-m|after_or_equal:membership_join_from',
 
+            'membership_expiry_from'    => 'required|date_format:Y-m',
+            'membership_expiry_to'      => 'required|date_format:Y-m|after_or_equal:membership_expiry_from',
 
-            // --------------------------
-            // PREPARE FIELDS
-            // --------------------------
-            $publish_channels  = $request->publish_channels ? implode(',', $request->publish_channels) : null;
-            $card_types        = $request->card_types ? implode(',', $request->card_types) : null;
-            $dependent_types   = $request->dependent_types ? implode(',', $request->dependent_types) : null;
-            $marital_status    = $request->marital_status ? implode(',', $request->marital_status) : null;
-            $gender            = $request->gender ? implode(',', $request->gender) : null;
+            'membership_renewable_from' => 'required|date_format:Y-m',
+            'membership_renewable_to'   => 'required|date_format:Y-m|after_or_equal:membership_renewable_from',
+        ];
 
+        $messages = [
+            'age_from.required'                         => 'Age From is required when custom age is selected.',
+            'age_to.required'                           => 'Age To is required when custom age is selected.',
+            'age_to.gte'                                => 'Age To must be greater than or equal to Age From.',
 
-            // --------------------------
-            // CREATE RECORD
-            // --------------------------
-            PushVoucherMember::create([
-                'type'        => 1, // PARAMETER PUSH
-                'member_id'     => $request->voucher,
-                'reward_id'   => $request->reward_id1,
+            'membership_join_to.after_or_equal'         => 'Membership Join To must be on or after From.',
+            'membership_expiry_to.after_or_equal'       => 'Membership Expiry To must be on or after From.',
+            'membership_renewable_to.after_or_equal'    => 'Membership Renewable To must be on or after From.',
 
-                'publish_channels' => $publish_channels,
-                'card_types'       => $card_types,
-                'dependent_types'  => $dependent_types,
-                'marital_status'   => $marital_status,
-                'gender'           => $gender,
+            'membership_join_from.date_format'          => 'Membership Join From must be in yyyy-MM format.',
+            'membership_join_to.date_format'            => 'Membership Join To must be in yyyy-MM format.',
+            'membership_expiry_from.date_format'        => 'Membership Expiry From must be in yyyy-MM format.',
+            'membership_expiry_to.date_format'          => 'Membership Expiry To must be in yyyy-MM format.',
+            'membership_renewable_from.date_format'     => 'Membership Renewable From must be in yyyy-MM format.',
+            'membership_renewable_to.date_format'       => 'Membership Renewable To must be in yyyy-MM format.',
+        ];
 
-                'age_mode' => $request->age_mode,
-                'age_from' => $request->age_from,
-                'age_to'   => $request->age_to,
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-                'redemption_start_date' => $request->redemption_start_date
-                    ? date('Y-m-d', strtotime($request->redemption_start_date))
-                    : null,
-
-                'redemption_start_time' => $request->redemption_start_date
-                    ? date('H:i:s', strtotime($request->redemption_start_date))
-                    : null,
-
-                'redemption_end_date' => $request->redemption_end_date
-                    ? date('Y-m-d', strtotime($request->redemption_end_date))
-                    : null,
-
-                'redemption_end_time' => $request->redemption_end_date
-                    ? date('H:i:s', strtotime($request->redemption_end_date))
-                    : null,
-            ]);
-
-
+        if ($validator->fails()) {
             return response()->json([
-                'status'  => 'success',
-                'message' => 'Voucher pushed successfully by parameters.'
-            ]);
-
-        } catch (\Throwable $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $e->getMessage()
-            ], 500);
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
         }
+
+        
+        PushVoucherMember::create([
+            'reward_id'        => $request->reward_id,
+            'type'             => 1,
+            'member_id'        => null,
+            'file'             => null,
+
+            'interest_group'   => $request->interest_group ?? [],
+            'publish_channels' => $request->publish_channels ?? [],
+            'card_types'       => $request->card_types ?? [],
+            'marital_status'   => $request->marital_status ?? [],
+            'gender'           => $request->gender ?? [],
+            'zones'            => $request->zone ?? [],
+
+            'age_mode' => $request->age_mode,
+            'age_from' => $request->age_mode === 'custom' ? $request->age_from : null,
+            'age_to'   => $request->age_mode === 'custom' ? $request->age_to   : null,
+
+            'membership_joining_from_date'   => $request->membership_join_from ?? null,
+            'membership_joining_to_date'     => $request->membership_join_to   ?? null,
+            'membership_expiry_from_date'    => $request->membership_expiry_from ?? null,
+            'membership_expiry_to_date'      => $request->membership_expiry_to   ?? null,
+            'membership_renewable_from_date' => $request->membership_renewable_from ?? null,
+            'membership_renewable_to_date'   => $request->membership_renewable_to   ?? null,
+        ]);
+        
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Voucher created successfully'
+        ]);
     }
-   
 }
