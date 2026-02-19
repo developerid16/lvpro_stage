@@ -266,6 +266,7 @@ class AppUserController extends Controller
         $rewards = UserWalletVoucher::with('reward')
             ->where('user_id', $id)->whereIn('status', ['Active', 'used', 'expired'])
             ->whereHas('reward')   // 👈 this removes null relations
+            ->orderByDesc('created_at') // latest first
             ->get();
 
         return view($this->view_file_path . "show",
