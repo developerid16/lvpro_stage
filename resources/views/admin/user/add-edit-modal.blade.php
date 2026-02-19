@@ -25,7 +25,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="password">Password<span class="required-hash">*</span></label>
-                                <input id="password" type="password" class="sh_dec form-control" name="password" placeholder="Enter password" value="{{ $data->password ?? '' }}">
+                                <input id="password" type="password" class="sh_dec form-control" name="password" placeholder="Enter password" value="">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">

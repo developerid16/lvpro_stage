@@ -171,6 +171,34 @@
 
         });
 
+        $(document).on('change', '.featured-toggle-switch', function () {
+
+            let rewardId = $(this).data('id');
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            let $switch = $(this);
+
+            $.ajax({
+                url: RewardBaseUrl + 'toggle-featured',
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: rewardId,
+                    is_featured: isChecked
+                },
+                success: function (res) {
+                    show_message(true, 'Featured status updated');
+                },
+                error: function () {
+
+                    // revert toggle if failed
+                    $switch.prop('checked', !isChecked);
+
+                    show_message(false, 'Server error');
+                }
+            });
+
+        });
+
        
         let selectedType = 'plus'; // default
 

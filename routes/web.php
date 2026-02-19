@@ -331,6 +331,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::get('evoucher-stock/datatable', [EvoucherStockController::class, 'datatable']);
     Route::post('evoucher-stock/adjustment', [EvoucherStockController::class, 'stockAdjustment'])->name('evoucher-stock.adjustment');
+    Route::post('evoucher-stock/toggle-featured', [EvoucherStockController::class, 'toggleswalFeatured'])->name('evoucher-stock.toggle-featured');
     Route::post('evoucher-stock/hide-catalogue', [EvoucherStockController::class,'toggleHideCatalogue'])->name('evoucher-stock.hide');
     Route::resource('evoucher-stock', EvoucherStockController::class);
 
@@ -338,6 +339,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('treats-deals-stock/get-location-stock/{id}',  [TreatsDealsStockController::class, 'getLocationStock'])->name('admin.get.location.stock');
     Route::post('treats-deals-stock/adjustment', [TreatsDealsStockController::class, 'stockAdjustment'])->name('treats-deals-stock.adjustment');
     Route::post('treats-deals-stock/hide-catalogue', [TreatsDealsStockController::class,'toggleHideCatalogue'])->name('treats-deals-stock.hide');
+    Route::post('treats-deals-stock/toggle-featured', [TreatsDealsStockController::class, 'toggleFeatured'])->name('treats-deals-stock.toggle-featured');
+
     Route::post('treats-deals-stock/location-stock-adjustment', [TreatsDealsStockController::class, 'locationStockAdjustment'])->name('treats-deals-stock.location.adjustment');
     Route::resource('treats-deals-stock', TreatsDealsStockController::class);
 

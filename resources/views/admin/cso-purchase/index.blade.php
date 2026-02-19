@@ -40,12 +40,29 @@
 
     </div>
 </form>
+<div class="d-flex justify-content-between">
+    <h5 class="mb-3"><strong>Current Deals:</strong></h5>
+    <div class="mb-3">
+        <strong>Total Records:</strong> {{ $totalCount }}
+    </div>
+</div>
 
-<h5 class="mb-3"><strong>Current Deals:</strong></h5>
 <input type="hidden" id="purchase_id">
 
 <div class="row g-4">
     @forelse($rewards as $reward)
+        @php
+            $isExpired = false;
+
+            if ($reward->sales_end_date) {
+                $endDateTime = \Carbon\Carbon::parse(
+                    $reward->sales_end_date . ' ' . ($reward->sales_end_time ?? '23:59:59')
+                );
+
+                $isExpired = $endDateTime->isPast();
+            }
+        @endphp
+
 
         <div class="col-lg-2 col-md-2">
             <div class="card reward-card h-100 shadow-sm">
@@ -57,9 +74,9 @@
                             class="card-img-top reward-img"
                             alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
                     @else
-                        <div class="reward-img-placeholder">
-                            No Image
-                        </div>
+                        <img src="{{ asset('uploads/image/no-image.png') }}"
+                            class="card-img-top reward-img"
+                            alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
                     @endif
                 </div>
 
@@ -70,32 +87,37 @@
                         {{ $reward->reward_type == 0 ? 'Digital' : 'Physical' }}
                     </span>
 
-                    <h6 class="card-title fw-bold mb-1">
-                        {{ $reward->name }}
+                    <h6 class="fw-bold mb-1">
+                        {{ $reward->merchant->name ?? '-' }}
                     </h6>
-
-                    <p class="text-muted small mb-2">
-                        {{ Str::limit(strip_tags($reward->description), 70) }}
-                    </p>
-
+                    <h6 class="card-title fw-bold mb-1">
+                        {{ $reward->name  ?? '-' }}
+                    </h6>
                     <p class="fw-semibold mb-1">
-                        From: <span class="text-success">${{ $reward->voucher_value }}</span>
+                        From: <span class="text-success">${{ $reward->usual_price }}</span>
                     </p>
 
                     <p class="small mb-2">
                         <strong>Sale Ends:</strong><br>
-                        {{ $reward->voucher_validity ?? '-' }}
+                        {{ $reward->sales_end_date 
+                            ? \Carbon\Carbon::parse($reward->sales_end_date)->format(config('safra.date-format')) 
+                            : '-' 
+                        }}
                     </p>
 
                     <hr class="my-2">
 
                     <ul class="list-unstyled small mb-3">
-                        <li>Total: {{ $reward->voucher_set }}</li>
-                        <li>Left: {{ $reward->inventory_qty ?? 0 }}</li>
-                        <li>Club Total: 12</li>
-                        <li>Total Sold: 38</li>
+                        <li>Total: {{ $reward->club_total_qty }}</li>
+                        <li>Left: {{ $reward->left_qty ?? 0 }}</li>
+                        @if($reward->reward_type == '1')
+                            <li>Club Total: {{ $reward->club_total_qty ?? 0 }}</li>
+                        @endif
+                        <li>Total Sold: {{ $reward->total_sold ?? 0 }}</li>
                         <li>Online: 1 | Inhouse: 37</li>
-                        <li>Pending Collection: 0</li>
+                        @if($reward->reward_type == '1')
+                            <li>Pending Collection: {{ $reward->pending_collection ?? 0 }}</li>
+                        @endif
                     </ul>
 
                     <div class="mt-auto">
@@ -103,9 +125,12 @@
                             class="btn btn-primary w-100 buy-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#memberModal"
-                            data-reward-id="{{ $reward->id }}">
-                            BUY
+                            data-reward-id="{{ $reward->id }}"
+                            {{ $isExpired ? 'disabled' : '' }}
+                        >
+                            {{ $isExpired ? 'Expired' : 'BUY' }}
                         </button>
+
                     </div>
                 </div>
             </div>
@@ -287,6 +312,10 @@
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (res) {
+                let rewardPrice = 0;
+                rewardPrice = parseFloat(res.reward.usual_price) || 0;
+
+                // updatePricing();
                 /* ================= MEMBER ================= */
                 $('#d_name').val(res.member.name);
                 $('#d_email').val(res.member.email);
@@ -299,19 +328,27 @@
                 /* ================= REWARD ================= */
                 $('#reward_image').attr('src', res.reward.image);
                 $('#reward_type').text(res.reward.type);
-                /* ================= COLLECTION (BASED ON REWARD TYPE) ================= */
-                let $collection = $('#collection');
-                $collection.empty(); // remove old options
 
+               /* ================= COLLECTION (BASED ON REWARD TYPE) ================= */
+                let $collection = $('#collection');
+                $collection.empty();
+
+                let remaining = res.reward.remaining_qty ?? 0;
+                $('#remain_qty').val(remaining);
                 if (parseInt(res.reward.reward_type) === 0) {
                     // Digital
                     $collection.append(
-                        `<option value="digital" selected>Digital</option>`
+                        `<option value="digital" selected>
+                            Digital Voucher - ${remaining} left
+                        </option>`
                     );
-                } else if (parseInt(res.reward.reward_type) === 1) {
+                } 
+                else if (parseInt(res.reward.reward_type) === 1) {
                     // Physical
                     $collection.append(
-                        `<option value="physical" selected>Physical</option>`
+                        `<option value="physical" selected>
+                            Physical Voucher - ${remaining} left
+                        </option>`
                     );
                 }
 
@@ -323,10 +360,19 @@
                 $('#reward_left').text(res.reward.remaining_qty);
 
                 /* ================= RATES ================= */
-                $('#rate_member').text(res.reward.rates.member);
-                $('#rate_movie').text(res.reward.rates.movie);
-                $('#rate_bitez').text(res.reward.rates.bitez);
-                $('#rate_travel').text(res.reward.rates.travel);
+
+                let tierNames = '';
+                let tierRates = '';
+
+                $.each(res.reward.rates, function (tier_name, price) {
+
+                    tierNames += tier_name + '<br>';
+                    tierRates += price + '<br>';
+
+                });
+
+                $('#tier_names').html(tierNames);
+                $('#tier_rates').html(tierRates);
 
                 /* ================= PRICING ================= */
                 $('#d_subtotal').text(res.pricing.subtotal);
@@ -353,6 +399,29 @@
             }
         });
     });
+
+    $('#qty').on('input change', function () {
+        // updatePricing();
+    });
+
+    function updatePricing() {
+
+        let qty = parseInt($('#qty').val()) || 1;
+
+        let subtotal = rewardPrice * qty;
+        let adminFee = 0;
+        let total = subtotal + adminFee;
+
+        $('#d_subtotal').text('SGD ' + subtotal.toFixed(2));
+        $('#d_admin').text('SGD ' + adminFee.toFixed(2));
+        $('#d_total').text('SGD ' + total.toFixed(2));
+
+        $('#subtotal').val(subtotal.toFixed(2));
+        $('#admin_fee').val(adminFee.toFixed(2));
+        $('#total').val(total.toFixed(2));
+    }
+
+
 
     $('#checkoutModal').on('hidden.bs.modal', function () {
 
