@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Http;
 
 class SafraServiceAPI
@@ -162,20 +163,14 @@ class SafraServiceAPI
     /**
      * Get Customer Zone
      */
-    public function getInfoByMethod(string $lastModified, string $memberid)
+    public function getInfoByMethod(array $itemData)
     {
-        if (!$memberid) {
-            throw new \Exception('Member ID is required');
-        }
         $response = $this->serviceCall(
             'sfrControlMember/GetBasicDetailInfoByMethod',
-            [
-                'LastModifiedTime' => $lastModified,
-                'MemberId' => $memberid,
-            ]
+            $itemData
         );
         if ($response->failed()) {
-            throw new \Exception('SAFRA API failed: ' . $response->body());
+            throw new \Exception('get basic info by method API failed: ' . $response->body());
         }
 
         $data = json_decode($response->body()   , true);
@@ -183,17 +178,11 @@ class SafraServiceAPI
     }
 
     /** get shopping cart no */
-    public function getShoppingCartNo(string $lastModified, string $memberid)
+    public function getShoppingCartNo(array $itemData)
     {
-        if (!$memberid) {
-            throw new \Exception('Member ID is required');
-        }
         $response = $this->serviceCall(
             'sfrControlCart/GetGlobalCartNo',
-            [
-                'LastModifiedTime' => $lastModified,
-                'MemberId' => $memberid,
-            ]
+            $itemData
         );
         if ($response->failed()) {
             throw new \Exception('SAFRA API failed: ' . $response->body());
@@ -204,23 +193,68 @@ class SafraServiceAPI
     }
 
     /** clear shopping cart */
-    public function clearShoppingCart(string $lastModified, string $memberid)
+    public function clearShoppingCart(array $itemData)
     {
-        if (!$memberid) {
-            throw new \Exception('Member ID is required');
-        }
+
         $response = $this->serviceCall(
             'sfrControlCart/ClearCart',
-            [
-                'LastModifiedTime' => $lastModified,
-                'MemberId' => $memberid,
-            ]
+            $itemData
         );
         if ($response->failed()) {
-            throw new \Exception('SAFRA API failed: ' . $response->body());
+            throw new \Exception('clear shopping cart API failed: ' . $response->body());
         }
 
         $data = json_decode($response->body()   , true);
         return $data ?? [];
     }
+
+    //** add merchandise item to cart */
+    public function addMerchandiseItemCart(array $itemData)
+    {
+        $response = $this->serviceCall(
+            'sfrControlCart/AddMerchandiseItemCart',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('add merchandise item to cart API failed: ' . $response->body());
+        }
+
+        $data = json_decode($response->body()   , true);
+        return $data ?? [];
+    }
+
+
+    /** add payment method */
+    public function addPaymentMethod(array $itemData)
+    {
+        $response = $this->serviceCall(
+            'sfrControlCart/AddPayment',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('add payment method API failed: ' . $response->body());
+        }
+
+        $data = json_decode($response->body()   , true);
+        return $data ?? [];
+    }
+
+
+    /** create payment receipt */
+    public function createPaymentReceipt(array $itemData)
+    {
+        $response = $this->serviceCall(
+            'sfrControlCart/CreateAXPayment',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('create payment receipt API failed: ' . $response->body());
+        }
+
+        $data = json_decode($response->body()   , true);
+        return $data ?? [];
+    }
+
+
+    
 }

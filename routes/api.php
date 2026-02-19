@@ -46,11 +46,15 @@ Route::prefix('master')->group(function () {
 
 // ax api
 Route::prefix('ax')->group(function () {
-    Route::get('basic-detail-information-method', [MemberInformationController::class, 'infoByMethod']);
-    Route::get('get-shopping-cart-no', [MemberInformationController::class, 'getShoppingCart']);
-    Route::get('clear-shopping-cart', [MemberInformationController::class, 'clearShoppingCart']);
-   
-    Route::get('add-merchandise-item-cart', [MemberInformationController::class, 'addMerchandiseItemToCart']);
+    Route::post('basic-detail-information-method', [MemberInformationController::class, 'infoByMethod']);
+    Route::post('get-shopping-cart-no', [MemberInformationController::class, 'getShoppingCart']);
+    Route::post('clear-shopping-cart', [MemberInformationController::class, 'clearShoppingCart']);
+
+    Route::post('add-merchandise-item-cart', [MemberInformationController::class, 'addMerchandiseItemCart']);
+    Route::post('add-payment-method', [MemberInformationController::class, 'addPaymentMethod']);
+    Route::post('create-payment-receipt', [MemberInformationController::class, 'createPaymentReceipt']);
+
+    
 });
 
 Route::get('master/schedule-run', function () {

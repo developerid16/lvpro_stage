@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddMerchandiseItemCartRequest;
+use App\Http\Requests\AddPaymentMethodRequest;
+use App\Http\Requests\ClearShoppingCart;
+use App\Http\Requests\CreatepaymentReceipt;
+use App\Http\Requests\GetShoppingCard;
+use App\Http\Requests\InfoByMethod;
 use App\Services\SafraServiceAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -124,18 +130,10 @@ class MemberInformationController extends Controller
     /**
      * Summary of infoByMethod
      */
-    public function infoByMethod()
+    public function infoByMethod(InfoByMethod $request)
     {
-        $memberid = $request->member_id ?? 'A100063879';
-        if (empty($memberid)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Member ID is required'
-            ], 400);
-        }
         try {
-            $lastModified = $request->last_modified ?? '2025-09-17';
-            $records = $this->safraServiceAPI->getInfoByMethod($lastModified, $memberid);
+            $records = $this->safraServiceAPI->getInfoByMethod( $request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -149,7 +147,7 @@ class MemberInformationController extends Controller
     }
 
     /** get shopping cart */
-    public function getShoppingCart(Request $request)
+    public function getShoppingCart(GetShoppingCard $request)
     {
         $memberid = $request->member_id ?? 'A100063879';
         if (empty($memberid)) {
@@ -160,7 +158,7 @@ class MemberInformationController extends Controller
         }
         try {
             $lastModified = $request->last_modified ?? '2025-09-17';
-            $records = $this->safraServiceAPI->getShoppingCartNo($lastModified, $memberid);
+            $records = $this->safraServiceAPI->getShoppingCartNo($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -176,18 +174,71 @@ class MemberInformationController extends Controller
     /**
      * Summary of clearShoppingCart
      */
-    public function clearShoppingCart(Request $request)
+    public function clearShoppingCart(ClearShoppingCart $request)
     {
-        $memberid = $request->member_id ?? 'A100063879';
-        if (empty($memberid)) {
+        try {
+            $records = $this->safraServiceAPI->clearShoppingCart($request->validated());
+            return response()->json([
+                'status' => 'success',
+                'data' => $records
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Member ID is required'
-            ], 400);
+                'message' => $e->getMessage()
+            ], 500);
         }
+    }
+
+    /**
+     * add-merchandise-itemCart
+     */
+    public function addMerchandiseItemCart(AddMerchandiseItemCartRequest $request)
+    {
         try {
-            $lastModified = $request->last_modified ?? '2025-09-17';
-            $records = $this->safraServiceAPI->clearShoppingCart($lastModified, $memberid);
+            $records = $this->safraServiceAPI
+                ->addMerchandiseItemCart($request->validated());
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $records
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Summary of addPaymentMethod
+     */
+    public function addPaymentMethod(AddPaymentMethodRequest $request)
+    {
+        try {
+            $records = $this->safraServiceAPI->addPaymentMethod($request->validated());
+            return response()->json([
+                'status' => 'success',
+                'data' => $records
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Summary of createPaymentReceipt
+     */
+    public function createPaymentReceipt(CreatepaymentReceipt $request)
+    {
+        try {
+            $records = $this->safraServiceAPI->createPaymentReceipt($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
