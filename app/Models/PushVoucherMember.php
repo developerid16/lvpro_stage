@@ -29,6 +29,7 @@ class PushVoucherMember extends Model
         'membership_expiry_to_date',
         'membership_renewable_from_date',
         'membership_renewable_to_date',
+        'method'
     ];
 
     // ✅ Auto encode/decode

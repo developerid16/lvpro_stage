@@ -1597,8 +1597,7 @@ class EvoucherController extends Controller
                 'push_voucher'   => 'required',
                 'reward_id'      => 'required|exists:rewards,id',
                 'memberId'       => 'required|file',
-                'redemption_start_date' => 'nullable|date',
-                'redemption_end_date'   => 'nullable|date',
+                'method'   => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -1619,40 +1618,18 @@ class EvoucherController extends Controller
                 $file->move(public_path('uploads/push_voucher'), $fileName);
             }
 
-            // ------------------------------------
-            // MEMBER IDS (stored comma-separated)
-            // ------------------------------------
             $memberIdsArray = array_filter(
                 array_map('trim', explode(',', $request->push_voucher)),
                 fn($id) => $id !== ""
             );
-
             $memberIds = implode(',', $memberIdsArray); // <-- FINAL STRING
 
-            // ------------------------------------
-            // SAVE SINGLE RECORD
-            // ------------------------------------
             PushVoucherMember::create([
                 'type' => '0',
                 'reward_id' => $request->reward_id,
                 'member_id' => $memberIds,   // stored comma-separated
                 'file'      => $fileName,
-
-                'redemption_start_date' => $request->redemption_start_date
-                    ? date('Y-m-d', strtotime($request->redemption_start_date))
-                    : null,
-
-                'redemption_start_time' => $request->redemption_start_date
-                    ? date('H:i:s', strtotime($request->redemption_start_date))
-                    : null,
-
-                'redemption_end_date' => $request->redemption_end_date
-                    ? date('Y-m-d', strtotime($request->redemption_end_date))
-                    : null,
-
-                'redemption_end_time' => $request->redemption_end_date
-                    ? date('H:i:s', strtotime($request->redemption_end_date))
-                    : null,
+                'method' => $request->input('method')
             ]);
 
             return response()->json([

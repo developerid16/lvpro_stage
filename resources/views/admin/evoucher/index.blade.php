@@ -369,7 +369,7 @@
                                     <textarea id="push_voucher" type="text" class="sh_dec form-control" name="push_voucher" placeholder="Enter Push Voucher" readonly></textarea>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-6">
+                            <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="reward_type">Import Member ID <span class="required-hash">*</span></label>   
                                     <input id="memberId" type="file" class="form-control" name="memberId" accept=".xlsx,.xls">
@@ -397,6 +397,21 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <div class="mb-3">
+                                    <label class="sh_dec" for="method">Methods<span class="required-hash">*</span></label>
+                                    <select class="sh_dec form-select method" name="method">
+                                        <option class="sh_dec" value="">Select Method</option>
+                                        @foreach (['pushWallet' => 'Push to Wallet', 'pushCatalogue' => 'Push to Catalogue'] as $key => $label)
+                                            <option value="{{ $key }}" {{ isset($data) && $data->reward_id == $key ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
                                 </div>
                             </div>
 
