@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\GUIDController;
 use App\Http\Controllers\API\MasterAPIController;
 use App\Http\Controllers\API\MemberInformationController;
 use Illuminate\Http\Request;
@@ -55,6 +56,11 @@ Route::prefix('ax')->group(function () {
     Route::post('create-payment-receipt', [MemberInformationController::class, 'createPaymentReceipt']);
 
     
+});
+
+// guid 
+Route::prefix('guid')->group(function () {
+    Route::post('get-memberid-by-token', [GUIDController::class, 'getmemberidtoken']);
 });
 
 Route::get('master/schedule-run', function () {
