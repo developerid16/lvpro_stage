@@ -169,6 +169,10 @@ class EvoucherStockController extends Controller
                 $action .= ' <div class="form-check form-switch m-0"> <input class="form-check-input hide-catalogue-switch"
                 type="checkbox" data-id="'.$row->id.'" '.($row->hide_catalogue ? 'checked' : '').'  title="Hide From Catalogue"> </div>';
             }
+            if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
+                $action .= ' <div class="form-check form-switch m-0"> <input class="form-check-input featured-toggle-switch"
+                type="checkbox" data-id="'.$row->id.'" '.($row->is_featured ? 'checked' : '').'  title="Is Featured"> </div>';
+            }
                 
             $final_data[$key]['action'] = $action . "</div>";
         }
@@ -1105,6 +1109,17 @@ class EvoucherStockController extends Controller
             'status' => true,
             'message' => 'Stock adjustment successfully'
         ]);
+    }
+
+    public function toggleFeatured(Request $request)
+    {
+        $reward = Reward::findOrFail($request->id);
+
+        $reward->update([
+            'is_featured' => $request->is_featured
+        ]);
+
+        return response()->json(['status' => true]);
     }
 
 }

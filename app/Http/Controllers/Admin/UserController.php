@@ -107,7 +107,7 @@ class UserController extends Controller
         $post_data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required|unique:users,email',
-           'password' => 'nullable|string|min:6|max:20',
+           'password' => 'nullable|string|min:6',
             'phone' => 'required|unique:users,phone',
             'status' => 'required',
             'role' => 'required',
@@ -170,7 +170,7 @@ class UserController extends Controller
             'phone' => "required|unique:users,phone,$id",
             'status' => 'required',
             'role' => 'required',
-            'password' => 'nullable|string|min:6|max:20',
+            'password' => 'nullable|string|min:6',
         ]);
 
          // Update password only if provided
@@ -187,7 +187,7 @@ class UserController extends Controller
         $role = $post_data['role'];
         unset($post_data['role']);
 
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         $user->update($post_data);
         $user->syncRoles($role);
 

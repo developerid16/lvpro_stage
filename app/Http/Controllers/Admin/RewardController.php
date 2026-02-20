@@ -131,7 +131,6 @@ class RewardController extends Controller
             $query->where('added_by', auth()->id());
         }
 
-
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];
@@ -152,17 +151,13 @@ class RewardController extends Controller
 
             $final_data[$key]['quantity'] = max(0, (int) $total_quantity);
 
-            $purchased = UserWalletVoucher::where('reward_id', $row->id)
-                ->where('reward_status', 'purchased')
-                ->count();
+            $purchased = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status', 'purchased')->count();
 
             $final_data[$key]['purchased'] = max(0, $purchased);
 
             $final_data[$key]['balance'] = max(0, $total_quantity - $purchased);
 
-            $redeemed = UserWalletVoucher::where('reward_id', $row->id)
-                ->where('status', 'used')
-                ->count();
+            $redeemed = UserWalletVoucher::where('reward_id', $row->id)->where('status', 'used')->count();
 
             $final_data[$key]['redeemed'] = max(0, $redeemed);
 
@@ -179,11 +174,8 @@ class RewardController extends Controller
                     </a>';
             } else {
                 $imgUrl = asset("uploads/image/no-image.png");
-                $final_data[$key]['image'] = '<img src="'.$imgUrl.'"
-                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-                            alt="Voucher Image">'; // nothing shown
+                $final_data[$key]['image'] = '<img src="'.$imgUrl.'"class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">'; // nothing shown
             }
-
            
             $start = $row->publish_start_date;
             $end   = $row->publish_end_date;
@@ -196,10 +188,7 @@ class RewardController extends Controller
             $isValidEnd   = $endDate && $endDate->year > 0;
 
             if ($isValidStart && $isValidEnd) {
-                $duration =
-                    $startDate->format(config('safra.date-only')) .
-                    ' to ' .
-                    $endDate->format(config('safra.date-only'));
+                $duration = $startDate->format(config('safra.date-only')) . ' to ' . $endDate->format(config('safra.date-only'));
             } elseif ($isValidStart) {
                 $duration = $startDate->format(config('safra.date-only'));
             } else {
@@ -207,9 +196,7 @@ class RewardController extends Controller
             }
 
             $final_data[$key]['duration'] = $duration;
-
             $final_data[$key]['status'] = $duration;
-
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 

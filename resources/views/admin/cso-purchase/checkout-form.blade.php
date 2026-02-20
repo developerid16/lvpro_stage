@@ -26,6 +26,7 @@
                     <input type="hidden" name="admin_fee" id="admin_fee" value="0">
                     <input type="hidden" name="total" id="total">
                     <input type="hidden" name="d_reward" id="d_reward">
+                    <input type="hidden" name="remain_qty" id="remain_qty">
                     
                 
 
@@ -99,21 +100,17 @@
                                 <p id="reward_offer"></p>
 
                                 <div class="row mt-3 text-left d-flex justify-content-between">
-                                    <div class="col-5">
-                                        <strong>Member Type</strong><br>
-                                        SAFRA Member<br>
-                                        SAFRA MovieMax<br>
-                                        SAFRA Bitez<br>
-                                        SAFRA Travel Club
+                                    <div class="col-6">
+                                        <strong>Member Type</strong>
+                                        <div id="tier_names"></div>
                                     </div>
-                                    <div class="col-3 text-left">
-                                        <strong>Rate (SGD)</strong><br>
-                                        <span id="rate_member"></span><br>
-                                        <span id="rate_movie"></span><br>
-                                        <span id="rate_bitez"></span><br>
-                                        <span id="rate_travel"></span>
+
+                                    <div class="col-4 text-left">
+                                        <strong>Rate (SGD)</strong>
+                                        <div id="tier_rates"></div>
                                     </div>
                                 </div>
+
 
                                 <div class="mt-3">
                                     <strong>Sales End Date Time:</strong><br>
