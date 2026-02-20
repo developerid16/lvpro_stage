@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
+use App\Models\VoucherLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -174,6 +175,14 @@ class CsoPhysicalController extends Controller
             'remark'      => $request->remark,
             'status'      => 'redeemed', // Completed
             'redeemed_at' => now(),
+        ]);
+
+        VoucherLog::create([
+            'user_id'           => $purchase->member_id,
+            'reward_id'         => $purchase->reward_id,
+            'action'            => 'redeemed',
+            'receipt_no'        => $request->unique_code,
+            'qty'               => 1,
         ]);
 
         return response()->json([

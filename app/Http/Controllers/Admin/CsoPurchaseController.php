@@ -103,6 +103,14 @@ class CsoPurchaseController extends Controller
     {
         $reward = Reward::findOrFail($request->reward_id);
 
+        $expired = reward_expired($reward);
+
+        if ($expired) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Reward has expired.'
+            ], 400); 
+        }
         /*
         |--------------------------------------------------------------------------
         | SALES END FORMAT

@@ -14,10 +14,29 @@ class AppUser extends Authenticatable
 {
     use HasFactory, HasApiTokens;
     protected $fillable = [
-        'name', 'email', 'password', 'country_code', 'phone_number', 'gender', 'date_of_birth', 'my_code', 'referral_code', 'sms_subscription', 'email_subscription', 'whatsapp_subscription', 'unique_id', 
-        'expiry_date', 'user_type', 'verified_at', 'otp', 'available_key', 'company_id', 'status', 'c_code', 'c_name', 'aircrew_unique', 'noti_count', 'push_system_noti', 'push_promotion_noti', 'push_other_noti',
-         'sms_noti', 'email_noti', 'blacklist_reason','last_otp_time', 'password_reason', 'last_login','customer_id','password_reset',
-         'is_vip','member_category','member_id','membership_type_code','modified_date_time','nric','membership_status','token'
+        'name',
+        'email',
+        'password',
+        'country_code',
+        'phone_number',
+        'session_id',
+        'gender',
+        'date_of_birth',
+        'unique_id',
+        'last_login',
+        'status',
+        'membership_code',
+        'card_type',
+        'marital_status',
+        'residence_zone',
+        'age',
+        'interest_group',
+        'membership_join_date',
+        'membership_expiry_date',
+        'membership_renewable_date',
+        'sms_noti',
+        'email_noti',
+        'noti_count'
     ];
 
     /**

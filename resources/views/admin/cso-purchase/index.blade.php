@@ -123,14 +123,16 @@
                     <div class="mt-auto">
                         <button
                             class="btn btn-primary w-100 buy-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#memberModal"
                             data-reward-id="{{ $reward->id }}"
-                            {{ $isExpired ? 'disabled' : '' }}
+                            @if(!$isExpired)
+                                data-bs-toggle="modal"
+                                data-bs-target="#memberModal"
+                            @else
+                                disabled
+                            @endif
                         >
                             {{ $isExpired ? 'Expired' : 'BUY' }}
                         </button>
-
                     </div>
                 </div>
             </div>
@@ -395,7 +397,12 @@
             },
 
             error: function (xhr) {
-                alert(xhr.responseJSON?.message || 'Member not found');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Checkout Failed',
+                    text: xhr.responseJSON?.message || 'Member not found'
+                });
+                // alert(xhr.responseJSON?.message || 'Member not found');
             }
         });
     });

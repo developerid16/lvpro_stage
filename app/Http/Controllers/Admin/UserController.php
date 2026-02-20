@@ -14,7 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -26,7 +26,7 @@ class UserController extends Controller
 
 
         $this->view_file_path = "admin.user.";
-        $permission_prefix = $this->permission_prefix = 'user';
+        $permission_prefix = $this->permission_prefix = 'cms-user';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
             'title' => 'User',
@@ -164,14 +164,32 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => "required|unique:users,email,$id",
             'phone' => "required|unique:users,phone,$id",
             'status' => 'required',
             'role' => 'required',
             'password' => 'nullable|string|min:6',
+        ], [
+            'name.required' => 'Name is required.',
+            'email.required' => 'Email is required.',
+            'email.unique' => 'Email already exists.',
+            'phone.required' => 'Phone is required.',
+            'phone.unique' => 'Phone already exists.',
+            'status.required' => 'Status is required.',
+            'role.required' => 'Role is required.',
+            'password.min' => 'Password must be at least 6 characters.',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
          // Update password only if provided
         if (!empty($post_data['password'])) {

@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DashboardPopup extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $fillable = [ 'optout', 'button', 'name', 'description', 'start_date', 'end_date', 'optout', 'slider_order','frequency','order','image','url'];
+    protected $fillable = [  'button', 'name',
+     'start_date', 'end_date', 'frequency','order','image','url'];
     // public function getImageAttribute($value)
     // {
     //     if ($value) {

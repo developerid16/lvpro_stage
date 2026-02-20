@@ -41,7 +41,7 @@ class RewardController extends Controller
     {
 
         $this->view_file_path = "admin.reward.";
-        $permission_prefix    = $this->permission_prefix    = 'reward';
+        $permission_prefix    = $this->permission_prefix    = 't&d-reward';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
             'title'             => 'Treats & Deals',
