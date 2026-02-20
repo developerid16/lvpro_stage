@@ -205,10 +205,29 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('learn-more-page', [ContentManagementController::class, 'learnUpdate'])->name('learn.store');
  
     // inside admin route group OR top-level, depending on your app
-    Route::get('tiers/datatable', [TierController::class, 'datatable'])->name('admin.tiers.datatable');
-    Route::resource('tiers', TierController::class);
-    Route::post('tiers/update', [TierController::class, 'update'])->name('tiers.update');
-    Route::post('tiers-milestone/save', [TierController::class, 'milestoneSave'])->name('tiers.milestone.save');
+    // Route::get('tiers/datatable', [TierController::class, 'datatable'])->name('admin.tiers.datatable');
+    // Route::resource('tiers', TierController::class);
+    // Route::post('tiers/update', [TierController::class, 'update'])->name('tiers.update');
+    // Route::post('tiers-milestone/save', [TierController::class, 'milestoneSave'])->name('tiers.milestone.save');
+
+    Route::prefix('tiers')->name('admin.tiers.')->group(function () {
+
+        // Main CRUD
+        Route::get('/',                 [TierController::class, 'index'])->name('index');
+        Route::get('/datatable',        [TierController::class, 'datatable'])->name('datatable');
+        Route::post('/',                [TierController::class, 'store'])->name('store');
+        Route::get('/{id}/edit',        [TierController::class, 'edit'])->name('edit');
+        Route::patch('/{id}',           [TierController::class, 'update'])->name('update');
+        Route::delete('/{id}',          [TierController::class, 'destroy'])->name('destroy');
+
+        // Dropdown API endpoints for IG and MemberType
+        Route::get('/get-main-groups',  [TierController::class, 'getMainGroups'])->name('get-main-groups');
+        Route::get('/get-sub-groups',   [TierController::class, 'getSubGroups'])->name('get-sub-groups');
+        Route::get('/get-member-types', [TierController::class, 'getMemberTypes'])->name('get-member-types');
+
+        // Milestone save
+        Route::post('/milestone/save',  [TierController::class, 'milestoneSave'])->name('milestone.save');
+    });
 
     Route::get('report/customer', [ReportController::class, 'customerIndex']);
     Route::get('report/sales', [ReportController::class, 'sales']);

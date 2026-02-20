@@ -19,7 +19,7 @@ class GUIDService
         );
 
         if ($res->failed()) {
-            throw new \Exception('Azure token fetch nishfal: ' . $res->body());
+            throw new \Exception('Get token API failed: ' . $res->body());
         }
 
         return $res['access_token'];
@@ -78,7 +78,7 @@ class GUIDService
         );
 
         if ($decrypted === false) {
-            throw new \RuntimeException('AES decryption nishfal: ' . openssl_error_string());
+            throw new \RuntimeException('Decrypt data failed: ' . openssl_error_string());
         }
 
         return $decrypted;
@@ -92,7 +92,7 @@ class GUIDService
         );
 
         if ($response->failed()) {
-            throw new \Exception('MemberID by token nishfal: ' . $response->body());
+            throw new \Exception('MemberID by token failed: ' . $response->body());
         }
 
         $data = $response->json();

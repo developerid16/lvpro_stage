@@ -43,6 +43,7 @@
                                 <div class="sh_dec_s error" id="status_error"></div>
                             </div>
                         </div>
+
                     </div>
 
                     <hr class="my-3">
@@ -399,34 +400,9 @@
         $('#ig_or_mt_error').addClass('d-none');
     }
 
-    // ── CLEANUP + RESET on modal close ───────────────────────────
-    // Resets form and clears all IG/MT selections when modal is closed
+    // ── CLEANUP: remove edit modal HTML when closed ───────────────
+    // This prevents stale event listeners from old modal instances
     $('#' + MODAL_ID).on('hidden.bs.modal', function () {
-
-        // Reset form fields
-        var $form = $('#' + MODAL_ID).find('form');
-        $form[0].reset();
-
-        // Clear error messages
-        if (typeof remove_errors === 'function') remove_errors();
-        hideIgMtError();
-
-        // Clear IG and MT lists
-        selectedIGs = [];
-        selectedMTs = [];
-        igIndex     = 0;
-
-        $('#ig_list_' + UID).empty();
-        $('#mt_list_' + UID).empty();
-        $('.ig_empty_msg').show();
-        $('.mt_empty_msg').show();
-
-        // Reset dropdowns
-        $('#ig_main_select_' + UID).val('');
-        $('#ig_sub_select_' + UID).html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
-        $('#mt_select_' + UID).val('');
-
-        // If edit modal — destroy HTML so next open is a fresh instance
         if (MODAL_ID === 'EditModal') {
             $('#edit_modal_placeholder').empty();
         }

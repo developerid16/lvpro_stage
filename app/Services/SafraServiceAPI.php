@@ -123,7 +123,7 @@ class SafraServiceAPI
     }
 
     /**
-     * Get Latest Transaction   
+     * Get Latest Transaction
      */
     public function getLatestTransaction(string $lastModified, int $limit = 5): array
     {
