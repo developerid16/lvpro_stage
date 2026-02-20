@@ -193,9 +193,7 @@
                         <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Dashboard</span>
                     </a>
 
-
-                    @canany(['user-list', 'role-list', 'app-user-list', 'campaign-voucher-group-list'])
-
+                    @canany(['department-list', 'role-list', 'app-user-list','cms-user-list','reward-update-request'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                                 <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CMS User Management</span>
@@ -210,158 +208,148 @@
                                     <a class="dropdown-item" key="t-alerts" href="{{url('/admin/departments')}}">Departments</a>
                                 @endcan
                                 
-                                @can('user-list')
+                                @can('cms-user-list')
                                     <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
                                 @endcan
                                 @can(['app-user-list'])
                                 <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
                                 @endcan                               
-                                @can('reward-update-request')
+                                @can('reward-update-request-list')
                                     <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">Reward Update Request</a>
                                 @endcan
-                                @can(['campaign-voucher-group-list'])
-                                    <a class="dropdown-item" key="t-dashboards"
-                                        href="{{url('/admin/campaign-voucher-group')}}">Campaign Voucher Group</a>
-                                @endcan
-
                             </div>
                         </li>
-
-
                     @endcan
-                    @canany(['dashboard-list', 'notification-list', 'setting-list'])
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content / Ad Management</span>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                           
-                            @can('dashboard-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
-                            @endcan
-                            @can('notification-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
-                            @endcan
-                            @can('setting-list')
-                                <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
-                            @endcan
+                    @canany(['dashboard-popup', 'notification-list', 'content-management'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content / Ad Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             
-                        </div>
-                    </li>
+                                @can('dashboard-popup')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
+                                @endcan
+                                @can('notification-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
+                                @endcan
+                                @can('content-management')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
+                                @endcan
+                                
+                            </div>
+                        </li>
                     @endcan
 
-                    @canany(['reward-list', 'reward-category', 'evoucher-list','bday-list'])
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            @can('reward-category')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/category')}}">Reward Category</a>
-                            @endcan
-                            @can('reward-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
-                            @endcan
-                            @can('evoucher-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">eVoucher</a>
-                            @endcan
-                            @can('bday-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
-                            @endcan
-                            @can('push-voucher')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
-                            @endcan                          
-                        </div>
-                    </li>
+                    @canany(['t&d-reward-list', 'reward-category', 'evoucher-list','birthday-list','push-voucher'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @can('reward-category')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/category')}}">Reward Category</a>
+                                @endcan
+                                @can('t&d-reward-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
+                                @endcan
+                                @can('evoucher-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">eVoucher</a>
+                                @endcan
+                                @can('birthday-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
+                                @endcan
+                                @can('push-voucher')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
+                                @endcan                          
+                            </div>
+                        </li>
                     @endcan
 
-                     @canany(['reward-list', 'reward-redemption-pos', 'reward-redemption-cms'])
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CSO</span>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            @can('cso-purchase-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
-                            @endcan                           
-                            @can('cso-physical-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-physical')}}">CSO Physical Collection</a>
-                            @endcan                           
-                            @can('cso-issuance-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance')}}">CSO Issuance</a>
-                            @endcan                           
-                        </div>
-                    </li>
+                    @canany(['cso-purchase-list', 'cso-physical-list', 'cso-issuance-list'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CSO</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @can('cso-purchase-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
+                                @endcan                           
+                                @can('cso-physical-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-physical')}}">CSO Physical Collection</a>
+                                @endcan                           
+                                @can('cso-issuance-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance')}}">CSO Issuance</a>
+                                @endcan                           
+                            </div>
+                        </li>
                     @endcan                
                     
 
-                    @canany(['merchant-list', 'participating-merchant-list'])
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Merchant Management</span>
-                            <!-- <div class="arrow-down"></div> -->
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            @can('merchant-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/merchants')}}">Merchant</a>
-                            @endcan
-                            @can('fabs-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/fabs')}}">Fabs</a>
-                            @endcan
-                            @can('club-location-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/club-location')}}">Club Location</a>
-                            @endcan
-                            @can('participating-merchant-list')
-                                <a class="dropdown-item" key="t-alerts" href="{{url('admin/participating-merchant')}}">Participating Merchant</a>
-                            @endcan                           
-                        </div>
-                    </li>
+                    @canany(['merchant-list', 'participating-merchant-list','fabs-list','club-location-list'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Merchant Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @can('merchant-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/merchants')}}">Merchant</a>
+                                @endcan
+                                @can('fabs-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/fabs')}}">Fabs</a>
+                                @endcan
+                                @can('club-location-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/club-location')}}">Club Location</a>
+                                @endcan
+                                @can('participating-merchant-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/participating-merchant')}}">Participating Merchant</a>
+                                @endcan                           
+                            </div>
+                        </li>
                     @endcan
-                     @can(['tier-list'])
+
+                    @can(['tier-list'])
                         <a class="nav-link  " href="{{url('/admin/tiers')}}">
                             Tier Management
                         </a>
                     @endcan
                    
-                    @canany(['cms-setting', 'transaction-history'])
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
-                            <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Others</span>
-                            <div class="arrow-down"></div>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
-                           
-                            @can(['cms-setting'])
-                                <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
-                                    CMS Setting
-                                </a>
-                            @endcan
-                            @can(['transaction-history'])
-                                <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
-                                    Transaction History
-                                </a>
-                            @endcan
-                            @can(['voucher-logs'])
-                                <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
-                                    Voucher Logs
-                                </a>
-                            @endcan
-                            @can(['voucher-list'])
-                                <a class="dropdown-item  " href="{{url('/admin/voucher-list')}}">
-                                    Voucher List
-                                </a>
-                            @endcan
-                           
+                    @canany(['cms-setting', 'transaction-history','voucher-logs','voucher-list'])
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Others</span>
+                                <div class="arrow-down"></div>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
+                            
+                                @can(['cms-setting'])
+                                    <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
+                                        CMS Setting
+                                    </a>
+                                @endcan
+                                @can(['transaction-history'])
+                                    <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
+                                        Transaction History
+                                    </a>
+                                @endcan
+                                @can(['voucher-logs'])
+                                    <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
+                                        Voucher Logs
+                                    </a>
+                                @endcan
+                                @can(['voucher-list'])
+                                    <a class="dropdown-item  " href="{{url('/admin/voucher-list')}}">
+                                        Voucher List
+                                    </a>
+                                @endcan
+                            
 
-                        </div>
-                    </li>
+                            </div>
+                        </li>
                     @endcan      
 
-                    @canany(['stock-management'])
+                    @canany(['evoucher-stock', 't&d-reward-stock'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
                                 <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Stock Management</span>
@@ -369,7 +357,7 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
                             
-                                @can(['reward-stock'])
+                                @can(['t&d-reward-stock'])
                                     <a class="dropdown-item  " href="{{url('/admin/treats-deals-stock')}}">
                                         Treats & Deals Stock
                                     </a>

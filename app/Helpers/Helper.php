@@ -148,3 +148,19 @@ if (!function_exists('tireExpiryDate')) {
         return  Carbon::createFromFormat('Y-m-d', "$year-08-31");
     }
 }
+
+if (!function_exists('reward_expired')) {
+
+    function reward_expired($reward)
+    {
+        if (!$reward || !$reward->sales_end_date) {
+            return false;
+        }
+
+        $endDateTime = \Carbon\Carbon::parse(
+            $reward->sales_end_date . ' ' . ($reward->sales_end_time ?? '23:59:59')
+        );
+
+        return $endDateTime->isPast();
+    }
+}

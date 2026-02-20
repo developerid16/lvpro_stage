@@ -18,8 +18,12 @@
     <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
             <div>
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddMemberVoucher">Push Voucher By Member ID</button>
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddParameterVoucher">Push Voucher By Parameter</button>
+                @can("push-voucher-by-member-id")
+                    <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddMemberVoucher">Push Voucher By Member ID</button>
+                @endcan
+                @can("push-voucher-by-parameter")
+                    <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddParameterVoucher">Push Voucher By Parameter</button>
+                @endcan
             </div>
             @can("$permission_prefix-create")
                 <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
@@ -400,6 +404,7 @@
                                 </div>
                             </div>
 
+
                             <div class="col-6 col-md-6">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="method">Methods<span class="required-hash">*</span></label>
@@ -414,6 +419,7 @@
 
                                 </div>
                             </div>
+                            <div id="form_error" class="text-danger d-none"></div>
 
                         <div class="row">
                             <div class="col-6 mt-3 d-grid">
@@ -651,21 +657,27 @@
                 type: "POST",
                 data: formData,
                 processData: false,
-                contentType: false,              
-                success: function (res) {
-                    if (res.status == "success") { 
-                        show_message(res.status, res.message);   
-                        $("#member_voucher")[0].reset();
-                        $("#push_voucher").val("");
-                        $("#AddMemberVoucher").modal('hide');
-                    } else {                   
-                    }
+                contentType: false,   
+                dataType: "json",           
+                success: function (res) {                    
+                    $('#form_error').addClass('d-none')
+                    $("#AddMemberVoucher").modal('hide');
+                    show_message(res.status, res.message);   
+                    $("#member_voucher")[0].reset();
+                    $("#push_voucher").val("");
+
+                    
                 },
-                error: function (response) {                 
+                error: function (xhr) {                 
                         
                     $(".error").html(""); // clear previous errors
-                                
-                    show_errors(response.responseJSON.errors);
+                    if (xhr.status === 400) {
+                         $('#form_error')
+                            .removeClass('d-none')
+                            .addClass('alert-danger')
+                            .html(xhr.responseJSON.message);
+                    }           
+                    // show_errors(xhr.responseJSON.errors);
                 }
                 
             });

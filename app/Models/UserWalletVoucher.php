@@ -20,7 +20,8 @@ class UserWalletVoucher extends Model
         'serial_no',
         'unique_code',
         'used_code',
-        'suspend_voucher'
+        'suspend_voucher',
+        'push_voucher_member_id'
 
         
     ];

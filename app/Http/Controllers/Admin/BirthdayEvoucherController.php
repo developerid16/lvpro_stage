@@ -33,7 +33,7 @@ class BirthdayEvoucherController extends Controller
     {
 
         $this->view_file_path = "admin.birthday-voucher.";
-        $permission_prefix    = $this->permission_prefix = 'bday-voucher';
+        $permission_prefix    = $this->permission_prefix = 'birthday-voucher';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
             'title'             => 'Birthday Voucher',

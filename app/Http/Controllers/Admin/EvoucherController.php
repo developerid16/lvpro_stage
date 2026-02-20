@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
+use App\Models\AppUser;
 use App\Models\Category;
 use App\Models\CustomLocation;
 use App\Models\Master\MasterCardType;
@@ -18,6 +19,7 @@ use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
 use App\Models\Evoucher;
 use App\Models\ParticipatingMerchantLocation;
+use App\Models\PushVoucherLog;
 use App\Models\PushVoucherMember;
 use App\Models\Reward;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
@@ -25,6 +27,7 @@ use App\Models\RewardUpdateRequest;
 use App\Models\RewardVoucher;
 use App\Models\UserPurchasedReward;
 use App\Models\UserWalletVoucher;
+use App\Models\VoucherLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -1622,19 +1625,293 @@ class EvoucherController extends Controller
                 array_map('trim', explode(',', $request->push_voucher)),
                 fn($id) => $id !== ""
             );
-            $memberIds = implode(',', $memberIdsArray); // <-- FINAL STRING
+            $memberIds = implode(',', $memberIdsArray); // <-- FINAL STRING TO STORE IN DB           
 
-            PushVoucherMember::create([
-                'type' => '0',
-                'reward_id' => $request->reward_id,
-                'member_id' => $memberIds,   // stored comma-separated
-                'file'      => $fileName,
-                'method' => $request->input('method')
-            ]);
+         
+            if($request->input('method') == 'pushWallet'){
+                $reward = Reward::where('id', $request->reward_id)->lockForUpdate()->first();
+                $qty = 1;
+                $now = now();
 
+                if (!$reward) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Reward not found'
+                    ], 404);
+                }
+    
+                if ($reward->sales_start_date && $now->lt($reward->sales_start_date)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Voucher sale has not started yet'
+                    ], 400);
+                }
+    
+                if ($reward->sales_end_date && $now->gt($reward->sales_end_date)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Voucher sale has expired'
+                    ], 400);
+                }
+    
+                if ($reward->voucher_validity && $now->gt($reward->voucher_validity)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Voucher validity expired'
+                    ], 400);
+                }
+    
+                $existingMembers = [];
+                  
+                foreach ($memberIdsArray as $memberId) {
+                    $alreadyExists = UserWalletVoucher::where('reward_id', $request->reward_id)->where('user_id', $memberId)->whereNotNull('push_voucher_member_id')->exists();
+
+                  
+                    if ($reward->purchased_qty > $reward->inventory_qty) {
+                        return response()->json([
+                            'status' => false,
+                            'message' => 'Voucher inventory exceeded'
+                        ], 400);
+                    }
+                    if ($alreadyExists) {
+                        $existingMembers[] = $memberId;
+                        PushVoucherLog::create([
+                            'user_id'   => $memberId,
+                            'reward_id' => $request->reward_id,
+                            'push_by'   => 'pushMemberId',
+                            'type'      => 'pushWallet',
+                            'status'    => 'already_assigned',
+                            'message'   => 'Voucher already assigned to user'
+                        ]);
+                        continue;
+                    }                    
+
+                    $user = AppUser::where('session_id', $memberId)->first();
+                    
+                    if (!$user) {
+                        PushVoucherLog::create([
+                            'user_id'   => $memberId,
+                            'reward_id' => $request->reward_id,
+                            'type'      => $request->input('method'),
+                            'status'    => 'user_not_found',
+                            'push_by'   => 'pushMemberId',
+                            'message'   => 'User not found in system'
+                        ]);
+                        continue;
+                    }
+
+                    $pushMemberId = PushVoucherMember::create([
+                        'type' => '0',
+                        'reward_id' => $request->reward_id,
+                        'member_id' => $memberIds,   // stored comma-separated
+                        'file'      => $fileName,
+                        'method' => $request->input('method')
+                    ]);
+
+                    $userId = $user->session_id;
+
+                    // ===== MAX QTY PER USER (SET LOGIC) =====
+                    if (!is_null($reward->max_quantity)) {
+        
+                        $voucherSet = (int) ($reward->voucher_set ?: 1);
+        
+                        // Wallet qty → convert to sets
+                        $currentQty = UserWalletVoucher::where('reward_id', $request->reward_id)
+                            ->where('user_id', $userId)
+                            ->sum('qty');
+                            
+                        $totalQty = $reward->max_quantity * $voucherSet;
+                        $remainingEffectiveQty = $totalQty - $currentQty;
+                        $remainingEffectiveQty = intdiv($remainingEffectiveQty, $voucherSet);
+        
+                        if ($remainingEffectiveQty <= 0) {
+                            return response()->json([
+                                'status' => false,
+                                'message'    => 'Maximum limit per user exceeded',
+                                'data'   => []
+                            ], 422);
+                        }
+        
+                        if ($remainingEffectiveQty <= 0) {
+                            return response()->json([
+                                'status' => false,
+                                'message'    => 'Maximum limit per user exceeded',
+                                'data'   => []
+                            ], 422);
+                        }
+        
+                        // Check current request
+                        if ((int) $request->qty > $remainingEffectiveQty) {
+                            return response()->json([
+                                'status' => false,
+                                'message' => "You can only claim {$remainingEffectiveQty} quantity"
+                            ], 400);
+                        }
+                    }
+                    
+                    $receiptNo =   UserWalletVoucher::generateReceiptNo();
+        
+                    $voucherSet = (int) $reward->voucher_set * (int) $qty;   // ex: 5
+                    $totalRecords = $voucherSet;
+        
+                    if($reward->inventory_type == '1'){ //merchant codes
+                        $codes = RewardVoucher::where('reward_id', $reward->id)
+                            ->where('is_used', 0)
+                            ->limit($totalRecords)
+                            ->lockForUpdate()
+                            ->get();
+        
+                        $counter = 1;
+                        foreach ($codes as $code) {
+                            
+                            $uniqueCode = UserWalletVoucher::generateUniqueVoucherCode();
+                            $serialNo   = UserWalletVoucher::generateSerialNo($uniqueCode, $counter++);
+                            UserWalletVoucher::create([
+                                'user_id'            => $memberId,
+                                'reward_voucher_id'  => $code->id,
+                                'reward_id'   => $reward->id,                                        
+                                'qty'           => 1,
+                                'claimed_at'    => now(),
+                                'status'         => 'Active',
+                                'reward_status'  => 'issued',
+                                'receipt_no'    => $receiptNo,   
+                                'unique_code'       => $uniqueCode,
+                                'serial_no'         => $serialNo,                            
+                                'push_voucher_member_id' => $pushMemberId->id,                            
+                                
+                            ]);
+        
+                            VoucherLog::create([
+                                'user_id'           => $memberId,
+                                'reward_id'         => $reward->id,
+                                'reward_voucher_id' => $code->id,
+                                'action'            => 'purchased',
+                                'receipt_no'        => $uniqueCode,
+                                'qty'               => 1,
+                            ]);
+        
+                            // mark code used
+                            $code->update(['is_used' => 1]);
+                        }
+                    }else{
+                        $receiptNo =   UserWalletVoucher::generateReceiptNo();
+                        for ($i = 0; $i < $totalRecords; $i++) {
+                            
+                            $uniqueCode = UserWalletVoucher::generateUniqueVoucherCode();
+                            $serialNo   = UserWalletVoucher::generateSerialNo($uniqueCode, $i);
+            
+                            UserWalletVoucher::create([
+                                'user_id'        => $memberId,
+                                'reward_voucher_id' => null,
+                                'reward_id'      => $reward->id,
+                                'location_id'    => $request->location_id,
+                                'location_type'  => $request->location_type,
+                                'qty'            => 1, // ✅ always 1 per voucher
+                                'claimed_at'     => now(),
+                                'status'         => 'Active',
+                                'reward_status'  => 'issued',
+                                'receipt_no'     => $receiptNo,
+                                'unique_code'       => $uniqueCode,
+                                'serial_no'         => $serialNo,  
+                                'push_voucher_member_id' => $pushMemberId->id,      
+                            ]);
+            
+                            VoucherLog::create([
+                                'user_id'           => $memberId,
+                                'reward_id'         => $reward->id,
+                                'reward_voucher_id' => null,
+                                'action'            => 'claim/issued',
+                                'receipt_no'        => $uniqueCode,
+                                'qty'               => 1,
+                            ]);
+                        }
+                    }
+                    
+                    PushVoucherLog::create([
+                        'user_id'   => $memberId,
+                        'reward_id' => $reward->id,
+                        'push_voucher_member_id' => $pushMemberId->id ?? null,
+                        'type'      => 'pushWallet',
+                        'status'    => 'success',
+                        'push_by'   => 'pushMemberId',
+                        'message'   => 'Voucher pushed to wallet successfully'
+                    ]);
+
+                    $reward->purchased_qty = (int) $reward->purchased_qty + (int) $qty;
+                    $reward->save();
+                }
+            }else {
+
+                $existingMembers = [];
+                $validMembers = [];
+
+                foreach ($memberIdsArray as $memberId) {
+
+                    $alreadyPushed = PushVoucherMember::where('reward_id', $request->reward_id)
+                        ->where('method', 'pushCatalogue')
+                        ->whereRaw("FIND_IN_SET(?, member_id)", [$memberId])
+                        ->exists();
+
+                    if ($alreadyPushed) {
+
+                        $existingMembers[] = $memberId;
+
+                        PushVoucherLog::create([
+                            'user_id'   => $memberId,
+                            'reward_id' => $request->reward_id,
+                            'type'      => 'pushCatalogue',
+                            'push_by'   => 'pushMemberId',
+                            'status'    => 'already_assigned',
+                            'message'   => 'Voucher already assigned to user'
+                        ]);
+
+                    } else {
+                        $validMembers[] = $memberId;
+                    }
+                }
+
+                // If no valid members, stop
+                if (empty($validMembers)) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'All selected members already assigned'
+                    ], 400);
+                }
+
+                // ✅ Create PushVoucherMember FIRST
+                $pushMemberId = PushVoucherMember::create([
+                    'type' => '0',
+                    'reward_id' => $request->reward_id,
+                    'member_id' => implode(',', $validMembers),
+                    'file'      => $fileName,
+                    'method'    => 'pushCatalogue'
+                ]);
+
+                // ✅ Now log success using real push ID
+                foreach ($validMembers as $memberId) {
+
+                    PushVoucherLog::create([
+                        'user_id'   => $memberId,
+                        'reward_id' => $request->reward_id,
+                        'push_voucher_member_id' => $pushMemberId->id,
+                        'type'      => 'pushCatalogue',
+                        'push_by'   => 'pushMemberId',
+                        'status'    => 'success',
+                        'message'   => 'Voucher pushed to catalogue'
+                    ]);
+                }
+            }
+
+            if (!empty($existingMembers)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Push completed. Already existed members: ' . implode(',', $existingMembers)
+                ], 400);
+            }
+           
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Push voucher saved successfully.'
+                'message' => 'Push voucher saved successfully'
             ]);
 
         } catch (\Throwable $e) {
@@ -1708,12 +1985,12 @@ class EvoucherController extends Controller
             ], 422);
         }
 
-        
-        PushVoucherMember::create([
+        $pushVoucherMember = PushVoucherMember::create([
             'reward_id'        => $request->reward_id,
             'type'             => 1,
             'member_id'        => null,
             'file'             => null,
+            'method'             => 'pushCatalogue',
 
             'interest_group'   => $request->interest_group ?? [],
             'publish_channels' => $request->publish_channels ?? [],
@@ -1734,9 +2011,152 @@ class EvoucherController extends Controller
             'membership_renewable_to_date'   => $request->membership_renewable_to   ?? null,
         ]);
         
+        
+        $interestGroups = MasterInterestGroup::whereIn( 'id', $pushVoucherMember->interest_group)->get(['interest_group_main_name', 'interest_group_name']);
+
+        $mainNames = $interestGroups->pluck('interest_group_main_name')->toArray();
+        $subNames  = $interestGroups->pluck('interest_group_name')->toArray();
+
+        $cardTypeNames = MasterCardType::whereIn('id', $pushVoucherMember->card_types)
+            ->pluck('card_type')
+            ->toArray();
+
+        $genderNames = MasterGender::whereIn('id', $pushVoucherMember->gender)
+            ->pluck('label')
+            ->toArray();
+
+        $maritalNames = MasterMaritalStatus::whereIn('id', $pushVoucherMember->marital_status)
+            ->pluck('label')
+            ->toArray();
+
+        $zoneNames = MasterZone::whereIn('id', $pushVoucherMember->zones)
+            ->pluck('zone_name')
+            ->toArray();
+
+
+
+        /* ---------------------------------------------------
+        | Match Users in AppUser Table
+        ---------------------------------------------------*/
+
+        $query = AppUser::query();
+
+        $query->whereIn('card_type', $cardTypeNames)
+            ->whereIn('gender', $genderNames)
+            ->whereIn('marital_status', $maritalNames)
+            ->whereIn('residence_zone', $zoneNames);
+
+
+        
+        /* ---------------------------------------------------
+        | Match With Group Filter
+        ---------------------------------------------------*/
+        $query->where(function ($q) use ($mainNames, $subNames) {
+
+            foreach ($mainNames as $name) {
+                $q->orWhereJsonContains('interest_group', $name);
+            }
+
+            foreach ($subNames as $name) {
+                $q->orWhereJsonContains('interest_group', $name);
+            }
+
+        });
+
+        /* ---------------------------------------------------
+        | Age Filter
+        ---------------------------------------------------*/
+
+        if ($pushVoucherMember->age_mode === 'custom') {
+
+            $currentYear = Carbon::now()->year;
+
+            $query->where(function ($q) use ($pushVoucherMember, $currentYear) {
+
+                $q->whereRaw("
+                    (
+                        ? - CAST(SUBSTRING_INDEX(age, '/', -1) AS UNSIGNED)
+                    ) BETWEEN ? AND ?
+                ", [
+                    $currentYear,
+                    $pushVoucherMember->age_from,
+                    $pushVoucherMember->age_to
+                ]);
+
+            });
+        }
+
+        /* ---------------------------------------------------
+        | Membership Join Date Filter
+        ---------------------------------------------------*/
+
+        $query->whereBetween('membership_join_date', [
+            Carbon::parse($pushVoucherMember->membership_joining_from_date)->startOfMonth(),
+            Carbon::parse($pushVoucherMember->membership_joining_to_date)->endOfMonth()
+        ]);
+
+        /* ---------------------------------------------------
+        | Membership Expiry Date Filter
+        ---------------------------------------------------*/
+
+        $query->whereBetween('membership_expiry_date', [
+            Carbon::parse($pushVoucherMember->membership_expiry_from_date)->startOfMonth(),
+            Carbon::parse($pushVoucherMember->membership_expiry_to_date)->endOfMonth()
+        ]);
+
+        /* ---------------------------------------------------
+        | Membership Renewable Date Filter
+        ---------------------------------------------------*/
+
+        $query->whereBetween('membership_renewable_date', [
+            Carbon::parse($pushVoucherMember->membership_renewable_from_date)->startOfMonth(),
+            Carbon::parse($pushVoucherMember->membership_renewable_to_date)->endOfMonth()
+        ]);
+
+        /* ---------------------------------------------------
+        | Only Active Users
+        ---------------------------------------------------*/
+
+        $query->where('status', 'Active');
+
+        /* ---------------------------------------------------
+        | Get Matching Users Session IDs
+        ---------------------------------------------------*/
+
+        $users = $query->get(['id', 'session_id']);
+        $sessionIds = $query->pluck('session_id')->filter()->values()->toArray();
+
+        /* ---------------------------------------------------
+        | Store Session IDs in member_id Column
+        ---------------------------------------------------*/
+
+        $memberIdString = implode(',', $sessionIds);
+
+        $pushVoucherMember->update([
+            'member_id' => $memberIdString
+        ]);
+
+        foreach ($users as $user) {
+
+            $logData[] = [
+                'user_id'                => $user->session_id,
+                'reward_id'              => $pushVoucherMember->reward_id,
+                'push_voucher_member_id' => $pushVoucherMember->id,
+                'type'                   => 'pushCatalogue',
+                'push_by'                   => 'pushParameter',
+                'status'                 => 'success',
+                'message'                => 'Voucher assigned via push by parameter',               
+            ];
+        }
+
+        if (!empty($logData)) {
+            PushVoucherLog::insert($logData);
+        }
+        
+       
         return response()->json([
             'status'  => 'success',
-            'message' => 'Voucher created successfully'
+            'message' => 'Push voucher saved successfully'
         ]);
     }
 }
