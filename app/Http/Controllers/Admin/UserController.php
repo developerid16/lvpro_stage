@@ -102,42 +102,52 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|unique:users,email',
-           'password' => 'nullable|string|min:6',
-            'phone' => 'required|unique:users,phone',
-            'status' => 'required',
-            'role' => 'required',
+        $validator = Validator::make($request->all(), [
+            'name'     => 'required',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'nullable|string|min:6',
+            'phone'    => 'required|unique:users,phone',
+            'status'   => 'required',
+            'role'     => 'required',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation error',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         $password = $request->password;
         $post_data['password'] = Hash::make($password);
+
         $role = $post_data['role'];
         unset($post_data['role']);
 
-        $user = User::create($post_data);
-
         try {
-            //code...
-            $data['password'] = $password;
-            $data['name'] =  $user->name;
-            // Mail::to($user->email)->send(
-            //     new NewAdminRegister($data)
-            // );
-        } catch (\Throwable $th) {
-            //throw $th;
-            // return response()->json(['status' => false, "msg" => "Something went wrong.",]);
+
+            $user = User::create($post_data);
+
+            $user->assignRole($role);
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'User Created Successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status'  => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $user->assignRole($role);
-
-        return response()->json(['status' => 'success', 'message' => 'User Created Successfully']);
     }
-
     /**
      * Display the specified resource.
      */
