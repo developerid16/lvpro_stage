@@ -125,9 +125,9 @@ class UserController extends Controller
             //code...
             $data['password'] = $password;
             $data['name'] =  $user->name;
-            Mail::to($user->email)->send(
-                new NewAdminRegister($data)
-            );
+            // Mail::to($user->email)->send(
+            //     new NewAdminRegister($data)
+            // );
         } catch (\Throwable $th) {
             //throw $th;
             // return response()->json(['status' => false, "msg" => "Something went wrong.",]);

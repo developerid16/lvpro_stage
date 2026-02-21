@@ -59,14 +59,7 @@ class AppUser extends Authenticatable
     {
         return $this->hasOne(UserTier::class, 'user_id')->where('status', "Active");
     }
-    public function referral(): HasOne
-    {
-        return $this->hasOne(UserReferral::class, 'referral_to');
-    }
-    public function deviceTokens(): HasMany
-    {
-        return $this->hasMany(DeviceToken::class, 'user_id');
-    }
+   
    
     public function scopeAgedBetween($query, $start, $end = null)
     {

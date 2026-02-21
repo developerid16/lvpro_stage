@@ -100,7 +100,7 @@
                             </div>                           
                            
                             <!--- Interest Groups-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 ">
                                 <label class="col-md-3 fw-bold">Interest Groups<span class="required-hash">*</span></label>
 
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
@@ -129,7 +129,7 @@
                             </div>
 
                             <!--publish channel-->
-                           <div class="row align-items-center mb-3">
+                           <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Publish Channel<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_membership_codes) > 0)
@@ -151,7 +151,7 @@
                             </div>
 
                             <!--card Type-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Card Type<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_card_types) > 0)
@@ -173,7 +173,7 @@
                             </div>
 
                             <!--Marital Status-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Marital Status<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_marital_statuses) > 0)
@@ -195,7 +195,7 @@
                             </div>
 
                             <!--Gender-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Gender<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_genders) > 0)
@@ -217,7 +217,7 @@
                             </div>
 
                             <!---Age-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Age<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3 align-items-center">
 
@@ -267,7 +267,7 @@
                             </div>
 
                             <!--- Zones-->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3 push-border">
                                 <label class="col-md-3 fw-bold">Zones<span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_zones) > 0)
@@ -289,7 +289,7 @@
                             </div>
 
                             <!-- Membership Joining Date -->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3">
                                 <label class="col-md-3 fw-bold">Membership Joining Date<span class="required-hash">*</span> :</label>
                                 <div class="col-md-9">
                                     <div class="row align-items-center">
@@ -306,7 +306,7 @@
                             </div>
 
                             <!-- Membership Expiry -->
-                            <div class="row align-items-center mb-3">
+                            <div class="row mb-3">
                                 <label class="col-md-3 fw-bold">Membership Expiry<span class="required-hash">*</span> :</label>
                                 <div class="col-md-9">
                                     <div class="row align-items-center">
