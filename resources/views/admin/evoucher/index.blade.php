@@ -80,7 +80,7 @@
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="merchant_id">Push Voucher <span class="required-hash">*</span></label>
-                                    <textarea id="voucher" type="text" class="sh_dec form-control" name="voucher" placeholder="Enter Push Voucher" readonly></textarea>                             
+                                    <textarea id="voucher" type="text" class="sh_dec form-control" name="voucher" placeholder="Push Voucher"></textarea>                             
                                 </div>
                             </div>
                             <div class="col-12 col-md-12">
@@ -370,7 +370,7 @@
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
                                     <label class="sh_dec" for="how_to_use">Push Voucher <span class="required-hash">*</span></label>
-                                    <textarea id="push_voucher" type="text" class="sh_dec form-control" name="push_voucher" placeholder="Enter Push Voucher" readonly></textarea>
+                                    <textarea id="push_voucher" type="text" class="sh_dec form-control" name="push_voucher" placeholder="Push Voucher" readonly></textarea>
                                 </div>
                             </div>
                             <div class="col-12 col-md-12">
