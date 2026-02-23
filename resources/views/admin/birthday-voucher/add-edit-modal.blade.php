@@ -409,7 +409,7 @@
                                                 min="0"
                                                 class="form-control"
                                                 name="locations[{{ $club->id }}][inventory_qty]"
-                                                style="max-width: 56px; max-height: 30px;">
+                                                style="max-width: 166px; max-height: 30px;">
                                         </div>
 
                                         <!-- Toggle Button -->

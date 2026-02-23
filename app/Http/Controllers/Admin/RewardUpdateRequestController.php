@@ -403,6 +403,9 @@ class RewardUpdateRequestController extends Controller
                     'set_qty'         => (int) ($update->set_qty ?? 0),
                     'clearing_method' => (int) ($update->clearing_method ?? 0),
                     'cso_method' => (int) ($update->cso_method ?? 0),
+                    'start_time'         => $update->start_time,
+                    'end_time'           => $update->end_time,
+                    'days'           => $update->days,
 
 
                     'location_text'        => $update->location_text,

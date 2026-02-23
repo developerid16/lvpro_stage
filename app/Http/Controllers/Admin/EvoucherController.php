@@ -1926,6 +1926,32 @@ class EvoucherController extends Controller
     public function pushParameterVoucher(Request $request)
     {
         $ageMode = $request->input('age_mode');
+        $request->merge([
+            'publish_channels' => collect($request->publish_channels)
+                ->reject(fn($v) => $v === 'All')
+                ->values()
+                ->toArray(),
+
+            'card_types' => collect($request->card_types)
+                ->reject(fn($v) => $v === 'All')
+                ->values()
+                ->toArray(),
+
+            'marital_status' => collect($request->marital_status)
+                ->reject(fn($v) => $v === 'All')
+                ->values()
+                ->toArray(),
+
+            'gender' => collect($request->gender)
+                ->reject(fn($v) => $v === 'All')
+                ->values()
+                ->toArray(),
+
+            'zone' => collect($request->zone)
+                ->reject(fn($v) => $v === 'All')
+                ->values()
+                ->toArray(),
+        ]);
 
         $rules = [
             // 'voucher'    => 'required|string',
@@ -1985,6 +2011,8 @@ class EvoucherController extends Controller
             ], 422);
         }
 
+        
+
         $pushVoucherMember = PushVoucherMember::create([
             'reward_id'        => $request->reward_id,
             'type'             => 1,
@@ -2041,27 +2069,41 @@ class EvoucherController extends Controller
 
         $query = AppUser::query();
 
-        $query->whereIn('card_type', $cardTypeNames)
-            ->whereIn('gender', $genderNames)
-            ->whereIn('marital_status', $maritalNames)
-            ->whereIn('residence_zone', $zoneNames);
+        if (!empty($cardTypeNames)) {
+            $query->whereIn('card_type', $cardTypeNames);
+        }
+
+        if (!empty($genderNames)) {
+            $query->whereIn('gender', $genderNames);
+        }
+
+        if (!empty($maritalNames)) {
+            $query->whereIn('marital_status', $maritalNames);
+        }
+
+        if (!empty($zoneNames)) {
+            $query->whereIn('residence_zone', $zoneNames);
+        }
 
 
         
         /* ---------------------------------------------------
         | Match With Group Filter
         ---------------------------------------------------*/
-        $query->where(function ($q) use ($mainNames, $subNames) {
+        if (!empty($mainNames) || !empty($subNames)) {
 
-            foreach ($mainNames as $name) {
-                $q->orWhereJsonContains('interest_group', $name);
-            }
+            $query->where(function ($q) use ($mainNames, $subNames) {
 
-            foreach ($subNames as $name) {
-                $q->orWhereJsonContains('interest_group', $name);
-            }
+                foreach ($mainNames as $name) {
+                    $q->orWhereJsonContains('interest_group', $name);
+                }
 
-        });
+                foreach ($subNames as $name) {
+                    $q->orWhereJsonContains('interest_group', $name);
+                }
+
+            });
+        }
 
         /* ---------------------------------------------------
         | Age Filter

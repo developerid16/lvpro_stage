@@ -312,29 +312,60 @@ class BirthdayEvoucherController extends Controller
             * CLUB LOCATION VALIDATION
             * ---------------------------------------------------*/
 
+            // $locationErrors = [];
+            // $anyLocationUsed = false;
+
+            // if (!empty($request->locations)) {
+
+            //     $firstClubId = array_key_first($request->locations);
+
+            //     foreach ($request->locations as $clubId => $clubData) {
+
+            //         $inventoryQty = isset($clubData['inventory_qty']) ? (int) $clubData['inventory_qty'] : 0;
+
+            //         $merchantId = $clubData['merchant_id'] ?? null;
+
+            //         $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
+
+            //         /* 1️⃣ First club → inventory required */
+            //         if ($clubId == $firstClubId && $inventoryQty <= 0) {
+            //             $locationErrors[] = "Inventory quantity is required for {$clubName}";
+            //         }
+
+            //         /* 2️⃣ If inventory > 0 → merchant + outlet required */
+            //         if ($inventoryQty > 0) {
+
+            //             $anyLocationUsed = true;
+
+            //             if (empty($merchantId)) {
+            //                 $locationErrors[] = "Please select Participating Merchant for {$clubName}";
+            //             }
+
+            //             if (
+            //                 empty($request->selected_outlets[$clubId]) ||
+            //                 !is_array($request->selected_outlets[$clubId])
+            //             ) {
+            //                 $locationErrors[] = "Please select at least one outlet for {$clubName}";
+            //             }
+            //         }
+            //     }
+            // }
+
             $locationErrors = [];
             $anyLocationUsed = false;
 
             if (!empty($request->locations)) {
 
-                $firstClubId = array_key_first($request->locations);
-
                 foreach ($request->locations as $clubId => $clubData) {
 
-                    $inventoryQty = isset($clubData['inventory_qty'])
-                        ? (int) $clubData['inventory_qty']
+                    $inventoryQty = isset($clubData['inventory_qty']) 
+                        ? (int) $clubData['inventory_qty'] 
                         : 0;
 
                     $merchantId = $clubData['merchant_id'] ?? null;
 
                     $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
 
-                    /* 1️⃣ First club → inventory required */
-                    if ($clubId == $firstClubId && $inventoryQty <= 0) {
-                        $locationErrors[] = "Inventory quantity is required for {$clubName}";
-                    }
-
-                    /* 2️⃣ If inventory > 0 → merchant + outlet required */
                     if ($inventoryQty > 0) {
 
                         $anyLocationUsed = true;
@@ -350,6 +381,11 @@ class BirthdayEvoucherController extends Controller
                             $locationErrors[] = "Please select at least one outlet for {$clubName}";
                         }
                     }
+                }
+
+                // 🔥 After loop → check if none selected
+                if (!$anyLocationUsed) {
+                    $locationErrors[] = "Please enter inventory for at least one location";
                 }
             }
 
