@@ -287,20 +287,28 @@
         });    
 
 
-        $(document).on('input', '#inventory_qty', calculateSetQty);
-
+        $(document).on('input', '.modal #inventory_qty', function () {
+            let modal = $(this).closest('.modal');
+            calculateSetQty(modal);
+        });
         // when voucher_set changes
-        $(document).on('input', '#voucher_set', calculateSetQty);
+        $(document).on('input', '.modal #voucher_set', function () {
+            let modal = $(this).closest('.modal');
+            calculateSetQty(modal);
+        });
 
-        $(document).on('input', '#voucher_value', calculateSetQty);
+        $(document).on('input', '.modal #voucher_value', function () {
+            let modal = $(this).closest('.modal');
+            calculateSetQty(modal);
+        });
 
-        function calculateSetQty() {
-            let inventoryQty = parseFloat($('#inventory_qty').val());
-            let voucherSet   = parseFloat($('#voucher_set').val());
+        function calculateSetQty(modal) {
+            let inventoryQty = parseFloat(modal.find('#inventory_qty').val());
+            let voucherSet   = parseFloat(modal.find('#voucher_set').val());
             if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
-                $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
+                modal.find('#set_qty').val(Math.floor(inventoryQty / voucherSet));
             } else {
-                $('#set_qty').val('');
+                modal.find('#set_qty').val('');
             }
         }
         function resetFormById() {

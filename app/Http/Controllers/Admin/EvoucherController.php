@@ -481,6 +481,9 @@ class EvoucherController extends Controller
                 ];
     
                 $messages = [
+                    'set_qty.required' => 'Voucher set quantity is required.',
+                    'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                    'set_qty.min'      => 'Voucher set quantity must be at least 1.',
                     'term_of_use.required' => 'Voucher T&C is required',
                     'voucher_detail_img.required' => 'Voucher Detail Image is required',
                     'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -1104,6 +1107,9 @@ class EvoucherController extends Controller
             ];
 
             $messages = [
+                'set_qty.required' => 'Voucher set quantity is required.',
+                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',

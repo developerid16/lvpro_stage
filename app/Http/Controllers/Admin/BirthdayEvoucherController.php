@@ -274,6 +274,9 @@ class BirthdayEvoucherController extends Controller
 
             $messages = [
                 'term_of_use.required'         => 'Voucher T&C is required',
+                'set_qty.required' => 'Voucher set quantity is required.',
+                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
                 'voucher_detail_img.required'  => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'     => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'     => 'Voucher Detail Image must be png, jpg, jpeg',
@@ -828,6 +831,9 @@ class BirthdayEvoucherController extends Controller
 
             $messages = [              
                 'term_of_use.required' => 'Voucher T&C is required',
+                'set_qty.required' => 'Voucher set quantity is required.',
+                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',

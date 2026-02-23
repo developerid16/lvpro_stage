@@ -610,6 +610,9 @@ class RewardController extends Controller
                 if ((int) $request->reward_type == 0) {
                     $rules['voucher_set']         = 'required|numeric|min:1';   
                     $rules['set_qty']         = 'required|numeric|min:1';
+                    $messages['set_qty.required'] = 'Voucher set quantity is required.';
+                    $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
+                    $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
                 }
                 
                 /* ---------------- RUN VALIDATOR ---------------- */
@@ -1487,6 +1490,9 @@ class RewardController extends Controller
                 $rules['inventory_type']       = 'required|in:0,1';
                 $rules['voucher_value']        = 'required|numeric|min:1';
                 $rules['clearing_method']      = 'required|in:0,1,2,3,4';
+                $messages['set_qty.required'] = 'Voucher set quantity is required.';
+                $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
+                $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
 
                 /* Inventory Type Based */
                 $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';

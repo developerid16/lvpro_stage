@@ -691,11 +691,7 @@
                                 <div class="col-md-5 mb-2">
                                     <div id="selected_locations_wrapper" style="display:none;">
                                         <label class="sh_dec fw-bold">Selected Outlets</label>
-                                        <div id="selected_locations_summary"
-                                            class="form-control"
-                                            style="min-height:120px; background:#f8f9fa;">
-
-                                            Mayru
+                                        <div id="selected_locations_summary"  class="form-control"  style="min-height:120px; background:#f8f9fa;">
                                         </div>
                                     </div>
                                 </div>

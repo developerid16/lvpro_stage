@@ -68,7 +68,7 @@ $(document).ready(function () {
 
                 let errors = response.responseJSON?.errors || {};
 
-                // 🔥 Handle club locations error
+                // 🔥 Handle club locations error in Birthday voucher
                 if (errors.locations) {
                     $('.club-location-error').text(errors.locations[0]);
                     delete errors.locations;
@@ -80,6 +80,7 @@ $(document).ready(function () {
                     delete errors.participating_merchant_locations;
                 }
 
+                //Birthday month
                 Object.keys(errors).forEach(function(key) {
 
                     if (key.startsWith("month")) {
@@ -93,6 +94,34 @@ $(document).ready(function () {
                         });
 
                         return false;
+                    }
+
+                });
+
+               // Club Location Validation msg
+                $('.location-error-msg').remove();
+
+                Object.keys(errors).forEach(function(key) {
+
+                    if (key.startsWith("locations.")) {
+
+                        let match = key.match(/locations\.(\d+)\.inventory_qty/);
+
+                        if (match) {
+
+                            let locationId = match[1];
+
+                            let locationBox = $(`input[name="locations[${locationId}][inventory_qty]"]`)
+                                                .closest('.location-box');
+
+                            locationBox.after(`
+                                <div class="text-danger location-error-msg mt-1">
+                                    ${errors[key][0]}
+                                </div>
+                            `);
+                        }
+
+                        delete errors[key];
                     }
 
                 });
@@ -339,6 +368,9 @@ $(document).ready(function () {
             // ✅ If ADD → open month modal
             if (formId === "add_frm") {
 
+                // 🔥 Store active form
+                $("#monthSelectModal").data("activeForm", formSelector);
+
                 generateYears();
                 generateMonths();
 
@@ -439,22 +471,18 @@ $(document).ready(function () {
 
     $(document).on("click", "#confirmMonths", function () {
 
-        let checkedMonths = $(".month-checkbox:checked").length;
         let monthModalEl = document.getElementById('monthSelectModal');
         let monthModal = bootstrap.Modal.getInstance(monthModalEl);
 
-    
-
-        // If valid remove error
         $("#monthInput").removeClass("is-invalid");
         $("#monthError").hide();
 
         monthModal.hide();
 
-        if ($("#edit_frm").length) {
-            $("#edit_frm").submit();
-        } else {
-            $("#add_frm").submit();
+        let activeForm = $("#monthSelectModal").data("activeForm");
+
+        if (activeForm) {
+            $(activeForm).submit();
         }
     });
    
