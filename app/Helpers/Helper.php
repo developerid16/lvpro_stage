@@ -165,9 +165,9 @@ if (!function_exists('reward_expired')) {
     }
 }
 
-if (!function_exists('imagePreviewHtml')) {
+if (!function_exists('imageExists')) {
 
-    function imagePreviewHtml($imagePath)
+    function imageExists($imagePath)
     {
         $defaultPath = 'no-image.png';
 
@@ -176,6 +176,17 @@ if (!function_exists('imagePreviewHtml')) {
         } else {
             $imgUrl = asset($defaultPath);
         }
+
+        return $imgUrl;
+    }
+
+}
+
+if (!function_exists('imagePreviewHtml')) {
+
+    function imagePreviewHtml($imagePath)
+    {
+        $imgUrl = imageExists($imagePath);
 
         return '
             <a href="'.$imgUrl.'" target="_blank">

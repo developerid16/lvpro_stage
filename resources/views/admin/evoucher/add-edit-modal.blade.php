@@ -201,7 +201,8 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(100 px X 100 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" />
+                                        <!-- <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" /> -->
+                                        <img id="voucher_image_preview" src="{{ imageExists("uploads/image/{$data->voucher_image}") }}" style="max-width:50px;"  alt="Voucher Image" />
                                         <a href="javascript:void(0);" id="clear_voucher_image" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>
@@ -217,7 +218,8 @@
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(351 px X 190 px)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
+                                        <!-- <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/> -->
+                                        <img id="voucher_detail_img_preview" src="{{ imageExists("uploads/image/{$data->voucher_detail_img}")  }}" style="max-width:50px;"  alt="Voucher Detail Image"/>
                                         <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> <span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>
