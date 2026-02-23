@@ -121,7 +121,7 @@ class EvoucherController extends Controller
             //     $imgUrl = asset("uploads/image/no-image.png");
             //     $final_data[$key]['image'] = '<img src="'.$imgUrl.'" class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">';
             // }
-            $final_data[$key]['image'] = imagePreviewHtml(asset("uploads/image/{$row->voucher_image}"));
+            $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
 
             $start = $row->publish_start_date;
             $end   = $row->publish_end_date;
