@@ -78,7 +78,7 @@ class MicrosoftAuthController extends Controller
                 'client_secret' => config('services.azure.client_secret'),
                 'grant_type'    => 'authorization_code',
                 'code'          => $code,
-                'redirect_uri'  => config('services.azure.redirect_url'),
+                'redirect_uri'  => config('services.azure.redirect_url') ?? "https://safradvscmsuat.interactive-experience.tech/sso-callback",
                 'scope'         => 'openid profile email User.Read',
             ]);
 
