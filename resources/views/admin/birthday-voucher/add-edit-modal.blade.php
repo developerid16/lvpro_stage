@@ -54,6 +54,7 @@
     });
         
     $(document).on('shown.bs.modal', '#EditModal', function () {
+        
         initTinyMCE();
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
@@ -132,6 +133,7 @@
         forceInventoryReadonly(modal);
        
     });
+    
     $(document).on('change', '#EditModal #participating_merchant_id', function () {
 
         $('.club-location-error').text('');
@@ -154,40 +156,69 @@
         }
     });
 
-
     function toggleFieldsBasedOnMonth(modal) {
 
-        let selectedMonth = "{{ $data->month ?? '' }}";
-        let inventoryType = "{{ $data->inventory_type ?? '' }}"; // must be 0 or 1
+    let selectedMonth = "{{ $data->month ?? '' }}";
 
-        let today = new Date();
-        let currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+    let today = new Date();
+    let currentMonth = today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0');
 
-        // =====================
-        // RESET EVERYTHING
-        // =====================
-        modal.find('input, textarea, select, input[type="file"]').prop('disabled', false);
+    if (selectedMonth === currentMonth) {
 
-        modal.find('#month').addClass('readonly');
-        // =====================
-        // APPLY RULE
-        // =====================
-        if (selectedMonth === currentMonth) {
+        // Disable everything first
+        modal.find('input, textarea, select, input[type="file"]')
+            .prop('disabled', true);
 
-            // Disable EVERYTHING
-            modal.find('input, textarea, select, input[type="file"]').prop('disabled', true);
+        // Enable only inventory_qty where value exists
+        modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
 
-            // Allow ONLY inventory_qty
-            if(inventoryType == 0){
-                modal.find('#inventory_qty').prop('disabled', false);
-                modal.find('.inventory_type').prop('disabled', false);
-                modal.find('.inventory_type').addClass('readonly');
+            let qty = $(this).val();
+
+            if (qty && parseInt(qty) > 0) {
+                $(this).prop('disabled', false);
             }
+        });
 
-            // Always allow system fields
-            modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]').prop('disabled', false);
-        }
-    }  
+        // Always enable system fields
+        modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]')
+            .prop('disabled', false);
+    }
+}
+
+    // function toggleFieldsBasedOnMonth(modal) {
+
+    //     let selectedMonth = "{{ $data->month ?? '' }}";
+    //     let inventoryType = "{{ $data->inventory_type ?? '' }}"; // must be 0 or 1
+
+    //     let today = new Date();
+    //     let currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+
+    //     // =====================
+    //     // RESET EVERYTHING
+    //     // =====================
+    //     modal.find('input, textarea, select, input[type="file"]').prop('disabled', false);
+
+    //     modal.find('#month').addClass('readonly');
+    //     // =====================
+    //     // APPLY RULE
+    //     // =====================
+    //     if (selectedMonth === currentMonth) {
+
+    //         // Disable EVERYTHING
+    //         modal.find('input, textarea, select, input[type="file"]').prop('disabled', true);
+
+    //         // Allow ONLY inventory_qty
+    //         if(inventoryType == 0){
+    //             modal.find('#inventory_qty').prop('disabled', false);
+    //             modal.find('.inventory_type').prop('disabled', false);
+    //             modal.find('.inventory_type').addClass('readonly');
+    //         }
+
+    //         // Always allow system fields
+    //         modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]').prop('disabled', false);
+    //     }
+    // }  
      
 </script>
 
@@ -537,5 +568,3 @@
         </div>
     </div>
 </div>
-
-

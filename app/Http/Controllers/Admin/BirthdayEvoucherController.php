@@ -315,44 +315,7 @@ class BirthdayEvoucherController extends Controller
             * CLUB LOCATION VALIDATION
             * ---------------------------------------------------*/
 
-            // $locationErrors = [];
-            // $anyLocationUsed = false;
-
-            // if (!empty($request->locations)) {
-
-            //     $firstClubId = array_key_first($request->locations);
-
-            //     foreach ($request->locations as $clubId => $clubData) {
-
-            //         $inventoryQty = isset($clubData['inventory_qty']) ? (int) $clubData['inventory_qty'] : 0;
-
-            //         $merchantId = $clubData['merchant_id'] ?? null;
-
-            //         $clubName = ClubLocation::find($clubId)->name ?? "Club ID: $clubId";
-
-            //         /* 1️⃣ First club → inventory required */
-            //         if ($clubId == $firstClubId && $inventoryQty <= 0) {
-            //             $locationErrors[] = "Inventory quantity is required for {$clubName}";
-            //         }
-
-            //         /* 2️⃣ If inventory > 0 → merchant + outlet required */
-            //         if ($inventoryQty > 0) {
-
-            //             $anyLocationUsed = true;
-
-            //             if (empty($merchantId)) {
-            //                 $locationErrors[] = "Please select Participating Merchant for {$clubName}";
-            //             }
-
-            //             if (
-            //                 empty($request->selected_outlets[$clubId]) ||
-            //                 !is_array($request->selected_outlets[$clubId])
-            //             ) {
-            //                 $locationErrors[] = "Please select at least one outlet for {$clubName}";
-            //             }
-            //         }
-            //     }
-            // }
+          
 
             $locationErrors = [];
             $anyLocationUsed = false;
@@ -737,44 +700,106 @@ class BirthdayEvoucherController extends Controller
             /* ===================================================
             | CASE 1: CURRENT MONTH → ONLY INVENTORY UPDATE
             ===================================================*/
+
             if ($reward->month === $currentMonth) {
 
-                if ($reward->inventory_type != 0) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Current month reward cannot be edited.'
-                    ], 422);
-                }
+    if ($reward->inventory_type != 0) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Current month reward cannot be edited.'
+        ], 422);
+    }
 
-                if (!$request->filled('inventory_qty')) {
-                    return response()->json([
-                        'status' => 'error',
-                        'errors' => [
-                            'inventory_qty' => ['Inventory quantity is required.']
-                        ]
-                    ], 422);
-                }
+    if (empty($request->locations)) {
+        return response()->json([
+            'status' => 'error',
+            'errors' => [
+                'locations' => ['Inventory data is required.']
+            ]
+        ], 422);
+    }
 
-                if ($request->inventory_qty < $reward->inventory_qty) {
-                    return response()->json([
-                        'status' => 'error',
-                        'errors' => [
-                            'inventory_qty' => ['Inventory cannot be reduced for current month.']
-                        ]
-                    ], 422);
-                }
+    foreach ($request->locations as $clubId => $clubData) {
 
-                $rewardUpdateRequest->update([
-                    'inventory_qty' => $request->inventory_qty
-                ]);
+        $newQty = isset($clubData['inventory_qty'])
+            ? (int) $clubData['inventory_qty']
+            : 0;
 
-                DB::commit();
+        if ($newQty <= 0) {
+            continue;
+        }
 
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Inventory Updated Successfully And Sent For Approval Successfully'
-                ]);
-            }
+        $existingQty = RewardLocation::where('reward_id', $reward->id)
+            ->where('location_id', $clubId)
+            ->value('inventory_qty') ?? 0;
+
+        // 🔴 Prevent decreasing
+        if ($newQty < $existingQty) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => [
+                    "locations.{$clubId}.inventory_qty" =>
+                        ["Inventory cannot be reduced for current month."]
+                ]
+            ], 422);
+        }
+
+        // ✅ Update only if increased
+        RewardLocation::where('reward_id', $reward->id)
+            ->where('location_id', $clubId)
+            ->update([
+                'inventory_qty' => $newQty,
+                'total_qty'     => $newQty
+            ]);
+    }
+
+    DB::commit();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Inventory Updated Successfully'
+    ]);
+}
+
+
+            // if ($reward->month === $currentMonth) {
+
+            //     if ($reward->inventory_type != 0) {
+            //         return response()->json([
+            //             'status' => 'error',
+            //             'message' => 'Current month reward cannot be edited.'
+            //         ], 422);
+            //     }
+
+            //     if (!$request->filled('inventory_qty')) {
+            //         return response()->json([
+            //             'status' => 'error',
+            //             'errors' => [
+            //                 'inventory_qty' => ['Inventory quantity is required.']
+            //             ]
+            //         ], 422);
+            //     }
+
+            //     if ($request->inventory_qty < $reward->inventory_qty) {
+            //         return response()->json([
+            //             'status' => 'error',
+            //             'errors' => [
+            //                 'inventory_qty' => ['Inventory cannot be reduced for current month.']
+            //             ]
+            //         ], 422);
+            //     }
+
+            //     $rewardUpdateRequest->update([
+            //         'inventory_qty' => $request->inventory_qty
+            //     ]);
+
+            //     DB::commit();
+
+            //     return response()->json([
+            //         'status' => 'success',
+            //         'message' => 'Inventory Updated Successfully And Sent For Approval Successfully'
+            //     ]);
+            // }
 
             /* ===================================================
             | CASE 2: NON-CURRENT MONTH → ADMIN APPROVAL FLOW

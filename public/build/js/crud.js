@@ -85,17 +85,18 @@ $(document).ready(function () {
                     if (key.startsWith("month")) {
 
                         $("#month").addClass("is-invalid");
+
                         Swal.fire({
                             icon: "error",
                             title: "Error",
-                            text: "Please select at least one month.",
+                            text: errors[key][0] // 🔥 show actual backend message
                         });
 
                         return false;
                     }
 
                 });
-                
+                                
 
                 // Show remaining normal field errors
                 show_errors(errors);
@@ -142,9 +143,6 @@ $(document).ready(function () {
                         selectedOutletMap[clubId][loc.id] = loc.name;
                     });
                 });
-
-
-              
 
                 
                 if (response.clubInventory) {
@@ -220,7 +218,6 @@ $(document).ready(function () {
                 }
 
                 $("#EditModal").modal('show');
-
             }
         });
     });
@@ -254,16 +251,32 @@ $(document).ready(function () {
             error: function (response) {
 
                 $('.club-location-error').text('');
-
+                $('.participating-location-error').text('');
                 let errors = response.responseJSON?.errors || {};
 
-                // 🔥 Handle club location errors
-                if (errors.locations) {
-                    $('.club-location-error').text(errors.locations.join(', '));
-                    delete errors.locations;
+                let locationMessages = [];
+
+                Object.keys(errors).forEach(function(key) {
+
+                    // 🔥 Catch dynamic location keys
+                    if (key.startsWith("locations.")) {
+                        locationMessages.push(errors[key][0]);
+                        delete errors[key];
+                    }
+
+                });
+
+                if (locationMessages.length > 0) {
+                    $('.club-location-error').text(locationMessages.join(', '));
                 }
 
-                // Show remaining field errors
+                  // 🔥 Handle participating merchant locations error
+                if (errors.participating_merchant_locations) {
+                    $('.participating-location-error').text(errors.participating_merchant_locations[0]);
+                    delete errors.participating_merchant_locations;
+                }
+
+                // Show other errors normally
                 show_errors(errors, "#edit_frm");
             }
 
@@ -338,8 +351,6 @@ $(document).ready(function () {
         });
 
     });
-
-
     
     //generate month list based on current month and year, disable past months, and pre-check already selected months
     function generateMonths() {
@@ -446,8 +457,5 @@ $(document).ready(function () {
             $("#add_frm").submit();
         }
     });
-
-    
-
    
 });
