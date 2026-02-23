@@ -78,7 +78,7 @@ class MicrosoftAuthController extends Controller
                 'client_secret' => config('services.azure.client_secret'),
                 'grant_type'    => 'authorization_code',
                 'code'          => $code,
-                'redirect_uri'  => config('services.azure.redirect_url') ?? "https://safradvscmsuat.interactive-experience.tech/sso-callback",
+                'redirect_uri'  => config('services.azure.redirect_url'),
                 'scope'         => 'openid profile email User.Read',
             ]);
 
@@ -171,7 +171,7 @@ class MicrosoftAuthController extends Controller
 
         Auth::login($user);
 
-        session(['otp_verified' => false]);
+        session(['IS_OTP_VERIFY' => true]);
 
         Log::info('User logged in successfully', ['user_id' => $user->id]);
 
