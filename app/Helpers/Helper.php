@@ -164,3 +164,25 @@ if (!function_exists('reward_expired')) {
         return $endDateTime->isPast();
     }
 }
+
+if (!function_exists('imagePreviewHtml')) {
+
+    function imagePreviewHtml($imagePath)
+    {
+        $defaultPath = 'no-image.png';
+
+        if (!empty($imagePath) && file_exists(public_path($imagePath))) {
+            $imgUrl = asset($imagePath);
+        } else {
+            $imgUrl = asset($defaultPath);
+        }
+
+        return '
+            <a href="'.$imgUrl.'" target="_blank">
+                <img src="'.$imgUrl.'"
+                    class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+                    alt="Image">
+            </a>';
+    }
+
+}
