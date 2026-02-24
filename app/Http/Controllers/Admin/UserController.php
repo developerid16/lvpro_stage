@@ -183,19 +183,17 @@ class UserController extends Controller
             'name' => 'required',
             'email' => [
                 'required',
-                'email',
                 Rule::unique('users', 'email')
-                    ->ignore($request->id)
-                    ->whereNull('deleted_at')
+                    ->ignore($id)
+                    ->whereNull('deleted_at'),
             ],
-            'email' => [
+
+            'phone' => [
                 'required',
-                'email',
-                Rule::unique('users', 'email')
-                    ->ignore($request->id)
-                    ->whereNull('deleted_at')
+                Rule::unique('users', 'phone')
+                    ->ignore($id)
+                    ->whereNull('deleted_at'),
             ],
-            'phone' => "required|unique:users,phone,$id",
             'status' => 'required',
             'role' => 'required',
             'password' => 'nullable|string|min:6',
