@@ -37,9 +37,9 @@ return [
 
     'azure' => [
         'token_url'     => env('AZURE_TOKEN_URL'),
-        'client_id'     => env('AZURE_CLIENT_ID'),
-        'client_secret' => env('AZURE_CLIENT_SECRET'),
-        'scope'         => env('AZURE_SCOPE'),
+        'client_id'     => env('API_AZURE_CLIENT_ID'),
+        'client_secret' => env('API_AZURE_CLIENT_SECRET'),
+        'scope'         => env('API_AZURE_SCOPE'),
         'redirect_url'  => env('AZURE_REDIRECT_URL'),
         'tenant_id'     => env('AZURE_TENANT_ID'),
     ],
