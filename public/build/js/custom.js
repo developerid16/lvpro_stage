@@ -163,6 +163,7 @@ function remove_errors(form_id = null) {
 
     }
     hide_loader();
+    $('.img-delete-btn').trigger('click');
 }
 
 

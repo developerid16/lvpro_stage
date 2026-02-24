@@ -63,6 +63,10 @@ $(document).ready(function () {
 
             error: function (response) {
 
+                if(response.status === 403) {
+                    show_message('error', response.responseJSON?.message || 'You do not have permission.');
+                    return;
+                }
                 $form.data('submitting', false);
                 $('.participating-location-error').text('');
 
@@ -247,6 +251,12 @@ $(document).ready(function () {
                 }
 
                 $("#EditModal").modal('show');
+            },
+            error: function (response) {
+                if(response.status === 403) {
+                    show_message('error', response.responseJSON?.message || 'You do not have permission.');
+                    return;
+                }
             }
         });
     });
@@ -278,6 +288,10 @@ $(document).ready(function () {
                 }
             },
             error: function (response) {
+                if(response.status === 403) {
+                    show_message('error', response.responseJSON?.message || 'You do not have permission.');
+                    return;
+                }
 
                 $('.club-location-error').text('');
                 $('.participating-location-error').text('');
@@ -332,6 +346,12 @@ $(document).ready(function () {
                     success: function (response) {
                         show_message(response.status, response.message);
                         refresh_datatable("#bstable");
+                    },
+                    error: function (response) {
+                        if(response.status === 403) {
+                            show_message('error', response.responseJSON?.message || 'You do not have permission.');
+                            return;
+                        }
                     }
                 });
             }

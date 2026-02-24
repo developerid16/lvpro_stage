@@ -138,7 +138,7 @@ class ParticipatingMerchantLocationController extends Controller
             'code'              => 'required|string|max:100',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
-            'club_location_id'  => 'required|exists:club_locations,id',
+            // 'club_location_id'  => 'required|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
         ], [
             'participating_merchant_id.required' => 'Participating merchant is required',
@@ -202,7 +202,7 @@ class ParticipatingMerchantLocationController extends Controller
             'code'              => 'required|string|max:100',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
-            'club_location_id'  => 'required|exists:club_locations,id',
+            // 'club_location_id'  => 'required|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
         ], [
             'name.required' => 'Name is required',

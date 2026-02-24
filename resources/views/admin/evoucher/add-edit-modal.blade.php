@@ -175,7 +175,7 @@
                     <div class="row">                      
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="cso_method">CSO Method<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="cso_method">Push Method<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select cso_method" name="cso_method">
                                     {{-- <option class="sh_dec" value="">Select CSO Method</option> --}}
                                     <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> App/Web</option>
