@@ -59,7 +59,7 @@ class SRPController extends Controller
 
         try {
             $records = $this->safraServiceAPI
-                ->getMerchandiseItemList($lastModified, $limit);
+                ->getMerchandiseItemList();
 
             return response()->json([
                 'status' => 'success',
