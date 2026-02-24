@@ -201,6 +201,8 @@
 
        
         let selectedType = 'plus'; // default
+        originalQty = parseInt($('#adjust_qty').val()) || 0;
+        $('#proceedAdjustment').addClass('d-none'); // hide initially
 
         $('#qty_plus_action, #qty_minus_action').on('click', function () {
 
@@ -217,6 +219,14 @@
             }
 
             $('#adjust_qty').val(currentQty);
+            
+            // 🔥 Show button only if changed
+            if (currentQty !== originalQty) {
+                $('#proceedAdjustment').removeClass('d-none');
+            } else {
+                $('#proceedAdjustment').addClass('d-none');
+            }
+
 
             // Active styling
             $('#qty_plus_action, #qty_minus_action').removeClass('active');
@@ -408,19 +418,19 @@
 
         function initFlatpickr() {
         
-        bindStartEndFlatpickr(
-            'input[name="publish_start"]',
-            'input[name="publish_end"]'
-        );
-        bindStartEndFlatpickr(
-            'input[name="sales_start"]',
-            'input[name="sales_end"]'
-        );
-        bindStartEndFlatpickr(
-            'input[name="redemption_start_date"]',
-            'input[name="redemption_end_date"]'
-        );
-    }
+            bindStartEndFlatpickr(
+                'input[name="publish_start"]',
+                'input[name="publish_end"]'
+            );
+            bindStartEndFlatpickr(
+                'input[name="sales_start"]',
+                'input[name="sales_end"]'
+            );
+            bindStartEndFlatpickr(
+                'input[name="redemption_start_date"]',
+                'input[name="redemption_end_date"]'
+            );
+        }
     </script>
     
   

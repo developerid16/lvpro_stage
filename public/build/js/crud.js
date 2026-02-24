@@ -49,9 +49,9 @@ $(document).ready(function () {
 
             success: function (response) {
                 $form.data('submitting', false);
-                if (response.status === 'success') {
-                    show_message(response.status, response.message);
+                if (response.status === 'success' || response.status === true) {
                     $("#AddModal").modal('hide');
+                    show_message(response.status, response.message);
                     $form[0].reset();
                     refresh_datatable("#bstable");
                     $("#add_frm .select2").val('').trigger('change');

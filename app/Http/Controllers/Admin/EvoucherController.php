@@ -2083,9 +2083,14 @@ class EvoucherController extends Controller
         if (!empty($genderNames)) {
             $query->whereIn('gender', $genderNames);
         }
-
+        
         if (!empty($maritalNames)) {
-            $query->whereIn('marital_status', $maritalNames);
+            $query->where(function ($q) use ($maritalNames) {
+                foreach ($maritalNames as $status) {
+                    $q->orWhere('marital_status', 'like', '%' . $status);
+                }
+            });
+            // $query->whereIn('marital_status', $maritalNames);
         }
 
         if (!empty($zoneNames)) {
@@ -2093,7 +2098,7 @@ class EvoucherController extends Controller
         }
 
 
-        
+
         /* ---------------------------------------------------
         | Match With Group Filter
         ---------------------------------------------------*/
@@ -2111,6 +2116,7 @@ class EvoucherController extends Controller
 
             });
         }
+
 
         /* ---------------------------------------------------
         | Age Filter

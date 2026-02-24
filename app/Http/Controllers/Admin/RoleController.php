@@ -11,6 +11,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use App\Models\RoleHasPermission;
+use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
@@ -96,12 +97,21 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+
+        $validator = Validator::make($request->all(), [
+            'name'       => 'required|unique:roles,name',
             'department' => 'required',
-            'status' => 'required',
+            'status'     => 'required',
             'permission' => 'required',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation error',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
 
         $role = Role::create(['name' => $request->input('name'), 'department' => $request->input('department'), 'status' => $request->input('status')]);
         $role->syncPermissions($request->input('permission'));
@@ -144,13 +154,20 @@ class RoleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'name' => 'required',
+       $validator = Validator::make($request->all(), [
+            'name'       => 'required|unique:roles,name,'.$id,
             'department' => 'required',
-            'status' => 'required',
+            'status'     => 'required',
             'permission' => 'required',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation error',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
         $role = Role::find($id);
         $role->name = $request->input('name');
         $role->department = $request->input('department');

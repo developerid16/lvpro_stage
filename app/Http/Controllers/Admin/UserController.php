@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -106,7 +107,11 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'     => 'required',
-            'email'    => 'required|email|unique:users,email',
+           'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->whereNull('deleted_at')
+            ],
             'password' => 'nullable|string|min:6',
             'phone'    => 'required|unique:users,phone',
             'status'   => 'required',
@@ -176,7 +181,20 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => "required|unique:users,email,$id",
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')
+                    ->ignore($request->id)
+                    ->whereNull('deleted_at')
+            ],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')
+                    ->ignore($request->id)
+                    ->whereNull('deleted_at')
+            ],
             'phone' => "required|unique:users,phone,$id",
             'status' => 'required',
             'role' => 'required',
