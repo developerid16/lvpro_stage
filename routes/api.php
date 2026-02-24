@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\GUIDController;
 use App\Http\Controllers\API\MasterAPIController;
 use App\Http\Controllers\API\MemberInformationController;
+use App\Http\Controllers\API\SRPController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,12 @@ Route::prefix('ax')->group(function () {
 // guid 
 Route::prefix('guid')->group(function () {
     Route::post('get-memberid-by-token', [GUIDController::class, 'getmemberidtoken']);
+});
+
+
+Route::prefix('srp')->group(function () {
+    Route::post('master-list-parameter', [SRPController::class, 'masterListParameter']);
+    Route::post('merchandise-item-list', [SRPController::class, 'merchandiseItemList']);
 });
 
 Route::get('master/schedule-run', function () {

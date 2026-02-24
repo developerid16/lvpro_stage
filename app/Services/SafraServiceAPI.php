@@ -255,6 +255,31 @@ class SafraServiceAPI
         return $data ?? [];
     }
 
+    /** get master list parameter */
+    public function getSRPMasterListParameter(): array
+    {
+        $response = $this->call(
+            'sfrControlMerchandiseRepository/GetSRPMerchandiseItemList',
+        );
+        if ($response->failed()) {
+            throw new \Exception('SAFRA API failed: ' . $response->body());
+        }
+        $data = json_decode($response->body()   , true);
+        return $data['parameter_list'] ?? [];
+    }
+
+    /** get merchandise item list */
+    public function getMerchandiseItemList(): array
+    {
+        $response = $this->call(
+            'sfrControlMerchandiseRepository/GetMerchandiseList'
+        );
+        if ($response->failed()) {
+            throw new \Exception('SAFRA API failed: ' . $response->body());
+        }
+        $data = json_decode($response->body()   , true);
+        return $data['merchandise_item_list'] ?? [];
+    }
 
     
 }
