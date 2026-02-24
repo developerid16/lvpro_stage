@@ -740,6 +740,27 @@
             });
         });
 
+        $('#AddMemberVoucher').on('show.bs.modal', function () {
+
+            let form = $('#member_voucher')[0];
+
+            // 🔥 Reset form fields
+            form.reset();
+
+            // 🔥 Clear file input manually (important)
+            $('#memberId').val('');
+
+            // 🔥 Reset selects
+            $('#AddMemberVoucher select').val('').trigger('change');
+
+            // 🔥 Clear textarea
+            $('#push_voucher').val('');
+
+            // 🔥 Hide error message
+            $('#form_error').addClass('d-none').text('');
+
+        });
+
         function resetFormById() {
 
             const modal = $('#AddModal');
