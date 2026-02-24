@@ -9,6 +9,11 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
 <script>
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true   // 🔥 forces Firefox to send cookies
+        }
+    });
     let selectedOutletMap = {};    
     let selectedOutletMapMerchant = {};    
 
