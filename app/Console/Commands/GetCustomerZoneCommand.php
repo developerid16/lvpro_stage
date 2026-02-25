@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\API\MemberZipcode;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +13,7 @@ class GetCustomerZoneCommand extends Command
     protected $signature   = 'member:customer-zone';
     protected $description = 'Fetch Customer Zone Data';
 
-    public function handle(SafraServiceAPI $safraServiceAPI): int
+    public function handle(SafraAPIService $safraAPIService): int
     {
         $lastModified = Config::get('safra.last_modified');
         $limit        = Config::get('safra.limit');
@@ -21,7 +21,7 @@ class GetCustomerZoneCommand extends Command
         try {
             $this->info("Fetching Customer Zone | Last Modified: {$lastModified} | Limit: {$limit}");
 
-            $records = $safraServiceAPI->getCustomerZone($lastModified, $limit);
+            $records = $safraAPIService->getCustomerZone($lastModified, $limit);
             $records = is_array($records) ? $records : [];
 
             if (empty($records)) {

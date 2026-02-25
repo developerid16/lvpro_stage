@@ -3,24 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AddMerchandiseItemCartRequest;
-use App\Http\Requests\AddPaymentMethodRequest;
-use App\Http\Requests\ClearShoppingCart;
-use App\Http\Requests\CreatepaymentReceipt;
-use App\Http\Requests\GetShoppingCard;
-use App\Http\Requests\InfoByMethod;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 class SRPController extends Controller
 {
-    protected $safraServiceAPI;
+    protected $safraAPIService;
     private $limit;
     private $last_modified;
-    public function __construct(SafraServiceAPI $safraServiceAPI)
+    public function __construct(SafraAPIService $safraAPIService)
     {
-        $this->safraServiceAPI = $safraServiceAPI;
+        $this->SafraAPIService = $safraAPIService;
         $this->last_modified = Config::get('safra.last_modified');
         $this->limit = Config::get('safra.limit');
     }
@@ -34,7 +28,7 @@ class SRPController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->getSRPMasterListParameter();
 
             return response()->json([
@@ -58,7 +52,7 @@ class SRPController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->getMerchandiseItemList();
 
             return response()->json([

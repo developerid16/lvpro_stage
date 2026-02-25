@@ -9,18 +9,18 @@ use App\Http\Requests\ClearShoppingCart;
 use App\Http\Requests\CreatepaymentReceipt;
 use App\Http\Requests\GetShoppingCard;
 use App\Http\Requests\InfoByMethod;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 
 class MemberInformationController extends Controller
 {
-    protected $safraServiceAPI;
+    protected $safraAPIService;
     private $limit;
     private $last_modified;
-    public function __construct(SafraServiceAPI $safraServiceAPI)
+    public function __construct(SafraAPIService $safraAPIService)
     {
-        $this->safraServiceAPI = $safraServiceAPI;
+        $this->SafraAPIService = $safraAPIService;
         $this->last_modified = Config::get('safra.last_modified');
         $this->limit = Config::get('safra.limit');
     }
@@ -34,7 +34,7 @@ class MemberInformationController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->basicDetailInfoModified($lastModified, $limit);
 
             return response()->json([
@@ -60,7 +60,7 @@ class MemberInformationController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->getIGbasicdetail($lastModified, $limit);
 
             return response()->json([
@@ -86,7 +86,7 @@ class MemberInformationController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->getLatestTransaction($lastModified, $limit);
             return response()->json([
                 'status' => 'success',
@@ -111,7 +111,7 @@ class MemberInformationController extends Controller
         $lastModified = $request->last_modified ?? $this->last_modified;
 
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->getCustomerZone($lastModified, $limit);
             return response()->json([
                 'status' => 'success',
@@ -133,7 +133,7 @@ class MemberInformationController extends Controller
     public function infoByMethod(InfoByMethod $request)
     {
         try {
-            $records = $this->safraServiceAPI->getInfoByMethod( $request->validated());
+            $records = $this->SafraAPIService->getInfoByMethod( $request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -158,7 +158,7 @@ class MemberInformationController extends Controller
         }
         try {
             $lastModified = $request->last_modified ?? '2025-09-17';
-            $records = $this->safraServiceAPI->getShoppingCartNo($request->validated());
+            $records = $this->SafraAPIService->getShoppingCartNo($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -177,7 +177,7 @@ class MemberInformationController extends Controller
     public function clearShoppingCart(ClearShoppingCart $request)
     {
         try {
-            $records = $this->safraServiceAPI->clearShoppingCart($request->validated());
+            $records = $this->SafraAPIService->clearShoppingCart($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -196,7 +196,7 @@ class MemberInformationController extends Controller
     public function addMerchandiseItemCart(AddMerchandiseItemCartRequest $request)
     {
         try {
-            $records = $this->safraServiceAPI
+            $records = $this->SafraAPIService
                 ->addMerchandiseItemCart($request->validated());
 
             return response()->json([
@@ -218,7 +218,7 @@ class MemberInformationController extends Controller
     public function addPaymentMethod(AddPaymentMethodRequest $request)
     {
         try {
-            $records = $this->safraServiceAPI->addPaymentMethod($request->validated());
+            $records = $this->SafraAPIService->addPaymentMethod($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records
@@ -238,7 +238,7 @@ class MemberInformationController extends Controller
     public function createPaymentReceipt(CreatepaymentReceipt $request)
     {
         try {
-            $records = $this->safraServiceAPI->createPaymentReceipt($request->validated());
+            $records = $this->SafraAPIService->createPaymentReceipt($request->validated());
             return response()->json([
                 'status' => 'success',
                 'data' => $records

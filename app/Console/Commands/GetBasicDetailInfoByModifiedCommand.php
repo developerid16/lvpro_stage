@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\API\MemberBasicDetailsModified;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +13,7 @@ class GetBasicDetailInfoByModifiedCommand extends Command
     protected $signature   = 'member:basic-detail-modified';
     protected $description = 'Fetch Basic Detail Info By Modified Date';
 
-    public function handle(SafraServiceAPI $safraServiceAPI): int
+    public function handle(SafraAPIService $safraAPIService): int
 {
     $lastModified = Config::get('safra.last_modified');
     $limit        = Config::get('safra.limit');
@@ -21,7 +21,7 @@ class GetBasicDetailInfoByModifiedCommand extends Command
     try {
         $this->info("Fetching Basic Detail Modified | Last Modified: {$lastModified} | Limit: {$limit}");
 
-        $records = $safraServiceAPI->basicDetailInfoModified($lastModified, $limit);
+        $records = $safraAPIService->basicDetailInfoModified($lastModified, $limit);
         $records = is_array($records) ? $records : [];
 
         if (empty($records)) {

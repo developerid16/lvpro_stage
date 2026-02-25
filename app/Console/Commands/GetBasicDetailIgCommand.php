@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\API\MemberBasicDetailIG;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +13,7 @@ class GetBasicDetailIgCommand extends Command
     protected $signature   = 'member:basic-detail-ig';
     protected $description = 'Fetch IG Basic Detail';
 
-    public function handle(SafraServiceAPI $safraServiceAPI): int
+    public function handle(SafraAPIService $safraAPIService): int
     {
         $lastModified = Config::get('safra.last_modified');
         $limit        = Config::get('safra.limit');
@@ -21,7 +21,7 @@ class GetBasicDetailIgCommand extends Command
         try {
             $this->info("Fetching IG Basic Detail | Last Modified: {$lastModified} | Limit: {$limit}");
 
-            $records = $safraServiceAPI->getIGbasicdetail($lastModified, $limit);
+            $records = $safraAPIService->getIGbasicdetail($lastModified, $limit);
             $records = is_array($records) ? $records : [];
 
             if (empty($records)) {

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\API\MemberLatestTransaction;
-use App\Services\SafraServiceAPI;
+use App\Services\SafraAPIService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +13,7 @@ class GetLatestTransactionCommand extends Command
     protected $signature   = 'member:latest-transaction';
     protected $description = 'Fetch Latest Transactions';
 
-    public function handle(SafraServiceAPI $safraServiceAPI): int
+    public function handle(SafraAPIService $safraAPIService): int
     {
         $lastModified = Config::get('safra.last_modified');
         $limit        = Config::get('safra.limit');
@@ -21,7 +21,7 @@ class GetLatestTransactionCommand extends Command
         try {
             $this->info("Fetching Latest Transactions | Last Modified: {$lastModified} | Limit: {$limit}");
 
-            $records = $safraServiceAPI->getLatestTransaction($lastModified, $limit);
+            $records = $safraAPIService->getLatestTransaction($lastModified, $limit);
             $records = is_array($records) ? $records : [];
 
             if (empty($records)) {
