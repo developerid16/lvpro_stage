@@ -684,10 +684,19 @@ class RewardUpdateRequestController extends Controller
     }
 
 
-    public function reject($id)
+   public function reject($id)
     {
-        RewardUpdateRequest::findOrFail($id)->update(['status' => 'rejected']);
-        return back()->with('success', 'Request rejected');
+        $request = RewardUpdateRequest::findOrFail($id);
+
+        $request->update([
+            'status' => 'rejected',
+            'note'   => request('note')
+        ]);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Request rejected successfully.'
+        ]);
     }
    
 }

@@ -10,7 +10,7 @@ $(document).ready(function () {
 
         // 🔥 HARD LOCK
         if ($btn.data('processing')) return;
-        $btn.data('processing', true);
+        // $btn.data('processing', true);
 
         form.find('.action-field').val(action);
         tinymce.triggerSave();

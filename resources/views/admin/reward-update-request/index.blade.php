@@ -158,13 +158,23 @@
         let id = $(this).data("id");
 
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to reject this eVoucher update request?',
+            title: 'Reject Request',
+            text: 'Please enter reason for rejection',
+            input: 'textarea',
+            inputPlaceholder: 'Write rejection reason here...',
+            inputAttributes: {
+                'aria-label': 'Type your reason here'
+            },
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes, reject it!',
-            cancelButtonText: 'No, cancel',
-            reverseButtons: true
+            confirmButtonText: 'Reject',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Reason is required!';
+                }
+            }
         }).then((result) => {
 
             if (result.isConfirmed) {
@@ -173,14 +183,16 @@
                     url: "{{ url('admin/reward-update-request') }}/" + id + "/reject",
                     type: "POST",
                     data: {
+                        id: id,
+                        note: result.value,   // 👈 sending reason
                         _token: csrf
                     },
                     success: function (response) {
-                        Swal.fire('Rejected!',response.message, 'success' );
+                        Swal.fire('Rejected!', response.message, 'success');
                         $('#bstable').bootstrapTable('refresh');
                     },
                     error: function (xhr) {
-                        Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong.', 'error' );
+                        Swal.fire('Error', xhr.responseJSON?.message || 'Something went wrong.', 'error');
                     }
                 });
             }

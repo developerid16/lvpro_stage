@@ -77,7 +77,8 @@ class RewardUpdateRequest extends Model
         'added_by',
         'is_featured',
         'hide_catalogue',
-        'hide_cat_time'
+        'hide_cat_time',
+        'note'
         
     
     ];
