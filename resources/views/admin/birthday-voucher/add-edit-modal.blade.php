@@ -408,7 +408,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
-                                <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -537,11 +537,11 @@
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
                                 <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
+                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
                                 <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
+                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
                     </div>

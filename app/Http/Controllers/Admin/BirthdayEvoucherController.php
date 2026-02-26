@@ -708,63 +708,63 @@ class BirthdayEvoucherController extends Controller
 
             if ($reward->month === $currentMonth) {
 
-    if ($reward->inventory_type != 0) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Current month reward cannot be edited.'
-        ], 422);
-    }
+                if ($reward->inventory_type != 0) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Current month reward cannot be edited.'
+                    ], 422);
+                }
 
-    if (empty($request->locations)) {
-        return response()->json([
-            'status' => 'error',
-            'errors' => [
-                'locations' => ['Inventory data is required.']
-            ]
-        ], 422);
-    }
+                if (empty($request->locations)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'errors' => [
+                            'locations' => ['Inventory data is required.']
+                        ]
+                    ], 422);
+                }
 
-    foreach ($request->locations as $clubId => $clubData) {
+                foreach ($request->locations as $clubId => $clubData) {
 
-        $newQty = isset($clubData['inventory_qty'])
-            ? (int) $clubData['inventory_qty']
-            : 0;
+                    $newQty = isset($clubData['inventory_qty'])
+                        ? (int) $clubData['inventory_qty']
+                        : 0;
 
-        if ($newQty <= 0) {
-            continue;
-        }
+                    if ($newQty <= 0) {
+                        continue;
+                    }
 
-        $existingQty = RewardLocation::where('reward_id', $reward->id)
-            ->where('location_id', $clubId)
-            ->value('inventory_qty') ?? 0;
+                    $existingQty = RewardLocation::where('reward_id', $reward->id)
+                        ->where('location_id', $clubId)
+                        ->value('inventory_qty') ?? 0;
 
-        // 🔴 Prevent decreasing
-        if ($newQty < $existingQty) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => [
-                    "locations.{$clubId}.inventory_qty" =>
-                        ["Inventory cannot be reduced for current month."]
-                ]
-            ], 422);
-        }
+                    // 🔴 Prevent decreasing
+                    if ($newQty < $existingQty) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => [
+                                "locations.{$clubId}.inventory_qty" =>
+                                    ["Inventory cannot be reduced for current month."]
+                            ]
+                        ], 422);
+                    }
 
-        // ✅ Update only if increased
-        RewardLocation::where('reward_id', $reward->id)
-            ->where('location_id', $clubId)
-            ->update([
-                'inventory_qty' => $newQty,
-                'total_qty'     => $newQty
-            ]);
-    }
+                    // ✅ Update only if increased
+                    RewardLocation::where('reward_id', $reward->id)
+                        ->where('location_id', $clubId)
+                        ->update([
+                            'inventory_qty' => $newQty,
+                            'total_qty'     => $newQty
+                        ]);
+                }
 
-    DB::commit();
+                DB::commit();
 
-    return response()->json([
-        'status' => 'success',
-        'message' => 'Inventory Updated Successfully'
-    ]);
-}
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Inventory Updated Successfully'
+                ]);
+            }
 
 
             // if ($reward->month === $currentMonth) {

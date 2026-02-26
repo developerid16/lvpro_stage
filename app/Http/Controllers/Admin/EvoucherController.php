@@ -459,7 +459,7 @@ class EvoucherController extends Controller
     
                     'publish_start'    => 'required|date',
                     'publish_end'      => 'required|date|after_or_equal:publish_start',
-                    'sales_start'      => 'required|date',
+                    'sales_start'   => 'required|date|after_or_equal:publish_start',
                     'sales_end'        => 'required|date|after_or_equal:sales_start',
     
                     'friendly_url'     => 'nullable|string',
@@ -482,6 +482,25 @@ class EvoucherController extends Controller
                 ];
     
                 $messages = [
+                     // Publish Start
+                    'publish_start.required' => 'Publish Start Date & Time is required.',
+                    'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
+
+                    // Publish End
+                    'publish_end.required'        => 'Publish End Date & Time is required.',
+                    'publish_end.date'            => 'Publish End Date must be a valid date and time.',
+                    'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
+
+                    // Sales Start
+                    'sales_start.required'        => 'Sales Start Date & Time is required.',
+                    'sales_start.date'            => 'Sales Start Date must be a valid date and time.',
+                    'sales_start.after_or_equal'  => 'Sales Start Date cannot be before Publish Start Date.',
+
+                    // Sales End
+                    'sales_end.required'          => 'Sales End Date & Time is required.',
+                    'sales_end.date'              => 'Sales End Date must be a valid date and time.',
+                    'sales_end.after_or_equal'    => 'Sales End Date must be equal to or after Sales Start Date.',
+                    
                     'set_qty.required' => 'Voucher set quantity is required.',
                     'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
                     'set_qty.min'      => 'Voucher set quantity must be at least 1.',
@@ -1091,7 +1110,7 @@ class EvoucherController extends Controller
                 'publish_start'    => 'required|date',
                 'publish_end'      => 'required|date|after_or_equal:publish_start',
 
-                'sales_start'      => 'required|date',
+                'sales_start'   => 'required|date|after_or_equal:publish_start',
                 'sales_end'        => 'required|date|after_or_equal:sales_start',
 
                 'direct_utilization'=> 'nullable|boolean',
@@ -1111,6 +1130,25 @@ class EvoucherController extends Controller
             ];
 
             $messages = [
+                 // Publish Start
+                'publish_start.required' => 'Publish Start Date & Time is required.',
+                'publish_start.date'     => 'Publish Start must be a valid date and time.',
+
+                // Publish End
+                'publish_end.required'        => 'Publish End Date & Time is required.',
+                'publish_end.date'            => 'Publish End must be a valid date and time.',
+                'publish_end.after_or_equal'  => 'Publish End must be equal to or after Publish Start.',
+
+                // Sales Start
+                'sales_start.required'        => 'Sales Start Date & Time is required.',
+                'sales_start.date'            => 'Sales Start must be a valid date and time.',
+                'sales_start.after_or_equal'  => 'Sales Start cannot be before Publish Start.',
+
+                // Sales End
+                'sales_end.required'          => 'Sales End Date & Time is required.',
+                'sales_end.date'              => 'Sales End must be a valid date and time.',
+                'sales_end.after_or_equal'    => 'Sales End must be equal to or after Sales Start.',
+
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
                 'set_qty.min'      => 'Voucher set quantity must be at least 1.',

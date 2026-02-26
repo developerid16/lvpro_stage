@@ -24,24 +24,22 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Remark:</label>
-                        <textarea
-                            name="remark"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Enter remark (optional)"></textarea>
+                        <textarea name="remark" class="form-control"  rows="4" placeholder="Enter remark (optional)"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">PDF:</label>
+                        <input type="file" class="form-control" name="file" accept=".pdf">
                     </div>
 
                 </div>
 
                 <div class="modal-footer justify-content-center">
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                    <button type="button"  class="btn btn-secondary"  data-bs-dismiss="modal">
                         CLOSE
                     </button>
 
-                    <button type="submit"
-                            class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary">
                         PROCEED
                     </button>
                 </div>

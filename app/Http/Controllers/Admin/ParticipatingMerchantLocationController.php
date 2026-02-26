@@ -133,9 +133,9 @@ class ParticipatingMerchantLocationController extends Controller
     public function store(Request $request)
     {
        $validator = Validator::make($request->all(), [
-            'participating_merchant_id' => 'required|exists:participating_merchants,id',
-            'name'              => 'required|string|max:255',
-            'code'              => 'required|string|max:100',
+           'name'              => 'required|string|max:255',
+           'code'              => 'required|string|max:100',
+           'participating_merchant_id' => 'required|exists:participating_merchants,id',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
             // 'club_location_id'  => 'required|exists:club_locations,id',

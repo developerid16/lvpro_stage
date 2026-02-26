@@ -78,16 +78,13 @@ class MerchantController extends Controller
                 <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
             </a>";
             
-
-
             $action .= "</div>";
-
 
 
             $final_data[$i] = [             
                 'sr_no'     => $index,
                 'name'      => $row->name,
-                'logo' => "<img src='" . imageExists('uploads/image/'.$row->logo) . "' width='50' height='50'>",
+                'logo' => "<img src='" . imageExists($row->logo) . "' width='50' height='50'>",
                 'status'    => $row->status,
                 'created_at'=> $createdAt,
                 'updated_at'=> $updatedAt,

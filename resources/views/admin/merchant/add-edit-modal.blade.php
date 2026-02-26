@@ -1,3 +1,45 @@
+<script>
+    // Image Preview (Scoped to Current Modal)
+    // Image Preview (Fully Scoped)
+$(document).on("change", "#logo_input", function () {
+
+    let file = this.files[0];
+    let modal = $(this).closest('.modal');
+
+    let preview = modal.find('#logo_preview');
+    let clearBtn = modal.find('#clear_logo_preview');
+
+    if (!file) {
+        preview.attr("src", "{{ asset('uploads/image/no-image.png') }}");
+        clearBtn.hide();
+        return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function (e) {
+        preview.attr("src", e.target.result);
+        preview.show();
+        clearBtn.show();
+    };
+
+    reader.readAsDataURL(file);
+});
+
+
+// Clear Button
+$(document).on("click", "#clear_logo_preview", function () {
+
+    let modal = $(this).closest('.modal');
+
+    modal.find('#logo_input').val('');
+    modal.find('#logo_preview')
+        .attr("src", "{{ asset('uploads/image/no-image.png') }}")
+        .show();
+
+    $(this).hide();
+});
+</script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
     data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -24,7 +66,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="logo">Logo <span class="required-hash">*</span></label>
 
-                                <input id="" 
+                                <input id="logo_input" 
                                     type="file" 
                                     class="sh_dec form-control" 
                                     name="logo"

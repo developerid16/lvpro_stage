@@ -21,8 +21,6 @@
         $('#EditModal #uploadedFile').removeClass('d-flex').addClass('d-none');
     });
 
-
-
     $(document).on('shown.bs.modal', '#EditModal', function () {
         initTinyMCE();
         
@@ -622,13 +620,13 @@
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="required-hash">*</span></label>    
-                                        <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                        <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control readonly"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
-                                        <input id="set_qty" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                        <input id="set_qty" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
@@ -703,12 +701,24 @@
 
                         <div id="common_section" style="margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Hide Quantity</label>
-                                <div class="col-md-3">
-                                    <label>
-                                        <input type="checkbox" name="hide_quantity" value="1"  {{ isset($data) && $data->hide_quantity ? 'checked' : '' }} class="form-check-input">
-                                        <span class="mt-1">Hide Quantity</span>
-                                    </label>
+                                <label class="col-md-2 fw-bold">Hide Quantity</label>
+
+                                <div class="col-md-2 d-flex align-items-center">
+
+                                    <!-- Default value (so controller logic remains unchanged) -->
+                                    <input type="hidden" name="hide_quantity" value="0">
+
+                                    <div class="form-check mx-3">
+                                        <input  class="form-check-input" type="radio" name="hide_quantity" value="1"
+                                            {{ isset($data) && $data->hide_quantity == 1 ? 'checked' : '' }}>
+                                        <label class="form-check-label">Yes</label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input"   type="radio" name="hide_quantity"  value="0" {{ isset($data) && $data->hide_quantity == 0 ? 'checked' : '' }}>
+                                        <label class="form-check-label">No</label>
+                                    </div>
+
                                 </div>
                             </div>
                             <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label>
@@ -718,11 +728,11 @@
                                 <div class="col-md-6 d-flex">
                                     <div class="me-3">
                                         <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
+                                        <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                                     </div>
                                     <div>
                                         <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
+                                        <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                                     </div>
                                 </div>                               
                             </div>
@@ -774,7 +784,7 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">AX Item Code</label>
                                 <div class="col-md-6">
-                                    <input type="text" name="ax_item_code" class="form-control" readonly  value="{{ $data->ax_item_code ?? '' }}">
+                                    <input type="text" name="ax_item_code" class="form-control readonly" readonly  value="{{ $data->ax_item_code ?? '' }}">
                                 </div>
                             </div>
 

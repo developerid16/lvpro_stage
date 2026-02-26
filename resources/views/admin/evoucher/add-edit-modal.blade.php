@@ -277,21 +277,27 @@
                                 <input id="" type="text" class="sh_dec form-control readonly" name="voucher_type" value="e-Voucher" readonly>                            
                             </div>
                         </div>
-
+                        
                         <div class="row align-items-center mb-3">
-                            <label class="col-md-4 fw-bold">Direct Utilization</label>
-                            <div class="col-md-3">                               
-                                <label>
-                                    <input type="checkbox" name="direct_utilization" value="1"  {{ isset($data) && $data->direct_utilization ? 'checked' : '' }} class="form-check-input">
-                                    <span class="mt-1">Direct Utilization</span>
-                                </label>
+                            <label class="col-md-3 fw-bold">Direct Utilization</label>
+
+                            <div class="col-md-2 d-flex align-items-center">
+                                <!-- Hidden default value (so controller logic doesn't break) -->
+                                <input type="hidden" name="direct_utilization" value="0">
+
+                                <div class="form-check mx-3">
+                                    <input  class="form-check-input"  type="radio"  name="direct_utilization"   value="1"
+                                        {{ isset($data) && $data->direct_utilization == 1 ? 'checked' : '' }}>
+                                    <label class="form-check-label">Yes</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input  class="form-check-input"  type="radio"  name="direct_utilization"  value="0"
+                                        {{ isset($data) && $data->direct_utilization == 0 ? 'checked' : '' }}>
+                                    <label class="form-check-label">No</label>
+                                </div>
                             </div>
                         </div>
-
-                        {{-- <div class="col-12 col-md-12 ">
-                            <div class="col-md-3">
-                            </div>
-                        </div> --}}
 
                         <!-- 🔥 LOCATION DATE BLOCK — insert before the Usual Price field -->
                         <div id="location_date_container" class="col-12">
@@ -302,12 +308,16 @@
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="text"  class="form-control" name="publish_start" value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
+                                            <div class="text-danger small publish-error"></div>
+
                                         </div>
                                     </div>
+                                  
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time <span class="required-hash">*</span></label>
                                             <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
+                                            <div class="text-danger small sales-error"></div>
                                         </div>
                                     </div>
 
@@ -416,31 +426,34 @@
                             </div>
                         </div>
 
-
                         <div class="col-12 col-md-6 inventory_qty" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    
                                 <input id="inventory_qty" type="number" min="0" placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="required-hash">*</span></label>    
                                 <input id="voucher_value" type="number" min="0"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="required-hash">*</span></label>    
                                 <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
-                                <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
@@ -465,12 +478,14 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6 location_text" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="location_text">Location <span class="required-hash">*</span></label>    
                                 <input id="location_text" type="text" class="sh_dec form-control"   name="location_text" value="{{ $location_text ?? '' }}"> 
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6 participating_merchant" style="display: none">
                             <div class="mb-3">
                                 <label class="sh_dec" for="participating_merchant_id">Participating Merchant <span class="required-hash">*</span></label>
@@ -511,12 +526,24 @@
                     </div>
  
                     <div class="row align-items-center mb-3">
-                        <label class="col-md-4 fw-bold">Hide Quantity</label>
-                        <div class="col-md-3">
-                            <label>
-                                <input type="checkbox" name="hide_quantity" value="1"  {{ isset($data) && $data->hide_quantity ? 'checked' : '' }} class="form-check-input">
-                                <span class="mt-1">Hide Quantity</span>
-                            </label>
+                        <label class="col-md-2 fw-bold">Hide Quantity</label>
+
+                        <div class="col-md-2 d-flex align-items-center">
+
+                            <!-- Default value (so controller logic remains unchanged) -->
+                            <input type="hidden" name="hide_quantity" value="0">
+
+                            <div class="form-check mx-3">
+                                <input  class="form-check-input" type="radio" name="hide_quantity" value="1"
+                                    {{ isset($data) && $data->hide_quantity == 1 ? 'checked' : '' }}>
+                                <label class="form-check-label">Yes</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input"   type="radio" name="hide_quantity"  value="0" {{ isset($data) && $data->hide_quantity == 0 ? 'checked' : '' }}>
+                                <label class="form-check-label">No</label>
+                            </div>
+
                         </div>
                     </div>
 
@@ -526,11 +553,11 @@
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
                                 <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="Low Stock Reminder 1" value="{{ $data->low_stock_1 ?? '' }}">
+                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
                                 <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="Low Stock Reminder 2" value="{{ $data->low_stock_2 ?? '' }}">
+                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
                     </div>
@@ -589,7 +616,7 @@
                         </div>
                     </div>
 
-                     <div class="row align-items-center mb-3">
+                     {{-- <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Is Featured</label>
                         <div class="col-md-6">
                             <div class="form-check form-switch">
@@ -602,7 +629,7 @@
                                 >
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
 
 

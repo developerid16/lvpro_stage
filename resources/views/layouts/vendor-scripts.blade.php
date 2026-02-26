@@ -77,6 +77,8 @@
             dateFormat: 'Y-m-d H:i:S',
             altInput: true,
             altFormat: 'Y-m-d H:i:S',
+            confirmIcon: "<i class='fa fa-check'></i>",
+            confirmText: "OK ",
 
             onReady(_, __, instance) {
                 // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -135,6 +137,7 @@
         });
     }
 
+    
     function normalizeDateTime(val) {
         if (!val) return val;
 
@@ -534,7 +537,12 @@
         if (method === "2") {
             merchantField.show();
             outletSection.show();
+            // 🔥 FORCE inventory_type = 0
+            modal.find('.inventory_type')
+                .val("0")
+                .trigger('change');
         }
+        
     }
 
     function editToggleClearingFields(modal) {
@@ -563,6 +571,8 @@
 
         // Merchant based
         if (method === 2) {
+            // 🔥 FORCE inventory_type = 0
+            modal.find('.inventory_type').val("0").trigger('change');
             merchantField.show();
             outletSection.show();
 
@@ -1046,5 +1056,5 @@
 <script src="{{ URL::asset('build/js/app.js')}}"></script>
 <script src="{{ URL::asset('build/js/custom.js')}}"></script>
 <script src="{{ URL::asset('build/js/crud.js') }}"></script>
-
+<script src="{{ URL::asset('/build/libs/flatpicker/flatpickr.js') }}"></script>
 @yield('script-bottom')

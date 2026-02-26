@@ -1,14 +1,21 @@
 $(document).ready(function () {
     const csrf = $('meta[name="csrf-token"]').attr('content');
    
-    $(document).on('click', '.submit-btn', function (e) {
-        const action = $(this).val();
-        const form = $(this).closest('form');
+ 
+    $(document).on('click', '.submit-btn', function () {
 
-        // DRAFT → submit directly
-        if (action == 'draft') {
-            form.find('.action-field').val(action);
-            tinymce.triggerSave();
+        const $btn = $(this);
+        const form = $btn.closest('form');
+        const action = $btn.val();
+
+        // 🔥 HARD LOCK
+        if ($btn.data('processing')) return;
+        $btn.data('processing', true);
+
+        form.find('.action-field').val(action);
+        tinymce.triggerSave();
+
+        if (action === 'draft') {
             form.trigger('submit');
             return;
         }
@@ -22,11 +29,13 @@ $(document).ready(function () {
             cancelButtonText: 'No, cancel!',
             reverseButtons: true
         }).then((result) => {
+
             if (result.isConfirmed) {
-                form.find('.action-field').val(action);
-                tinymce.triggerSave();
                 form.trigger('submit');
+            } else {
+                $btn.data('processing', false); // unlock if cancel
             }
+
         });
     });
     
@@ -34,21 +43,27 @@ $(document).ready(function () {
         e.preventDefault();
 
         let $form = $(this);
+
+        // 🔥 FORM LOCK
         if ($form.data('submitting')) return;
         $form.data('submitting', true);
 
-        let form_data = new FormData(this);
-
+        let $submitBtn = $form.find('.submit-btn');
+        $submitBtn.prop('disabled', true);
+  
         $.ajax({
             url: ModuleBaseUrl.slice(0, -1),
             headers: { 'X-CSRF-Token': csrf },
             type: "POST",
-            data: form_data,
+            data: form_data = new FormData($form[0]),
             processData: false,
             contentType: false,
 
             success: function (response) {
+                
                 $form.data('submitting', false);
+                $submitBtn.prop('disabled', false).data('processing', false);
+
                 if (response.status === 'success' || response.status === true) {
                     $("#AddModal").modal('hide');
                     show_message(response.status, response.message);
@@ -58,18 +73,20 @@ $(document).ready(function () {
                 } else {
                     show_message(response.status, response.message);
                 }
+
                 remove_errors();
             },
 
             error: function (response) {
+                $form.data('submitting', false);
+                $submitBtn.prop('disabled', false).data('processing', false);
 
                 if(response.status === 403) {
                     show_message('error', response.responseJSON?.message || 'You do not have permission.');
                     return;
                 }
-                $form.data('submitting', false);
+                
                 $('.participating-location-error').text('');
-
                 let errors = response.responseJSON?.errors || {};
 
                 // 🔥 Handle club locations error in Birthday voucher
@@ -489,21 +506,39 @@ $(document).ready(function () {
         generateMonths();
     });
 
+    // $(document).on("click", "#confirmMonths", function () {
+
+    //     let monthModalEl = document.getElementById('monthSelectModal');
+    //     let monthModal = bootstrap.Modal.getInstance(monthModalEl);
+
+    //     $("#monthInput").removeClass("is-invalid");
+    //     $("#monthError").hide();
+
+    //     monthModal.hide();
+
+    //     let activeForm = $("#monthSelectModal").data("activeForm");
+
+    //     if (activeForm) {
+    //         $(activeForm).submit();
+    //     }
+    // });
+
     $(document).on("click", "#confirmMonths", function () {
 
         let monthModalEl = document.getElementById('monthSelectModal');
         let monthModal = bootstrap.Modal.getInstance(monthModalEl);
 
-        $("#monthInput").removeClass("is-invalid");
-        $("#monthError").hide();
-
         monthModal.hide();
 
         let activeForm = $("#monthSelectModal").data("activeForm");
 
-        if (activeForm) {
-            $(activeForm).submit();
-        }
+        if (!activeForm) return;
+
+        let $form = $(activeForm);
+
+        if ($form.data('submitting')) return; // 🔥 prevent double
+
+        $form.trigger("submit");
     });
    
 });

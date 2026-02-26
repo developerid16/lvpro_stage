@@ -1,15 +1,13 @@
 @extends('layouts.master-layouts')
 
-@section('title') Reward Update Request @endsection
+@section('title') eVoucher Update Request @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') Reward Update Request @endslot
+@slot('title') eVoucher Update Request @endslot
 @endcomponent
-
-
 
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
@@ -76,7 +74,6 @@
     </div>
 </div>
 
-
 <div class="modal fade" id="viewModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
     
@@ -118,7 +115,7 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Do you want to approve this reward update request?',
+            text: 'Do you want to approve this eVoucher update request?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, approve it!',
@@ -162,7 +159,7 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Do you want to reject this reward update request?',
+            text: 'Do you want to reject this eVoucher update request?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, reject it!',

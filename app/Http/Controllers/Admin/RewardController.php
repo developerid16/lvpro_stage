@@ -567,10 +567,12 @@ class RewardController extends Controller
                     'voucher_validity' => 'required|date|after_or_equal:sales_end',
     
                     'usual_price'        => 'required|numeric|min:0',
-                    'publish_start'      => 'required',
-                    'publish_end'        => 'required',
-                    'sales_start'        => 'required',
-                    'sales_end'          => 'required',   
+                   
+                    'publish_start'    => 'required|date',
+                    'publish_end'      => 'required|date|after_or_equal:publish_start',
+                    'sales_start'   => 'required|date|after_or_equal:publish_start',
+                    'sales_end'        => 'required|date|after_or_equal:sales_start',
+    
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
                     'send_reminder'      => 'required|boolean',
@@ -584,6 +586,30 @@ class RewardController extends Controller
                 ];
     
                 $messages = [
+                     // Publish Start
+                    'publish_start.required' => 'Publish Start Date & Time is required.',
+                    'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
+
+                    // Publish End
+                    'publish_end.required'        => 'Publish End Date & Time is required.',
+                    'publish_end.date'            => 'Publish End Date must be a valid date and time.',
+                    'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
+
+                    // Sales Start
+                    'sales_start.required'        => 'Sales Start Date & Time is required.',
+                    'sales_start.date'            => 'Sales Start Date must be a valid date and time.',
+                    'sales_start.after_or_equal'  => 'Sales Start Date cannot be before Publish Start Date.',
+
+                    // Sales End
+                    'sales_end.required'          => 'Sales End Date & Time is required.',
+                    'sales_end.date'              => 'Sales End Date must be a valid date and time.',
+                    'sales_end.after_or_equal'    => 'Sales End Date must be equal to or after Sales Start Date.',
+                    
+                       
+                    'set_qty.required' => 'Voucher set quantity is required.',
+                    'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                    'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                    
                     'term_of_use.required' => 'Voucher T&C is required',
                     'voucher_detail_img.required' => 'Voucher Detail Image is required',
                     'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -1434,17 +1460,45 @@ class RewardController extends Controller
 
                 'usual_price' => 'required|numeric|min:0',
 
-                'publish_start' => 'required',
-                'publish_end'   => 'required',
-                'sales_start'   => 'required',
-                'sales_end'     => 'required',
+                
+                'publish_start'    => 'required|date',
+                'publish_end'      => 'required|date|after_or_equal:publish_start',
+                'sales_start'   => 'required|date|after_or_equal:publish_start',
+                'sales_end'        => 'required|date|after_or_equal:sales_start',
+
 
                 'low_stock_1' => 'nullable|integer|min:0',
                 'low_stock_2' => 'nullable|integer|min:0',
             ];
 
             $messages = [
+                 // Publish Start
+                'publish_start.required' => 'Publish Start Date & Time is required.',
+                'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
+
+                // Publish End
+                'publish_end.required'        => 'Publish End Date & Time is required.',
+                'publish_end.date'            => 'Publish End Date must be a valid date and time.',
+                'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
+
+                // Sales Start
+                'sales_start.required'        => 'Sales Start Date & Time is required.',
+                'sales_start.date'            => 'Sales Start Date must be a valid date and time.',
+                'sales_start.after_or_equal'  => 'Sales Start Date cannot be before Publish Start Date.',
+
+                // Sales End
+                'sales_end.required'          => 'Sales End Date & Time is required.',
+                'sales_end.date'              => 'Sales End Date must be a valid date and time.',
+                'sales_end.after_or_equal'    => 'Sales End Date must be equal to or after Sales Start Date.',
+                    
+                'set_qty.required' => 'Voucher set quantity is required.',
+                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
+                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
                 'term_of_use.required' => 'Voucher T&C is required',
+                'voucher_detail_img.required' => 'Voucher Detail Image is required',
+                'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
+                'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
+                'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
             ];
 
 
