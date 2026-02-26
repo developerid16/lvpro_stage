@@ -150,8 +150,8 @@ class MerchantController extends Controller
         }
 
         $file = $request->file('logo');
-        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
+        // $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $filename = generateHashFileName($file);
         $file->move($path, $filename);
 
         // -------------------------
@@ -234,7 +234,8 @@ class MerchantController extends Controller
             }
 
             $file = $request->file('logo');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            // $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = generateHashFileName($file);
 
             $file->move($path, $filename);
 

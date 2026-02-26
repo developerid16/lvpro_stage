@@ -53,7 +53,7 @@
                                 <label class="sh_dec">Publish Start Date & Time <span class="required-hash">*</span></label>
                                 <input
                                     type="text"
-                                    class="form-control js-datetime-start"
+                                    class="form-control flatpickr-input js-datetime-start"
                                     name="start_date"
                                     value="{{ isset($data->start_date) ? $data->start_date->format('Y-m-d H:i:s') : '' }}"
                                     placeholder="YYYY-MM-DD HH:mm:ss"

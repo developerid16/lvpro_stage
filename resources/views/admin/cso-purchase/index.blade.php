@@ -69,7 +69,10 @@
 
                 {{-- IMAGE --}}
                 <div class="reward-img-wrapper d-flex justify-content-center">
-                    @if($reward->voucher_image)
+                    <img src="{{ imageExists('uploads/image/'.$reward->voucher_image) }}"
+                    class="card-img-top reward-img"
+                    alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
+                    <!-- @if($reward->voucher_image)
                         <img src="{{ asset('uploads/image/'.$reward->voucher_image) }}"
                             class="card-img-top reward-img"
                             alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
@@ -77,7 +80,7 @@
                         <img src="{{ asset('uploads/image/no-image.png') }}"
                             class="card-img-top reward-img"
                             alt="{{ $reward->name }}"  style="width: 150px; height: 150px;">
-                    @endif
+                    @endif -->
                 </div>
 
                 {{-- BODY --}}

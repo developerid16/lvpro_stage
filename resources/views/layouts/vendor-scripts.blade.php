@@ -246,7 +246,7 @@
                 allowInput: true,
 
                 onReady(_, __, instance) {
-                    instance.altInput.placeholder = 'yyyy-MM-dd';
+                    // instance.altInput.placeholder = 'yyyy-MM-dd';
                 }
             });
         });

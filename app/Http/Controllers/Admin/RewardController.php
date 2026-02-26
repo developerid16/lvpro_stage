@@ -162,20 +162,20 @@ class RewardController extends Controller
             $final_data[$key]['redeemed'] = max(0, $redeemed);
 
             $duration = $row->created_at->format(config('safra.date-format'));
+             $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
+            // if (!empty($row->voucher_image)) {
+            //     $imgUrl = asset("uploads/image/{$row->voucher_image}");
 
-            if (!empty($row->voucher_image)) {
-                $imgUrl = asset("uploads/image/{$row->voucher_image}");
-
-                $final_data[$key]['image'] = '
-                    <a href="'.$imgUrl.'" target="_blank">
-                        <img src="'.$imgUrl.'"
-                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-                            alt="Voucher Image">
-                    </a>';
-            } else {
-                $imgUrl = asset("uploads/image/no-image.png");
-                $final_data[$key]['image'] = '<img src="'.$imgUrl.'"class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">'; // nothing shown
-            }
+            //     $final_data[$key]['image'] = '
+            //         <a href="'.$imgUrl.'" target="_blank">
+            //             <img src="'.$imgUrl.'"
+            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+            //                 alt="Voucher Image">
+            //         </a>';
+            // } else {
+            //     $imgUrl = asset("uploads/image/no-image.png");
+            //     $final_data[$key]['image'] = '<img src="'.$imgUrl.'"class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">'; // nothing shown
+            // }
            
             $start = $row->publish_start_date;
             $end   = $row->publish_end_date;
@@ -324,7 +324,7 @@ class RewardController extends Controller
                     }
 
                     $file = $request->file('voucher_image');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($path, $filename);
 
                     $validated['voucher_image'] = $filename;
@@ -340,7 +340,7 @@ class RewardController extends Controller
                     }
 
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($path, $filename);
 
                     $validated['voucher_detail_img'] = $filename;
@@ -514,10 +514,11 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
-                   
+
                     $filePath = public_path('uploads/csv/'.$filename);
 
                     // READ XLSX OR CSV
@@ -725,7 +726,7 @@ class RewardController extends Controller
                     }
     
                     $file = $request->file('voucher_image');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($path, $filename);
     
                     $validated['voucher_image'] = $filename;
@@ -741,7 +742,7 @@ class RewardController extends Controller
                     }
     
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($path, $filename);
     
                     $validated['voucher_detail_img'] = $filename;
@@ -988,7 +989,8 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
     
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
     
                     $filePath = public_path('uploads/csv/'.$filename);
@@ -1152,7 +1154,8 @@ class RewardController extends Controller
 
                     // Upload new image
                     $file = $request->file('voucher_image');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    
+                    $filename = generateHashFileName($file);
 
                     $file->move($uploadPath, $filename);
 
@@ -1187,8 +1190,8 @@ class RewardController extends Controller
 
                     // Upload new image
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
-
+                    $filename = generateHashFileName($file);
+                
                     $file->move($uploadPath, $filename);
 
                     $validated['voucher_detail_img'] = $filename;
@@ -1252,10 +1255,8 @@ class RewardController extends Controller
                     'low_stock_2'        => $request->low_stock_2,
                     'friendly_url'       => $request->friendly_url,
 
-                    
                     'ax_item_code'           => $request->ax_item_code,
-
-                     'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
                     'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : 0,
                     'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : 0,
                     'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : 0,
@@ -1386,7 +1387,8 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
                     $reward->csvFile = $filename;
@@ -1678,7 +1680,8 @@ class RewardController extends Controller
     
                     // Upload new image
                     $file = $request->file('voucher_image');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
     
                     $file->move($uploadPath, $filename);
     
@@ -1713,7 +1716,8 @@ class RewardController extends Controller
     
                     // Upload new image
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
     
                     $file->move($uploadPath, $filename);
     
@@ -1909,7 +1913,8 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
     
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
     
     

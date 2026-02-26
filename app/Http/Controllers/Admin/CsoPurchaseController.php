@@ -183,9 +183,10 @@ class CsoPurchaseController extends Controller
 
             'reward' => [
                 'id'            => $reward->id,
-                'image'         => $reward->voucher_image
-                    ? asset('uploads/image/'.$reward->voucher_image)
-                    : asset("uploads/image/no-image.png"),
+                // 'image'         => $reward->voucher_image
+                //     ? asset('uploads/image/'.$reward->voucher_image)
+                //     : asset("uploads/image/no-image.png"),
+                'image'         => imageExists('uploads/image/'.$reward->voucher_image),
                 'reward_type'   => $reward->inventory_type,
                 'type'          => $reward->inventory_type == 0 ? 'Digital' : 'Physical',
                 'name'          => $reward->name,
