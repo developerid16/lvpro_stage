@@ -68,6 +68,29 @@
             </div>
         </div>
 
+        {{-- ===================== FAQ ===================== --}}
+        <div class="col-md-6">
+            <div class="card border">
+                <div class="card-body">
+                    <h5 class="mb-3">OnBording</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Upload OnBording PDF</label>
+                        <input type="file" name="onboarding_pdf" class="form-control">
+
+                        @if(!empty($onboarding?->file_path))
+                            <small class="text-success mt-2 d-block">
+                                Current File:
+                                <a href="{{ asset($onboarding->file_path) }}" target="_blank">
+                                    View OnBording
+                                </a>
+                            </small>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="text-end mt-4">

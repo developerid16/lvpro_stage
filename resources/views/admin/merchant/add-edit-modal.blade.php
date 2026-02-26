@@ -1,3 +1,45 @@
+<script>
+    // Image Preview (Scoped to Current Modal)
+    // Image Preview (Fully Scoped)
+$(document).on("change", "#logo_input", function () {
+
+    let file = this.files[0];
+    let modal = $(this).closest('.modal');
+
+    let preview = modal.find('#logo_preview');
+    let clearBtn = modal.find('#clear_logo_preview');
+
+    if (!file) {
+        preview.attr("src", "{{ asset('uploads/image/no-image.png') }}");
+        clearBtn.hide();
+        return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function (e) {
+        preview.attr("src", e.target.result);
+        preview.show();
+        clearBtn.show();
+    };
+
+    reader.readAsDataURL(file);
+});
+
+
+// Clear Button
+$(document).on("click", "#clear_logo_preview", function () {
+
+    let modal = $(this).closest('.modal');
+
+    modal.find('#logo_input').val('');
+    modal.find('#logo_preview')
+        .attr("src", "{{ asset('uploads/image/no-image.png') }}")
+        .show();
+
+    $(this).hide();
+});
+</script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
     data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -24,18 +66,18 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="logo">Logo <span class="required-hash">*</span></label>
 
-                                <input id="" 
+                                <input id="logo_input" 
                                     type="file" 
                                     class="sh_dec form-control" 
                                     name="logo"
                                     accept="image/png, image/jpg, image/jpeg">
-
-                                <img id="logo_preview"
-                                    src="{{ isset($data) && $data->logo ? asset('uploads/image/' . $data->logo) : '' }}"
-                                    width="50"
-                                    height="50"
-                                    style="border:1px solid #ccc; margin-top:8px; {{ isset($data) && $data->logo ? '' : 'display:none;' }}">
-
+                                <div class="d-flex justify-content-between mt-1">
+                                    <span class="text-secondary">(100 px X 100 px)</span>
+                                    <div class="position-relative d-inline-block">
+                                        <img id="logo_preview" src="{{ !empty($data?->logo) ? asset('uploads/image/'.$data->logo) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Logo Preview" />
+                                        <a href="javascript:void(0);" id="clear_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

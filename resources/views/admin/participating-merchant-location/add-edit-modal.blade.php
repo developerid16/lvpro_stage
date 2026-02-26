@@ -31,7 +31,7 @@
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
 
-                    <input type="hidden" name="participating_merchant_id" value="{{ $participating_merchant_id }}">
+                    <input type="hidden" name="participating_merchant_id_new" value="{{ $participating_merchant_id }}">
 
                     <div class="row">
 
@@ -72,6 +72,7 @@
                             <div class="mb-3">
                                 <label>Participating Merchant <span class="required-hash">*</span></label>
                                 <select name="participating_merchant_id" class="form-select">
+                                    <option value="">Select Participating Merchant</option>
                                     @foreach($merchants as $merchant)
                                         <option value="{{ $merchant->id }}"
                                             {{ isset($data) && $data->participating_merchant_id == $merchant->id ? 'selected' : '' }}>
@@ -86,6 +87,7 @@
                             <div class="mb-3">
                                 <label>Club Location <span class="required-hash"></span></label>
                                 <select name="club_location_id" class="form-select">
+                                    <option value="">Select Club Location</option>
                                     @foreach($locations as $loc)
                                         <option value="{{ $loc->id }}"
                                             {{ isset($data) && $data->club_location_id == $loc->id ? 'selected' : '' }}>
@@ -100,6 +102,7 @@
                             <div class="mb-3">
                                 <label>Status <span class="required-hash">*</span></label>
                                 <select name="status" class="form-select">
+                                    <option value="">Select Status</option>
                                     <option value="Active" {{ isset($data) && $data->status == 'Active' ? 'selected' : '' }}>Active</option>
                                     <option value="Inactive" {{ isset($data) && $data->status == 'Inactive' ? 'selected' : '' }}>Inactive</option>
                                 </select>

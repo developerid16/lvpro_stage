@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+
 
 class UserController extends Controller
 {
@@ -112,12 +114,22 @@ class UserController extends Controller
                 'email',
                 Rule::unique('users', 'email')->whereNull('deleted_at')
             ],
-            'password' => 'nullable|string|min:6',
             'phone'    => 'required|unique:users,phone',
             'status'   => 'required',
             'role'     => 'required',
+            ]);
+            
+        $request->validate([
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+            ],
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'status'  => false,
@@ -196,7 +208,7 @@ class UserController extends Controller
             ],
             'status' => 'required',
             'role' => 'required',
-            'password' => 'nullable|string|min:6',
+            
         ], [
             'name.required' => 'Name is required.',
             'email.required' => 'Email is required.',
@@ -206,6 +218,18 @@ class UserController extends Controller
             'status.required' => 'Status is required.',
             'role.required' => 'Role is required.',
             'password.min' => 'Password must be at least 6 characters.',
+        ]);
+
+        $request->validate([
+            'password' => [
+                'nullable',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+            ],
         ]);
 
         if ($validator->fails()) {

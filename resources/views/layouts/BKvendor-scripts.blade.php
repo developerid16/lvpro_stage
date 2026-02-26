@@ -9,7 +9,13 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
 <script>
-    let selectedOutletMap = [];    
+    $.ajaxSetup({
+        xhrFields: {
+            withCredentials: true   // 🔥 forces Firefox to send cookies
+        }
+    });
+    let selectedOutletMap = {};    
+    let selectedOutletMapMerchant = {};    
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -71,6 +77,8 @@
             dateFormat: 'Y-m-d H:i:S',
             altInput: true,
             altFormat: 'Y-m-d H:i:S',
+            confirmIcon: "<i class='fa fa-check'></i>",
+            confirmText: "OK ",
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -108,6 +116,8 @@
             dateFormat: 'Y-m-d H:i:S',
             altInput: true,
             altFormat: 'Y-m-d H:i:S',
+            confirmIcon: "<i class='fa fa-check'></i>",
+            confirmText: "OK ",
 
             onReady(_, __, instance) {
                 instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -129,6 +139,7 @@
         });
     }
 
+    
     function normalizeDateTime(val) {
         if (!val) return val;
 
@@ -250,12 +261,49 @@
         instance.altInput.removeAttribute('disabled');
     }
 
-    function bindMonthFlatpickr(startSelector, endSelector) {
+    function bindMonthFlatpickr(modal) {
 
-        const startEl = document.querySelector(startSelector);
-        const endEl   = document.querySelector(endSelector);
+        modal = modal instanceof HTMLElement ? modal : modal[0];
+
+        const el = modal.querySelector('#monthInput');
+        if (!el) return;
+
+        if (el._flatpickr) {
+            el._flatpickr.destroy();
+        }
+
+        const now = new Date();
+        const firstDayOfCurrentMonth =
+            new Date(now.getFullYear(), now.getMonth(), 1);
+
+        flatpickr(el, {
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            minDate: firstDayOfCurrentMonth,
+            allowInput: false
+        });
+    }
+
+
+    function bindMonthFlatpickrEdit(modal, startSelector, endSelector) {
+
+        // make sure modal is DOM element, not jQuery
+        modal = modal instanceof HTMLElement ? modal : modal[0];
+
+        const startEl = modal.querySelector(startSelector);
+        const endEl   = modal.querySelector(endSelector);
 
         if (!startEl || !endEl) return;
+
+        // 💣 DESTROY old instances (CRITICAL for edit modal)
+        if (startEl._flatpickr) startEl._flatpickr.destroy();
+        if (endEl._flatpickr) endEl._flatpickr.destroy();
 
         let endPicker;
 
@@ -263,8 +311,8 @@
             plugins: [
                 new monthSelectPlugin({
                     shorthand: true,
-                    dateFormat: "Y-m",   // value sent to backend
-                    altFormat: "F Y",    // UI display (Jan 2025)
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
                     theme: "light"
                 })
             ],
@@ -274,10 +322,9 @@
 
                 const selected = selectedDates[0];
 
-                // enable TO month
                 endPicker.set("minDate", selected);
-                endPicker.open();
                 endPicker.input.removeAttribute("disabled");
+                endPicker.open();
             }
         });
 
@@ -295,43 +342,14 @@
 
         // disable TO initially
         endPicker.input.setAttribute("disabled", true);
-    }
 
-   function bindSingleMonthFlatpickr(modal, selector) {
-
-    modal = modal instanceof HTMLElement ? modal : modal[0];
-
-    const elements = modal.querySelectorAll(selector);
-    if (!elements.length) return;
-
-    const today = new Date();
-
-    // First day of current month
-    const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    elements.forEach(function(el) {
-
-        if (el._flatpickr) {
-            el._flatpickr.destroy();
+        // 🧠 EDIT MODE: if FROM already has value, enable TO
+        if (startEl.value) {
+            endPicker.input.removeAttribute("disabled");
+            endPicker.set("minDate", startEl.value);
         }
-
-        flatpickr(el, {
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                    theme: "light"
-                })
-            ],
-            allowInput: false,
-            minDate: minDate   // 🔥 Only restriction
-        });
-    });
-}
-
-
-
+    }
+   
     function loadParticipatingMerchantLocations(modal, merchantIds) {
         if (!merchantIds || merchantIds.length === 0) {
             modal.find("#participating_merchant_location").empty();
@@ -372,7 +390,7 @@
 
                 res.locations.forEach(function (loc) {
 
-                    const checked = selectedOutletMap && selectedOutletMap[loc.id]
+                    const checked = selectedOutletMapMerchant && selectedOutletMapMerchant[loc.id]
                         ? 'checked'
                         : '';
 
@@ -418,7 +436,7 @@
         const container = modal.find("#selected_locations_hidden");
         container.empty();
 
-        Object.keys(selectedOutletMap).forEach(locId => {
+        Object.keys(selectedOutletMapMerchant).forEach(locId => {
             container.append(`
                 <input type="hidden"
                     name="participating_merchant_locations[${locId}][selected]"
@@ -429,7 +447,7 @@
 
     function editParticipatingMerchantLocations(modal) {
 
-        if (!selectedOutletMap || Object.keys(selectedOutletMap).length === 0) {
+        if (!selectedOutletMapMerchant || Object.keys(selectedOutletMapMerchant).length === 0) {
             return;
         }
 
@@ -437,9 +455,9 @@
 
         locationBox.empty();
 
-        Object.keys(selectedOutletMap).forEach(function (id) {
+        Object.keys(selectedOutletMapMerchant).forEach(function (id) {
 
-            let name = selectedOutletMap[id];
+            let name = selectedOutletMapMerchant[id];
            
         });
 
@@ -455,7 +473,7 @@
         const wrapper = modal.find("#selected_locations_wrapper");
         const summary = modal.find("#selected_locations_summary");
 
-        const names = Object.values(selectedOutletMap);
+        const names = Object.values(selectedOutletMapMerchant);
 
         if (!names.length) {
             summary.empty();
@@ -467,6 +485,7 @@
         wrapper.show();
     }
 
+    
     $(document).on("change", ".outlet-checkbox", function () {
 
         const modal = $(this).closest(".modal");
@@ -475,9 +494,9 @@
         const name = $(this).data("name");
 
         if (this.checked) {
-            selectedOutletMap[id] = name;
+            selectedOutletMapMerchant[id] = name;
         } else {
-            delete selectedOutletMap[id];
+            delete selectedOutletMapMerchant[id];
         }
 
         updateSelectedLocationsSummary(modal);
@@ -496,7 +515,7 @@
         const merchantSelect = modal.find('#participating_merchant_id');
 
         // 🔥 ALWAYS RESET SELECTED OUTLETS ON METHOD CHANGE
-        selectedOutletMap = [];
+        selectedOutletMapMerchant = [];
         modal.find('#selected_locations_summary').empty();
         modal.find('#selected_locations_hidden').empty();
         // outletWrapper.hide();
@@ -520,7 +539,12 @@
         if (method === "2") {
             merchantField.show();
             outletSection.show();
+            // 🔥 FORCE inventory_type = 0
+            modal.find('.inventory_type')
+                .val("0")
+                .trigger('change');
         }
+        
     }
 
     function editToggleClearingFields(modal) {
@@ -549,6 +573,8 @@
 
         // Merchant based
         if (method === 2) {
+            // 🔥 FORCE inventory_type = 0
+            modal.find('.inventory_type').val("0").trigger('change');
             merchantField.show();
             outletSection.show();
 
@@ -564,7 +590,7 @@
 
         // Everything else → reset merchant data
         merchantSelect.val(null).trigger('change');
-        selectedOutletMap = {};
+        selectedOutletMapMerchant = {};
         modal.find('#selected_locations_summary').empty();
         modal.find('#selected_locations_hidden').empty();
     }
@@ -817,112 +843,86 @@
     
     }
 
+   
+
     $(document).on('change', '.merchant-dropdown', function () {
 
         let clubId     = $(this).data('club');
         let merchantId = $(this).val();
         let modal      = $(this).closest('.modal');
 
+        let clubContainer = modal.find("#outlet_container_" + clubId);
+        modal.find(".outlet-container").show();
+        // clubContainer.find(".selected-locations-summary").empty();
+        // clubContainer.find(".selected-locations-hidden").empty();
+        // clubContainer.find(".outlet-list").hide();
+
         if (!merchantId) {
-            $('#outlet_container_' + clubId).empty();
+            selectedOutletMap[clubId] = {}; // only clear if merchant removed
+            clubContainer.find(".participating-merchant-location").empty();
             return;
         }
 
         loadParticipatingMerchantLocationsBday(modal, clubId, merchantId);
     });
 
-    function loadParticipatingMerchantLocationsBday(modal, clubId, merchantIds) {
-        console.log(merchantIds,'merchantIds');
-        
-        if (!merchantIds) {
-            modal.find("#outlet_container_" + clubId).find(".participating-merchant-location").empty();
-            return;
-        }
 
-        if (!Array.isArray(merchantIds)) {
-            merchantIds = [merchantIds];
-        }
+
+    function loadParticipatingMerchantLocationsBday(modal, clubId, merchantId) {
 
         $.ajax({
             url: "{{ url('admin/birthday-voucher/get-club-locations-with-outlets') }}",
             type: "GET",
-            data: { merchant_ids: merchantIds },
+            data: { merchant_ids: merchantId },
             success: function (res) {
-                
 
-                if (!res || res.status !== 'success' || !res.locations) {
-                    return;
-                }
+                let clubContainer = modal.find("#outlet_container_" + clubId);
+                let locationBox   = clubContainer.find(".participating-merchant-location");
 
-                if(res.locations.length === 0) {
-                    let clubContainer = modal.find("#outlet_container_" + clubId);
-                    let locationBox   = clubContainer.find(".participating-merchant-location");
+                locationBox.empty();
 
+                if (!res || res.status !== 'success' || !res.locations || res.locations.length === 0) {
                     locationBox.html(`
                         <div class="alert alert-danger py-1 px-2 mb-2">
                             Outlets not found
                         </div>
                     `);
                     return;
-
                 }
 
-                let clubContainer = modal.find("#outlet_container_" + clubId);
-                let locationBox   = clubContainer.find(".participating-merchant-location");
-
-                locationBox.empty();   // ✅ only clear outlet list
-               
                 res.locations.forEach(function (loc) {
 
-                    const checked = selectedOutletMap[clubId] && selectedOutletMap[clubId][loc.id]  ? 'checked'  : '';
-                    console.log(checked,'checked');
-                    
+                    let checked = selectedOutletMap[clubId] && selectedOutletMap[clubId][loc.id]
+                        ? 'checked'
+                        : '';
 
                     locationBox.append(`
                         <div class="form-check mb-1">
                             <input type="checkbox"
-                                class="form-check-input me-2 outlet-checkbox-bday"
-                                name="selected_outlets[${clubId}][]"
-                                value="${loc.id}"
-                                id="outlet_${loc.id}"
+                                class="form-check-input outlet-checkbox-bday"
+                                data-club="${clubId}"
+                                data-id="${loc.id}"
                                 data-name="${loc.name}"
+                                id="outlet_${clubId}_${loc.id}"
                                 ${checked}>
-                            <label class="form-check-label" for="outlet_${loc.id}">
+                            <label class="form-check-label"
+                                for="outlet_${clubId}_${loc.id}">
                                 ${loc.name}
                             </label>
                         </div>
                     `);
-
                 });
-
-                modal.find("#participating_section").show();
-
-                updateSelectedLocationsSummaryBirthDayVoucher(modal);
-                syncHiddenSelectedLocations(modal);
-            }, 
-            error: function () {
-                let clubContainer = modal.find("#outlet_container_" + clubId);
-                let locationBox   = clubContainer.find(".participating-merchant-location");
-
-                locationBox.html(`
-                    <div class="alert alert-danger py-1 px-2 mb-2">
-                        Outlets not found
-                    </div>
-                `);
             }
         });
     }
 
     $(document).on("change", ".outlet-checkbox-bday", function () {
 
-        const modal   = $(this).closest(".modal");
-        const clubContainer = $(this).closest(".outlet-container");
+        let clubId = $(this).data("club");
+        let id     = $(this).data("id");
+        let name   = $(this).data("name");
+        let modal  = $(this).closest(".modal");
 
-        const clubId = clubContainer.attr("id").replace("outlet_container_", "");
-        const id     = $(this).data("id");
-        const name   = $(this).data("name");
-
-        // ensure object exists
         if (!selectedOutletMap[clubId]) {
             selectedOutletMap[clubId] = {};
         }
@@ -957,43 +957,31 @@
     }
 
     function updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId) {
+        modal.find(".outlet-container").show();
 
         let clubContainer = modal.find("#outlet_container_" + clubId);
         let wrapper = clubContainer.find(".outlet-list");
         let summary = clubContainer.find(".selected-locations-summary");
 
         summary.empty();
-
+        
         if (!selectedOutletMap[clubId] ||
             Object.keys(selectedOutletMap[clubId]).length === 0) {
+
             wrapper.hide();
             return;
         }
 
-        let names = Object.values(selectedOutletMap[clubId]);
+        let html = Object.values(selectedOutletMap[clubId])
+            .map(name => `<div>• ${name}</div>`)
+            .join("");
+            
 
-        summary.html(names.map(n => `<div>• ${n}</div>`).join(""));
+        summary.html(html);
         wrapper.show();
     }
 
-    function loadEditSelectedOutlets(modal, clubId, outlets = []) {       
-
-        let clubContainer = modal.find("#outlet_container_" + clubId);
-        let locationBox   = clubContainer.find(".participating-merchant-location");
-
-        locationBox.empty();
-
-        if (!Array.isArray(outlets) || outlets.length === 0) {
-            locationBox.html(`
-                <div class="alert alert-danger py-1 px-2 mb-2">
-                    Outlets not found
-                </div>
-            `);
-            return;
-        }
-       
-        modal.find("#participating_section").show();
-
+    function loadEditSelectedOutlets(modal, clubId, outlets = []) {
         if (!selectedOutletMap[clubId]) {
             selectedOutletMap[clubId] = {};
         }
@@ -1001,9 +989,37 @@
         outlets.forEach(function (loc) {
             selectedOutletMap[clubId][loc.id] = loc.name;
         });
-
+        
         updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId);
         syncHiddenSelectedLocationsBday(modal, clubId);
+    }
+
+    function generateMonths() {
+
+        let year = new Date().getFullYear();
+        let months = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ];
+
+        let html = "";
+
+        months.forEach((month, index) => {
+
+            let monthValue = year + "-" + String(index + 1).padStart(2, '0');
+
+            html += `
+                <div class="col-4 mb-2">
+                    <button type="button"
+                        class="btn btn-outline-primary w-100 month-btn"
+                        data-month="${monthValue}">
+                        ${month}
+                    </button>
+                </div>
+            `;
+        });
+
+        $("#monthList").html(html);
     }
 
     $(document).on('shown.bs.collapse', '.accordion-collapse', function () {

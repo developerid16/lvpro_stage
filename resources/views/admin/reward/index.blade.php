@@ -385,12 +385,14 @@
         }       
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            $(".validation-error").text('');
             initEditor();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $(".where_use").hide();
             initFlatpickr();
             initFlatpickrDate();
+
         });
       
         // when inventory changes

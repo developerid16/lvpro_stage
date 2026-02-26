@@ -14,8 +14,9 @@ class AppContentController extends Controller
     {
         $terms = AppContent::where('type', 'terms')->first();
         $faq   = AppContent::where('type', 'faq')->first();
+        $onboarding = AppContent::where('type', 'onboarding')->first();
 
-        return view('admin.app-content.index', compact('terms', 'faq'));
+        return view('admin.app-content.index', compact('terms', 'faq', 'onboarding'));
     }
 
 public function store(Request $request)
@@ -23,6 +24,7 @@ public function store(Request $request)
     $request->validate([
         'terms_pdf' => 'nullable|file|mimes:pdf|max:5120',
         'faq_pdf'   => 'nullable|file|mimes:pdf|max:5120',
+        'onboarding_pdf' => 'nullable|file|mimes:pdf|max:5120',
     ]);
 
     $parser = new Parser();
@@ -83,6 +85,36 @@ public function store(Request $request)
         $text = $pdf->getText();
 
         $faq->update([
+            'file_path' => $relativePath,
+            'content'   => $text
+        ]);
+    }
+
+
+      // -------------------------
+    // TERMS
+    // -------------------------
+    if ($request->hasFile('onboarding_pdf')) {
+
+        $terms = AppContent::firstOrCreate(['type' => 'onboarding']);
+
+        // Delete old file
+        if ($terms->file_path && file_exists(public_path($terms->file_path))) {
+            unlink(public_path($terms->file_path));
+        }
+
+        $file = $request->file('onboarding_pdf');
+        $filename = time().'_onboarding.'.$file->getClientOriginalExtension();
+        $file->move(public_path('uploads/pdf'), $filename);
+
+        $relativePath = 'uploads/pdf/'.$filename;
+        $fullPath = public_path($relativePath);
+
+        // Extract text
+        $pdf = $parser->parseFile($fullPath);
+        $text = $pdf->getText();
+
+        $terms->update([
             'file_path' => $relativePath,
             'content'   => $text
         ]);

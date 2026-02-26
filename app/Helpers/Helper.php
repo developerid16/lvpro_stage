@@ -169,7 +169,7 @@ if (!function_exists('imageExists')) {
 
     function imageExists($imagePath)
     {
-        $defaultPath = 'no-image.png';
+        $defaultPath = 'uploads/image/no-image.png';
 
         if (!empty($imagePath) && file_exists(public_path($imagePath))) {
             $imgUrl = asset($imagePath);

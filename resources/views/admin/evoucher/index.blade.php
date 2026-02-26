@@ -550,6 +550,7 @@
         });
         
         $(document).on('shown.bs.modal', '#AddModal', function () {
+            $(".validation-error").text('');
             initEditor();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
@@ -646,48 +647,70 @@
             reader.readAsArrayBuffer(file);
         });
 
-        $(document).on("submit", "#member_voucher", function (e) {
+        $(document).off("submit", "#member_voucher").on("submit", "#member_voucher", function (e) {
             e.preventDefault();
 
-            let form = $(this)[0];
-            let formData = new FormData(form);
+            let $form = $(this);
+
+            // 🔥 HARD LOCK
+            if ($form.data("submitting")) return;
+            $form.data("submitting", true);
+
+            let $submitBtn = $form.find("button[type='submit']");
+            $submitBtn.prop("disabled", true);
+
+            let formData = new FormData(this);
 
             $.ajax({
-                url: form.action,
+                url: this.action,
                 type: "POST",
                 data: formData,
                 processData: false,
-                contentType: false,   
-                dataType: "json",           
-                success: function (res) {                    
-                    $('#form_error').addClass('d-none')
-                    $("#AddMemberVoucher").modal('hide');
-                    show_message(res.status, res.message);   
-                    $("#member_voucher")[0].reset();
-                    $("#push_voucher").val("");
+                contentType: false,
+                dataType: "json",
 
-                    
+                success: function (res) {
+
+                    $form.data("submitting", false);
+                    $submitBtn.prop("disabled", false);
+
+                    $('#form_error').addClass('d-none');
+                    $("#AddMemberVoucher").modal('hide');
+                    show_message(res.status, res.message);
+                    $form[0].reset();
+                    $("#push_voucher").val("");
                 },
-                error: function (xhr) {                 
-                        
-                    $(".error").html(""); // clear previous errors
-                    if (xhr.status === 400) {
-                         $('#form_error')
+
+                error: function (response) {
+                    let errors = response.responseJSON?.errors || {};
+                    $form.data("submitting", false);
+                    $submitBtn.prop("disabled", false);
+                    show_errors(errors);
+                    $(".error").html("");
+
+                    if (response.status === 400) {
+                        $('#form_error')
                             .removeClass('d-none')
                             .addClass('alert-danger')
-                            .html(xhr.responseJSON.message);
-                    }           
-                    // show_errors(xhr.responseJSON.errors);
+                            .html(response.responseJSON.message);
+                    }
                 }
-                
             });
         });
+        
+        $(document).off("submit", "#AddParameterVoucherForm").on("submit", "#AddParameterVoucherForm", function (e) {
+             e.preventDefault();
 
-        $(document).on("submit", "#AddParameterVoucherForm", function (e) {
-            e.preventDefault();
+            let $form = $(this);
 
-            let form = $(this)[0];
-            let formData = new FormData(form);
+            // 🔥 HARD LOCK
+            if ($form.data("submitting")) return;
+            $form.data("submitting", true);
+
+            let $submitBtn = $form.find("button[type='submit']");
+            $submitBtn.prop("disabled", true);
+
+            let formData = new FormData(this);
 
             $.ajax({
                 url: "{{ url('admin/evoucher/push-parameter-voucher') }}",
@@ -701,6 +724,8 @@
                 },
 
                 success: function (res) {
+                    $form.data("submitting", false);
+                    $submitBtn.prop("disabled", false);
                     if (res.status === "success") {
                         show_message(res.status, res.message); 
 
@@ -710,6 +735,8 @@
                 },
 
                 error: function (xhr) {
+                    $form.data("submitting", false);
+                    $submitBtn.prop("disabled", false);
                     if (xhr.status === 422) {
                         $('[data-field-validate]').html('');
                         $('.field-error').remove(); // remove appended single errors
@@ -744,10 +771,12 @@
 
             let form = $('#member_voucher')[0];
 
+
             // 🔥 Reset form fields
             form.reset();
 
             // 🔥 Clear file input manually (important)
+            $('.validation-error').text('');
             $('#memberId').val('');
 
             // 🔥 Reset selects

@@ -114,7 +114,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="title">Unique ID<span
                                         class="required-hash">*</span></label>
-                                <input id="unique_id" type="text" class="sh_dec form-control" name="unique_id"
+                                <input id="unique_id" type="text" class="sh_dec form-control readonly" name="unique_id"
                                     placeholder="" value="{{ $data->unique_id ?? '' }}" required readonly>
                             </div>
                             @error('unique_id')

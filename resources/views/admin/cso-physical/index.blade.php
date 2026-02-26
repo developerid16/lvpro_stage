@@ -156,11 +156,14 @@
 
         // clear old inline error
         $('.remark-error').remove();
+        let formData = new FormData(this);
 
         $.ajax({
             url: ModuleBaseUrl + 'issue',
             type: 'POST',
-            data: $(this).serialize(),
+            processData: false,
+            contentType: false,
+            data: formData,
 
             success: function (res) {
 

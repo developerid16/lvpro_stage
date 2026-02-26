@@ -102,6 +102,20 @@ class CsoPhysicalController extends Controller
                     </button>";
             }
 
+            // ✅ Show View File if file exists
+            if (!empty($row->file)) {
+
+                $fileUrl = asset($row->file);
+
+                $action .= "
+                    <a href='{$fileUrl}'
+                        target='_blank'
+                        class='view-btn'
+                        title='View PDF'>
+                        <span class='mdi mdi-file-pdf-box  font-size-18'></span>
+                    </a>";
+            }
+
             $action .= "</div>";
 
             
@@ -166,23 +180,46 @@ class CsoPhysicalController extends Controller
     public function issue(Request $request)
     {
         $request->validate([
-            'remark'      => 'nullable|string|max:500',
+            'remark' => 'nullable|string|max:500',
+            'file'   => 'nullable|file|mimes:pdf|max:2048', // 2MB max
         ]);
 
         $purchase = Purchase::findOrFail($request->purchase_id);
 
+        $pdfPath = null;
+
+        // ✅ Upload PDF
+        if ($request->hasFile('file')) {
+
+            $file = $request->file('file');
+
+            $fileName = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+
+            $destinationPath = public_path('uploads/pdf');
+
+            // create folder if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            $file->move($destinationPath, $fileName);
+
+            $pdfPath = 'uploads/pdf/'.$fileName;
+        }
+
         $purchase->update([
             'remark'      => $request->remark,
-            'status'      => 'redeemed', // Completed
+            'status'      => 'redeemed',
             'redeemed_at' => now(),
+            'file'        => $pdfPath, // make sure column exists
         ]);
 
         VoucherLog::create([
-            'user_id'           => $purchase->member_id,
-            'reward_id'         => $purchase->reward_id,
-            'action'            => 'redeemed',
-            'receipt_no'        => $request->unique_code,
-            'qty'               => 1,
+            'user_id'    => $purchase->member_id,
+            'reward_id'  => $purchase->reward_id,
+            'action'     => 'redeemed',
+            'receipt_no' => $purchase->unique_code,
+            'qty'        => 1,
         ]);
 
         return response()->json([
@@ -190,7 +227,6 @@ class CsoPhysicalController extends Controller
             'message' => 'Purchase issued successfully.'
         ]);
     }
-
 
     // helper / controller private method / config
     function purchaseStatus($status)

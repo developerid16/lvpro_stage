@@ -41,7 +41,10 @@
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
                             <th data-field="created_at">Created On</th>
-
+                            <th data-field="is_featured">Is Featured</th>
+                            <th data-field="hide_catalogue">
+                                Hide From <br> Catalogue
+                            </th>                            
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
                         </tr>
                     </thead>

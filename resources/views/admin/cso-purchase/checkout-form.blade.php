@@ -34,19 +34,19 @@
                         <div class="col-md-12 col-lg-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="">Name</label>
-                                <input type="text" id="d_name" class="sh_dec form-control mb-2" readonly value="test">
+                                <input type="text" id="d_name" class="sh_dec form-control mb-2 readonly" readonly value="test">
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="">Email</label>
-                                <input type="text" id="d_email" class="sh_dec form-control mb-2" readonly value="test@gmail.com">
+                                <input type="text" id="d_email" class="sh_dec form-control mb-2 readonly" readonly value="test@gmail.com">
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="">Mobile</label>
-                                <input type="text" id="d_mobile" class="sh_dec form-control mb-2" readonly value="88888888888">
+                                <input type="text" id="d_mobile" class="sh_dec form-control mb-2 readonly" readonly value="88888888888">
                             </div>
                         </div>
                         <div class="col-md-12 col-lg-12">
