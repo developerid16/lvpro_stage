@@ -149,7 +149,7 @@ class DashboardPopupController extends Controller
 
         // Upload image
         if ($request->hasFile('image')) {
-            $imageName = time() . rand() . '.' . $request->image->extension();
+            $imageName = generateHashFileName($request->image->getClientOriginalName());
             $request->image->move(public_path('uploads/image'), $imageName);
             $validated['image'] = $imageName;
         }
@@ -217,7 +217,7 @@ class DashboardPopupController extends Controller
         // Replace image if new uploaded
         if ($request->hasFile('image')) {
 
-            $imageName = time() . rand() . '.' . $request->image->extension();
+            $imageName = generateHashFileName($request->image->getClientOriginalName());
             $request->image->move(public_path('uploads/image'), $imageName);
             $validated['image'] = $imageName;
 

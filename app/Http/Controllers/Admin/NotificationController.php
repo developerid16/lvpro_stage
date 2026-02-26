@@ -124,7 +124,8 @@ class NotificationController extends Controller
 
         if ($request->hasFile('img')) {
             $image = $request->file('img');
-            $name = time().'_'.$image->getClientOriginalName();
+            // $name = time().'_'.$image->getClientOriginalName();
+            $name = generateHashFileName($image);
             $image->move(public_path('uploads/image'), $name);
             $post_data['img'] = $name;
         }
@@ -188,7 +189,8 @@ class NotificationController extends Controller
           }
 
           $image = $request->file('img');
-          $name = time().'_'.$image->getClientOriginalName();
+        //   $name = time().'_'.$image->getClientOriginalName();
+          $name = generateHashFileName($image);
           $image->move(public_path('uploads/image'), $name);
           $post_data['img'] = $name;
         }

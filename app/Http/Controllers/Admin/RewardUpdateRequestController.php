@@ -255,6 +255,8 @@ class RewardUpdateRequestController extends Controller
             'reward',
             'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name'
         ])->findOrFail($id);
+        // $data->voucher_image_url = imageExists($data->voucher_image);
+        // $data->voucher_detail_img_url = imageExists($data->voucher_detail_img);
 
         $data['locations'] = RewardLocationUpdate::with('location:id,name')
             ->where('reward_id', $data->reward_id)

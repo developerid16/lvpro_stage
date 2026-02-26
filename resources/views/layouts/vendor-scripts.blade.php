@@ -79,7 +79,7 @@
             altFormat: 'Y-m-d H:i:S',
 
             onReady(_, __, instance) {
-                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
             },
 
             onChange(selectedDates) {
@@ -116,7 +116,7 @@
             altFormat: 'Y-m-d H:i:S',
 
             onReady(_, __, instance) {
-                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
                 instance.input.disabled = true;
             },
 
@@ -178,7 +178,7 @@
                 : null,
 
             onReady(_, __, instance) {
-                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
 
                 if (instance.selectedDates.length && endPickerInstance) {
                     const startDate = instance.selectedDates[0];
@@ -215,7 +215,7 @@
             clickOpens: false,
 
             onReady(_, __, instance) {
-                instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
                 instance.jumpToDate(instance.selectedDates[0] || new Date());
             }
         });
@@ -243,7 +243,7 @@
                 allowInput: true,
 
                 onReady(_, __, instance) {
-                    instance.altInput.placeholder = 'yyyy-MM-dd';
+                    // instance.altInput.placeholder = 'yyyy-MM-dd';
                 }
             });
         });

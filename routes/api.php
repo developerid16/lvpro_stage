@@ -68,6 +68,8 @@ Route::prefix('guid')->group(function () {
 Route::prefix('srp')->group(function () {
     Route::post('master-list-parameter', [SRPController::class, 'masterListParameter']);
     Route::post('merchandise-item-list', [SRPController::class, 'merchandiseItemList']);
+    Route::post('get-token-by-member-id', [SRPController::class, 'getTokenByMemberId']);
+    Route::post('get-email-notification', [SRPController::class, 'getEmailNotification']);
 });
 
 Route::get('master/schedule-run', function () {

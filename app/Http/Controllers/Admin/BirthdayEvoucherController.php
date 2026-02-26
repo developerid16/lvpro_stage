@@ -401,7 +401,8 @@ class BirthdayEvoucherController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
                 $file = $request->file('voucher_image');
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
+                // $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/image'), $filename);
                 $validated['voucher_image'] = $filename;
             }
@@ -417,7 +418,8 @@ class BirthdayEvoucherController extends Controller
                 }
 
                 $file = $request->file('voucher_detail_img');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = generateHashFileName($file);
+                // $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move($path, $filename);
 
                 $validated['voucher_detail_img'] = $filename;
@@ -430,8 +432,8 @@ class BirthdayEvoucherController extends Controller
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
-
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
+                // $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/csv'), $filename);
 
                 $filePath = public_path('uploads/csv/'.$filename);
@@ -966,7 +968,8 @@ class BirthdayEvoucherController extends Controller
             ===================================================*/
             if ($request->hasFile('voucher_image')) {
                 $file = $request->file('voucher_image');
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
+                // $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/image'), $filename);
                 $validated['voucher_image'] = $filename;
             }
@@ -1097,7 +1100,8 @@ class BirthdayEvoucherController extends Controller
                 }
 
                 $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
+                // $filename = time().'_'.$file->getClientOriginalName();
                 $file->move(public_path('uploads/csv'), $filename);
 
                 $updateRequest->csvFile = $filename;

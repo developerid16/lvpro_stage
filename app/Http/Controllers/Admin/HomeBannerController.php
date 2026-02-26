@@ -97,7 +97,9 @@ class HomeBannerController extends Controller
         if (!file_exists($path)) mkdir($path,0777,true);
 
         $file = $request->file('image');
-        $name = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+
+        // $name = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+        $name = generateHashFileName($file);
         $file->move($path,$name);
 
         HomeBanner::create([
@@ -140,7 +142,8 @@ class HomeBannerController extends Controller
             }
 
             $file = $request->file('image');
-            $name = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            // $name = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $name = generateHashFileName($file);
             $file->move($path,$name);
             $data['image'] = $name;
         }

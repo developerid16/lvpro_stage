@@ -169,7 +169,7 @@ if (!function_exists('imageExists')) {
 
     function imageExists($imagePath)
     {
-        $defaultPath = 'no-image.png';
+        $defaultPath = 'uploads/image/no-image.png';
 
         if (!empty($imagePath) && file_exists(public_path($imagePath))) {
             $imgUrl = asset($imagePath);
@@ -197,3 +197,25 @@ if (!function_exists('imagePreviewHtml')) {
     }
 
 }
+
+if (!function_exists('generateHashFileName')) {
+
+    function generateHashFileName($file, $max = 15)
+    {
+        // If UploadedFile object
+        if (is_object($file)) {
+            $filename = $file->getClientOriginalName();
+            $ext = strtolower($file->getClientOriginalExtension());
+        } else {
+            $filename = basename($file);
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        }
+
+        return substr(
+            hash('sha256', $filename . microtime(true)),
+            0,
+            $max - strlen($ext) - 1
+        ) . ($ext ? '.' . $ext : '');
+    }
+}
+

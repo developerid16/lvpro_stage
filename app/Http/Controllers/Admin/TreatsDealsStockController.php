@@ -119,21 +119,22 @@ class TreatsDealsStockController extends Controller
 
             $duration = $row->created_at->format(config('safra.date-format'));
 
-            if (!empty($row->voucher_image)) {
-                $imgUrl = asset("uploads/image/{$row->voucher_image}");
+            $final_data[$key]['image'] = imagePreviewHtml('uploads/image/' . $row->voucher_image);
+            // if (!empty($row->voucher_image)) {
+            //     $imgUrl = asset("uploads/image/{$row->voucher_image}");
 
-                $final_data[$key]['image'] = '
-                    <a href="'.$imgUrl.'" target="_blank">
-                        <img src="'.$imgUrl.'"
-                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-                            alt="Voucher Image">
-                    </a>';
-            } else {
-                $imgUrl = asset("uploads/image/no-image.png");
-                $final_data[$key]['image'] = '<img src="'.$imgUrl.'"
-                            class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-                            alt="Voucher Image">'; // nothing shown
-            }
+            //     $final_data[$key]['image'] = '
+            //         <a href="'.$imgUrl.'" target="_blank">
+            //             <img src="'.$imgUrl.'"
+            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+            //                 alt="Voucher Image">
+            //         </a>';
+            // } else {
+            //     $imgUrl = asset("uploads/image/no-image.png");
+            //     $final_data[$key]['image'] = '<img src="'.$imgUrl.'"
+            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
+            //                 alt="Voucher Image">'; // nothing shown
+            // }
 
            
             $start = $row->publish_start_date;
@@ -331,7 +332,8 @@ class TreatsDealsStockController extends Controller
 
                     // Upload new image
                     $file = $request->file('voucher_image');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
 
                     $file->move($uploadPath, $filename);
 
@@ -366,8 +368,8 @@ class TreatsDealsStockController extends Controller
 
                     // Upload new image
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
-
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($uploadPath, $filename);
 
                     $validated['voucher_detail_img'] = $filename;
@@ -565,7 +567,8 @@ class TreatsDealsStockController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
                     $reward->csvFile = $filename;
@@ -779,8 +782,9 @@ class TreatsDealsStockController extends Controller
 
                 // Upload new image
                 $file = $request->file('voucher_image');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                // $filename = time() . '_' . $file->getClientOriginalName();
 
+                $filename = generateHashFileName($file);
                 $file->move($uploadPath, $filename);
 
                 $validated['voucher_image'] = $filename;
@@ -814,8 +818,9 @@ class TreatsDealsStockController extends Controller
 
                 // Upload new image
                 $file = $request->file('voucher_detail_img');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                // $filename = time() . '_' . $file->getClientOriginalName();
 
+                $filename = generateHashFileName($file);
                 $file->move($uploadPath, $filename);
 
                 $validated['voucher_detail_img'] = $filename;
@@ -1032,7 +1037,8 @@ class TreatsDealsStockController extends Controller
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
+                // $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move(public_path('uploads/csv'), $filename);
 
 

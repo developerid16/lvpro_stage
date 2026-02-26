@@ -99,7 +99,7 @@
 
                                 @if(isset($data->image) && $data->image)
                                     <div class="mt-2">
-                                        <img src="{{ asset('uploads/image/'.$data->image)}}"  style="max-width:100px; border-radius:6px;">
+                                        <img src="{{ imageExists($data->image)}}"  style="max-width:100px; border-radius:6px;">
                                     </div>
                                 @endif
                             </div>

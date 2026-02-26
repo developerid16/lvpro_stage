@@ -87,7 +87,7 @@ class MerchantController extends Controller
             $final_data[$i] = [             
                 'sr_no'     => $index,
                 'name'      => $row->name,
-                'logo' => "<img src='" . asset('uploads/image/'.$row->logo) . "' width='50' height='50'>",
+                'logo' => "<img src='" . imageExists('uploads/image/'.$row->logo) . "' width='50' height='50'>",
                 'status'    => $row->status,
                 'created_at'=> $createdAt,
                 'updated_at'=> $updatedAt,
@@ -153,8 +153,8 @@ class MerchantController extends Controller
         }
 
         $file = $request->file('logo');
-        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-
+        // $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $filename = generateHashFileName($file);
         $file->move($path, $filename);
 
         // -------------------------
@@ -237,7 +237,8 @@ class MerchantController extends Controller
             }
 
             $file = $request->file('logo');
-            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            // $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filename = generateHashFileName($file);
 
             $file->move($path, $filename);
 

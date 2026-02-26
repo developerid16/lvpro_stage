@@ -39,13 +39,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('key:expiry')->yearlyOn(12, 1, '00:02');
         $schedule->command('locations:disable-expired')->daily();
 
-        $schedule->command('member:basic-detail-modified')->everyMinute();
+        $schedule->command('member:basic-detail-modified')->daily();
 
-        $schedule->command('member:basic-detail-ig')->everyMinute();
+        $schedule->command('member:basic-detail-ig')->daily();
 
-        $schedule->command('member:latest-transaction')->everyMinute();
+        $schedule->command('member:latest-transaction')->daily();
 
-        $schedule->command('member:customer-zone')->everyMinute();
+        $schedule->command('member:customer-zone')->daily();
 
         // $schedule->command('master:sync-all')->dailyAt('00:00'); // call manully php artisan master:sync-all
 

@@ -275,7 +275,7 @@ class EvoucherController extends Controller
 
                 if ($request->hasFile('voucher_image')) {
                     $file = $request->file('voucher_image');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/image'), $filename);
                     $validated['voucher_image'] = $filename;
                 }
@@ -291,7 +291,7 @@ class EvoucherController extends Controller
                     }
 
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($path, $filename);
 
                     $validated['voucher_detail_img'] = $filename;
@@ -408,7 +408,8 @@ class EvoucherController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
                     $reward->csvFile = $filename;
@@ -544,7 +545,7 @@ class EvoucherController extends Controller
             * ---------------------------------------------------*/
             if ($request->hasFile('voucher_image')) {
                 $file = $request->file('voucher_image');
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move(public_path('uploads/image'), $filename);
                 $validated['voucher_image'] = $filename;
             }
@@ -560,7 +561,7 @@ class EvoucherController extends Controller
                 }
 
                 $file = $request->file('voucher_detail_img');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move($path, $filename);
 
                 $validated['voucher_detail_img'] = $filename;
@@ -740,7 +741,7 @@ class EvoucherController extends Controller
             if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                 $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move(public_path('uploads/csv'), $filename);
 
                 $updateRequest->csvFile = $filename;
@@ -860,7 +861,8 @@ class EvoucherController extends Controller
                     }
 
                     $file = $request->file('voucher_image');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move($uploadPath, $filename);
 
                     $validated['voucher_image'] = $filename;
@@ -894,7 +896,8 @@ class EvoucherController extends Controller
 
                     // Upload new image
                     $file = $request->file('voucher_detail_img');
-                    $filename = time() . '_' . $file->getClientOriginalName();
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
 
                     $file->move($uploadPath, $filename);
 
@@ -1031,7 +1034,8 @@ class EvoucherController extends Controller
                     }
 
                     $file = $request->file('csvFile');
-                    $filename = time().'_'.$file->getClientOriginalName();
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
                     $reward->csvFile = $filename;
@@ -1222,7 +1226,8 @@ class EvoucherController extends Controller
                 }
 
                 $file = $request->file('voucher_image');
-                $filename = time().'_'.$file->getClientOriginalName();
+                // $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move($uploadPath, $filename);
 
                 $validated['voucher_image'] = $filename;
@@ -1256,8 +1261,8 @@ class EvoucherController extends Controller
 
                 // Upload new image
                 $file = $request->file('voucher_detail_img');
-                $filename = time() . '_' . $file->getClientOriginalName();
-
+                // $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move($uploadPath, $filename);
 
                 $validated['voucher_detail_img'] = $filename;
@@ -1486,7 +1491,8 @@ class EvoucherController extends Controller
                 }
 
                 $file = $request->file('csvFile');
-                $filename = time().'_'.$file->getClientOriginalName();
+                // $filename = time().'_'.$file->getClientOriginalName();
+                $filename = generateHashFileName($file);
                 $file->move(public_path('uploads/csv'), $filename);
 
                 $updateRequest->csvFile = $filename;
@@ -1624,7 +1630,8 @@ class EvoucherController extends Controller
 
             if ($request->hasFile('memberId')) {
                 $file = $request->file('memberId');
-                $fileName = time() . '_' . $file->getClientOriginalName();
+                // $fileName = time() . '_' . $file->getClientOriginalName();
+                $fileName = generateHashFileName($file);
                 $file->move(public_path('uploads/push_voucher'), $fileName);
             }
 

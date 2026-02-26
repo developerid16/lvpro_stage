@@ -45,7 +45,8 @@ public function store(Request $request)
         }
 
         $file = $request->file('terms_pdf');
-        $filename = time().'_terms.'.$file->getClientOriginalExtension();
+        $filename = generateHashFileName($file);
+        // $filename = time().'_terms.'.$file->getClientOriginalExtension();
         $file->move(public_path('uploads/pdf'), $filename);
 
         $relativePath = 'uploads/pdf/'.$filename;

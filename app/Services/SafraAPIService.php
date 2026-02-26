@@ -42,7 +42,7 @@ class SafraAPIService
             'mid' => config('services.safra.merchant_id'),
             'un'  => '',
         ];
-
+        
         return Http::asForm()
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $token,
@@ -255,29 +255,59 @@ class SafraAPIService
     }
 
     /** get master list parameter */
-    public function getSRPMasterListParameter(): array
+    public function getSRPMasterListParameter(array $itemData = []): array
     {
         $response = $this->call(
             'sfrControlMerchandiseRepository/GetSRPMerchandiseItemList',
+            $itemData
         );
         if ($response->failed()) {
-            throw new \Exception('SAFRA API failed: ' . $response->body());
+            throw new \Exception('Get SRP Master List Parameter API failed: ' . $response->body());
         }
         $data = json_decode($response->body()   , true);
         return $data['parameter_list'] ?? [];
     }
 
     /** get merchandise item list */
-    public function getMerchandiseItemList(): array
+    public function getMerchandiseItemList(array $itemData = []): array
     {
         $response = $this->call(
-            'sfrControlMerchandiseRepository/GetMerchandiseList'
+            'sfrControlMerchandiseRepository/GetMerchandiseList',
+            $itemData
         );
         if ($response->failed()) {
-            throw new \Exception('SAFRA API failed: ' . $response->body());
+            throw new \Exception('Get Merchandise Item List API failed: ' . $response->body());
         }
         $data = json_decode($response->body()   , true);
         return $data['merchandise_item_list'] ?? [];
+    }
+
+    /** get token by member id */
+    public function getTokenByMemberId(array $itemData): array
+    {
+        $response = $this->call(
+            'sfrControlMember/GetTokenByMemberId',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('Get Token By Member ID API failed: ' . $response->body());
+        }
+        $data = json_decode($response->body()   , true);
+        return $data ?? [];
+    }
+
+    /** get email notification */
+    public function getEmailNotification(array $itemData): array
+    {
+        $response = $this->call(
+            'sfrControlMember/GetEmailNotification',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('Get Email Notification API failed: ' . $response->body());
+        }
+        return json_decode($response->body()   , true);
+        // return $data['email_notification_list'] ?? [];
     }
 
     
