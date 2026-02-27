@@ -745,161 +745,325 @@
     }
 
  
-    function initTinyMCE(context = document) {
-        if (typeof tinymce === 'undefined') return;
+    // function initTinyMCE(context = document) {
+    //     if (typeof tinymce === 'undefined') return;
     
-        // remove existing editors (important for edit modal)
-        tinymce.remove(context.querySelectorAll('textarea.wysiwyg'));
+    //     // remove existing editors (important for edit modal)
+    //     tinymce.remove(context.querySelectorAll('textarea.wysiwyg'));
     
-        tinymce.init({
-            selector: "textarea.wysiwyg",
-            height: 200,
-            valid_elements: '*[*]',
-            relative_urls: false,
-            remove_script_host: false,
-            convert_urls: true,
-            forced_root_block: false,
-            entity_encoding: 'raw',
+    //     tinymce.init({
+    //         selector: "textarea.wysiwyg",
+    //         height: 200,
+    //         valid_elements: '*[*]',
+    //         relative_urls: false,
+    //         remove_script_host: false,
+    //         convert_urls: true,
+    //         forced_root_block: false,
+    //         entity_encoding: 'raw',
     
-            setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    const text = editor.getContent({ format: 'text' });
+    //         setup: function (editor) {
+    //             editor.on('keydown', function (e) {
+    //                 const text = editor.getContent({ format: 'text' });
     
-                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                        e.preventDefault();
-                    }
-                });
-            },
+    //                 if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+    //                     e.preventDefault();
+    //                 }
+    //             });
+    //         },
     
-            images_upload_url: '{{ url("admin/image-upload-editor") }}',
-            images_upload_base_path: "{{ asset('images') }}/",
+    //         images_upload_url: '{{ url("admin/image-upload-editor") }}',
+    //         images_upload_base_path: "{{ asset('images') }}/",
     
-            plugins: [
-                "advlist autolink link image lists charmap preview hr anchor",
-                "searchreplace wordcount visualblocks code fullscreen",
-                "table emoticons"
-            ],
+    //         plugins: [
+    //             "advlist autolink link image lists charmap preview hr anchor",
+    //             "searchreplace wordcount visualblocks code fullscreen",
+    //             "table emoticons"
+    //         ],
     
-            toolbar:
-                "undo redo | styleselect | bold italic | " +
-                "alignleft aligncenter alignright alignjustify | " +
-                "bullist numlist outdent indent | link image | code",
-                style_formats: [{
-                    title: 'Bold text',
-                    inline: 'b'
-                },
-                {
-                    title: 'Red text',
-                    inline: 'span',
-                    styles: {
-                        color: '#ff0000'
-                    }
-                },
-                {
-                    title: 'Red header',
-                    block: 'h1',
-                    styles: {
-                        color: '#ff0000'
-                    }
-                },
-                {
-                    title: 'Example 1',
-                    inline: 'span',
-                    classes: 'example1'
-                },
-                {
-                    title: 'Example 2',
-                    inline: 'span',
-                    classes: 'example2'
-                },
-                {
-                    title: 'Table styles'
-                },
-                {
-                    title: 'Table row 1',
-                    selector: 'tr',
-                    classes: 'tablerow1'
-                }
-            ]
-        });
-    }    
+    //         toolbar:
+    //             "undo redo | styleselect | bold italic | " +
+    //             "alignleft aligncenter alignright alignjustify | " +
+    //             "bullist numlist outdent indent | link image | code",
+    //             style_formats: [{
+    //                 title: 'Bold text',
+    //                 inline: 'b'
+    //             },
+    //             {
+    //                 title: 'Red text',
+    //                 inline: 'span',
+    //                 styles: {
+    //                     color: '#ff0000'
+    //                 }
+    //             },
+    //             {
+    //                 title: 'Red header',
+    //                 block: 'h1',
+    //                 styles: {
+    //                     color: '#ff0000'
+    //                 }
+    //             },
+    //             {
+    //                 title: 'Example 1',
+    //                 inline: 'span',
+    //                 classes: 'example1'
+    //             },
+    //             {
+    //                 title: 'Example 2',
+    //                 inline: 'span',
+    //                 classes: 'example2'
+    //             },
+    //             {
+    //                 title: 'Table styles'
+    //             },
+    //             {
+    //                 title: 'Table row 1',
+    //                 selector: 'tr',
+    //                 classes: 'tablerow1'
+    //             }
+    //         ]
+    //     });
+    // }    
     
-    function initEditor() {
-        if (typeof tinymce === 'undefined') return;
+    // function initEditor() {
+    //     if (typeof tinymce === 'undefined') return;
                 
-        tinymce.init({
-            selector: "textarea.wysiwyg",
-            height: 200,
-            valid_elements: '*[*]',
-            relative_urls: false,
-            remove_script_host: false,
-            convert_urls: true,
-            forced_root_block: false,
-            entity_encoding: 'raw',
+    //     tinymce.init({
+    //         selector: "textarea.wysiwyg",
+    //         height: 200,
+    //         valid_elements: '*[*]',
+    //         relative_urls: false,
+    //         remove_script_host: false,
+    //         convert_urls: true,
+    //         forced_root_block: false,
+    //         entity_encoding: 'raw',
     
-            setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    const text = editor.getContent({ format: 'text' });
+    //         setup: function (editor) {
+    //             editor.on('keydown', function (e) {
+    //                 const text = editor.getContent({ format: 'text' });
     
-                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                        e.preventDefault();
-                    }
-                });
-            },
+    //                 if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+    //                     e.preventDefault();
+    //                 }
+    //             });
+    //         },
     
-            images_upload_url: '{{ url("admin/image-upload-editor") }}',
-            images_upload_base_path: "{{ asset('images') }}/",
+    //         images_upload_url: '{{ url("admin/image-upload-editor") }}',
+    //         images_upload_base_path: "{{ asset('images') }}/",
     
-            plugins: [
-                "advlist autolink link image lists charmap print preview hr anchor pagebreak",
-                "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media",
-                "save table directionality emoticons template textcolor"
-            ],
+    //         plugins: [
+    //             "advlist autolink link image lists charmap print preview hr anchor pagebreak",
+    //             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media",
+    //             "save table directionality emoticons template textcolor"
+    //         ],
     
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-            style_formats: [{
-                    title: 'Bold text',
-                    inline: 'b'
-                },
-                {
-                    title: 'Red text',
-                    inline: 'span',
-                    styles: {
-                        color: '#ff0000'
-                    }
-                },
-                {
-                    title: 'Red header',
-                    block: 'h1',
-                    styles: {
-                        color: '#ff0000'
-                    }
-                },
-                {
-                    title: 'Example 1',
-                    inline: 'span',
-                    classes: 'example1'
-                },
-                {
-                    title: 'Example 2',
-                    inline: 'span',
-                    classes: 'example2'
-                },
-                {
-                    title: 'Table styles'
-                },
-                {
-                    title: 'Table row 1',
-                    selector: 'tr',
-                    classes: 'tablerow1'
-                }
-            ]
-        });
+    //         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
+    //         style_formats: [{
+    //                 title: 'Bold text',
+    //                 inline: 'b'
+    //             },
+    //             {
+    //                 title: 'Red text',
+    //                 inline: 'span',
+    //                 styles: {
+    //                     color: '#ff0000'
+    //                 }
+    //             },
+    //             {
+    //                 title: 'Red header',
+    //                 block: 'h1',
+    //                 styles: {
+    //                     color: '#ff0000'
+    //                 }
+    //             },
+    //             {
+    //                 title: 'Example 1',
+    //                 inline: 'span',
+    //                 classes: 'example1'
+    //             },
+    //             {
+    //                 title: 'Example 2',
+    //                 inline: 'span',
+    //                 classes: 'example2'
+    //             },
+    //             {
+    //                 title: 'Table styles'
+    //             },
+    //             {
+    //                 title: 'Table row 1',
+    //                 selector: 'tr',
+    //                 classes: 'tablerow1'
+    //             }
+    //         ]
+    //     });
     
     
-    }
+    // }
 
    
+    function initTinyMCE() {
+
+    if (typeof tinymce === 'undefined') return;
+
+    // Remove old instances (important for modal edit)
+    tinymce.remove('textarea.wysiwyg');
+
+    tinymce.init({
+        selector: "textarea.wysiwyg",
+        height: 200,
+
+        // IMPORTANT → prevents multiple block stacking
+        forced_root_block: 'p',
+
+        // Allow all elements
+        valid_elements: '*[*]',
+        relative_urls: false,
+        remove_script_host: false,
+        convert_urls: true,
+        entity_encoding: 'raw',
+
+        // Character limit 180
+        setup: function (editor) {
+            editor.on('keydown', function (e) {
+                const text = editor.getContent({ format: 'text' });
+
+                if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                    e.preventDefault();
+                }
+            });
+        },
+
+        // Image upload
+        images_upload_url: '{{ url("admin/image-upload-editor") }}',
+        images_upload_base_path: "{{ asset('images') }}/",
+
+        plugins: [
+            "advlist autolink link image lists charmap preview hr anchor",
+            "searchreplace wordcount visualblocks code fullscreen",
+            "table emoticons"
+        ],
+
+        // 🔥 Use formatselect (NOT styleselect)
+        toolbar:
+            "undo redo | formatselect | bold italic | " +
+            "alignleft aligncenter alignright alignjustify | " +
+            "bullist numlist outdent indent | link image | code",
+
+        // Allow only one block selection
+        block_formats:
+            "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
+
+        // Custom styles (NO header here)
+        style_formats: [
+            {
+                title: 'Red text',
+                inline: 'span',
+                styles: { color: '#ff0000' }
+            },
+            {
+                title: 'Example 1',
+                inline: 'span',
+                classes: 'example1'
+            },
+            {
+                title: 'Example 2',
+                inline: 'span',
+                classes: 'example2'
+            },
+            {
+                title: 'Table row 1',
+                selector: 'tr',
+                classes: 'tablerow1'
+            }
+        ],
+
+        // Make H1 automatically red
+        content_style: `
+            h1 { color: #ff0000; }
+        `
+    });
+}
+    function initEditor() {
+
+    if (typeof tinymce === 'undefined') return;
+
+    // Remove old instances (important for modal edit)
+    tinymce.remove('textarea.wysiwyg');
+
+    tinymce.init({
+        selector: "textarea.wysiwyg",
+        height: 200,
+
+        // IMPORTANT → prevents multiple block stacking
+        forced_root_block: 'p',
+
+        // Allow all elements
+        valid_elements: '*[*]',
+        relative_urls: false,
+        remove_script_host: false,
+        convert_urls: true,
+        entity_encoding: 'raw',
+
+        // Character limit 180
+        setup: function (editor) {
+            editor.on('keydown', function (e) {
+                const text = editor.getContent({ format: 'text' });
+
+                if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                    e.preventDefault();
+                }
+            });
+        },
+
+        // Image upload
+        images_upload_url: '{{ url("admin/image-upload-editor") }}',
+        images_upload_base_path: "{{ asset('images') }}/",
+
+        plugins: [
+            "advlist autolink link image lists charmap preview hr anchor",
+            "searchreplace wordcount visualblocks code fullscreen",
+            "table emoticons"
+        ],
+
+        // 🔥 Use formatselect (NOT styleselect)
+        toolbar:
+            "undo redo | formatselect | bold italic | " +
+            "alignleft aligncenter alignright alignjustify | " +
+            "bullist numlist outdent indent | link image | code",
+
+        // Allow only one block selection
+        block_formats:
+            "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
+
+        // Custom styles (NO header here)
+        style_formats: [
+            {
+                title: 'Red text',
+                inline: 'span',
+                styles: { color: '#ff0000' }
+            },
+            {
+                title: 'Example 1',
+                inline: 'span',
+                classes: 'example1'
+            },
+            {
+                title: 'Example 2',
+                inline: 'span',
+                classes: 'example2'
+            },
+            {
+                title: 'Table row 1',
+                selector: 'tr',
+                classes: 'tablerow1'
+            }
+        ],
+
+        // Make H1 automatically red
+        content_style: `
+            h1 { color: #ff0000; }
+        `
+    });
+}
 
     $(document).on('change', '.merchant-dropdown', function () {
 

@@ -273,6 +273,11 @@ class BirthdayEvoucherController extends Controller
             ];
 
             $messages = [
+                // Voucher Name
+                'name.required' => 'Voucher Name is required.',
+                'name.string'   => 'Voucher Name must be valid text.',
+                'name.max'      => 'Voucher Name may not be greater than 191 characters.',
+
                 'term_of_use.required'         => 'Voucher T&C is required',
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -831,7 +836,12 @@ class BirthdayEvoucherController extends Controller
                 'low_stock_2'       => 'nullable|min:0',
             ];
 
-            $messages = [              
+            $messages = [     
+                // Voucher Name
+                'name.required' => 'Voucher name is required.',
+                'name.string'   => 'Voucher name must be valid text.',
+                'name.max'      => 'Voucher name may not be greater than 191 characters.',
+         
                 'term_of_use.required' => 'Voucher T&C is required',
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',

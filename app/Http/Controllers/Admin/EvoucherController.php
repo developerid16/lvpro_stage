@@ -482,24 +482,36 @@ class EvoucherController extends Controller
                 ];
     
                 $messages = [
+                     // Voucher Name
+                    'name.required' => 'Voucher name is required.',
+                    'name.string'   => 'Voucher name must be valid text.',
+                    'name.max'      => 'Voucher name may not be greater than 191 characters.',
+
+                    // Redemption Start Date & Time
+                   'sales_start.required' => 'Redemption start date & time is required.',
+                   'sales_start.date'     => 'Redemption start date & time must be a valid date.',
+                   'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
+
+                   // Redemption End Date & Time
+                   'sales_end.required' => 'Redemption end date & time is required.',
+                   'sales_end.date'     => 'Redemption end date & time must be a valid date.',
+                   'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+
+                   // Voucher Validity Date
+                   'voucher_validity.required' => 'Voucher validity date is required.',
+                   'voucher_validity.date'     => 'Voucher validity date must be a valid date.',
+                   'voucher_validity.after_or_equal' => 'Voucher validity date must be after or equal to Redemption end date & time.',
+
                      // Publish Start
-                    'publish_start.required' => 'Publish Start Date & Time is required.',
-                    'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
+                    'publish_start.required' => 'Publish start date & time is required.',
+                    'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
 
                     // Publish End
-                    'publish_end.required'        => 'Publish End Date & Time is required.',
-                    'publish_end.date'            => 'Publish End Date must be a valid date and time.',
-                    'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
+                    'publish_end.required'        => 'Publish end date & time is required.',
+                    'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                    'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
 
-                    // Sales Start
-                    'sales_start.required'        => 'Sales Start Date & Time is required.',
-                    'sales_start.date'            => 'Sales Start Date must be a valid date and time.',
-                    'sales_start.after_or_equal'  => 'Sales Start Date cannot be before Publish Start Date.',
 
-                    // Sales End
-                    'sales_end.required'          => 'Sales End Date & Time is required.',
-                    'sales_end.date'              => 'Sales End Date must be a valid date and time.',
-                    'sales_end.after_or_equal'    => 'Sales End Date must be equal to or after Sales Start Date.',
                     
                     'set_qty.required' => 'Voucher set quantity is required.',
                     'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -1131,23 +1143,33 @@ class EvoucherController extends Controller
 
             $messages = [
                  // Publish Start
-                'publish_start.required' => 'Publish Start Date & Time is required.',
-                'publish_start.date'     => 'Publish Start must be a valid date and time.',
+                'publish_start.required' => 'Publish start date & time is required.',
+                'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
 
                 // Publish End
-                'publish_end.required'        => 'Publish End Date & Time is required.',
-                'publish_end.date'            => 'Publish End must be a valid date and time.',
-                'publish_end.after_or_equal'  => 'Publish End must be equal to or after Publish Start.',
+                'publish_end.required'        => 'Publish end date & time is required.',
+                'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
 
-                // Sales Start
-                'sales_start.required'        => 'Sales Start Date & Time is required.',
-                'sales_start.date'            => 'Sales Start must be a valid date and time.',
-                'sales_start.after_or_equal'  => 'Sales Start cannot be before Publish Start.',
+                // Voucher Name
+                'name.required' => 'Voucher name is required.',
+                'name.string'   => 'Voucher name must be valid text.',
+                'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                // Sales End
-                'sales_end.required'          => 'Sales End Date & Time is required.',
-                'sales_end.date'              => 'Sales End must be a valid date and time.',
-                'sales_end.after_or_equal'    => 'Sales End must be equal to or after Sales Start.',
+                // Redemption Start Date & Time
+                'sales_start.required' => 'Redemption start date & time is required.',
+                'sales_start.date'     => 'Redemption start date & time must be a valid date.',
+                'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
+
+                // Redemption End Date & Time
+                'sales_end.required' => 'Redemption end date & time is required.',
+                'sales_end.date'     => 'Redemption end date & time must be a valid date.',
+                'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+
+                // Voucher Validity Date
+                'voucher_validity.required' => 'Voucher validity date is required.',
+                'voucher_validity.date'     => 'Voucher validity date must be a valid date.',
+                'voucher_validity.after_or_equal' => 'Voucher validity date must be after or equal to Redemption end date & time.',
 
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',

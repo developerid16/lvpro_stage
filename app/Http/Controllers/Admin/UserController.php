@@ -106,64 +106,74 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name'     => 'required',
-           'email' => [
-                'required',
-                'email',
-                Rule::unique('users', 'email')->whereNull('deleted_at')
-            ],
-            'phone'    => 'required|unique:users,phone',
-            'status'   => 'required',
-            'role'     => 'required',
-            ]);
-            
-        $request->validate([
-            'password' => [
-                'required',
-                'confirmed',
-                Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols()
-            ],
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Validation error',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
+{
+    $validator = Validator::make($request->all(), [
 
-        $post_data = $validator->validated();
+        'name'   => 'required|string|max:191',
 
-        $password = $request->password;
-        $post_data['password'] = Hash::make($password);
+        'email' => [
+            'required',
+            'email',
+            Rule::unique('users', 'email')->whereNull('deleted_at')
+        ],
 
-        $role = $post_data['role'];
-        unset($post_data['role']);
+        'phone'  => 'required|unique:users,phone',
+        'status' => 'required',
+        'role'   => 'required|array|min:1',
 
-        try {
+        'password' => [
+            'required',
+            'confirmed',
+            Password::min(8)
+                ->mixedCase()
+                ->letters()
+                ->numbers()
+                ->symbols()
+        ],
 
-            $user = User::create($post_data);
+    ], [
 
-            $user->assignRole($role);
+        // Required Messages
+        'name.required'   => 'Name is required.',
+        'email.required'  => 'Email is required.',
+        'phone.required'  => 'Phone Number is required.',
+        'status.required' => 'Status is required.',
+        'role.required'   => 'Role is required.',
+        'password.required' => 'Password is required.',
 
-            return response()->json([
-                'status'  => true,
-                'message' => 'User Created Successfully'
-            ]);
+        // Unique Messages
+        'email.unique' => 'Email already exists.',
+        'phone.unique' => 'Phone Number already exists.',
 
-        } catch (\Exception $e) {
+        // Password Strength
+        'password.confirmed' => 'Password confirmation does not match.',
+        'password.min'       => 'Password must be at least 8 characters.',
+        'password.mixed'     => 'Password must contain uppercase and lowercase letters.',
+        'password.letters'   => 'Password must contain letters.',
+        'password.numbers'   => 'Password must contain numbers.',
+        'password.symbols'   => 'Password must contain special characters.',
+    ]);
 
-            return response()->json([
-                'status'  => false,
-                'message' => $e->getMessage()
-            ], 500);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'status'  => false,
+            'errors'  => $validator->errors()
+        ], 422);
+    }
+
+    $data = $validator->validated();
+    $data['password'] = Hash::make($data['password']);
+
+    $roles = $data['role'];
+    unset($data['role']);
+
+    $user = User::create($data);
+    $user->assignRole($roles);
+
+    return response()->json([
+        'status'  => true,
+        'message' => 'User Created Successfully'
+    ]);
     }
     /**
      * Display the specified resource.
