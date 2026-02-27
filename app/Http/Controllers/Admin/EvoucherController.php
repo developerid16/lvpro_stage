@@ -2009,37 +2009,33 @@ class EvoucherController extends Controller
             // 'voucher'    => 'required|string',
             'reward_id' => 'required|exists:rewards,id',
 
-            'interest_group'   => 'required|array',
+            'interest_group'   => 'nullable|array',
             'interest_group.*' => 'exists:master_interest_groups,id',
 
-            'publish_channels' => 'required|array',
-            'card_types'       => 'required|array',
-            'marital_status'   => 'required|array',
-            'gender'           => 'required|array',
-            'zone'             => 'required|array',
+            'publish_channels' => 'nullable|array',
+            'card_types'       => 'nullable|array',
+            'marital_status'   => 'nullable|array',
+            'gender'           => 'nullable|array',
+            'zone'             => 'nullable|array',
 
-            'age_mode' => 'required|in:All,custom',
-            'age_from' => $ageMode === 'custom'
-                ? 'required|integer|min:1|max:100'
-                : 'nullable|integer|min:1|max:100',
-            'age_to'   => $ageMode === 'custom'
-                ? 'required|integer|min:1|max:100|gte:age_from'
-                : 'nullable|integer|min:1|max:100',
+            'age_mode' => 'nullable|in:All,custom',
+            'age_from' => $ageMode === 'custom' ? 'nullable|integer|min:1|max:100' : 'nullable|integer|min:1|max:100',
+            'age_to'   => $ageMode === 'custom' ? 'nullable|integer|min:1|max:100|gte:age_from' : 'nullable|integer|min:1|max:100',
 
             // Membership dates — nullable, format Y-m
-            'membership_join_from'      => 'required|date_format:Y-m',
-            'membership_join_to'        => 'required|date_format:Y-m|after_or_equal:membership_join_from',
+            'membership_join_from'      => 'nullable|date_format:Y-m',
+            'membership_join_to'        => 'nullable|date_format:Y-m|after_or_equal:membership_join_from',
 
-            'membership_expiry_from'    => 'required|date_format:Y-m',
-            'membership_expiry_to'      => 'required|date_format:Y-m|after_or_equal:membership_expiry_from',
+            'membership_expiry_from'    => 'nullable|date_format:Y-m',
+            'membership_expiry_to'      => 'nullable|date_format:Y-m|after_or_equal:membership_expiry_from',
 
-            'membership_renewable_from' => 'required|date_format:Y-m',
-            'membership_renewable_to'   => 'required|date_format:Y-m|after_or_equal:membership_renewable_from',
+            'membership_renewable_from' => 'nullable|date_format:Y-m',
+            'membership_renewable_to'   => 'nullable|date_format:Y-m|after_or_equal:membership_renewable_from',
         ];
 
         $messages = [
-            'age_from.required'                         => 'Age From is required when custom age is selected.',
-            'age_to.required'                           => 'Age To is required when custom age is selected.',
+            'age_from.nullable'                         => 'Age From is nullable when custom age is selected.',
+            'age_to.nullable'                           => 'Age To is nullable when custom age is selected.',
             'age_to.gte'                                => 'Age To must be greater than or equal to Age From.',
 
             'membership_join_to.after_or_equal'         => 'Membership Join To must be on or after From.',

@@ -206,6 +206,51 @@
         initRowDragDrop();
     });
 
+    $('#AddModal').on('shown.bs.modal', function () {
+
+        let preview = $(this).find('#logo_preview');
+        let clearBtn = $(this).find('#clear_logo_preview');
+
+        // Always show default no-image in Add
+        preview.attr('src', "{{ asset('uploads/image/no-image.png') }}").hide();
+
+        clearBtn.hide();
+    });
+    function imagePreview(inputSelector, previewSelector) {
+        $(document).on("change", inputSelector, function () {
+            let file = this.files[0];
+            let preview = $(previewSelector);
+
+            const clearBtn = $('#clear_logo_preview');
+            if (!file) {
+                preview.attr("src", "").hide();
+                clearBtn.hide();
+                return;
+            }
+
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                preview.attr("src", e.target.result).show();
+            };
+
+            clearBtn.show();
+            reader.readAsDataURL(file);
+        });
+    }
+    $(document).on('click', '#clear_logo_preview', function () {
+
+        const modal = $(this).closest('.modal'); // auto-detect modal
+        const input = modal.find('#logo_input')[0];
+        const preview = modal.find('#logo_preview');
+
+        if (input) {
+            input.value = '';   // reset file input
+        }
+
+        preview.attr('src', '').hide();
+        $(this).hide();
+    });
+    imagePreview("#logo_input", "#logo_preview");
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection

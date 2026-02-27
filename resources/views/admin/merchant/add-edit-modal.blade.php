@@ -70,9 +70,9 @@ $(document).on("click", "#clear_logo_preview", function () {
                                     type="file" 
                                     class="sh_dec form-control" 
                                     name="logo"
-                                    accept="image/png, image/jpg, image/jpeg">
+                                    accept=".png,.jpg,.jpeg">
                                 <div class="d-flex justify-content-between mt-1">
-                                    <span class="text-secondary">(100 px X 100 px)</span>
+                                    <span class="text-secondary">(Size: 100px × 100px | Format: PNG, JPG, JPEG)</span>
                                     <div class="position-relative d-inline-block">
                                         <img id="logo_preview" src="{{ isset($data) && $data->logo ? imageExists('uploads/image/' . $data->logo) : '' }}" style="max-width:50px;"  alt="Logo Preview" />
                                         <a href="javascript:void(0);" id="clear_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>

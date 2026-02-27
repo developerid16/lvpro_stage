@@ -100,25 +100,31 @@
                             </div>                           
                            
                             <!--- Interest Groups-->
-                            <div class="row mb-3 ">
-                                <label class="col-md-3 fw-bold">Interest Groups<span class="required-hash">*</span></label>
+                            <div class="row mb-3 ctm-select-scroll">
+                                <label class="col-md-3 fw-bold">Interest Groups<span class="required-hash"></span></label>
 
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
 
                                     @if(!empty($master_interest_groups) && count($master_interest_groups))
 
                                         <select class="form-select interest-group"
-                                                name="interest_group[]"
-                                                multiple
-                                                style="width:100%">
+                                            name="interest_group[]"
+                                            multiple
+                                            style="width:100%">
 
-                                            @foreach ($master_interest_groups as $group)
-                                                <option value="{{ $group->id }}">
-                                                    {{ $group->interest_group_name }}
-                                                </option>
-                                            @endforeach
+                                        <option value="all">Select / Unselect All</option>
 
-                                        </select>
+                                        @foreach ($master_interest_groups as $group)
+                                            <option value="{{ $group->id }}">
+                                                {{ $group->interest_group_name }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+
+                                    <span id="interest-count" class="ms-2 fw-semibold text-primary">
+                                        0 selected
+                                    </span>
 
                                     @else
                                         <span class="text-muted">No interest group data available</span>
@@ -130,7 +136,7 @@
 
                             <!--publish channel-->
                            <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Publish Channel<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Publish Channel<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_membership_codes) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -152,7 +158,7 @@
 
                             <!--card Type-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Card Type<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Card Type<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_card_types) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -174,7 +180,7 @@
 
                             <!--Marital Status-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Marital Status<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Marital Status<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_marital_statuses) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -196,7 +202,7 @@
 
                             <!--Gender-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Gender<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Gender<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_genders) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -218,7 +224,7 @@
 
                             <!---Age-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Age<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Age<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3 align-items-center">
 
                                     @php
@@ -268,7 +274,7 @@
 
                             <!--- Zones-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Zones<span class="required-hash">*</span></label>
+                                <label class="col-md-3 fw-bold">Zones<span class="required-hash"></span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_zones) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -290,16 +296,16 @@
 
                             <!-- Membership Joining Date -->
                             <div class="row mb-3">
-                                <label class="col-md-3 fw-bold">Membership Joining Date<span class="required-hash">*</span> :</label>
+                                <label class="col-md-3 fw-bold">Membership Joining Date<span class="required-hash"></span> :</label>
                                 <div class="col-md-9">
                                     <div class="row align-items-center">
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">From</label>
-                                            <input type="text" name="membership_join_from" class="form-control membership-month-from" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_join_from" class="form-control membership-month-from common-month" placeholder="yyyy-MM">
                                         </div>
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">To</label>
-                                            <input type="text" name="membership_join_to" class="form-control membership-month-to" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_join_to" class="form-control membership-month-to common-month" placeholder="yyyy-MM">
                                         </div>
                                     </div>
                                 </div>
@@ -307,16 +313,16 @@
 
                             <!-- Membership Expiry -->
                             <div class="row mb-3">
-                                <label class="col-md-3 fw-bold">Membership Expiry<span class="required-hash">*</span> :</label>
+                                <label class="col-md-3 fw-bold">Membership Expiry<span class="required-hash"></span> :</label>
                                 <div class="col-md-9">
                                     <div class="row align-items-center">
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">From</label>
-                                            <input type="text" name="membership_expiry_from" class="form-control membership-month-from" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_expiry_from" class="form-control membership-month-from common-month" placeholder="yyyy-MM">
                                         </div>
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">To</label>
-                                            <input type="text" name="membership_expiry_to" class="form-control membership-month-to" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_expiry_to" class="form-control membership-month-to common-month" placeholder="yyyy-MM">
                                         </div>
                                     </div>
                                 </div>
@@ -324,16 +330,16 @@
 
                             <!-- Membership Renewable Date -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-3 fw-bold">Membership Renewable Date<span class="required-hash">*</span> :</label>
+                                <label class="col-md-3 fw-bold">Membership Renewable Date<span class="required-hash"></span> :</label>
                                 <div class="col-md-9">
                                     <div class="row align-items-center">
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">From</label>
-                                            <input type="text" name="membership_renewable_from" class="form-control membership-month-from" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_renewable_from" class="form-control membership-month-from common-month" placeholder="yyyy-MM">
                                         </div>
                                         <div class="col-md-6 d-flex align-items-center gap-2">
                                             <label class="mb-0">To</label>
-                                            <input type="text" name="membership_renewable_to" class="form-control membership-month-to" placeholder="yyyy-MM">
+                                            <input type="text" name="membership_renewable_to" class="form-control membership-month-to common-month" placeholder="yyyy-MM">
                                         </div>
                                     </div>
                                 </div>
@@ -552,6 +558,8 @@
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $(".validation-error").text('');
             initEditor();
+            $('#voucher_image_preview').hide();
+            $('#voucher_detail_img_preview').hide();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             initFlatpickr();
@@ -697,10 +705,16 @@
                 }
             });
         });
+
+        $('#AddParameterVoucher').on('keydown', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                return false;
+            }
+        });
         
         $(document).off("submit", "#AddParameterVoucherForm").on("submit", "#AddParameterVoucherForm", function (e) {
              e.preventDefault();
-
             let $form = $(this);
 
             // 🔥 HARD LOCK
@@ -735,6 +749,7 @@
                 },
 
                 error: function (xhr) {
+                    show_errors(xhr.responseJSON.errors);
                     $form.data("submitting", false);
                     $submitBtn.prop("disabled", false);
                     if (xhr.status === 422) {
@@ -934,11 +949,54 @@
         $('#AddParameterVoucher').on('shown.bs.modal', function () 
         {    
             // Interest Group Select2
+            // $('.interest-group').select2({
+            //     dropdownParent: $('#AddParameterVoucher'),
+            //     placeholder: "Select Interest Groups",
+            //     width: '100%',
+            // });
+
             $('.interest-group').select2({
                 dropdownParent: $('#AddParameterVoucher'),
                 placeholder: "Select Interest Groups",
                 width: '100%',
             });
+
+            function updateCount() {
+                let selected = $('.interest-group').val() || [];
+                let count = selected.filter(v => v !== 'all').length;
+                $('#interest-count').text(count + ' selected');
+            }
+
+            $('.interest-group').on('select2:select', function (e) {
+
+                let selected = $(this).val() || [];
+                let totalOptions = $(this).find('option').length - 1;
+
+                if (e.params.data.id === 'all') {
+
+                    // If already all selected → unselect everything
+                    if (selected.length - 1 === totalOptions) {
+                        $(this).val(null).trigger('change');
+                    } else {
+                        let allValues = [];
+                        $(this).find('option').each(function () {
+                            if ($(this).val() !== 'all') {
+                                allValues.push($(this).val());
+                            }
+                        });
+                        $(this).val(allValues).trigger('change');
+                    }
+                }
+
+                updateCount();
+            });
+
+            $('.interest-group').on('change', function () {
+                updateCount();
+            });
+
+            // Initial update
+            updateCount();
 
             // Month pickers — FROM fields
             document.querySelectorAll('#AddParameterVoucher .membership-month-from').forEach(function (fromEl) {

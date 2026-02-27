@@ -67,9 +67,7 @@
         let clearBtn = $(this).find('#clear_logo_preview');
 
         // Always show default no-image in Add
-        preview
-            .attr('src', "{{ asset('uploads/image/no-image.png') }}")
-            .show();
+        preview.attr('src', "{{ asset('uploads/image/no-image.png') }}").hide();
 
         clearBtn.hide();
     });

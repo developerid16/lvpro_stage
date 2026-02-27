@@ -8,6 +8,8 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
+
+
 <script>
     $.ajaxSetup({
         xhrFields: {
@@ -19,6 +21,19 @@
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
+
+    $(document).on('keydown', 'form', function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            return false;
+        }
+    });
+    $(document).on('keydown', '.common-datetime, .common-date, .month-picker, .js-flat-date', function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            $(this).blur(); // close picker properly
+        }
+    });
 
     $('#change-password').on('submit',function(event){
         event.preventDefault();
@@ -74,9 +89,12 @@
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:S',
+            minuteIncrement: 1,      // 👈 change here
+            secondIncrement: 1,      // 👈 change here
+            dateFormat: 'Y-m-d H:i',
             altInput: true,
-            altFormat: 'Y-m-d H:i:S',
+            altFormat: 'Y-m-d H:i',
+            enableSeconds: false,
             confirmIcon: "<i class='fa fa-check'></i>",
             confirmText: "OK ",
 
@@ -113,9 +131,12 @@
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:S',
+            minuteIncrement: 1,      // 👈 change here
+            secondIncrement: 1,      // 👈 change here
+            dateFormat: 'Y-m-d H:i',
             altInput: true,
-            altFormat: 'Y-m-d H:i:S',
+            altFormat: 'Y-m-d H:i',
+            enableSeconds: false,
 
             onReady(_, __, instance) {
                 // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -155,7 +176,7 @@
 
     function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
 
-        const startEl = modal.querySelector(startSelector);.0
+        const startEl = modal.querySelector(startSelector);
         const endEl   = modal.querySelector(endSelector);
 
         if (!startEl || !endEl) return;
@@ -173,9 +194,9 @@
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:s',
+            dateFormat: 'Y-m-d H:i',
             altInput: true,
-            altFormat: 'Y-m-d H:i:s',
+            altFormat: 'Y-m-d H:i',
             defaultDate: startEl.value
                 ? new Date(startEl.value.replace(' ', 'T'))
                 : null,
@@ -209,9 +230,9 @@
             enableTime: true,
             enableSeconds: true,
             time_24hr: true,
-            dateFormat: 'Y-m-d H:i:s',
+            dateFormat: 'Y-m-d H:i',
             altInput: true,
-            altFormat: 'Y-m-d H:i:s',
+            altFormat: 'Y-m-d H:i',
             defaultDate: endEl.value
                 ? new Date(endEl.value.replace(' ', 'T'))
                 : null,
@@ -762,7 +783,44 @@
             toolbar:
                 "undo redo | styleselect | bold italic | " +
                 "alignleft aligncenter alignright alignjustify | " +
-                "bullist numlist outdent indent | link image | code"
+                "bullist numlist outdent indent | link image | code",
+                style_formats: [{
+                    title: 'Bold text',
+                    inline: 'b'
+                },
+                {
+                    title: 'Red text',
+                    inline: 'span',
+                    styles: {
+                        color: '#ff0000'
+                    }
+                },
+                {
+                    title: 'Red header',
+                    block: 'h1',
+                    styles: {
+                        color: '#ff0000'
+                    }
+                },
+                {
+                    title: 'Example 1',
+                    inline: 'span',
+                    classes: 'example1'
+                },
+                {
+                    title: 'Example 2',
+                    inline: 'span',
+                    classes: 'example2'
+                },
+                {
+                    title: 'Table styles'
+                },
+                {
+                    title: 'Table row 1',
+                    selector: 'tr',
+                    classes: 'tablerow1'
+                }
+            ]
         });
     }    
     
@@ -1040,7 +1098,7 @@
             .addClass('mdi-chevron-down');
     });
 
-
+   
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
@@ -1057,4 +1115,29 @@
 <script src="{{ URL::asset('build/js/custom.js')}}"></script>
 <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 <script src="{{ URL::asset('/build/libs/flatpicker/flatpickr.js') }}"></script>
+<script>
+(function () {
+  function closeOpenFlatpickrs() {
+    document.querySelectorAll('input.flatpickr-input').forEach(function (el) {
+      if (el._flatpickr && el._flatpickr.isOpen) {
+        el._flatpickr.close();
+      }
+    });
+  }
+
+  function onModalMove(e) {
+    var t = e.target;
+    if (t && t.closest && t.closest('.modal.show')) {
+      closeOpenFlatpickrs();
+    }
+  }
+
+  // scroll doesn't bubble reliably -> use capture
+  document.addEventListener('scroll', onModalMove, true);
+  document.addEventListener('wheel', onModalMove, { capture: true, passive: true });
+  document.addEventListener('touchmove', onModalMove, { capture: true, passive: true });
+})();
+</script>
+
+
 @yield('script-bottom')

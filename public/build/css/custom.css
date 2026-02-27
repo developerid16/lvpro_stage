@@ -604,3 +604,8 @@ input::placeholder {
     padding-right: 35px;
     cursor: pointer;
 }
+
+.ctm-select-scroll .select2-selection__rendered {
+    max-height: 100px;
+    overflow-y: auto !important;
+}

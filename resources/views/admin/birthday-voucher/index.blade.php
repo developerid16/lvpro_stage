@@ -238,7 +238,8 @@
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $(".validation-error").text('');
             initEditor();
-            
+             $('#voucher_image_preview').hide();
+            $('#voucher_detail_img_preview').hide();
             $('#clear_voucher_detail_img').hide();
             $('#clear_voucher_image').hide();
             $('.outlet-container').hide();

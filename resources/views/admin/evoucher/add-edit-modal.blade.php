@@ -175,10 +175,10 @@
                     <div class="row">                      
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="cso_method">Push Method<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="cso_method">Push Method <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select cso_method" name="cso_method">
                                     {{-- <option class="sh_dec" value="">Select CSO Method</option> --}}
-                                    <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> App/Web</option>
+                                    <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> All members</option>
                                     <option class="sh_dec" value="0" {{ isset($data->cso_method) && $data->cso_method == '0' ? 'selected' : '' }}> CSO Issuance</option>
                                     <option class="sh_dec" value="1" {{ isset($data->cso_method) && $data->cso_method == '1' ? 'selected' : '' }}> Push Voucher by Member ID</option>
                                     <option class="sh_dec" value="2" {{ isset($data->cso_method) && $data->cso_method == '2' ? 'selected' : '' }}> Push Voucher by Parameter</option>
@@ -188,7 +188,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Reward Name <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="name">Voucher Name <span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
@@ -199,7 +199,7 @@
                                 </label>
                                 <input id="voucher_image" type="file" class="sh_dec form-control voucher_image" name="voucher_image" accept=".png,.jpg,.jpeg">
                                 <div class="d-flex justify-content-between mt-1">
-                                    <span class="text-secondary">(100 px X 100 px)</span>
+                                    <span class="text-secondary">(Size: 100px × 100px | Format: PNG, JPG, JPEG)</span>
                                     <div class="position-relative d-inline-block">
                                         <img id="voucher_image_preview" data-file="{{ $data->voucher_image ?? '' }}" src="{{ !empty($data->voucher_image) ? imageExists('uploads/image/'.$data->voucher_image) : imageExists('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" />
                                         <!-- <img id="voucher_image_preview" src="{{ !empty($data?->voucher_image) ? asset('uploads/image/'.$data->voucher_image) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Image" /> -->
@@ -216,10 +216,9 @@
                                 </label>
                                 <input id="voucher_detail_img" type="file" class="sh_dec form-control voucher_detail_img" name="voucher_detail_img" accept=".png,.jpg,.jpeg">
                                 <div class="d-flex justify-content-between mt-1">
-                                    <span class="text-secondary">(351 px X 190 px)</span>
+                                    <span class="text-secondary">(Size: 351px × 190px | Format: PNG, JPG, JPEG)</span>
                                     <div class="position-relative d-inline-block">
                                         <img id="voucher_detail_img_preview" data-file="{{ $data->voucher_detail_img ?? '' }}" src="{{ !empty($data->voucher_detail_img) ? imageExists('uploads/image/'.$data->voucher_detail_img) : imageExists('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image" />
-                                        <!-- <img id="voucher_detail_img_preview" src="{{ !empty($data?->voucher_detail_img) ? asset('uploads/image/'.$data->voucher_detail_img) : asset('uploads/image/no-image.png') }}" style="max-width:50px;"  alt="Voucher Detail Image"/> -->
                                         <a href="javascript:void(0);" id="clear_voucher_detail_img" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"> <span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>
@@ -307,7 +306,7 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text"  class="form-control" name="publish_start" value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
+                                            <input type="text"  class="form-control common-datetime" name="publish_start" value="{{ isset($data->publish_start_date) ? $data->publish_start_date . ' ' . $data->publish_start_time : '' }}">
                                             <div class="text-danger small publish-error"></div>
 
                                         </div>
@@ -316,7 +315,7 @@
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
                                             <label class="sh_dec font-12">Publish End Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text" class="form-control"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
+                                            <input type="text" class="form-control common-datetime"  name="publish_end"  value="{{ isset($data->publish_end_date) ? $data->publish_end_date . ' ' . $data->publish_end_time : '' }}">
                                             <div class="text-danger small sales-error"></div>
                                         </div>
                                     </div>
@@ -324,14 +323,14 @@
                                     <!-- Sales fields -->
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text"  class="form-control" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
+                                            <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash">*</span></label>
+                                            <input type="text"  class="form-control common-datetime" name="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Sales End Date & Time <span class="required-hash">*</span></label>
-                                            <input type="text" class="form-control" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
+                                            <label class="sh_dec font-12">Redemption End Date & Time <span class="required-hash">*</span></label>
+                                            <input type="text" class="form-control common-datetime" name="sales_end"  value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-12">
@@ -382,7 +381,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_validity">Voucher Validity <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="voucher_validity">Voucher Validity Date <span class="required-hash">*</span></label>
                                <input
                                     id="voucher_validity"
                                     type="text"
@@ -442,7 +441,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="required-hash">*</span></label>    
                                 <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
