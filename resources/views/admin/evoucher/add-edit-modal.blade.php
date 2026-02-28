@@ -178,7 +178,7 @@
                                 <label class="sh_dec" for="cso_method">Push Method <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select cso_method" name="cso_method">
                                     {{-- <option class="sh_dec" value="">Select CSO Method</option> --}}
-                                    <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> All members</option>
+                                    <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> All Members</option>
                                     <option class="sh_dec" value="0" {{ isset($data->cso_method) && $data->cso_method == '0' ? 'selected' : '' }}> CSO Issuance</option>
                                     <option class="sh_dec" value="1" {{ isset($data->cso_method) && $data->cso_method == '1' ? 'selected' : '' }}> Push Voucher by Member ID</option>
                                     <option class="sh_dec" value="2" {{ isset($data->cso_method) && $data->cso_method == '2' ? 'selected' : '' }}> Push Voucher by Parameter</option>
@@ -281,20 +281,32 @@
                             <label class="col-md-3 fw-bold">Direct Utilization</label>
 
                             <div class="col-md-2 d-flex align-items-center">
-                                <!-- Hidden default value (so controller logic doesn't break) -->
+
+                                <!-- Hidden default -->
                                 <input type="hidden" name="direct_utilization" value="0">
 
                                 <div class="form-check mx-3">
-                                    <input  class="form-check-input"  type="radio"  name="direct_utilization"   value="1"
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        id="direct_yes"
+                                        name="direct_utilization"
+                                        value="1"
                                         {{ isset($data) && $data->direct_utilization == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label">Yes</label>
+                                    <label class="form-check-label" for="direct_yes">Yes</label>
                                 </div>
 
                                 <div class="form-check">
-                                    <input  class="form-check-input"  type="radio"  name="direct_utilization"  value="0"
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        id="direct_no"
+                                        name="direct_utilization"
+                                        value="0"
                                         {{ isset($data) && $data->direct_utilization == 0 ? 'checked' : '' }}>
-                                    <label class="form-check-label">No</label>
+                                    <label class="form-check-label" for="direct_no">No</label>
                                 </div>
+
                             </div>
                         </div>
 
@@ -533,14 +545,14 @@
                             <input type="hidden" name="hide_quantity" value="0">
 
                             <div class="form-check mx-3">
-                                <input  class="form-check-input" type="radio" name="hide_quantity" value="1"
+                                <input  class="form-check-input" type="radio" name="hide_quantity" value="1" id="hide_quantity_yes"
                                     {{ isset($data) && $data->hide_quantity == 1 ? 'checked' : '' }}>
-                                <label class="form-check-label">Yes</label>
+                                <label class="form-check-label" for="hide_quantity_yes">Yes</label>
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input"   type="radio" name="hide_quantity"  value="0" {{ isset($data) && $data->hide_quantity == 0 ? 'checked' : '' }}>
-                                <label class="form-check-label">No</label>
+                                <input class="form-check-input"   type="radio" name="hide_quantity"  value="0" id="hide_quantity_no" {{ isset($data) && $data->hide_quantity == 0 ? 'checked' : '' }}>
+                                <label class="form-check-label" for="hide_quantity_no">No</label>
                             </div>
 
                         </div>

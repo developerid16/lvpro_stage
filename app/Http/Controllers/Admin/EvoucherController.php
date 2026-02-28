@@ -155,7 +155,7 @@ class EvoucherController extends Controller
                 1 => 'Push by Member ID',
                 2 => 'Push by Parameter',
                 3 => 'Push by API SRP',
-                4 => 'App/Web',
+                4 => 'All Members',
             ];
 
             

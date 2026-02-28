@@ -45,8 +45,7 @@
                             <th data-field="image">Image</th>
                             <th data-field="created_at">Created On</th>
                             <th data-field="is_featured">Is Featured</th>
-                            <th data-field="hide_catalogue">
-                                Hide From <br> Catalogue
+                            <th data-field="hide_catalogue">Hide From <br> Catalogue
                             </th> 
                             <th class="text-center" data-field="action" data-searchable="false">Action</th>
                         </tr>
@@ -228,24 +227,25 @@
 
         $(document).on('change', '.hide-catalogue-switch', function () {
             let $this = $(this);
-
+            let isChecked = $(this).is(':checked') ? 1 : 0;
+            let $switch = $(this);
             $.ajax({
                 url: RewardBaseUrl + 'hide-catalogue',
                 type: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     id: $this.data('id'),
-                    status: $this.is(':checked') ? 1 : 0
+                    status: isChecked
                 },
                 success: function (response) {
                     if (response.status) {
-                        $this.prop('checked', !$this.is(':checked'));
+                        // $switch.prop('checked', !isChecked);
                         show_message(response.status, response.message);
-                        location.reload();
+                        // location.reload();
                     }
                 },
                 error: function () {
-                    $this.prop('checked', !$this.is(':checked'));
+                    $switch.prop('checked', !isChecked);
                     show_message(false, 'Server error');
                 }
             });
