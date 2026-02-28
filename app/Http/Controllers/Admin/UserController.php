@@ -105,75 +105,97 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
-{
-    $validator = Validator::make($request->all(), [
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
 
-        'name'   => 'required|string|max:191',
+            'name'   => 'required|string|max:191',
 
-        'email' => [
-            'required',
-            'email',
-            Rule::unique('users', 'email')->whereNull('deleted_at')
-        ],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->whereNull('deleted_at')
+            ],
 
-        'phone'  => 'required|unique:users,phone',
-        'status' => 'required',
-        'role'   => 'required|array|min:1',
+            'phone'  => 'required|unique:users,phone',
+            'status' => 'required',
+            'role'   => 'required|array|min:1',
 
-        'password' => [
-            'required',
-            'confirmed',
-            Password::min(8)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-        ],
+           'password' => [
+                'required',
+                function ($attribute, $value, $fail) {
 
-    ], [
+                    $errors = [];
 
-        // Required Messages
-        'name.required'   => 'Name is required.',
-        'email.required'  => 'Email is required.',
-        'phone.required'  => 'Phone Number is required.',
-        'status.required' => 'Status is required.',
-        'role.required'   => 'Role is required.',
-        'password.required' => 'Password is required.',
+                    if (strlen($value) < 8) {
+                        $errors[] = 'at least 8 characters';
+                    }
 
-        // Unique Messages
-        'email.unique' => 'Email already exists.',
-        'phone.unique' => 'Phone Number already exists.',
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $errors[] = 'one uppercase letter';
+                    }
 
-        // Password Strength
-        'password.confirmed' => 'Password confirmation does not match.',
-        'password.min'       => 'Password must be at least 8 characters.',
-        'password.mixed'     => 'Password must contain uppercase and lowercase letters.',
-        'password.letters'   => 'Password must contain letters.',
-        'password.numbers'   => 'Password must contain numbers.',
-        'password.symbols'   => 'Password must contain special characters.',
-    ]);
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $errors[] = 'one lowercase letter';
+                    }
 
-    if ($validator->fails()) {
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $errors[] = 'one number';
+                    }
+
+                    if (!preg_match('/[@$!%*#?&]/', $value)) {
+                        $errors[] = 'one special character';
+                    }
+
+                    if (!empty($errors)) {
+                        $fail('Password must contain ' . implode(', ', $errors) . '.');
+                    }
+                }
+            ],
+
+        ], [
+
+            // Required Messages
+            'name.required'   => 'Name is required.',
+            'email.required'  => 'Email is required.',
+            'phone.required'  => 'Phone Number is required.',
+            'status.required' => 'Status is required.',
+            'role.required'   => 'Role is required.',
+            'password.required' => 'Password is required.',
+
+            // Unique Messages
+            'email.unique' => 'Email already exists.',
+            'phone.unique' => 'Phone Number already exists.',
+
+            // Password Strength
+            'password.confirmed' => 'Password confirmation does not match.',
+            'password.min'       => 'Password must be at least 8 characters.',
+            'password.mixed'     => 'Password must contain uppercase and lowercase letters.',
+            'password.letters'   => 'Password must contain letters.',
+            'password.numbers'   => 'Password must contain numbers.',
+            'password.symbols'   => 'Password must contain special characters.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status'  => false,
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+        $data['password'] = Hash::make($data['password']);
+
+        $roles = $data['role'];
+        unset($data['role']);
+
+        $user = User::create($data);
+        $user->assignRole($roles);
+
         return response()->json([
-            'status'  => false,
-            'errors'  => $validator->errors()
-        ], 422);
-    }
-
-    $data = $validator->validated();
-    $data['password'] = Hash::make($data['password']);
-
-    $roles = $data['role'];
-    unset($data['role']);
-
-    $user = User::create($data);
-    $user->assignRole($roles);
-
-    return response()->json([
-        'status'  => true,
-        'message' => 'User Created Successfully'
-    ]);
+            'status'  => true,
+            'message' => 'User Created Successfully'
+        ]);
     }
     /**
      * Display the specified resource.
@@ -232,13 +254,35 @@ class UserController extends Controller
 
         $request->validate([
             'password' => [
-                'nullable',
-                'confirmed',
-                Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols()
+                'required',
+                function ($attribute, $value, $fail) {
+
+                    $errors = [];
+
+                    if (strlen($value) < 8) {
+                        $errors[] = 'at least 8 characters';
+                    }
+
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $errors[] = 'one uppercase letter';
+                    }
+
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $errors[] = 'one lowercase letter';
+                    }
+
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $errors[] = 'one number';
+                    }
+
+                    if (!preg_match('/[@$!%*#?&]/', $value)) {
+                        $errors[] = 'one special character';
+                    }
+
+                    if (!empty($errors)) {
+                        $fail('Password must contain ' . implode(', ', $errors) . '.');
+                    }
+                }
             ],
         ]);
 

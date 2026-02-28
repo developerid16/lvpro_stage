@@ -904,166 +904,167 @@
 
     if (typeof tinymce === 'undefined') return;
 
-    // Remove old instances (important for modal edit)
-    tinymce.remove('textarea.wysiwyg');
+        // Remove old instances (important for modal edit)
+        tinymce.remove('textarea.wysiwyg');
 
-    tinymce.init({
-        selector: "textarea.wysiwyg",
-        height: 200,
+        tinymce.init({
+            selector: "textarea.wysiwyg",
+            height: 200,
 
-        // IMPORTANT → prevents multiple block stacking
-        forced_root_block: 'p',
+            // IMPORTANT → prevents multiple block stacking
+            forced_root_block: 'p',
 
-        // Allow all elements
-        valid_elements: '*[*]',
-        relative_urls: false,
-        remove_script_host: false,
-        convert_urls: true,
-        entity_encoding: 'raw',
+            // Allow all elements
+            valid_elements: '*[*]',
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            entity_encoding: 'raw',
 
-        // Character limit 180
-        setup: function (editor) {
-            editor.on('keydown', function (e) {
-                const text = editor.getContent({ format: 'text' });
+            // Character limit 180
+            setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    const text = editor.getContent({ format: 'text' });
 
-                if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                    e.preventDefault();
+                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                        e.preventDefault();
+                    }
+                });
+            },
+
+            // Image upload
+            images_upload_url: '{{ url("admin/image-upload-editor") }}',
+            images_upload_base_path: "{{ asset('images') }}/",
+
+            plugins: [
+                "advlist autolink link image lists charmap preview hr anchor",
+                "searchreplace wordcount visualblocks code fullscreen",
+                "table emoticons"
+            ],
+
+            // 🔥 Use formatselect (NOT styleselect)
+            toolbar:
+                "undo redo | formatselect | bold italic | " +
+                "alignleft aligncenter alignright alignjustify | " +
+                "bullist numlist outdent indent | link image ",
+
+            // Allow only one block selection
+            block_formats:
+                "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
+
+            // Custom styles (NO header here)
+            style_formats: [
+                {
+                    title: 'Red text',
+                    inline: 'span',
+                    styles: { color: '#ff0000' }
+                },
+                {
+                    title: 'Example 1',
+                    inline: 'span',
+                    classes: 'example1'
+                },
+                {
+                    title: 'Example 2',
+                    inline: 'span',
+                    classes: 'example2'
+                },
+                {
+                    title: 'Table row 1',
+                    selector: 'tr',
+                    classes: 'tablerow1'
                 }
-            });
-        },
+            ],
 
-        // Image upload
-        images_upload_url: '{{ url("admin/image-upload-editor") }}',
-        images_upload_base_path: "{{ asset('images') }}/",
+            // Make H1 automatically red
+            content_style: `
+                h1 { color: #ff0000; }
+            `
+        });
+    }
 
-        plugins: [
-            "advlist autolink link image lists charmap preview hr anchor",
-            "searchreplace wordcount visualblocks code fullscreen",
-            "table emoticons"
-        ],
-
-        // 🔥 Use formatselect (NOT styleselect)
-        toolbar:
-            "undo redo | formatselect | bold italic | " +
-            "alignleft aligncenter alignright alignjustify | " +
-            "bullist numlist outdent indent | link image | code",
-
-        // Allow only one block selection
-        block_formats:
-            "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
-
-        // Custom styles (NO header here)
-        style_formats: [
-            {
-                title: 'Red text',
-                inline: 'span',
-                styles: { color: '#ff0000' }
-            },
-            {
-                title: 'Example 1',
-                inline: 'span',
-                classes: 'example1'
-            },
-            {
-                title: 'Example 2',
-                inline: 'span',
-                classes: 'example2'
-            },
-            {
-                title: 'Table row 1',
-                selector: 'tr',
-                classes: 'tablerow1'
-            }
-        ],
-
-        // Make H1 automatically red
-        content_style: `
-            h1 { color: #ff0000; }
-        `
-    });
-}
     function initEditor() {
 
-    if (typeof tinymce === 'undefined') return;
+        if (typeof tinymce === 'undefined') return;
 
-    // Remove old instances (important for modal edit)
-    tinymce.remove('textarea.wysiwyg');
+        // Remove old instances (important for modal edit)
+        tinymce.remove('textarea.wysiwyg');
 
-    tinymce.init({
-        selector: "textarea.wysiwyg",
-        height: 200,
+        tinymce.init({
+            selector: "textarea.wysiwyg",
+            height: 200,
 
-        // IMPORTANT → prevents multiple block stacking
-        forced_root_block: 'p',
+            // IMPORTANT → prevents multiple block stacking
+            forced_root_block: 'p',
 
-        // Allow all elements
-        valid_elements: '*[*]',
-        relative_urls: false,
-        remove_script_host: false,
-        convert_urls: true,
-        entity_encoding: 'raw',
+            // Allow all elements
+            valid_elements: '*[*]',
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: true,
+            entity_encoding: 'raw',
 
-        // Character limit 180
-        setup: function (editor) {
-            editor.on('keydown', function (e) {
-                const text = editor.getContent({ format: 'text' });
+            // Character limit 180
+            setup: function (editor) {
+                editor.on('keydown', function (e) {
+                    const text = editor.getContent({ format: 'text' });
 
-                if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                    e.preventDefault();
+                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+                        e.preventDefault();
+                    }
+                });
+            },
+
+            // Image upload
+            images_upload_url: '{{ url("admin/image-upload-editor") }}',
+            images_upload_base_path: "{{ asset('images') }}/",
+
+            plugins: [
+                "advlist autolink link image lists charmap preview hr anchor",
+                "searchreplace wordcount visualblocks code fullscreen",
+                "table emoticons"
+            ],
+
+            // 🔥 Use formatselect (NOT styleselect)
+            toolbar:
+                "undo redo | formatselect | bold italic | " +
+                "alignleft aligncenter alignright alignjustify | " +
+                "bullist numlist outdent indent | link image ",
+
+            // Allow only one block selection
+            block_formats:
+                "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
+
+            // Custom styles (NO header here)
+            style_formats: [
+                {
+                    title: 'Red text',
+                    inline: 'span',
+                    styles: { color: '#ff0000' }
+                },
+                {
+                    title: 'Example 1',
+                    inline: 'span',
+                    classes: 'example1'
+                },
+                {
+                    title: 'Example 2',
+                    inline: 'span',
+                    classes: 'example2'
+                },
+                {
+                    title: 'Table row 1',
+                    selector: 'tr',
+                    classes: 'tablerow1'
                 }
-            });
-        },
+            ],
 
-        // Image upload
-        images_upload_url: '{{ url("admin/image-upload-editor") }}',
-        images_upload_base_path: "{{ asset('images') }}/",
-
-        plugins: [
-            "advlist autolink link image lists charmap preview hr anchor",
-            "searchreplace wordcount visualblocks code fullscreen",
-            "table emoticons"
-        ],
-
-        // 🔥 Use formatselect (NOT styleselect)
-        toolbar:
-            "undo redo | formatselect | bold italic | " +
-            "alignleft aligncenter alignright alignjustify | " +
-            "bullist numlist outdent indent | link image | code",
-
-        // Allow only one block selection
-        block_formats:
-            "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
-
-        // Custom styles (NO header here)
-        style_formats: [
-            {
-                title: 'Red text',
-                inline: 'span',
-                styles: { color: '#ff0000' }
-            },
-            {
-                title: 'Example 1',
-                inline: 'span',
-                classes: 'example1'
-            },
-            {
-                title: 'Example 2',
-                inline: 'span',
-                classes: 'example2'
-            },
-            {
-                title: 'Table row 1',
-                selector: 'tr',
-                classes: 'tablerow1'
-            }
-        ],
-
-        // Make H1 automatically red
-        content_style: `
-            h1 { color: #ff0000; }
-        `
-    });
-}
+            // Make H1 automatically red
+            content_style: `
+                h1 { color: #ff0000; }
+            `
+        });
+    }
 
     $(document).on('change', '.merchant-dropdown', function () {
 
