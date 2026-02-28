@@ -466,8 +466,20 @@ class EvoucherController extends Controller
                     'direct_utilization'=> 'nullable|boolean',
     
                     'max_quantity'     => 'required|integer|min:1',
-                    'voucher_validity' => 'required|date|after_or_equal:sales_end',
-    
+                    // 'voucher_validity' => 'required|date|after_or_equal:sales_end',
+                    'voucher_validity' => [
+                        'required',
+                        'date',
+                        function ($attribute, $value, $fail) use ($request) {
+
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                            if ($validityDate < $salesEndDate) {
+                                $fail('Voucher validity date must be after or equal to Redemption end date.');
+                            }
+                        }
+                    ],
     
                     'category_id'      => 'nullable',
                     'inventory_type'   => 'required|in:0,1',
@@ -1128,8 +1140,19 @@ class EvoucherController extends Controller
                 'direct_utilization'=> 'nullable|boolean',
 
                 'max_quantity'     => 'required|integer|min:1',
-                'voucher_validity' => 'required|date|after_or_equal:sales_end',
+                'voucher_validity' => [
+                    'required',
+                    'date',
+                    function ($attribute, $value, $fail) use ($request) {
 
+                        $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                        $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                        if ($validityDate < $salesEndDate) {
+                            $fail('Voucher validity date must be after or equal to Redemption end date.');
+                        }
+                    }
+                ],
 
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',

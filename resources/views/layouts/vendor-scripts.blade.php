@@ -22,19 +22,6 @@
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
 
-    $(document).on('keydown', 'form', function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            return false;
-        }
-    });
-    $(document).on('keydown', '.common-datetime, .common-date, .month-picker, .js-flat-date', function (e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            $(this).blur(); // close picker properly
-        }
-    });
-
     $('#change-password').on('submit',function(event){
         event.preventDefault();
         var Id = $('#data_id').val();
@@ -73,7 +60,145 @@
         });
     });
    
+    // Prevent Enter from submitting form inside modal
+    $(document).on('keydown', '.modal form', function (e) {
+        if (e.key === "Enter" && !$(e.target).is('textarea')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    });
     
+    // Completely block Enter from submitting modal forms
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+
+            const modal = e.target.closest(".modal");
+            if (modal) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                return false;
+            }
+        }
+    }, true); // 👈 IMPORTANT: use capture phase
+
+    $(document).on('keydown', '.common-datetime, .common-date, .month-picker, .js-flat-date', function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            $(this).blur(); // close picker properly
+        }
+    });    
+
+    function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
+
+        const startEl = modal.querySelector(startSelector);
+        const endEl   = modal.querySelector(endSelector);
+
+        if (!startEl || !endEl) return;
+
+        // prevent double init
+        if (startEl._flatpickr) return;
+
+        // normalize bad value like: 2026-01-23 00:00:00 01:00:00
+        startEl.value = normalizeDateTime(startEl.value);
+        endEl.value   = normalizeDateTime(endEl.value);
+
+        let endPickerInstance;
+
+        const startPickerInstance = flatpickr(startEl, {
+            enableTime: true,
+            enableSeconds: false,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i',
+            altInput: true,
+            altFormat: 'Y-m-d H:i',
+            defaultDate: startEl.value
+                ? new Date(startEl.value.replace(' ', 'T'))
+                : null,
+
+            // plugins: [
+            //     new confirmDatePlugin({
+            //         confirmIcon: "<i class='fa fa-check'></i>",
+            //         confirmText: "OK",
+            //         showAlways: false,
+            //         theme: "light"
+            //     })
+            // ],
+            onKeyDown: function(selectedDates, dateStr, instance, event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    instance.close();
+                }
+            },
+
+
+            onReady(_, __, instance) {
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+
+                if (instance.selectedDates.length && endPickerInstance) {
+                    const startDate = instance.selectedDates[0];
+                    endPickerInstance.set('minDate', startDate);
+                    endPickerInstance.set('clickOpens', true);
+                    endPickerInstance.altInput.removeAttribute('disabled');
+                    endPickerInstance.jumpToDate(startDate);
+                }
+            },
+
+            onChange(selectedDates) {
+                if (!endPickerInstance) return;
+
+                if (selectedDates.length) {
+                    safeEnableEndPicker(endPickerInstance, selectedDates[0]);
+                } else {
+                    endPickerInstance.clear();
+                    endPickerInstance.set('clickOpens', false);
+                    endPickerInstance.altInput.setAttribute('disabled', true);
+                }
+            }
+        });
+
+        endPickerInstance = flatpickr(endEl, {
+            enableTime: true,
+            enableSeconds: false,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i',
+            altInput: true,
+            altFormat: 'Y-m-d H:i',
+            defaultDate: endEl.value
+                ? new Date(endEl.value.replace(' ', 'T'))
+                : null,
+            clickOpens: false,
+            // plugins: [
+            //     new confirmDatePlugin({
+            //         confirmIcon: "<i class='fa fa-check'></i>",
+            //         confirmText: "OK",
+            //         showAlways: false,
+            //         theme: "light"
+            //     })
+            // ],
+            onKeyDown: function(selectedDates, dateStr, instance, event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    instance.close();
+                }
+            },
+
+            onReady(_, __, instance) {
+                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
+                instance.jumpToDate(instance.selectedDates[0] || new Date());
+            }
+        });
+
+        if (startPickerInstance.selectedDates.length) {
+            safeEnableEndPicker(endPickerInstance, startPickerInstance.selectedDates[0]);
+        } else {
+            endPickerInstance.altInput.setAttribute('disabled', true);
+        }
+    }
+       
     function bindStartEndFlatpickr(startSelector, endSelector) {
         
         const startEl = document.querySelector(startSelector);
@@ -87,7 +212,6 @@
         startPicker = flatpickr(startEl, {
             minDate: "today",
             enableTime: true,
-            enableSeconds: true,
             time_24hr: true,
             minuteIncrement: 1,      // 👈 change here
             secondIncrement: 1,      // 👈 change here
@@ -97,6 +221,21 @@
             enableSeconds: false,
             confirmIcon: "<i class='fa fa-check'></i>",
             confirmText: "OK ",
+            // plugins: [
+            //     new confirmDatePlugin({
+            //         confirmIcon: "<i class='fa fa-check'></i>",
+            //         confirmText: "OK",
+            //         showAlways: false,
+            //         theme: "light"
+            //     })
+            // ],
+            onKeyDown: function(selectedDates, dateStr, instance, event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    instance.close();
+                }
+            },
 
             onReady(_, __, instance) {
                 // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -129,7 +268,6 @@
 
         endPicker = flatpickr(endEl, {
             enableTime: true,
-            enableSeconds: true,
             time_24hr: true,
             minuteIncrement: 1,      // 👈 change here
             secondIncrement: 1,      // 👈 change here
@@ -137,6 +275,22 @@
             altInput: true,
             altFormat: 'Y-m-d H:i',
             enableSeconds: false,
+
+            // plugins: [
+            //     new confirmDatePlugin({
+            //         confirmIcon: "<i class='fa fa-check'></i>",
+            //         confirmText: "OK",
+            //         showAlways: false,
+            //         theme: "light"
+            //     })
+            // ],
+            onKeyDown: function(selectedDates, dateStr, instance, event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    instance.close();
+                }
+            },
 
             onReady(_, __, instance) {
                 // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
@@ -157,8 +311,7 @@
             }
         });
     }
-
-    
+   
     function normalizeDateTime(val) {
         if (!val) return val;
 
@@ -171,84 +324,6 @@
 
         // normal case: [date, time]
         return parts[0] + ' ' + parts[1];
-    }
-
-
-    function bindStartEndFlatpickrEdit(modal, startSelector, endSelector) {
-
-        const startEl = modal.querySelector(startSelector);
-        const endEl   = modal.querySelector(endSelector);
-
-        if (!startEl || !endEl) return;
-
-        // prevent double init
-        if (startEl._flatpickr) return;
-
-        // normalize bad value like: 2026-01-23 00:00:00 01:00:00
-        startEl.value = normalizeDateTime(startEl.value);
-        endEl.value   = normalizeDateTime(endEl.value);
-
-        let endPickerInstance;
-
-        const startPickerInstance = flatpickr(startEl, {
-            enableTime: true,
-            enableSeconds: true,
-            time_24hr: true,
-            dateFormat: 'Y-m-d H:i',
-            altInput: true,
-            altFormat: 'Y-m-d H:i',
-            defaultDate: startEl.value
-                ? new Date(startEl.value.replace(' ', 'T'))
-                : null,
-
-            onReady(_, __, instance) {
-                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-
-                if (instance.selectedDates.length && endPickerInstance) {
-                    const startDate = instance.selectedDates[0];
-                    endPickerInstance.set('minDate', startDate);
-                    endPickerInstance.set('clickOpens', true);
-                    endPickerInstance.altInput.removeAttribute('disabled');
-                    endPickerInstance.jumpToDate(startDate);
-                }
-            },
-
-            onChange(selectedDates) {
-                if (!endPickerInstance) return;
-
-                if (selectedDates.length) {
-                    safeEnableEndPicker(endPickerInstance, selectedDates[0]);
-                } else {
-                    endPickerInstance.clear();
-                    endPickerInstance.set('clickOpens', false);
-                    endPickerInstance.altInput.setAttribute('disabled', true);
-                }
-            }
-        });
-
-        endPickerInstance = flatpickr(endEl, {
-            enableTime: true,
-            enableSeconds: true,
-            time_24hr: true,
-            dateFormat: 'Y-m-d H:i',
-            altInput: true,
-            altFormat: 'Y-m-d H:i',
-            defaultDate: endEl.value
-                ? new Date(endEl.value.replace(' ', 'T'))
-                : null,
-            clickOpens: false,
-
-            onReady(_, __, instance) {
-                // instance.altInput.placeholder = 'yyyy-MM-dd HH:mm:ss';
-                instance.jumpToDate(instance.selectedDates[0] || new Date());
-            }
-        });
-
-        if (startPickerInstance.selectedDates.length) {
-            safeEnableEndPicker(endPickerInstance, startPickerInstance.selectedDates[0]);
-        } else {
-            endPickerInstance.altInput.setAttribute('disabled', true);
-        }
     }
 
     function initFlatpickrDate(context = document) {
@@ -1265,6 +1340,11 @@
 
    
 </script>
+{{-- flatpicker confirm box
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/confirmDate/confirmDate.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/confirmDate/confirmDate.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> --}}
 
 <script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
