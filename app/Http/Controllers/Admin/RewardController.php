@@ -815,7 +815,8 @@ class RewardController extends Controller
                     'reward_id' => $reward->id,
                     'status'    => 'pending',
                     'type'      => '0',            
-                
+                    'cso_method'          => (int) ($request['cso_method'] ?? 0),
+
                     'request_by'          => auth()->id(),
                     'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
                     'voucher_detail_img'  => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
