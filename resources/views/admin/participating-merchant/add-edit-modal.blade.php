@@ -33,6 +33,21 @@
                                 <div class="sh_dec_s error" id="status_error"></div>
                             </div>
                         </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label>Department <span class="required-hash">*</span></label>
+                                <select name="department_id" class="form-select">
+                                    <option value="">Select Department</option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}"
+                                            {{ isset($data) && $data->department_id == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
                        
                     </div>
                     <div class="row">

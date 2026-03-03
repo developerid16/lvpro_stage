@@ -38,12 +38,11 @@
                             <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
                                 <th data-field="month">Voucher Creation</th>
-                          
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                              <th data-field="quantity" data-filter-control="input" data-sortable="true">Total</th>
+                             <th data-field="issued">Issued</th>
+                             <th data-field="claimed">Claimed</th>
                             <th data-field="redeemed">Redeemed</th>
-                            <th data-field="issued">Issued</th>
-                            <th data-field="claimed">Claimed</th>
                             <th data-field="image">Image</th>
                             <th data-field="status">Status</th>
                             <th data-field="created_at">Created On</th>

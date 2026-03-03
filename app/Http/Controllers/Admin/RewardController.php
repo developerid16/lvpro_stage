@@ -71,58 +71,7 @@ class RewardController extends Controller
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function updateAutomatedReward(Request $request)
-    {
-
-
-        $data = ContentManagement::whereIn('name', [
-            "birthday_reward_limit",
-            "birthday_reward_voucher",
-            "birthday_reward_group",
-            "birthday_reward_email_noti",
-            "birthday_reward_push_noti",
-            "birthday_reward_sms_noti",
-            "welcome_reward_limit",
-            "welcome_reward_voucher",
-            "welcome_reward_group",
-            "welcome_reward_email_noti",
-            "welcome_reward_push_noti",
-            "welcome_reward_sms_noti",
-        ])->get();
-        foreach ($data as $d) {
-            $keyData  = $d['name'];
-            $d->value = $request->$keyData ?? '';
-            $d->save();
-        }
-        return response()->json(['status' => 'success', 'message' => 'Data Updated Successfully']);
-    }
-    public function indexAutomatedReward(Request $request)
-    {
-
-        $this->layout_data['data'] = ContentManagement::whereIn('name', [
-            "birthday_reward_limit",
-            "birthday_reward_voucher",
-            "birthday_reward_group",
-            "birthday_reward_email_noti",
-            "birthday_reward_push_noti",
-            "birthday_reward_sms_noti",
-            "welcome_reward_limit",
-            "welcome_reward_voucher",
-            "welcome_reward_group",
-            "welcome_reward_email_noti",
-            "welcome_reward_push_noti",
-            "welcome_reward_sms_noti",
-        ])->pluck('value', 'name');
-        $this->layout_data['data']['welcome_reward_group'] = json_decode($this->layout_data['data']['welcome_reward_group'] ?: '[]', true);
-
-        $this->layout_data['data']['birthday_reward_group'] = json_decode($this->layout_data['data']['birthday_reward_group']  ?: '[]', true);
-        $this->layout_data['rewards'] = Reward::all();
-        return view($this->view_file_path . "automated-index")->with($this->layout_data);
-    }
-
+    
     public function datatable(Request $request)
     {
         $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
@@ -379,6 +328,7 @@ class RewardController extends Controller
 
                 $reward = Reward::create([
                     'type'               => '0',
+                    'cso_method'          => (int) ($request['cso_method'] ?? 0),
                     'is_draft'           => 1,
                     'voucher_image'      => $validated['voucher_image'] ?? '',
                     'voucher_detail_img' => $validated['voucher_detail_img'] ?? '',
@@ -802,6 +752,7 @@ class RewardController extends Controller
     
                 $reward = Reward::create([
                     'type'               => '0',
+                    'cso_method'          => (int) ($request['cso_method'] ?? 0),
                     'voucher_image'      => $validated['voucher_image'],
                     'voucher_detail_img' => $validated['voucher_detail_img'],
                     'name'               => $validated['name'],
@@ -1248,6 +1199,7 @@ class RewardController extends Controller
 
                 $reward->update([
                     'type'               => '0',
+                    'cso_method'          => (int) ($request['cso_method'] ?? 0),
                     'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
                     'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
                     'name'               => $validated['name'],
@@ -1807,6 +1759,7 @@ class RewardController extends Controller
                             'type'      => '0',
                         ],
                         [
+                            'cso_method'          => (int) ($request['cso_method'] ?? 0),
                             'request_by'          => auth()->id(),
                             'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
                             'voucher_detail_img'  => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,

@@ -282,19 +282,25 @@ $(document).ready(function () {
 
         e.preventDefault();
 
-        var id = $(this).data('id');
+        let $form = $(this);
+        let $btn  = $form.find('.submit-btn');
+        $btn.prop('disabled', true); // disable on submit
 
-        var form_data = new FormData($(this)[0]);
+        var id = $form.data('id');
+        var form_data = new FormData($form[0]);
+
         $.ajax({
             url: ModuleBaseUrl + id,
-            headers: {
-                'X-CSRF-Token': csrf,
-            },
+            headers: { 'X-CSRF-Token': csrf },
             type: "POST",
             data: form_data,
             processData: false,
             contentType: false,
+
             success: function (response) {
+
+                $btn.prop('disabled', false);
+                $btn.data('processing', false); // 🔥 IMPORTANT
 
                 if (response.status == 'success') {
                     show_message(response.status, response.message);
@@ -304,7 +310,12 @@ $(document).ready(function () {
                     show_message(response.status, response.message);
                 }
             },
+
             error: function (response) {
+
+                 $btn.prop('disabled', false);
+                $btn.data('processing', false); // 🔥 THIS WAS MISSING
+
                 if(response.status === 403) {
                     show_message('error', response.responseJSON?.message || 'You do not have permission.');
                     return;
@@ -312,13 +323,12 @@ $(document).ready(function () {
 
                 $('.club-location-error').text('');
                 $('.participating-location-error').text('');
-                let errors = response.responseJSON?.errors || {};
 
+                let errors = response.responseJSON?.errors || {};
                 let locationMessages = [];
 
                 Object.keys(errors).forEach(function(key) {
 
-                    // 🔥 Catch dynamic location keys
                     if (key.startsWith("locations.")) {
                         locationMessages.push(errors[key][0]);
                         delete errors[key];
@@ -330,16 +340,13 @@ $(document).ready(function () {
                     $('.club-location-error').text(locationMessages.join(', '));
                 }
 
-                  // 🔥 Handle participating merchant locations error
                 if (errors.participating_merchant_locations) {
                     $('.participating-location-error').text(errors.participating_merchant_locations[0]);
                     delete errors.participating_merchant_locations;
                 }
 
-                // Show other errors normally
                 show_errors(errors, "#edit_frm");
             }
-
         });
     });   
 

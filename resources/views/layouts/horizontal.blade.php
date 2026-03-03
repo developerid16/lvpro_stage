@@ -276,13 +276,16 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
                                 @can('cso-purchase-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a>
+                                    {{-- <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a> --}}
                                 @endcan                           
                                 @can('cso-physical-list')
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-physical')}}">CSO Physical Collection</a>
                                 @endcan                           
-                                @can('cso-issuance-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance')}}">CSO Issuance</a>
+                                @can('cso-issuance-paid-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance-paid')}}">CSO issuance (Paid)</a>
+                                @endcan                           
+                                @can('cso-issuance-free-list')
+                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance-free')}}">CSO issuance (Free)</a>
                                 @endcan                           
                             </div>
                         </li>

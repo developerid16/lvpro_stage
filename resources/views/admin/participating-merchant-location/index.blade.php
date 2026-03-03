@@ -46,7 +46,7 @@
                         <th data-field="code">Code</th>
                         <th data-field="start_date">Start Date</th>
                         <th data-field="end_date">End Date</th>
-                        <th data-field="club_location">Club Location</th>
+                        {{-- <th data-field="club_location">Club Location</th> --}}
                         <th data-field="status">Status</th>
                         <th data-field="action" class="text-center">Action</th>
                     </tr>

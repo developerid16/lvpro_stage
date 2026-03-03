@@ -26,6 +26,8 @@ use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
 use App\Http\Controllers\Admin\CsoIssuanceController;
+use App\Http\Controllers\Admin\CsoIssuanceFreeController;
+use App\Http\Controllers\Admin\CsoIssuancePaidController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\FabsController;
@@ -329,9 +331,13 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('cso-physical/datatable', action: [CsoPhysicalController::class, 'datatable']);
     Route::resource('cso-physical', CsoPhysicalController::class);    
 
-    Route::post('cso-issuance/push-member-voucher', [CsoIssuanceController::class, 'pushMemberVoucherByCsoIssuance'])->name('pushMemberVoucherByCsoIssuance');
-    Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
-    Route::resource('cso-issuance', CsoIssuanceController::class);    
+    Route::post('cso-issuance-free/push-member-voucher', [CsoIssuanceFreeController::class, 'pushMemberVoucherByCsoIssuance'])->name('pushMemberVoucherByCsoIssuance');
+    Route::get('cso-issuance-free/datatable', action: [CsoIssuanceFreeController::class, 'datatable']);
+    Route::resource('cso-issuance-free', CsoIssuanceFreeController::class); 
+
+    Route::post('cso-issuance-paid/push-member-voucher', [CsoIssuancePaidController::class, 'pushMemberVoucherByCsoIssuance'])->name('pushMemberVoucherByCsoIssuance');
+    Route::get('cso-issuance-paid/datatable', action: [CsoIssuancePaidController::class, 'datatable']);
+    Route::resource('cso-issuance-paid', CsoIssuancePaidController::class);    
 
     Route::get('notification/datatable', [NotificationController::class, 'datatable'])->name('notification.datatable');
     Route::resource('notification', NotificationController::class);

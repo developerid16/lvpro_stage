@@ -14,6 +14,7 @@ class ParticipatingMerchant extends Model
     protected $fillable = [
         'name',
         'status',
+        'department_id',
         'added_by'
     ];
 
@@ -23,5 +24,10 @@ class ParticipatingMerchant extends Model
             ParticipatingMerchantLocation::class,
             'participating_merchant_id'
         );
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }

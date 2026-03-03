@@ -5,31 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Tier;
 use App\Models\Reward;
 use Illuminate\Http\Request;
-use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
-use App\Models\Purchase;
 use App\Models\PushVoucherLog;
 use App\Models\PushVoucherMember;
-use App\Models\RewardVoucher;
 use App\Models\UserWalletVoucher;
-use App\Models\VoucherLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class CsoIssuanceController extends Controller
+class CsoIssuanceFreeController extends Controller
 {
     function __construct()
     {
 
-        $this->view_file_path = "admin.cso-issuance.";
-        $permission_prefix = $this->permission_prefix = 'cso-issuance';
+        $this->view_file_path = "admin.cso-issuance-free.";
+        $permission_prefix = $this->permission_prefix = 'cso-issuance-free';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'CSO Issuance',
-            'module_base_url' => url('admin/cso-issuance')
+            'title' => 'CSO Issuance (Free)',
+            'module_base_url' => url('admin/cso-issuance-free')
         ]; 
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
         

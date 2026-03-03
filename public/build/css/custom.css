@@ -609,3 +609,7 @@ input::placeholder {
     max-height: 100px;
     overflow-y: auto !important;
 }
+
+.fs-10{
+    font-size: 10px !important;
+}

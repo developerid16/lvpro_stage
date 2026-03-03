@@ -28,8 +28,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-bold">PDF:</label>
-                        <input type="file" class="form-control" name="file" accept=".pdf">
+                        <label class="form-label fw-bold">Pdf/Image:</label>
+                        <input type="file" class="form-control" name="file" accept=".pdf,.png,.jpg">
                     </div>
 
                 </div>

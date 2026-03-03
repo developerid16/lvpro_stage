@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\ParticipatingMerchant;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,6 +35,7 @@ class ParticipatingMerchantController extends Controller
      * ----------------------------------------------------- */
     public function index(Request $request)
     {
+        $this->layout_data['departments'] = Department::all();
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
@@ -92,6 +94,7 @@ class ParticipatingMerchantController extends Controller
             $final_data[$i] = [
                 'sr_no'      => $index,
                 'name'       => $row->name,
+                'department' => $row->department ? $row->department->name : '-',
                 'status'     => $row->status,
                 'created_at' => $createdAt,
                 'updated_at' => $updatedAt,
@@ -128,6 +131,7 @@ class ParticipatingMerchantController extends Controller
     {
         $post_data = $this->validate($request, [
             'name'   => 'required|string|max:255',
+            'department_id'   => 'nullable|exists:departments,id',
             'status' => 'required|in:Active,Inactive',
         ]);       
 
@@ -143,7 +147,7 @@ class ParticipatingMerchantController extends Controller
     public function edit($id)
     {
         $this->layout_data['data'] = ParticipatingMerchant::findOrFail($id);
-
+        $this->layout_data['departments'] = Department::all();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
 
         return response()->json(['status' => 'success', 'html' => $html]);
@@ -159,6 +163,7 @@ class ParticipatingMerchantController extends Controller
 
         $post_data = $this->validate($request, [
             'name'   => 'required|string|max:255',
+            'department_id'   => 'nullable|exists:departments,id',
             'status' => 'required|in:Active,Inactive',
         ]);
 

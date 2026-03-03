@@ -30,6 +30,7 @@
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"  data-width-unit="px" data-searchable="false">Sr. No.</th>
                         <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
+                        <th data-field="club_location" data-sortable="true">Club Location</th>
                         <th data-field="status" data-sortable="true">Status</th>
                         <th data-field="created_at"  data-sortable="false">Created Date & Time</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>

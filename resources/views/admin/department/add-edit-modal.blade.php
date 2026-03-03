@@ -28,6 +28,20 @@
                                 <div class="sh_dec_s error" id="status_error"></div>
                             </div>
                         </div>                      
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="sh_dec" for="club_location_id">Club Location <span class="required-hash"></span></label>
+
+                                <select class="sh_dec form-select" name="club_location_id">
+                                    <option value="">Select Club Location</option>
+                                    @foreach($club_locations as $club_location)
+                                        <option value="{{ $club_location->id }}" {{ (isset($data->club_location_id) && $data->club_location_id == $club_location->id) ? 'selected' : '' }}>{{ $club_location->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                <div class="sh_dec_s error" id="club_location_id_error"></div>
+                            </div>
+                        </div>                      
                     </div>
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">

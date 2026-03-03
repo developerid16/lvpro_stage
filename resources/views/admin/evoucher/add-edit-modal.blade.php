@@ -177,7 +177,6 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="cso_method">Push Method <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select cso_method" name="cso_method">
-                                    {{-- <option class="sh_dec" value="">Select CSO Method</option> --}}
                                     <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> All Members</option>
                                     <option class="sh_dec" value="0" {{ isset($data->cso_method) && $data->cso_method == '0' ? 'selected' : '' }}> CSO Issuance</option>
                                     <option class="sh_dec" value="1" {{ isset($data->cso_method) && $data->cso_method == '1' ? 'selected' : '' }}> Push Voucher by Member ID</option>
@@ -188,7 +187,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Voucher Name <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="name">Voucher Name <span class="fs-10">(Max 30 chars)</span><span class="required-hash">*</span></label>
                                 <input id="name" type="text" class="sh_dec form-control" name="name" maxlength="30" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
@@ -384,7 +383,7 @@
                        
                         <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User)  <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
                                 <input id="max_quantity" type="number" min="0" maxlength="10" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
@@ -437,28 +436,28 @@
 
                         <div class="col-12 col-md-6 inventory_qty" style="display: none">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="inventory_qty" type="number" min="0" placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                             </div>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="voucher_value" type="number" min="0" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
@@ -561,18 +560,18 @@
 
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
-                                <label class="sh_dec">Low Stock Reminder 1 <span class="required-hash"></span></label>
+                                <label class="sh_dec">Low Stock Reminder 1 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
                                 <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
-                                <label class="sh_dec">Low Stock Reminder 2 <span class="required-hash"></span></label>
+                                <label class="sh_dec">Low Stock Reminder 2 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
                                 <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
                     </div>
 
                     <div class="row align-items-center mb-3">
-                        <label class="col-md-4 fw-bold">Friendly URL Name <span class="required-hash"></span></label>
+                        <label class="col-md-4 fw-bold">Friendly URL Name <span class="fs-10">(Max 20 chars)</span><span class="required-hash"></span></label>
                         <div class="col-md-6">
                             <input type="text" class="form-control" maxlength="20"  name="friendly_url"  value="{{ $data->friendly_url ?? '' }}">
                         </div>

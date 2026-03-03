@@ -106,18 +106,30 @@ class CsoPhysicalController extends Controller
                     </button>";
             }
 
-            // ✅ Show View File if file exists
+           // ✅ Show View File if file exists
             if (!empty($row->file)) {
 
                 $fileUrl = asset($row->file);
+                $extension = strtolower(pathinfo($row->file, PATHINFO_EXTENSION));
 
-                $action .= "
-                    <a href='{$fileUrl}'
-                        target='_blank'
-                        class='view-btn'
-                        title='View PDF'>
-                        <span class='mdi mdi-file-pdf-box  font-size-18'></span>
-                    </a>";
+                // Check file type
+                if (in_array($extension, ['jpg', 'png'])) {
+
+                    $icon = "mdi-file-image";
+                    $title = "View Image";
+
+                } elseif ($extension === 'pdf') {
+
+                    $icon = "mdi-file-pdf-box";
+                    $title = "View PDF";
+
+                } else {
+
+                    $icon = "mdi-file";
+                    $title = "View File";
+                }
+
+                $action .= " <a href='{$fileUrl}' target='_blank' class='view-btn'  title='{$title}'>  <span class='mdi {$icon} font-size-18'></span> </a>";
             }
 
             $action .= "</div>";
@@ -185,7 +197,7 @@ class CsoPhysicalController extends Controller
     {
         $request->validate([
             'remark' => 'nullable|string|max:500',
-            'file'   => 'nullable|file|mimes:pdf|max:2048', // 2MB max
+            'file' => 'nullable|file|mimetypes:application/pdf,image/jpeg,image/png|max:2048',        
         ]);
 
         $purchase = Purchase::findOrFail($request->purchase_id);

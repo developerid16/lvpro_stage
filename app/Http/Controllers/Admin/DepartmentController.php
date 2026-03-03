@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ClubLocation;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,6 +33,8 @@ class DepartmentController extends Controller
      * ----------------------------------------------------- */
     public function index(Request $request)
     {
+        $this->layout_data['club_locations'] = ClubLocation::all();
+
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
@@ -78,6 +81,7 @@ class DepartmentController extends Controller
             $final_data[$i] = [
                 'sr_no'      => $index,
                 'name'       => $row->name,
+                'club_location' => $row->clubLocation ? $row->clubLocation->name : '-',
                 'status'     => $status,
                 'created_at' => $createdAt,
                 'action'     => $action,
@@ -98,6 +102,7 @@ class DepartmentController extends Controller
     public function create()
     {
         $this->layout_data['data'] = null;
+        $this->layout_data['club_locations'] = ClubLocation::all();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
     }
@@ -109,6 +114,7 @@ class DepartmentController extends Controller
     {
         $post_data = $this->validate($request, [
             'name'   => 'required|string|max:255',
+            'club_location_id' => 'nullable|exists:club_locations,id',
             'status' => 'required|in:Active,Inactive',
         ]);
 
@@ -123,6 +129,7 @@ class DepartmentController extends Controller
     public function edit($id)
     {
         $this->layout_data['data'] = Department::findOrFail($id);
+        $this->layout_data['club_locations'] = ClubLocation::all();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
     }
@@ -136,6 +143,7 @@ class DepartmentController extends Controller
 
         $post_data = $this->validate($request, [
             'name'   => 'required|string|max:255',
+            'club_location_id' => 'nullable|exists:club_locations,id',
             'status' => 'required|in:Active,Inactive',
         ]);
 

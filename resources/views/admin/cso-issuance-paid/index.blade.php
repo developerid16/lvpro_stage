@@ -12,7 +12,7 @@
             {{ url('/') }}
         @endslot
         @slot('title')
-            CSO Issuance
+            CSO Issuance (Paid)
         @endslot
     @endcomponent
     <div class="card">
@@ -37,7 +37,7 @@
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Duration</th>
                             <th data-field="image">Image</th>
-                            <th data-field="cso_method">CSO Method</th>
+                            <th data-field="cso_method">Push Method</th>
                             <th data-field="is_draft">Is Draft</th>
                             <th data-field="created_at">Created On</th>
 
@@ -59,7 +59,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="overflow-y: auto;  max-height: 800px;">
-                    <form enctype="multipart/form-data" class="z-index-1" method="POST" action="{{ url('admin/cso-issuance/push-member-voucher') }}" id="member_voucher">
+                    <form enctype="multipart/form-data" class="z-index-1" method="POST" action="{{ url('admin/cso-issuance-paid/push-member-voucher') }}" id="member_voucher">
                         @csrf
 
                         <input type="hidden" name="reward_id" id="hiddenRewardId">
@@ -97,7 +97,14 @@
                             <div class="col-6 col-md-6">
                                 <div class="mb-3">
                                     <label class="sh_dec">Method<span class="required-hash">*</span></label>
-                                    <input type="text" class="sh_dec form-control readonly" value="Push to Wallet" readonly>
+                                    <select class="sh_dec form-select method" name="method">
+                                        <option class="sh_dec" value="">Select Method</option>
+                                        @foreach (['pushWallet' => 'Push to Wallet', 'pushCatalogue' => 'Push to Catalogue'] as $key => $label)
+                                            <option value="{{ $key }}" {{ isset($data) && $data->reward_id == $key ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 

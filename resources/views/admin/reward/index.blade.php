@@ -251,7 +251,7 @@
                                         </div>
 
                                         <div class="d-flex align-items-center ms-3">
-                                            <label class="mb-0 me-2 font-12">Inventory Qty</label>
+                                            <label class="mb-0 me-2 font-12">Inventory Qty <span class="fs-10">(Max 6 digits)</span></label>
                                             <input type="number" min="0"
                                                 class="form-control"
                                                 name="locations[${loc.id}][inventory_qty]"
