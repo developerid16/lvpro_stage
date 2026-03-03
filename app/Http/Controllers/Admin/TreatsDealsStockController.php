@@ -40,7 +40,7 @@ class TreatsDealsStockController extends Controller
     {
 
         $this->view_file_path = "admin.treats-deals-stock.";
-        $permission_prefix    = $this->permission_prefix    = '	t&d-reward-stock';
+        $permission_prefix    = $this->permission_prefix    = 't&d-reward-stock';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
             'title'             => 'Treats & Deals Management Listing',
@@ -48,7 +48,7 @@ class TreatsDealsStockController extends Controller
             'module_base_url'   => url('admin/reward'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
@@ -101,15 +101,17 @@ class TreatsDealsStockController extends Controller
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
             $final_data[$key]['amount'] = number_format($row->usual_price);
 
-            $final_data[$key]['quantity'] = max(0, (int) $total_quantity);
+            $totalQuantity = (int) ($total_quantity ?? 0);
 
-            $purchased = UserWalletVoucher::where('reward_id', $row->id)
+            $purchased = (int) UserWalletVoucher::where('reward_id', $row->id)
                 ->where('reward_status', 'purchased')
                 ->count();
 
-            $final_data[$key]['purchased'] = max(0, $purchased);
+            $balance = $totalQuantity - $purchased;
 
-            $final_data[$key]['balance'] = max(0, $total_quantity - $purchased);
+            $final_data[$key]['quantity']  = max(0, $totalQuantity);
+            $final_data[$key]['purchased'] = max(0, $purchased);
+            $final_data[$key]['balance']   = max(0, $balance);
 
             $redeemed = UserWalletVoucher::where('reward_id', $row->id)
                 ->where('status', 'used')
@@ -153,16 +155,16 @@ class TreatsDealsStockController extends Controller
           
 
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
-            }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
-            }
+            // }
 
-            if (Auth::user()->can($this->permission_prefix . '-stock-adjustment')) {
+            // if (Auth::user()->can($this->permission_prefix . '-stock-adjustment')) {
 
-                $current_qty = $row->inventory_qty - $row->purchased_qty;
+                $current_qty = ((float)($row->inventory_qty ?? 0)) - ((float)($row->purchased_qty ?? 0));
 
                 $action .= "<a href='javascript:void(0)' 
                                 class='stock-adjustment'  
@@ -176,25 +178,25 @@ class TreatsDealsStockController extends Controller
                                 title='Stock Adjustment'>
                                 <i class='mdi mdi-warehouse text-info action-icon font-size-18'></i>
                             </a>";
-            }
+            // }
 
             $final_data[$key]['hide_catalogue'] = '-';
 
-            if (Auth::user()->can($this->permission_prefix . '-hide-catalogue')) {
+            // if (Auth::user()->can($this->permission_prefix . '-hide-catalogue')) {
                 $final_data[$key]['hide_catalogue'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input hide-catalogue-switch" type="checkbox" data-id="'.$row->id.'" '.($row->hide_catalogue ? 'checked' : '').'>
                     </div>';
-            }
+            // }
 
             $final_data[$key]['is_featured'] = '-';
 
-            if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
+            // if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
                 $final_data[$key]['is_featured'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input featured-toggle-switch" type="checkbox"  data-id="'.$row->id.'" '.($row->is_featured ? 'checked' : '').'>
                     </div>';
-            }
+            // }
         
            
             $final_data[$key]['action'] = $action . "</div>";

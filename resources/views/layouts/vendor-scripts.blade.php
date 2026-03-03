@@ -734,6 +734,7 @@
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
+            clearing.find('option[value="2"]').show();
             clearing.find('option[value="3"], option[value="4"]').hide();
             if (clearing.val() === "3" || clearing.val() === "4") {
                 clearing.val('');

@@ -25,7 +25,7 @@ class VoucherListController extends Controller
         ];
 
         
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
+        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
 
     }
