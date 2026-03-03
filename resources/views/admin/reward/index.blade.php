@@ -21,7 +21,7 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
             @can("$permission_prefix-create")
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i
+                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i
                         class="mdi mdi-plus"></i>
                     Add New</button>
             @endcan
@@ -315,10 +315,16 @@
             }
         });    
 
+        $('#AddModal').on('show.bs.modal', function () {
+            resetFormById();
+        });
+
         function resetFormById() {
+
             const modal = $('#AddModal');
             toggleInventoryFields(modal);
             toggleClearingFields(modal);
+
             $(".max_order").hide();
             $("#common_section").hide();
             $("#voucher_image_preview").hide();
@@ -326,26 +332,33 @@
             $(".file").hide();
             $(".inventory_qty").hide();
             $("#location_section").hide();
-          
+            $("#digital").hide();
 
-            window.selectedOutletMapMerchant = {};               // clear JS memory
+            window.selectedOutletMapMerchant = {};
             modal.find("#selected_locations_summary").empty();
             modal.find("#selected_locations_wrapper").hide();
             modal.find("#selected_locations_hidden").empty();
+
             let form = document.getElementById('add_frm');
             if (!form) return;
 
-            // BASIC RESET
             form.reset();
 
-            // CLEAR FILE INPUTS
+            // Clear text & number
+            $(form).find('input[type="text"]:not([readonly]), input[type="number"]').val('');
+
+            // 🔥 Clear flat date field
+            let $validity = $('#voucher_validity');
+            $validity.val('');
+            if ($validity[0]._flatpickr) {
+                $validity[0]._flatpickr.clear();
+            }
+            // ✅ CLEAR TEXT & NUMBER INPUTS
+
             form.querySelectorAll('input[type="file"]').forEach(file => {
                 file.value = '';
             });
 
-        
-
-            // OPTIONAL: hide error messages
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }

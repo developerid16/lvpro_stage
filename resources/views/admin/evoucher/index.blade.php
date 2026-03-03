@@ -27,7 +27,7 @@
                 @endcan
             </div>
             @can("$permission_prefix-create")
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
+                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>
             @endcan
         </div>
 
@@ -807,6 +807,10 @@
 
         });
 
+        $('#AddModal').on('show.bs.modal', function () {
+            resetFormById();
+        });
+
         function resetFormById() {
 
             const modal = $('#AddModal');
@@ -844,6 +848,14 @@
                 file.value = '';
             });
 
+            $(form).find('input[type="text"]:not([readonly]), input[type="number"]').val('');
+
+            // 🔥 Clear flat date field
+            let $validity = $('#voucher_validity');
+            $validity.val('');
+            if ($validity[0]._flatpickr) {
+                $validity[0]._flatpickr.clear();
+            }
             // -------------------------------
             // REMOVE VALIDATION ERRORS
             // -------------------------------

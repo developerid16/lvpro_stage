@@ -39,7 +39,10 @@ class CsoPhysicalController extends Controller
     public function datatable(Request $request)
     {
         $qb = Purchase::query()
-            ->with('reward') // relation needed
+            ->whereHas('reward', function ($q) {
+                $q->whereRaw("reward_type = '1'");
+            })
+            ->with('reward')
             ->select('purchases.*');
 
         // --------------------------------

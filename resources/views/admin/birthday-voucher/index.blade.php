@@ -22,7 +22,7 @@
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
            
             @can("$permission_prefix-create")
-            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal" onclick="resetFormById()"><i class="mdi mdi-plus"></i>Add New</button>
+            <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>
             @endcan
         </div>
 
@@ -296,6 +296,12 @@
                 modal.find('#set_qty').val('');
             }
         }
+
+        $('#AddModal').on('show.bs.modal', function () {
+            resetFormById();
+        });
+
+
         function resetFormById() {
             let modal = $('#AddModal').closest(".modal");
         
@@ -310,7 +316,16 @@
             modal.find("#selected_locations_summary").empty();
             modal.find("#selected_locations_wrapper").hide();
             modal.find("#selected_locations_hidden").empty();
+            // 🔥 Close all accordions
+            modal.find('.accordion-collapse.show').each(function () {
+                bootstrap.Collapse.getOrCreateInstance(this).hide();
+            });
 
+            // Reset toggle icons
+            modal.find('.toggle-icon')
+                .removeClass('mdi-chevron-up')
+                .addClass('mdi-chevron-down');
+            modal.find('.selected-locations-summary').empty();
             let form = document.getElementById('add_frm');
             if (!form) return;
 
@@ -322,6 +337,14 @@
                 file.value = '';
             });
 
+            $(form).find('input[type="text"]:not([readonly]), input[type="number"]').val('');
+
+            // 🔥 Clear flat date field
+            let $validity = $('#voucher_validity');
+            $validity.val('');
+            if ($validity[0]._flatpickr) {
+                $validity[0]._flatpickr.clear();
+            }
         
 
             // OPTIONAL: hide error messages
