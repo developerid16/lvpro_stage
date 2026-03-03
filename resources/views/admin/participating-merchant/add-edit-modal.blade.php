@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>Department <span class="required-hash">*</span></label>
+                                <label>Department <span class="required-hash"></span></label>
                                 <select name="department_id" class="form-select">
                                     <option value="">Select Department</option>
                                     @foreach($departments as $department)

@@ -135,6 +135,7 @@ class ParticipatingMerchantController extends Controller
             'status' => 'required|in:Active,Inactive',
         ]);       
 
+        $post_data['department_id'] = $post_data['department_id'] ?: null;
         ParticipatingMerchant::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Merchant Created Successfully']);
@@ -167,6 +168,7 @@ class ParticipatingMerchantController extends Controller
             'status' => 'required|in:Active,Inactive',
         ]);
 
+        $post_data['department_id'] = $post_data['department_id'] ?: null;
         $merchant->update($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Merchant Updated Successfully']);
