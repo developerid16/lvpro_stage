@@ -272,7 +272,7 @@
 
                 if (res.status !== 'success') return;
 
-                let html = `<label class="sh_dec"><b>Locations </b> <span  style="color:#f46a6a;">*</span></label>`;
+                let html = `<label class="sh_dec"><b>Locations </b>  <span class="fs-10">(Max 6 digits)</span><span  style="color:#f46a6a;">*</span></label>`;
                 html += `<div id="location_wrapper" class="row gx-3 gy-3">`;   // UPDATED wrapper
 
                 let i = 1;
@@ -299,7 +299,7 @@
                                 </div>
 
                                 <div class="d-flex align-items-center ms-3">
-                                    <label class="mb-0 me-2 font-12">Inventory Qty <span class="fs-10">(Max 6 digits)</span></label>
+                                    <label class="mb-0 me-2 font-12">Inventory Qty</label>
                                     <input type="number" min="0"
                                         class="form-control"
                                         name="locations[${loc.id}][inventory_qty]"
