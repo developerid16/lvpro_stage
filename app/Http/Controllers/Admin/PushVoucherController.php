@@ -21,7 +21,8 @@ class PushVoucherController extends Controller
         ];
 
         
-        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware('permission:push-voucher-by-parameter|push-voucher-by-member-id')
+            ->only(['index', 'datatable', 'store']);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
