@@ -2057,15 +2057,17 @@ class EvoucherController extends Controller
             'interest_group'   => 'nullable|array',
             'interest_group.*' => 'exists:master_interest_groups,id',
 
-            'publish_channels' => 'nullable|array',
-            'card_types'       => 'nullable|array',
-            'marital_status'   => 'nullable|array',
-            'gender'           => 'nullable|array',
-            'zone'             => 'nullable|array',
+            'publish_channels' => 'required|array',
+            'card_types'       => 'required|array',
+            'marital_status'   => 'required|array',
+            'gender'           => 'required|array',
+            'zone'             => 'required|array',
 
-            'age_mode' => 'nullable|in:All,custom',
-            'age_from' => $ageMode === 'custom' ? 'nullable|integer|min:1|max:100' : 'nullable|integer|min:1|max:100',
-            'age_to'   => $ageMode === 'custom' ? 'nullable|integer|min:1|max:100|gte:age_from' : 'nullable|integer|min:1|max:100',
+            'age_mode' => 'required|in:All,custom',
+
+            'age_from' => 'required_if:age_mode,custom|nullable|integer|min:1|max:100',
+
+            'age_to'   => 'required_if:age_mode,custom|nullable|integer|min:1|max:100|gte:age_from',
 
             // Membership dates — nullable, format Y-m
             'membership_join_from'      => 'nullable|date_format:Y-m',
@@ -2079,9 +2081,11 @@ class EvoucherController extends Controller
         ];
 
         $messages = [
-            'age_from.nullable'                         => 'Age From is nullable when custom age is selected.',
-            'age_to.nullable'                           => 'Age To is nullable when custom age is selected.',
-            'age_to.gte'                                => 'Age To must be greater than or equal to Age From.',
+            'publish_channels.required'                 => 'Member type is reqiuired.',
+
+            'age_from.required_if'                         => 'Age From is required when custom age is selected.',
+            'age_to.required_if'                           => 'Age To is required when custom age is selected.',
+            'age_to.gte'                                   => 'Age To must be greater than or equal to Age From.',
 
             'membership_join_to.after_or_equal'         => 'Membership Join To must be on or after From.',
             'membership_expiry_to.after_or_equal'       => 'Membership Expiry To must be on or after From.',

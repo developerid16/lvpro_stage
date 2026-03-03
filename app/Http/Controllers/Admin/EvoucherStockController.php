@@ -42,7 +42,7 @@ class EvoucherStockController extends Controller
             'module_base_url'   => url('admin/evoucher'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
@@ -82,12 +82,13 @@ class EvoucherStockController extends Controller
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
 
-            $final_data[$key]['quantity']       = number_format($row->inventory_qty);
-            $final_data[$key]['balance']       = number_format($row->inventory_qty - $row->purchased_qty);
-            
-            $final_data[$key]['total_redeemed'] = number_format($row->total_redeemed);
-            
-            
+           $inventoryQty = (float) ($row->inventory_qty ?? 0);
+            $purchasedQty = (float) ($row->purchased_qty ?? 0);
+            $totalRedeemed = (float) ($row->total_redeemed ?? 0);
+
+            $final_data[$key]['quantity'] = number_format($inventoryQty, 0, '.', '');
+            $final_data[$key]['balance'] = number_format($inventoryQty - $purchasedQty, 0, '.', '');
+            $final_data[$key]['total_redeemed'] = number_format($totalRedeemed, 0, '.', '');
             $redeemed = UserWalletVoucher::where('reward_id', $row->id)
             ->where('status', 'used')
             ->count();
@@ -141,16 +142,16 @@ class EvoucherStockController extends Controller
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
-            }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
-            }
+            // }
             
-            if (Auth::user()->can($this->permission_prefix . '-stock-adjustment')) {
+            // if (Auth::user()->can($this->permission_prefix . '-stock-adjustment')) {
 
-                $current_qty = $row->inventory_qty - $row->purchased_qty;
+               $current_qty = ((float)($row->inventory_qty ?? 0)) - ((float)($row->purchased_qty ?? 0));
 
                 $action .= "<a href='javascript:void(0)' 
                                 class='stock-adjustment'  
@@ -163,24 +164,24 @@ class EvoucherStockController extends Controller
                                 title='Stock Adjustment'>
                                 <i class='mdi mdi-warehouse text-info action-icon font-size-18'></i>
                             </a>";
-            }
+            // }
 
             $final_data[$key]['hide_catalogue'] = '-';
-            if (Auth::user()->can($this->permission_prefix . '-hide-catalogue')) {
+            // if (Auth::user()->can($this->permission_prefix . '-hide-catalogue')) {
                 $final_data[$key]['hide_catalogue'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input hide-catalogue-switch" type="checkbox" data-id="'.$row->id.'" '.($row->hide_catalogue ? 'checked' : '').'>
                     </div>';
-            }
+            // }
 
             $final_data[$key]['is_featured'] = '-';
 
-            if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
+            // if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
                 $final_data[$key]['is_featured'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input featured-toggle-switch" type="checkbox"  data-id="'.$row->id.'" '.($row->is_featured ? 'checked' : '').'>
                     </div>';
-            }
+            // }
         
 
             $final_data[$key]['action'] = $action . "</div>";

@@ -408,11 +408,11 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_type">Inventory Type (Total)<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="inventory_type">Merchant/Non-merchant<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Voucher Type</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
+                                    <option class="sh_dec" value="">Select Merchant/Non-merchant</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
                                 </select>
                             </div>
                         </div>

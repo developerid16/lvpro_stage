@@ -382,7 +382,6 @@
         });
     }
 
-
     function bindMonthFlatpickrEdit(modal, startSelector, endSelector) {
 
         // make sure modal is DOM element, not jQuery

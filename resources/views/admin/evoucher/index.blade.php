@@ -3,6 +3,7 @@
 @section('title')
      E-Voucher: Digital Voucher
 @endsection
+
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
@@ -59,7 +60,8 @@
             </div>
         </div>
     </div>
-       <!--Push Parameter Voucher-->
+    
+    <!--Push Parameter Voucher-->
   
     <!-- Create -->
     @can("$permission_prefix-create")
@@ -85,7 +87,7 @@
                             </div>
                             <div class="col-12 col-md-12">
                                 <div class="mb-3">
-                                    <label class="sh_dec" for="reward_id">Attached Voucher<span class="required-hash">*</span></label>
+                                    <label class="sh_dec" for="reward_id">Attached Voucher <span class="required-hash">*</span></label>
                                     <select class="sh_dec form-select reward_id" name="reward_id">
                                         <option class="sh_dec" value="">Select Attached Voucher</option>
                                          @if (isset($parameterReward))                                        
@@ -136,7 +138,7 @@
 
                             <!--publish channel-->
                            <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Publish Channel<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Membership Type <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_membership_codes) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -158,7 +160,7 @@
 
                             <!--card Type-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Card Type<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Card Type <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_card_types) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -180,7 +182,7 @@
 
                             <!--Marital Status-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Marital Status<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Marital Status <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_marital_statuses) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -202,7 +204,7 @@
 
                             <!--Gender-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Gender<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Gender <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_genders) > 0)
                                         <label class="d-flex align-items-center gap-1">
@@ -224,7 +226,7 @@
 
                             <!---Age-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Age<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Age <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3 align-items-center">
 
                                     @php
@@ -274,7 +276,7 @@
 
                             <!--- Zones-->
                             <div class="row mb-3 push-border">
-                                <label class="col-md-3 fw-bold">Zones<span class="required-hash"></span></label>
+                                <label class="col-md-3 fw-bold">Zones <span class="required-hash">*</span></label>
                                 <div class="col-md-9 d-flex flex-wrap gap-3">
                                     @if(count($master_zones) > 0)
                                         <label class="d-flex align-items-center gap-1">
