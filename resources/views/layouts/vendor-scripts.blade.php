@@ -627,13 +627,16 @@
             locationField.show();
         }
 
+        // ❌ If clearing_method = 2 → force inventory_type = 0
         if (method === "2") {
             merchantField.show();
             outletSection.show();
-            // 🔥 FORCE inventory_type = 0
-            modal.find('.inventory_type')
-                .val("0")
-                .trigger('change');
+            modal.find('.inventory_type').val("0").trigger('change');
+            // Hide inventory type 1 option
+            // modal.find('.inventory_type option[value="1"]').hide();
+        } else {
+            // Show inventory type 1 back
+            // modal.find('.inventory_type option[value="1"]').show();
         }
         
     }
@@ -649,23 +652,26 @@
         const outletSection  = modal.find('#participating_section');
         const merchantSelect = modal.find('#participating_merchant_id');
 
-        // RESET UI
         locationField.hide();
         merchantField.hide();
         outletWrapper.hide();
         outletList.empty();
         outletSection.hide();
 
-        // External link / text based
-        if ([0, 1, 3,4].includes(method)) {
+        // 🔒 If clearing = 2 → inventory 1 not allowed
+        if (method === 2) {
+            // modal.find('.inventory_type option[value="1"]').hide();
+            modal.find('.inventory_type').val("0").trigger('change');
+        } else {
+            // modal.find('.inventory_type option[value="1"]').show();
+        }
+
+        if ([0,1,3,4].includes(method)) {
             locationField.show();
             return;
         }
 
-        // Merchant based
         if (method === 2) {
-            // 🔥 FORCE inventory_type = 0
-            modal.find('.inventory_type').val("0").trigger('change');
             merchantField.show();
             outletSection.show();
 
@@ -679,7 +685,6 @@
             return;
         }
 
-        // Everything else → reset merchant data
         merchantSelect.val(null).trigger('change');
         selectedOutletMapMerchant = {};
         modal.find('#selected_locations_summary').empty();
@@ -691,23 +696,38 @@
         let type = modal.find('.inventory_type').val();
         let fileField = modal.find('.file');
         let qtyField  = modal.find('.inventory_qty');
-        modal.find('#inventory_qty').prop('readonly', false);
+        let clearing  = modal.find('#clearing_method');
 
-        let clearing = modal.find('#clearing_method');
-        clearing.find('option[value="3"], option[value="4"]').show();        
+        modal.find('#inventory_qty').prop('readonly', false);
+        clearing.find('option[value="3"], option[value="4"]').show();
+
+        // 🔒 If inventory = 1 → clearing 2 not allowed
         if (type === "1") {
+
+            let clearingSelect = modal.find('#clearing_method');
+
+            if (clearingSelect.val() === "2") {
+                clearingSelect.val('').trigger('change');
+            }
+
+            clearingSelect.find('option[value="2"]').hide();
+
             fileField.show();
             qtyField.show();
-            
         } else if (type === "0") {
-            modal.find('#inventory_qty').prop('readonly', false);
+
+            clearing.find('option[value="2"]').show();
+
             qtyField.show();
             fileField.hide();
-            fileField.find("input").val(""); // clear
+            fileField.find("input").val("");
+
             clearing.find('option[value="3"], option[value="4"]').hide();
+
             if (clearing.val() === "3" || clearing.val() === "4") {
                 clearing.val('');
             }
+
         } else {
             fileField.hide();
             qtyField.hide();
@@ -725,16 +745,26 @@
         clearing.find('option[value="3"], option[value="4"]').show();        
         
         if (type === "1") {
+
             fileField.show();
             qtyField.hide();
-            clearing.find('option[value="2"]').hide();
-            qtyField.find("input").val(""); // clear
+            qtyField.find("input").val("");
+
+            let clearingSelect = modal.find('#clearing_method');
+
+            // 🔥 If clearing = 2 → reset it
+            if (clearingSelect.val() === "2") {
+                clearingSelect.val('').trigger('change');
+            }
+
+            // 🔥 Hide option 2
+            clearingSelect.find('option[value="2"]').hide();
         } else if (type === "0") {
             modal.find('#inventory_qty').val('');
             qtyField.show();
             fileField.hide();
             fileField.find("input").val(""); // clear
-            clearing.find('option[value="2"]').show();
+            modal.find('#clearing_method option[value="2"]').show();
             clearing.find('option[value="3"], option[value="4"]').hide();
             if (clearing.val() === "3" || clearing.val() === "4") {
                 clearing.val('');
@@ -1336,7 +1366,15 @@
             .addClass('mdi-chevron-down');
     });
 
-   
+    $(document).on('input', 'input[type="number"]', function () {
+
+        let maxLength = 7; // change if needed
+
+        if (this.value.length > maxLength) {
+            this.value = this.value.slice(0, maxLength);
+        }
+
+    });
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>

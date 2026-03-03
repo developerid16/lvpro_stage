@@ -1,12 +1,12 @@
 @extends('layouts.master-layouts')
 
-@section('title') eVoucher Update Request @endsection
+@section('title') eVoucher Approval @endsection
 @section('content')
 
 @component('components.breadcrumb')
 @slot('li_1') Admin @endslot
 @slot('li_1_link') {{url('/')}} @endslot
-@slot('title') eVoucher Update Request @endslot
+@slot('title') eVoucher Approval @endslot
 @endcomponent
 
 <div class="card">
@@ -115,7 +115,7 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: 'Do you want to approve this eVoucher update request?',
+            text: 'Do you want to approve this eVoucher Approval?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, approve it!',

@@ -217,7 +217,7 @@
                                 <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
                                 @endcan                               
                                 @can('reward-update-request-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">eVoucher update request</a>
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">eVoucher Approval</a>
                                 @endcan
                             </div>
                         </li>

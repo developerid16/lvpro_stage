@@ -360,7 +360,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Voucher Name <span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
+                                <input id="name" type="text" class="sh_dec form-control" name="name" maxlength="30" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -462,7 +462,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="where_use">Where To Use <span class="required-hash"></span></label>
                                 <input id="where_use" type="text" class="sh_dec form-control" name="where_use"
-                                    value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use"/>
+                                    value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use" maxlength="15"/>
                             </div>
                         </div>
                         
@@ -741,7 +741,7 @@
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Friendly URL Name <span class="required-hash"></span></label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control"   name="friendly_url"    value="{{ $data->friendly_url ?? '' }}">
+                                    <input type="text" class="form-control"  maxlength="20" name="friendly_url"    value="{{ $data->friendly_url ?? '' }}">
                                 </div>
                             </div>
 

@@ -60,7 +60,7 @@
             </div>
         </div>
     </div>
-    
+
     <!--Push Parameter Voucher-->
   
     <!-- Create -->
@@ -949,13 +949,9 @@
         }
 
         $('#AddParameterVoucher').on('shown.bs.modal', function () 
-        {    
-            // Interest Group Select2
-            // $('.interest-group').select2({
-            //     dropdownParent: $('#AddParameterVoucher'),
-            //     placeholder: "Select Interest Groups",
-            //     width: '100%',
-            // });
+        {             
+
+                $(this).find('input[type="checkbox"]').prop('checked', true);
 
             $('.interest-group').select2({
                 dropdownParent: $('#AddParameterVoucher'),
@@ -1028,6 +1024,9 @@
                     toEl.setAttribute("disabled", true);
                 }
             });
+            
+            $(this).find('input[type="checkbox"][value="All"]').prop('checked', true);
+
         });
 
         $('#AddParameterVoucher').on('hidden.bs.modal', function () {

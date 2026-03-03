@@ -189,7 +189,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="name">Voucher Name <span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name" placeholder="Enter name" value="{{ $data->name ?? '' }}">
+                                <input id="name" type="text" class="sh_dec form-control" name="name" maxlength="30" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -223,9 +223,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                       
-  
-                       
+                        </div>    
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
@@ -387,7 +385,7 @@
                         <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
                                 <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User)  <span class="required-hash">*</span></label>
-                                <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
+                                <input id="max_quantity" type="number" min="0" maxlength="10" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
 
@@ -411,8 +409,8 @@
                                 <label class="sh_dec" for="inventory_type">Merchant/Non-merchant<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select inventory_type" name="inventory_type">
                                     <option class="sh_dec" value="">Select Merchant/Non-merchant</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
                                     <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
                                 </select>
                             </div>
                         </div>
@@ -447,7 +445,7 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="required-hash">*</span></label>    
-                                <input id="voucher_value" type="number" min="0"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                <input id="voucher_value" type="number" min="0" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
 
@@ -576,7 +574,7 @@
                     <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Friendly URL Name <span class="required-hash"></span></label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control"   name="friendly_url"  value="{{ $data->friendly_url ?? '' }}">
+                            <input type="text" class="form-control" maxlength="20"  name="friendly_url"  value="{{ $data->friendly_url ?? '' }}">
                         </div>
                     </div>
 

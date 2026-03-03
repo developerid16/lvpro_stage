@@ -32,7 +32,7 @@ class RewardUpdateRequestController extends Controller
         $permission_prefix = $this->permission_prefix = 'reward-update-request';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'Reward Update Request',
+            'title' => 'eVoucher Approval',
             'module_base_url' => url('admin/reward-update-request')
         ];
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
+use App\Models\AppUser;
 use App\Models\Category;
 use App\Models\ClubLocation;
 use App\Models\Merchant;
@@ -100,6 +101,7 @@ class BirthdayEvoucherController extends Controller
                     }
                 }
             }
+
             $final_data[$key]['sr_no']      = $key + 1;
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
@@ -107,35 +109,15 @@ class BirthdayEvoucherController extends Controller
             $final_data[$key]['quantity']       = number_format($row->inventory_qty);
             $final_data[$key]['total_redeemed'] = number_format($row->total_redeemed);
 
+            $claimed = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status', 'issued')->count();
+            $final_data[$key]['claimed'] = max(0, $claimed);
 
             $redeemed = UserWalletVoucher::where('reward_id', $row->id)
                 ->where('status', 'used')
                 ->count();
 
-            $final_data[$key]['redeemed'] = max(0, $redeemed);
-            $duration = $row->created_at->format(config('safra.date-format'));
-
-            
-            // if (!empty($row->voucher_image)) {
-            //     $imgUrl = asset("uploads/image/{$row->voucher_image}");
-
-            //     $final_data[$key]['image'] = '
-            //         <a href="'.$imgUrl.'" target="_blank">
-            //             <img src="'.$imgUrl.'"
-            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-            //                 alt="Voucher Image">
-            //         </a>';
-            // } else {
-            //     $imgUrl = asset("uploads/image/no-image.png");
-            //     $final_data[$key]['image'] = '<img src="'.$imgUrl.'"
-            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-            //                 alt="Voucher Image">'; // nothing shown
-            // }
-
+            $final_data[$key]['redeemed'] = max(0, $redeemed);          
             $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
-
-
-           
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
             $final_data[$key]['month'] = $month;
@@ -206,6 +188,24 @@ class BirthdayEvoucherController extends Controller
                 }
             }
 
+           // ---------------- ISSUED (Match Birth Month Only) ----------------
+            $issuedCount = 0;
+
+            if (!empty($row->month)) {
+
+                try {
+                    // Extract month from 2026-01 → 01
+                    $monthNumber = Carbon::parse($row->month)->format('m');
+
+                    // Match with dob like 01/1997
+                    $issuedCount = AppUser::where('age', 'like', $monthNumber.'/%')->count();
+
+                } catch (\Exception $e) {
+                    $issuedCount = 0;
+                }
+            }
+
+            $final_data[$key]['issued'] = number_format($issuedCount);
 
 
             $final_data[$key]['status'] = $status;

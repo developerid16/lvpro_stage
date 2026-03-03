@@ -144,7 +144,7 @@ class ParticipatingMerchantLocationController extends Controller
            'participating_merchant_id' => 'required|exists:participating_merchants,id',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
-            // 'club_location_id'  => 'required|exists:club_locations,id',
+            'club_location_id'  => 'nullable|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
         ], [
             'participating_merchant_id.required' => 'Participating merchant is required',
@@ -159,7 +159,6 @@ class ParticipatingMerchantLocationController extends Controller
             'end_date.required' => 'End date is required',
             'end_date.after_or_equal' => 'End date must be after or equal to start date',
 
-            'club_location_id.required' => 'Club location is required',
             'club_location_id.exists'   => 'Invalid club location',
 
             'status.required' => 'Status is required',
@@ -208,7 +207,7 @@ class ParticipatingMerchantLocationController extends Controller
             'code'              => 'required|string|max:100',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
-            // 'club_location_id'  => 'required|exists:club_locations,id',
+            'club_location_id'  => 'nullable|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
         ], [
             'name.required' => 'Name is required',
@@ -220,7 +219,6 @@ class ParticipatingMerchantLocationController extends Controller
             'end_date.required' => 'End date is required',
             'end_date.after_or_equal' => 'End date must be after or equal to start date',
 
-            'club_location_id.required' => 'Club location is required',
             'club_location_id.exists'   => 'Invalid club location',
 
             'status.required' => 'Status is required',
