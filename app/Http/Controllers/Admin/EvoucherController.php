@@ -97,8 +97,8 @@ class EvoucherController extends Controller
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
 
-            $final_data[$key]['quantity']       = number_format($row->inventory_qty);
-            $final_data[$key]['total_redeemed'] = number_format($row->total_redeemed);
+            $final_data[$key]['quantity']       = number_format((float) $row->inventory_qty);
+            $final_data[$key]['total_redeemed'] = number_format((float) $row->total_redeemed);
 
 
             $redeemed = UserWalletVoucher::where('reward_id', $row->id)

@@ -49,13 +49,15 @@ class Kernel extends ConsoleKernel
 
         // $schedule->command('master:sync-all')->dailyAt('00:00'); // call manully php artisan master:sync-all
 
-        $schedule->command('master:sync-gender')->daily();
+        $schedule->command('master:sync-gender')->everyMinute();
+        // $schedule->command('master:sync-gender')->daily();
         $schedule->command('master:sync-marital-status')->daily();
         $schedule->command('master:sync-card-type')->daily();
         $schedule->command('master:sync-dependent-type')->daily();
         $schedule->command('master:sync-zone')->daily();
         $schedule->command('master:sync-membership-code')->daily();
         $schedule->command('master:sync-interest-group')->daily();
+        
         $schedule->command('voucher:generate-next-year')->yearlyOn(12, 31, '23:59');
     }
 

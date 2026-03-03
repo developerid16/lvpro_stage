@@ -47,7 +47,7 @@
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
-                            <th data-field="cso_method">CSO Method</th>
+                            <th data-field="cso_method">Push Method</th>
                             <th data-field="is_draft">Is Draft</th>
                             <th data-field="status">Status</th>
                             <th data-field="created_at">Created On</th>
