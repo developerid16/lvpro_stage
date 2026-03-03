@@ -217,5 +217,30 @@ if (!function_exists('generateHashFileName')) {
             $max - strlen($ext) - 1
         ) . ($ext ? '.' . $ext : '');
     }
-}
 
+}
+    
+if (!function_exists('getRedirectUrl')) {
+    function getRedirectUrl($user)
+    {
+        $map = [
+            'dashboard' => '/',
+            'role-list' => '/admin/roles',
+            'department-list' => '/admin/departments',
+            'cms-user-list' => '/admin/user',
+            'app-user-list' => '/admin/app-user',
+            'reward-category' => '/admin/category',
+            't&d-reward-list' => '/admin/reward',
+            'merchant-list' => '/admin/merchants',
+            'tier-list' => '/admin/tiers',
+        ];
+
+        foreach ($map as $permission => $url) {
+            if ($user->can($permission)) {
+                return $url;
+            }
+        }
+
+        return null;
+    }
+}

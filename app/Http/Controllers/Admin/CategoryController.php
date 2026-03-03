@@ -14,13 +14,21 @@ class CategoryController extends Controller
     function __construct()
     {
         $this->view_file_path = "admin.category.";
-        $permission_prefix = $this->permission_prefix = 'category';
+        $permission_prefix = $this->permission_prefix = 'reward-category';
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
             'title' => 'Reward Category',
             'module_base_url' => url('admin/category')
         ];
+
+      
+
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+    
     }
 
 

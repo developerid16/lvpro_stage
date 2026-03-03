@@ -5,10 +5,8 @@
 <script src="{{ URL::asset('build/libs/node-waves/waves.min.js')}}"></script>
 <script src="{{ URL::asset('build/libs/lightbox/js/lightbox.min.js')}}"></script>
 <script src="{{ URL::asset('build/libs/chosen/chosen.jquery.min.js')}}"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-
-
+<script src="{{ URL::asset('build/js/flatpickr.min.js')}}"></script>
+<script src="{{ URL::asset('build/js/monthSelect.js')}}"></script>
 
 <script>
     $.ajaxSetup({
@@ -730,6 +728,7 @@
         if (type === "1") {
             fileField.show();
             qtyField.hide();
+            clearing.find('option[value="2"]').hide();
             qtyField.find("input").val(""); // clear
         } else if (type === "0") {
             modal.find('#inventory_qty').val('');
@@ -1163,7 +1162,6 @@
     });
 
 
-
     function loadParticipatingMerchantLocationsBday(modal, clubId, merchantId) {
 
         $.ajax({
@@ -1340,19 +1338,14 @@
 
    
 </script>
-{{-- flatpicker confirm box
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/confirmDate/confirmDate.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/confirmDate/confirmDate.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> --}}
 
-<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.21.4/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
-<script src="https://unpkg.com/bootstrap-table@1.22.1/dist/extensions/export/bootstrap-table-export.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ URL::asset('build/libs/select2/js/select2.min.js') }}"></script>
+<script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
+<script src="{{ URL::asset('/build/js/bootstrap-table.min.js') }}"></script>
+<script src="{{ URL::asset('/build/js/bootstrap-table-filter-control.min.js') }}"></script>
+<script src="{{ URL::asset('/build/js/bootstrap-table-export.min.js') }}"></script>
+<script src="{{ URL::asset('/build/js/sweetalert2.min.js') }}"></script>
+<script src="{{ URL::asset('/build/js/tagify.min.js') }}"></script>
+<script src="{{ URL::asset('/build/libs/select2/js/select2.min.js') }}"></script>
 <script src="{{ URL::asset('/build/libs/snackbar/snackbar.min.js') }}"></script>
 @yield('script')
 <!-- App js -->

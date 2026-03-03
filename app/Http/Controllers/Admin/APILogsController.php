@@ -25,7 +25,7 @@ class APILogsController extends Controller
             'module_base_url' => url('admin/apilogs')
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create", ['only' => ['index']]);
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create", ['only' => ['index', 'datatable']]);
     }
 
     /**

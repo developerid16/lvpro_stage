@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\Storage;
 
 class AppContentController extends Controller
 {
+    function __construct()
+    {
+        $this->view_file_path = "admin.content-management.";
+        $permission_prefix = $this->permission_prefix = 'content-management';
+
+        $this->layout_data = [
+            'permission_prefix' => $permission_prefix,
+            'title' => 'Content Management',
+            'module_base_url' => url('admin/content-management')
+        ];
+
+        
+        $this->middleware("permission:$permission_prefix", ['only' => ['index', 'store']]);
+    }
+
     public function index()
     {
         $terms = AppContent::where('type', 'terms')->first();
@@ -19,112 +34,112 @@ class AppContentController extends Controller
         return view('admin.app-content.index', compact('terms', 'faq', 'onboarding'));
     }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'terms_pdf' => 'nullable|file|mimes:pdf|max:5120',
-        'faq_pdf'   => 'nullable|file|mimes:pdf|max:5120',
-        'onboarding_pdf' => 'nullable|file|mimes:pdf|max:5120',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'terms_pdf' => 'nullable|file|mimes:pdf|max:5120',
+            'faq_pdf'   => 'nullable|file|mimes:pdf|max:5120',
+            'onboarding_pdf' => 'nullable|file|mimes:pdf|max:5120',
+        ]);
 
-    $parser = new Parser();
+        $parser = new Parser();
 
-    // Make sure folder exists
-    if (!file_exists(public_path('uploads/pdf'))) {
-        mkdir(public_path('uploads/pdf'), 0755, true);
-    }
-
-    // -------------------------
-    // TERMS
-    // -------------------------
-    if ($request->hasFile('terms_pdf')) {
-
-        $terms = AppContent::firstOrCreate(['type' => 'terms']);
-
-        // Delete old file
-        if ($terms->file_path && file_exists(public_path($terms->file_path))) {
-            unlink(public_path($terms->file_path));
+        // Make sure folder exists
+        if (!file_exists(public_path('uploads/pdf'))) {
+            mkdir(public_path('uploads/pdf'), 0755, true);
         }
 
-        $file = $request->file('terms_pdf');
-        $filename = generateHashFileName($file);
-        // $filename = time().'_terms.'.$file->getClientOriginalExtension();
-        $file->move(public_path('uploads/pdf'), $filename);
+        // -------------------------
+        // TERMS
+        // -------------------------
+        if ($request->hasFile('terms_pdf')) {
 
-        $relativePath = 'uploads/pdf/'.$filename;
-        $fullPath = public_path($relativePath);
+            $terms = AppContent::firstOrCreate(['type' => 'terms']);
 
-        // Extract text
-        $pdf = $parser->parseFile($fullPath);
-        $text = $pdf->getText();
+            // Delete old file
+            if ($terms->file_path && file_exists(public_path($terms->file_path))) {
+                unlink(public_path($terms->file_path));
+            }
 
-        $terms->update([
-            'file_path' => $relativePath,
-            'content'   => $text
-        ]);
-    }
+            $file = $request->file('terms_pdf');
+            $filename = generateHashFileName($file);
+            // $filename = time().'_terms.'.$file->getClientOriginalExtension();
+            $file->move(public_path('uploads/pdf'), $filename);
 
-    // -------------------------
-    // FAQ
-    // -------------------------
-    if ($request->hasFile('faq_pdf')) {
+            $relativePath = 'uploads/pdf/'.$filename;
+            $fullPath = public_path($relativePath);
 
-        $faq = AppContent::firstOrCreate(['type' => 'faq']);
+            // Extract text
+            $pdf = $parser->parseFile($fullPath);
+            $text = $pdf->getText();
 
-        if ($faq->file_path && file_exists(public_path($faq->file_path))) {
-            unlink(public_path($faq->file_path));
+            $terms->update([
+                'file_path' => $relativePath,
+                'content'   => $text
+            ]);
         }
 
-        $file = $request->file('faq_pdf');
-        $filename = time().'_faq.'.$file->getClientOriginalExtension();
-        $file->move(public_path('uploads/pdf'), $filename);
+        // -------------------------
+        // FAQ
+        // -------------------------
+        if ($request->hasFile('faq_pdf')) {
 
-        $relativePath = 'uploads/pdf/'.$filename;
-        $fullPath = public_path($relativePath);
+            $faq = AppContent::firstOrCreate(['type' => 'faq']);
 
-        $pdf = $parser->parseFile($fullPath);
-        $text = $pdf->getText();
+            if ($faq->file_path && file_exists(public_path($faq->file_path))) {
+                unlink(public_path($faq->file_path));
+            }
 
-        $faq->update([
-            'file_path' => $relativePath,
-            'content'   => $text
-        ]);
-    }
+            $file = $request->file('faq_pdf');
+            $filename = time().'_faq.'.$file->getClientOriginalExtension();
+            $file->move(public_path('uploads/pdf'), $filename);
 
+            $relativePath = 'uploads/pdf/'.$filename;
+            $fullPath = public_path($relativePath);
 
-      // -------------------------
-    // TERMS
-    // -------------------------
-    if ($request->hasFile('onboarding_pdf')) {
+            $pdf = $parser->parseFile($fullPath);
+            $text = $pdf->getText();
 
-        $terms = AppContent::firstOrCreate(['type' => 'onboarding']);
-
-        // Delete old file
-        if ($terms->file_path && file_exists(public_path($terms->file_path))) {
-            unlink(public_path($terms->file_path));
+            $faq->update([
+                'file_path' => $relativePath,
+                'content'   => $text
+            ]);
         }
 
-        $file = $request->file('onboarding_pdf');
-        $filename = time().'_onboarding.'.$file->getClientOriginalExtension();
-        $file->move(public_path('uploads/pdf'), $filename);
 
-        $relativePath = 'uploads/pdf/'.$filename;
-        $fullPath = public_path($relativePath);
+        // -------------------------
+        // TERMS
+        // -------------------------
+        if ($request->hasFile('onboarding_pdf')) {
 
-        // Extract text
-        $pdf = $parser->parseFile($fullPath);
-        $text = $pdf->getText();
+            $terms = AppContent::firstOrCreate(['type' => 'onboarding']);
 
-        $terms->update([
-            'file_path' => $relativePath,
-            'content'   => $text
+            // Delete old file
+            if ($terms->file_path && file_exists(public_path($terms->file_path))) {
+                unlink(public_path($terms->file_path));
+            }
+
+            $file = $request->file('onboarding_pdf');
+            $filename = time().'_onboarding.'.$file->getClientOriginalExtension();
+            $file->move(public_path('uploads/pdf'), $filename);
+
+            $relativePath = 'uploads/pdf/'.$filename;
+            $fullPath = public_path($relativePath);
+
+            // Extract text
+            $pdf = $parser->parseFile($fullPath);
+            $text = $pdf->getText();
+
+            $terms->update([
+                'file_path' => $relativePath,
+                'content'   => $text
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'PDF uploaded and content extracted successfully'
         ]);
     }
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'PDF uploaded and content extracted successfully'
-    ]);
-}
 
 }

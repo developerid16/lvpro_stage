@@ -362,32 +362,11 @@
                          <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_type">Inventory Type <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Inventory Type</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> System Generated Code</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant Uploaded Code</option>
-                                </select>
+                                <input id="" type="text" readonly  class="sh_dec form-control readonly"   name="inventory_type" value="System Generated Code">                                
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 file" style="display:none">
-                            <div class="mb-3">
-                                <label class="sh_dec" for="csvFile"> File <span class="required-hash">*</span> </label>
-                                <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls,.csv">
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <div>
-                                        <label class="small text-muted">  Download demo file:
-                                            <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold"> Click here </a>
-                                        </label>
-                                    </div>
-                                    <!-- uploaded / selected file -->
-                                    <div id="uploadedFile" class="align-items-center gap-2 {{ isset($data->csvFile) ? 'd-flex' : 'd-none' }}">
-                                        <a id="uploadedFileLink" href="{{ isset($data->csvFile) ? asset('uploads/csv/'.$data->csvFile) : 'javascript:void(0)' }}" target="_blank" class="text-primary fw-bold"> {{ $data->csvFile ?? '' }} </a>
-                                        <button type="button" class="btn btn-sm btn-danger delete-btn" id="removeCsvFile"  title="Remove file"> <span class="mdi mdi-delete"></span> </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6 inventory_qty" style="display: none">
+                      
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="required-hash">*</span></label>    
                                 <input id="inventory_qty" type="number" min="0"  placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 

@@ -40,7 +40,7 @@ class BirthdayEvoucherController extends Controller
             'module_base_url'   => url('admin/birthday-voucher'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'store']]);
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
@@ -273,7 +273,6 @@ class BirthdayEvoucherController extends Controller
                         }
                     }
                 ],
-                'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
                 'set_qty'          => 'required|numeric|min:1',
@@ -302,18 +301,10 @@ class BirthdayEvoucherController extends Controller
             * INVENTORY TYPE RULES
             * ---------------------------------------------------*/
 
-            if ($request->inventory_type == 0) {
-                $rules['inventory_qty'] = 'required|integer|min:1';
-            }
+            $rules['inventory_qty'] = 'required|integer|min:1';
+            
 
-            if ((int) $request->inventory_type === 1) {
-                $rules['csvFile'] = [
-                    'required',
-                    'file',
-                    'mimes:csv,xlsx',
-                    new SingleCodeColumnFile(),
-                ];
-            }
+          
 
             /* ---------------------------------------------------
             * VALIDATE
@@ -444,17 +435,8 @@ class BirthdayEvoucherController extends Controller
             $filePath = null;
             $filename = null;
             $rows = [];
-            if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-                $file = $request->file('csvFile');
-                $filename = generateHashFileName($file);
-                // $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/csv'), $filename);
-
-                $filePath = public_path('uploads/csv/'.$filename);
-
-                $rows = Excel::toArray([], $filePath);
-            }
+          
+            
 
             foreach ($months as $monthValue) {
 
@@ -473,7 +455,7 @@ class BirthdayEvoucherController extends Controller
                     'merchant_id' => $validated['merchant_id'],
                     'reward_type' => 0,
                     'voucher_validity' => $request->voucher_validity,
-                    'inventory_type'   => (int) $validated['inventory_type'],
+                    'inventory_type'   => 0,
                     'inventory_qty'    => (int) ($request->inventory_qty ?? 0),
                     'voucher_value'    => (float) $validated['voucher_value'],
                     'voucher_set'      => (int) $validated['voucher_set'],
@@ -501,7 +483,7 @@ class BirthdayEvoucherController extends Controller
                     'merchant_id' => $validated['merchant_id'],
                     'reward_type' => 0,
                     'voucher_validity' => $request->voucher_validity,
-                    'inventory_type'   => (int) $validated['inventory_type'],
+                    'inventory_type'   => 0,
                     'inventory_qty'    => (int) ($request->inventory_qty ?? 0),
                     'voucher_value'    => (float) $validated['voucher_value'],
                     'voucher_set'      => (int) $validated['voucher_set'],
@@ -549,9 +531,7 @@ class BirthdayEvoucherController extends Controller
 
                     foreach ($request->locations as $clubId => $clubData) {
 
-                        $inventoryQty = isset($clubData['inventory_qty'])
-                            ? (int) $clubData['inventory_qty']
-                            : 0;
+                        $inventoryQty = isset($clubData['inventory_qty'])  ? (int) $clubData['inventory_qty'] : 0;
 
                         // ❌ Skip if inventory empty or zero
                         if ($inventoryQty <= 0) {
@@ -782,44 +762,8 @@ class BirthdayEvoucherController extends Controller
             }
 
 
-            // if ($reward->month === $currentMonth) {
-
-            //     if ($reward->inventory_type != 0) {
-            //         return response()->json([
-            //             'status' => 'error',
-            //             'message' => 'Current month reward cannot be edited.'
-            //         ], 422);
-            //     }
-
-            //     if (!$request->filled('inventory_qty')) {
-            //         return response()->json([
-            //             'status' => 'error',
-            //             'errors' => [
-            //                 'inventory_qty' => ['Inventory quantity is required.']
-            //             ]
-            //         ], 422);
-            //     }
-
-            //     if ($request->inventory_qty < $reward->inventory_qty) {
-            //         return response()->json([
-            //             'status' => 'error',
-            //             'errors' => [
-            //                 'inventory_qty' => ['Inventory cannot be reduced for current month.']
-            //             ]
-            //         ], 422);
-            //     }
-
-            //     $rewardUpdateRequest->update([
-            //         'inventory_qty' => $request->inventory_qty
-            //     ]);
-
-            //     DB::commit();
-
-            //     return response()->json([
-            //         'status' => 'success',
-            //         'message' => 'Inventory Updated Successfully And Sent For Approval Successfully'
-            //     ]);
-            // }
+          
+            
 
             /* ===================================================
             | CASE 2: NON-CURRENT MONTH → ADMIN APPROVAL FLOW
@@ -846,7 +790,6 @@ class BirthdayEvoucherController extends Controller
                         }
                     }
                 ],
-                'inventory_type'    => 'required|in:0,1',
                 'inventory_qty'     => 'nullable|integer|min:0',
                 'voucher_value'     => 'required|numeric|min:0',
                 'voucher_set'       => 'required|integer|min:1',
@@ -877,18 +820,7 @@ class BirthdayEvoucherController extends Controller
             * ---------------------------------------------------*/
 
             // Non-merchant → qty required
-            if ($request->inventory_type == 0) {
-                $rules['inventory_qty'] = 'required|integer|min:1';
-            }
-
-            // Merchant → file required
-            if ($request->inventory_type == 1) {
-                if(!$reward->csvFile){
-                    $rules['csvFile'] = ['required','file','mimes:csv,xlsx', new SingleCodeColumnFile(),];
-                }
-            }
-
-
+            $rules['inventory_qty'] = 'required|integer|min:1';
          
             /* ---------------------------------------------------
             * VALIDATE
@@ -1028,7 +960,7 @@ class BirthdayEvoucherController extends Controller
                 'merchant_id'    => $validated['merchant_id'],
                 'reward_type'    => 0,
                 'voucher_validity'   => $validated['voucher_validity'] ?? null,
-                'inventory_type'      => (int) ($request['inventory_type'] ?? null),
+                'inventory_type'      => 0,
                 'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
                 'voucher_value'      =>(int) ($validated['voucher_value']),
                 'voucher_set'        =>(int) ($validated['voucher_set']),
@@ -1057,7 +989,7 @@ class BirthdayEvoucherController extends Controller
 
             if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
 
-             RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+                RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
                 foreach ($request->selected_outlets as $clubId => $outletIds) {
 
                     if (empty($outletIds)) {
@@ -1113,44 +1045,6 @@ class BirthdayEvoucherController extends Controller
                             'total_qty'     => $inventoryQty,
                         ]
                     );
-                }
-            }
-
-
-
-            if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
-
-                // delete old vouchers
-                RewardVoucher::where('reward_id', $reward->id)->delete();
-
-                // delete old CSV
-                if ($reward->csvFile) {
-                    $oldFile = public_path('uploads/csv/' . $reward->csvFile);
-                    if (file_exists($oldFile)) @unlink($oldFile);
-                }
-
-                $file = $request->file('csvFile');
-                $filename = generateHashFileName($file);
-                // $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/csv'), $filename);
-
-                $updateRequest->csvFile = $filename;
-                $updateRequest->save();
-           
-
-                // SAFE XLSX/CSV READING
-                $rows = Excel::toArray([], public_path('uploads/csv/'.$filename));
-
-                foreach ($rows[0] as $row) {
-                    $code = trim($row[0] ?? '');
-                    if ($code === '' || strtolower($code) === 'code') continue;
-
-                    RewardVoucher::create([
-                        'type' => '1',
-                        'reward_id' => $reward->id,
-                        'code'      => $code,
-                        'is_used'   => 0,
-                    ]);
                 }
             }
 

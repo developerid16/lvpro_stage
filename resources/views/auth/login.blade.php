@@ -41,7 +41,6 @@
                 <div class="col-xl-3">
                     <div class="auth-full-page-content p-md-5 p-4">
                         <div class="w-100">
-
                             <div class="d-flex flex-column h-100">
                                 <div class="mb-4 mb-md-5">
                                     <a href="{{url('/')}}"class="d-block auth-logo">
@@ -50,7 +49,6 @@
                                     </a>
                                 </div>
                                 <div class="my-auto">
-
                                     <div>
                                         <h5 class="text-primary">Welcome Back !</h5>
                                         <p class="text-muted">Sign in to continue to {{ config('app.name') }}.</p>

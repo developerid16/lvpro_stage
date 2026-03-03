@@ -25,10 +25,6 @@ class ContentManagementController extends Controller
         ];
 
         $this->middleware("permission:$permission_prefix", ['only' => ['index', 'update']]);
-        $this->middleware("permission:learn-more-page", ['only' => ['learnIndex', 'learnUpdate']]);
-        $this->middleware("permission:referral-rate", ['only' => ['referralRateIndex', 'referralRateUpdate']]);
-        $this->middleware("permission:app-content-management", ['only' => ['appIndex', 'appUpdate']]);
-        $this->middleware("permission:app-management", ['only' => ['applicationManagement', 'applicationManagementUpdate']]);
     }
     public function index()
     {

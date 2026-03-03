@@ -30,7 +30,7 @@ class RewardRedemptionController extends Controller
             'module_base_url' => url('admin/reward-redemption')
         ];
 
-        $this->middleware("permission:reward-redemption-cms", ['only' => ['index']]);
+        $this->middleware("permission:reward-redemption-cms", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:reward-redemption-pos", ['only' => ['posIndex']]);
     }
 

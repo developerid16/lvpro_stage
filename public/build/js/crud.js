@@ -540,5 +540,17 @@ $(document).ready(function () {
 
         $form.trigger("submit");
     });
+
+    $(document).ajaxError(function(event, xhr) {
+
+       
+        if(xhr.status === 403) {
+            show_message('error', xhr.responseJSON?.message || 'You do not have permission.');
+            return;
+        }
+        if (xhr.status === 401) {
+            window.location.href = '/login';
+        }
+    });
    
 });

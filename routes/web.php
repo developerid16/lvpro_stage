@@ -329,6 +329,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('cso-physical/datatable', action: [CsoPhysicalController::class, 'datatable']);
     Route::resource('cso-physical', CsoPhysicalController::class);    
 
+    Route::post('cso-issuance/push-member-voucher', [CsoIssuanceController::class, 'pushMemberVoucherByCsoIssuance'])->name('pushMemberVoucherByCsoIssuance');
     Route::get('cso-issuance/datatable', action: [CsoIssuanceController::class, 'datatable']);
     Route::resource('cso-issuance', CsoIssuanceController::class);    
 

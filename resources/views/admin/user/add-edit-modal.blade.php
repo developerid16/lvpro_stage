@@ -1,3 +1,20 @@
+<script>
+    
+    $(document).on('click', '.toggle-password', function () {
+
+    var input = $(this).prev('.password-field');
+    var icon  = $(this).find('i');
+
+    if (input.attr('type') === 'password') {
+        input.attr('type', 'text');
+        icon.removeClass('mdi-eye').addClass('mdi-eye-off');
+    } else {
+        input.attr('type', 'password');
+        icon.removeClass('mdi-eye-off').addClass('mdi-eye');
+    }
+
+});
+</script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg new-user-edit">
         <div class="modal-content">
@@ -24,8 +41,21 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="password">Password<span class="required-hash">*</span></label>
-                                <input id="password" type="password" class="sh_dec form-control" name="password" placeholder="Enter password" value="">
+                                <label class="sh_dec" for="password">
+                                    Password<span class="required-hash">*</span>
+                                </label>
+
+                                <div class="input-group">
+    <input type="password"
+           class="form-control password-field"
+           name="password"
+           placeholder="Enter password">
+
+    <button type="button"
+            class="btn btn-outline-secondary toggle-password">
+        <i class="mdi mdi-eye"></i>
+    </button>
+</div>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">

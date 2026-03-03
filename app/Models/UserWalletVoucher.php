@@ -10,6 +10,7 @@ class UserWalletVoucher extends Model
         'user_id',
         'reward_id',
         'qty',
+        'price',
         'claimed_at',
         'status',
         'location_id',

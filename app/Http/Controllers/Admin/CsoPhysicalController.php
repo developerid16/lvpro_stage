@@ -23,7 +23,11 @@ class CsoPhysicalController extends Controller
             'permission_prefix' => $permission_prefix,
             'title' => 'CSO - Physical Collection',
             'module_base_url' => url('admin/cso-physical')
-        ];       
+        ];  
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
+        $this->middleware("permission:$permission_prefix-view", ['only' => ['view']]);
+        $this->middleware("permission:$permission_prefix-issue", ['only' => ['issue']]);
+
     }
   
 

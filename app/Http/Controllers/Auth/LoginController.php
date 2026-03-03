@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Mail\OTPVerify;
 use App\Models\UserAccessRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Str; // to customize the throttle key
 use Illuminate\Foundation\Auth\ThrottlesLogins;  // include the trait
@@ -28,7 +25,6 @@ class LoginController extends Controller
     {
         if ($this->hasTooManyLoginAttempts($request)) { // checking form maximum login attempts
             return $this->prepareLockMessage($request); // to customize the  message, you can use the below-commented default method
-            //return $this->sendLockoutResponse($request); // laravel own response
         }
         try {
 
@@ -65,20 +61,10 @@ class LoginController extends Controller
 
 
                 return redirect('/admin/otp-verification');
-            }
-            // $user = User::where('email', $request->email)->first();
-            // if (!Hash::check($request->password, $user->password, [])) {
-            //     throw new \Exception('Error in Login');
-            // }
-
-
+            }          
 
         } catch (\Exception $e) {
-            throw $e;
-            // return response()->json([
-            //     'status'        => false,
-            //     'message'       => "something went wrong."
-            // ], 422);
+            throw $e;           
             return back()->with('email', "something went wrong.");
         }
     }
@@ -110,7 +96,7 @@ class LoginController extends Controller
     public function prepareLockMessage($request)
     {
         try {
-            $this->fireLockoutEvent($request);          // checking the locking event
+            $this->fireLockoutEvent($request);// checking the locking event
 
             $message = "Your account has been blocked. Please contact administrator.";
             User::where('email', $request->email)->update([
@@ -151,7 +137,5 @@ class LoginController extends Controller
         UserAccessRequest::create($request->only('name', 'email', 'description'));
 
         return back()->with('success', 'Request submitted successfully. Admin will contact you.');
-    }
-
-   
+    }   
 }

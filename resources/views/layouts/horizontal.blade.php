@@ -189,11 +189,13 @@
 
             <div class="collapse navbar-collapse" id="topnav-menu-content">
                 <ul class="navbar-nav">
-                    <a class="nav-link  " href="{{url('/')}}">
-                        <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Dashboard</span>
-                    </a>
+                    @can('dashboard')
+                        <a class="nav-link  " href="{{url('/')}}">
+                            <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Dashboard</span>
+                        </a>
+                    @endcan
 
-                    @canany(['department-list', 'role-list', 'app-user-list','cms-user-list','reward-update-request'])
+                    @canany(['department-list', 'role-list', 'app-user-list','cms-user-list','reward-update-request-list'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                                 <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CMS User Management</span>
@@ -242,7 +244,7 @@
                         </li>
                     @endcan
 
-                    @canany(['t&d-reward-list', 'reward-category', 'evoucher-list','birthday-list','push-voucher'])
+                    @canany(['t&d-reward-list', 'reward-category', 'evoucher-list','birthday-voucher-list','push-voucher-by-parameter','push-voucher-by-member-id'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                                 <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
@@ -257,12 +259,12 @@
                                 @can('evoucher-list')
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">eVoucher</a>
                                 @endcan
-                                @can('birthday-list')
+                                @can('birthday-voucher-list')
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
                                 @endcan
-                                @can('push-voucher')
+                                @canany(['push-voucher-by-parameter', 'push-voucher-by-member-id'])
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
-                                @endcan                          
+                                @endcanany                          
                             </div>
                         </li>
                     @endcan

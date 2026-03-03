@@ -36,7 +36,7 @@ class UserController extends Controller
             'module_base_url' => url('admin/user')
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'store']]);
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
@@ -60,9 +60,7 @@ class UserController extends Controller
         $query = User::query();
         $query->with("roles")->whereHas('roles', function($query) {
             $query->where('name', '!=', 'Super Admin');
-         });
-
-
+        });
 
         $searched_from_relation = ['roles' => ['name']];
         $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email', 'phone', 'status',], $searched_from_relation, ['roles' => ['roles']]);
@@ -254,7 +252,7 @@ class UserController extends Controller
 
         $request->validate([
             'password' => [
-                'required',
+                'nullable',
                 function ($attribute, $value, $fail) {
 
                     $errors = [];

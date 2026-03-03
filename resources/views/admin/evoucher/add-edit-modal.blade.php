@@ -574,9 +574,9 @@
                     </div>
 
                     <div class="row align-items-center mb-3">
-                        <label class="col-md-4 fw-bold">Friendly URL Name</label>
+                        <label class="col-md-4 fw-bold">Friendly URL Name <span class="required-hash"></span></label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control"   name="friendly_url"    value="{{ $data->friendly_url ?? '' }}">
+                            <input type="text" class="form-control"   name="friendly_url"  value="{{ $data->friendly_url ?? '' }}">
                         </div>
                     </div>
 

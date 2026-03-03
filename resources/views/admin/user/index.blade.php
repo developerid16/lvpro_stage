@@ -66,49 +66,7 @@
             doubleScrollTuareg();
         })
     }
+   
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection
-
-
-<script>
-/* for horizontal scroll START here */
-// function doubleScrollTuareg(){
-//     var running = false;
-//     $("body .wmd-view-topscroll").scroll(function(){
-//         console.log('test');
-//         if(running) {
-//             running = false;
-//             return;
-//         }
-//         running = true;
-//         $("body .bootstrap-table").scrollLeft($("body .wmd-view-topscroll").scrollLeft());
-//     });
-
-//     $("body .bootstrap-table").scroll(function(){
-//         console.log('test2');
-//         if(running) {
-//             running = false;
-//             return;
-//         }
-//         running = true;
-//         $("body .wmd-view-topscroll").scrollLeft($("body .bootstrap-table").scrollLeft());
-//     });
-
-//     if( $('.scroll-div1').length > 0 ){
-//         const dtOwidth = $("#bstable").width();
-//         console.log( dtOwidth );
-//         $(".scroll-div1").width( dtOwidth );
-//         doubleScrollTuareg();
-//     }
-
-//     setTimeout(() => {
-//         var dtOwidth = $('body').find("#bstable").width()
-//         $(".scroll-div1").width( dtOwidth );
-//         $("body .wmd-view-topscroll").off("scroll");
-//         $("body .bootstrap-table").off("scroll");
-//         doubleScrollTuareg();
-//     }, 300);
-// }
-/* for horizontal scroll OVER here */
-</script>

@@ -44,7 +44,7 @@
 
 @section('script')
 <script src='{{URL::asset("build/libs/tinymce/tinymce.min.js")}}'></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src='{{URL::asset("build/js/Sortable.min.js.js")}}'></script>
 
 <script>
     function initFlatpickr() {

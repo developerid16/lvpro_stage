@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\OTPVerify;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class OTPVerifyController extends Controller
@@ -25,9 +26,10 @@ class OTPVerifyController extends Controller
 
         return view('auth.otp');
     }
+
     function verify(Request $request)
     {
-        $id =  \Auth::id();
+        $id =  Auth::id();
         $key = 'OTP_VERIFY_' . $id;
         $aKey = $key . '_ATTEMPT';
         if (!Cache::has($aKey)) {
@@ -57,14 +59,23 @@ class OTPVerifyController extends Controller
             Cache::forget($key);
             Cache::forget($aKey);
             Session::put('IS_OTP_VERIFY', true);
+            
+            $url = getRedirectUrl(auth()->user());
+
+            if ($url) {
+                return redirect($url);
+            }
+
+            abort(403);
             return redirect('/');
         } else {
             return redirect()->back()->with('message', 'OTP is not valid');
         }
     }
+
     function resend(Request $request)
     {
-        $user = \Auth::user();
+        $user = Auth::user();
         $otp = generateNumericOTP(4);
         $data['name'] =  $user->name;
         $data['otp'] =   $otp;
@@ -78,7 +89,6 @@ class OTPVerifyController extends Controller
         Cache::add('OTP_VERIFY_' . $user->id, $otp, $min);
         Cache::add('END_TIME' . $user->id, $min, $min);
         Cache::forget($aKey);
-
 
         return redirect()->back()->with('message', 'OTP resend to your email address');
     }

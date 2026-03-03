@@ -21,6 +21,14 @@ class ClubLocationController extends Controller
             'title' => 'Club Location',
             'module_base_url' => url('admin/club-location')
         ];
+
+       
+
+        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+    
     }
 
     /* -----------------------------------------------------
