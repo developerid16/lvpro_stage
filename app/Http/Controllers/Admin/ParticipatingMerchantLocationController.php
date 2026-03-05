@@ -151,13 +151,13 @@ class ParticipatingMerchantLocationController extends Controller
             'participating_merchant_id.exists'   => 'Invalid participating merchant',
 
             'name.required' => 'Name is required',
-            'code.required' => 'Code is required',
+            'code.required' => 'Redemption code is required',
 
-            'start_date.required' => 'Start date is required',
-            'start_date.date'     => 'Start date must be a valid date',
+            'start_date.required' => 'Lease start date is required',
+            'start_date.date'     => 'Lease start date must be a valid date',
 
-            'end_date.required' => 'End date is required',
-            'end_date.after_or_equal' => 'End date must be after or equal to start date',
+            'end_date.required' => 'Lease end date is required',
+            'end_date.after_or_equal' => 'Lease end date must be after or equal to start date',
 
             'club_location_id.exists'   => 'Invalid club location',
 
@@ -211,13 +211,13 @@ class ParticipatingMerchantLocationController extends Controller
             'status'            => 'required|in:Active,Inactive',
         ], [
             'name.required' => 'Name is required',
-            'code.required' => 'Code is required',
+            'code.required' => 'Redemption code is required',
 
-            'start_date.required' => 'Start date is required',
-            'start_date.date'     => 'Start date must be a valid date',
+            'start_date.required' => 'Lease start date is required',
+            'start_date.date'     => 'Lease start date must be a valid date',
 
-            'end_date.required' => 'End date is required',
-            'end_date.after_or_equal' => 'End date must be after or equal to start date',
+            'end_date.required' => 'Lease end date is required',
+            'end_date.after_or_equal' => 'Lease end date must be after or equal to start date',
 
             'club_location_id.exists'   => 'Invalid club location',
 

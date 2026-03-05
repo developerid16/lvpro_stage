@@ -43,9 +43,9 @@
                     <tr>
                         <th data-field="sr_no" data-width="70px">Sr. No.</th>
                         <th data-field="name">Name</th>
-                        <th data-field="code">Code</th>
-                        <th data-field="start_date">Start Date</th>
-                        <th data-field="end_date">End Date</th>
+                        <th data-field="code">Redemption Code</th>
+                        <th data-field="start_date">Lease Start Date</th>
+                        <th data-field="end_date">Lease End Date</th>
                         {{-- <th data-field="club_location">Club Location</th> --}}
                         <th data-field="status">Status</th>
                         <th data-field="action" class="text-center">Action</th>
