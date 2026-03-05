@@ -3,6 +3,13 @@
 @endphp
 
 <script>
+    $('.select2').select2({
+        dropdownParent: $('#AddModel'),
+        placeholder: "Select AX Item Code",
+        width: '100%',
+    });
+
+
 
     // when file selected (ADD or EDIT)
     $(document).on('change', '#EditModal #csvFile', function () {
@@ -796,13 +803,25 @@
                                 </div>
                             </div>
 
+                            
                             <!-- AX Item Code -->
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">AX Item Code</label>
                                 <div class="col-md-6">
-                                    <input type="text" name="ax_item_code" class="form-control readonly" readonly  value="{{ $data->ax_item_code ?? '' }}">
+                                    <select class="form-select select2" name="ax_item_code">
+                                        <option value="">Select AX Item Code</option>
+                                        @if (isset($getSRPMerchandiseItemList))                                        
+                                            @foreach ($getSRPMerchandiseItemList as $val)
+                                                <option value="{{ $val->item_id }}" {{ isset($data) && $data->ax_item_code == $val->item_id ? 'selected' : '' }}>
+                                                    {{ $val->item_id }} - {{ $val->item_name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    {{-- <input type="text" name="ax_item_code" class="form-control readonly" readonly  value="{{ $data->ax_item_code ?? '' }}"> --}}
                                 </div>
                             </div>
+
 
                             <!-- Publish Channel -->
                             <div class="row align-items-center mb-3">
