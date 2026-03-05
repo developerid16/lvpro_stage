@@ -72,7 +72,7 @@
         <div class="col-md-6">
             <div class="card border">
                 <div class="card-body">
-                    <h5 class="mb-3">OnBording</h5>
+                    <h5 class="mb-3">Onboarding</h5>
 
                     <div class="mb-3">
                         <label class="form-label">Upload Onbording PDF</label>
@@ -82,7 +82,7 @@
                             <small class="text-success mt-2 d-block">
                                 Current File:
                                 <a href="{{ asset($onboarding->file_path) }}" target="_blank">
-                                    View OnBording
+                                    View Onboarding
                                 </a>
                             </small>
                         @endif
