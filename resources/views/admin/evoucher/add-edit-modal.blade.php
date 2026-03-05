@@ -21,6 +21,32 @@
     
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
+        // ✅ STEP 1: Save original values for reset restoration
+        modal.find('input, select, textarea').each(function () {
+            $(this).data('originalValue', $(this).val());
+        });
+        
+         // inputs
+        modal.find('#merchant_id').prop('disabled', true).addClass('readonly');
+        modal.find('#max_quantity').prop('readonly', true).addClass('readonly');
+        modal.find('#inventory_qty').prop('readonly', true).addClass('readonly');
+        modal.find('#voucher_value').prop('readonly', true).addClass('readonly');
+        modal.find('#voucher_set').prop('readonly', true).addClass('readonly');
+        modal.find('input[name="friendly_url"]').prop('readonly', true).addClass('readonly');
+
+        // selects
+        modal.find('.inventory_type').prop('disabled', true).addClass('readonly');
+        modal.find('.cso_method').prop('disabled', true).addClass('readonly');
+        modal.find('#clearing_method').prop('disabled', true).addClass('readonly');
+
+        // radio buttons (Direct Utilization)
+        modal.find('input[name="direct_utilization"]').prop('disabled', true).addClass('readonly');
+
+        // checkboxes (Publish Channel)
+        modal.find('input[name="publish_independent"], input[name="publish_inhouse"]')
+            .prop('disabled', true)
+            .addClass('readonly');
+
         initTinyMCE();
 
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -405,9 +431,9 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_type">Merchant/Non-merchant<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Merchant/Non-merchant</option>
+                                    <option class="sh_dec" value="">Select Internal/External</option>
                                     <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
                                     <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
                                 </select>

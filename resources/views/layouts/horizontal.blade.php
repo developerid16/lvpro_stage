@@ -269,7 +269,7 @@
                         </li>
                     @endcan
 
-                    @canany(['cso-purchase-list', 'cso-physical-list', 'cso-issuance-list'])
+                    @canany(['cso-issuance-paid-list','cso-issuance-free-list','cso-physical-list'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
                                 <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CSO</span>

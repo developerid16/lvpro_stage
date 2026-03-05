@@ -22,6 +22,12 @@
     });
 
     $(document).on('shown.bs.modal', '#EditModal', function () {
+        let modal = $(this).closest('.modal');
+        // ✅ STEP 1: Save original values for reset restoration
+        modal.find('input, select, textarea').each(function () {
+            $(this).data('originalValue', $(this).val());
+        });
+        
         initTinyMCE();
         
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -29,7 +35,6 @@
         let rewardType = $('#EditModal .reward_type').val();
         
         let merchantId = $('#EditModal #merchant_id').val();
-        let modal = $(this).closest('.modal');
         initFlatpickrDate(this);    
         $(".max_order").hide();
         $("#common_section").show();
@@ -522,7 +527,15 @@
                         <div class="col-12 col-md-6 ">
                             <div class="mb-3">
                                 <label class="sh_dec" for="usual_price">Usual Price($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
-                                <input id="usual_price" type="number" min="0" class="sh_dec form-control" name="usual_price"  placeholder="Enter Usual Price" value="{{ $data->usual_price ?? '' }}">
+                                <input 
+                                    id="usual_price"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    class="sh_dec form-control"
+                                    name="usual_price"
+                                    placeholder="Enter Usual Price"
+                                    value="{{ $data->usual_price ?? '' }}">                            
                             </div>
                         </div>
 
@@ -581,11 +594,11 @@
                                
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_type">Inventory Type (Total) <span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                            <option class="sh_dec" value="">Select Voucher Type</option>
-                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
-                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
+                                            <option class="sh_dec" value="">Select Internal/External</option>
+                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
+                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
                                         </select>
                                     </div>
                                 </div>

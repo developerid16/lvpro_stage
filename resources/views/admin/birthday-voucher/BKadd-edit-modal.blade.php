@@ -330,13 +330,13 @@
                                 />
                             </div>
                         </div>
-                         <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_type">Inventory Type <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Voucher Type</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> System Generated Code</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant Uploaded Code</option>
+                                    <option class="sh_dec" value="">Select Internal/External</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
                                 </select>
                             </div>
                         </div>
