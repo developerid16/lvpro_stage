@@ -35,7 +35,15 @@ class ParticipatingMerchantController extends Controller
      * ----------------------------------------------------- */
     public function index(Request $request)
     {
-        $this->layout_data['departments'] = Department::all();
+        $user = Auth::user();
+
+        if ($user->roles->contains('id', 1)) {
+            $this->layout_data['departments'] = Department::all();
+        } else {
+            $departmentIds = $user->roles->pluck('department')->filter();
+
+            $this->layout_data['departments'] = Department::whereIn('id', $departmentIds)->get();
+        }
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
