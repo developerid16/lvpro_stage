@@ -394,7 +394,7 @@
                             <div class="mb-3">
                                 <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
-                                    <option class="sh_dec" value="">Select Clearing Method</option>                                   
+                                    {{-- <option class="sh_dec" value="">Select Clearing Method</option>                                    --}}
                                     <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
                                         Merchant Code 
                                     </option>
