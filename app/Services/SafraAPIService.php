@@ -71,11 +71,14 @@ class SafraAPIService
             'mid' => config('services.safra.merchant_id'),
             'un'  => '',
         ];
-
+        
         return Http::asForm()
             ->withHeaders([
+                'Content-Type'              => 'application/x-www-form-urlencoded',
                 'Authorization' => 'Bearer ' . $token,
                 'Ocp-Apim-Subscription-Key' => config('services.safra.subscription_key'),
+                'X-Requested-With'          => 'XMLHttpRequest',
+                'Accept-Encoding'           => 'gzip, deflate',
             ])
             ->post(
                 rtrim('https://service-uat.safra.sg/proxy-uat/api', '/') . '/' . ltrim($endpoint, '/'),
@@ -255,31 +258,34 @@ class SafraAPIService
     }
 
     /** get master list parameter */
-    public function getSRPMasterListParameter(array $itemData = []): array
+    public function GetSRPMerchandiseItemList(array $itemData = []): array
     {
         $response = $this->call(
-            'sfrControlMerchandiseRepository/GetSRPMerchandiseItemList',
+            'sfrControlMerchandise/GetSRPMerchandiseItemList',
             $itemData
         );
         if ($response->failed()) {
             throw new \Exception('Get SRP Master List Parameter API failed: ' . $response->body());
         }
         $data = json_decode($response->body()   , true);
-        return $data['parameter_list'] ?? [];
+        return $data ?? [];
     }
 
     /** get merchandise item list */
     public function getMerchandiseItemList(array $itemData = []): array
     {
         $response = $this->call(
-            'sfrControlMerchandiseRepository/GetMerchandiseList',
-            $itemData
+            'sfrControlMerchandise/GetMerchandiseList',
+            [
+                'MerchandiseId'   => '',
+                'MerchandiseName' => ''
+            ]
         );
-        if ($response->failed()) {
-            throw new \Exception('Get Merchandise Item List API failed: ' . $response->body());
-        }
+        // if ($response->failed()) {
+        //     throw new \Exception('Get Merchandise Item List API failed: ' . $response->body());
+        // }
         $data = json_decode($response->body()   , true);
-        return $data['merchandise_item_list'] ?? [];
+        return $data ?? [];
     }
 
     /** get token by member id */

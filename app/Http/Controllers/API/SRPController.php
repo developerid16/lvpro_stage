@@ -19,10 +19,10 @@ class SRPController extends Controller
      */
     public function masterListParameter(Request $request)
     {
-
+    
         try {
             $records = $this->SafraAPIService
-                ->getSRPMasterListParameter($request->all());
+                ->GetSRPMerchandiseItemList($request->all());
 
             return response()->json([
                 'status' => 'success',
@@ -46,7 +46,7 @@ class SRPController extends Controller
                 ->getMerchandiseItemList();
 
             return response()->json([
-                'status' => 'success',
+                // 'status' => 'success',
                 'data' => $records
             ]);
         } catch (\Exception $e) {
@@ -94,6 +94,4 @@ class SRPController extends Controller
             ], 500);
         }
     }
-
-
 }

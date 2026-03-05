@@ -47,9 +47,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('member:customer-zone')->daily();
 
+        $schedule->command('ax6:get-srp-merchandise-item-list')->daily();
+
         // $schedule->command('master:sync-all')->dailyAt('00:00'); // call manully php artisan master:sync-all
 
-        $schedule->command('master:sync-gender')->everyMinute();
+        $schedule->command('master:sync-gender')->daily();
         // $schedule->command('master:sync-gender')->daily();
         $schedule->command('master:sync-marital-status')->daily();
         $schedule->command('master:sync-card-type')->daily();
