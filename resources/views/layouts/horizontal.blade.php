@@ -262,7 +262,7 @@
                                 @can('birthday-voucher-list')
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
                                 @endcan
-                                @canany(['push-voucher-by-parameter', 'push-voucher-by-member-id'])
+                                @canany(['push-voucher-log'])
                                     <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
                                 @endcanany                          
                             </div>
