@@ -544,7 +544,7 @@ class RewardUpdateRequestController extends Controller
                     'fabs_category_id'       => (int) ($update->fabs_category_id),
                     'smc_classification_id'  => (int) ($update->smc_classification_id),
                     'ax_item_code'           => (int) ($update->ax_item_code),
-                    'usual_price'         => (int) ($update->usual_price),
+                    'usual_price'         =>$update->usual_price ?? null,
                     
                     'max_quantity'    => (int) ($update->max_quantity ?? 0),
                     'category_id'     => (int) ($update->category_id ?? 0),
