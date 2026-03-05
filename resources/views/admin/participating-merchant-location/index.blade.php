@@ -113,6 +113,7 @@
 
 <script>
 $(document).on("shown.bs.modal", "#AddModal, #EditModal", function () {
+     $('.validation-error').hide();
 
     let modal = this;
 

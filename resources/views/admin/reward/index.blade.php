@@ -316,6 +316,7 @@
         });    
 
         $('#AddModal').on('show.bs.modal', function () {
+             $('.validation-error').hide();
             resetFormById();
         });
 

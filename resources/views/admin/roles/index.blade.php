@@ -204,7 +204,9 @@
     $('#permission').trigger('chosen:updated');
 }
 
-
+ $('#AddModal').on('shown.bs.modal', function () {
+        $('.validation-error').hide();
+    });
    
 </script>
 @endsection

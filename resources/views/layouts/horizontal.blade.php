@@ -226,7 +226,7 @@
                     @canany(['dashboard-popup', 'notification-list', 'content-management'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content / Ad Management</span>
+                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content Management</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
                             

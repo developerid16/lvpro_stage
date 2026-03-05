@@ -390,7 +390,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_validity">Voucher Validity Date <span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="voucher_validity">Voucher Expiry Date <span class="required-hash">*</span></label>
                                <input
                                     id="voucher_validity"
                                     type="text"

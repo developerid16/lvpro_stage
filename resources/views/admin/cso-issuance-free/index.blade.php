@@ -245,19 +245,23 @@
 
         $('#AddMemberVoucher').on('show.bs.modal', function () {
 
-        let form = $('#member_voucher')[0];
-        form.reset();
+            let form = $('#member_voucher')[0];
+            form.reset();
 
-        $('.validation-error').text('');
-        $('#memberId').val('');
+            $('.validation-error').text('');
+            $('#memberId').val('');
 
-        // Clear voucher display manually
-        $('#reward_id_hidden').val('');
-        $('#selectedRewardOption').val('');
+            // Clear voucher display manually
+            $('#reward_id_hidden').val('');
+            $('#selectedRewardOption').val('');
 
-        $('#push_voucher').val('');
-        $('#form_error').addClass('d-none').text('');
-    });
+            $('#push_voucher').val('');
+            $('#form_error').addClass('d-none').text('');
+        });
+
+         $('#AddModal').on('shown.bs.modal', function () {
+            $('.validation-error').hide();
+        });
 
     </script>
 @endsection

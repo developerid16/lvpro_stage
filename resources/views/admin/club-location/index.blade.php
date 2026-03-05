@@ -66,6 +66,10 @@
             params.success(res);
         });
     }
+
+    $('#AddModal').on('shown.bs.modal', function () {
+        $('.validation-error').hide();
+    });
 </script>
 
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>

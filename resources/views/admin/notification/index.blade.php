@@ -69,11 +69,14 @@
     });
     $(document).on('shown.bs.modal', '#AddModal', function () {
         $('#img_preview').attr('src', '').hide();
+         $('.validation-error').hide();
     });
 
     document.addEventListener('DOMContentLoaded', function () {
         initFlatpickrDate();
     });
+
+    
 </script>
 
 <script src="{{ URL::asset('build/js/crud.js') }}"></script>

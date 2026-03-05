@@ -213,7 +213,7 @@
 
         // Always show default no-image in Add
         preview.attr('src', "{{ asset('uploads/image/no-image.png') }}").hide();
-
+        $('.validation-error').hide();
         clearBtn.hide();
     });
     function imagePreview(inputSelector, previewSelector) {

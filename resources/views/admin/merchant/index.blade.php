@@ -65,7 +65,7 @@
 
         let preview = $(this).find('#logo_preview');
         let clearBtn = $(this).find('#clear_logo_preview');
-
+        $('.validation-error').hide();
         // Always show default no-image in Add
         preview.attr('src', "{{ asset('uploads/image/no-image.png') }}").hide();
 

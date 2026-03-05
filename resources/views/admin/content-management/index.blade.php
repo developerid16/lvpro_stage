@@ -110,8 +110,6 @@
 <script>
     var ModuleBaseUrl = "{{route('admin.content-management.store') }}";
 
-
-
     $(document).ready(function() {
         if ($(".elm1").length > 0) {
             tinymce.init({
@@ -195,7 +193,10 @@
             });
         });
 
+    });
 
+    $('#AddModal').on('shown.bs.modal', function () {
+        $('.validation-error').hide();
     });
 </script>
 @endsection
