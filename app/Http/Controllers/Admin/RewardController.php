@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
+use App\Models\API\GetSRPMerchandiseItemList;
 use App\Models\Category;
 use App\Models\ClubLocation;
 use App\Models\ContentManagement;
@@ -65,6 +66,8 @@ class RewardController extends Controller
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['category'] = Category::get();
         $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
+
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
 
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
@@ -1056,6 +1059,7 @@ class RewardController extends Controller
                 ->value('name');
         }
         $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
 
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
