@@ -26,27 +26,7 @@
             $(this).data('originalValue', $(this).val());
         });
         
-         // inputs
-        modal.find('#merchant_id').prop('disabled', true).addClass('readonly');
-        modal.find('#max_quantity').prop('readonly', true).addClass('readonly');
-        modal.find('#inventory_qty').prop('readonly', true).addClass('readonly');
-        modal.find('#voucher_value').prop('readonly', true).addClass('readonly');
-        modal.find('#voucher_set').prop('readonly', true).addClass('readonly');
-        modal.find('input[name="friendly_url"]').prop('readonly', true).addClass('readonly');
-
-        // selects
-        modal.find('.inventory_type').prop('disabled', true).addClass('readonly');
-        modal.find('.cso_method').prop('disabled', true).addClass('readonly');
-        modal.find('#clearing_method').prop('disabled', true).addClass('readonly');
-
-        // radio buttons (Direct Utilization)
-        modal.find('input[name="direct_utilization"]').prop('disabled', true).addClass('readonly');
-
-        // checkboxes (Publish Channel)
-        modal.find('input[name="publish_independent"], input[name="publish_inhouse"]')
-            .prop('disabled', true)
-            .addClass('readonly');
-
+      
         initTinyMCE();
 
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -102,6 +82,33 @@
         });
         
         forceInventoryReadonly(modal);
+        let isDraft = modal.find('#is_draft').val();    
+        console.log(isDraft,'isDraft');
+        
+
+        if (isDraft != 1) {
+            // inputs
+            modal.find('#merchant_id').prop('disabled', true).addClass('readonly');
+            modal.find('#max_quantity').prop('readonly', true).addClass('readonly');
+            modal.find('#inventory_qty').prop('readonly', true).addClass('readonly');
+            modal.find('#voucher_value').prop('readonly', true).addClass('readonly');
+            modal.find('#voucher_set').prop('readonly', true).addClass('readonly');
+            modal.find('input[name="friendly_url"]').prop('readonly', true).addClass('readonly');
+
+            // selects
+            modal.find('.inventory_type').prop('disabled', true).addClass('readonly');
+            modal.find('.cso_method').prop('disabled', true).addClass('readonly');
+            modal.find('#clearing_method').prop('disabled', true).addClass('readonly');
+
+            // radio buttons (Direct Utilization)
+            modal.find('input[name="direct_utilization"]').prop('disabled', true).addClass('readonly');
+
+            // checkboxes (Publish Channel)
+            modal.find('input[name="publish_independent"], input[name="publish_inhouse"]')
+                .prop('disabled', true)
+                .addClass('readonly');
+        }
+
     });
     
     $(document).on("change", ".voucher_image", function (e) {
@@ -193,9 +200,10 @@
                     id="{{ isset($data->id) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? '' }}">
                     @csrf
                     @if (isset($type))
-                        <input type="hidden" name="parent_type" value="{{ $type }}">
+                    <input type="hidden" name="parent_type" value="{{ $type }}">
                     @endif
                     @if (isset($data->id))
+                        <input type="hidden" id="is_draft" value="{{ $data->is_draft ?? 0 }}">
                         @method('PATCH')
                     @endif
                     <div class="row">                      
