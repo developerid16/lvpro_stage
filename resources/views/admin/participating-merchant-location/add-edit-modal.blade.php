@@ -44,14 +44,14 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>Code <span class="required-hash">*</span></label>
-                                <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}" placeholder="Enter Code">
+                                <label>Redemption Code <span class="required-hash">*</span></label>
+                                <input type="text" name="code" class="form-control" value="{{ $data->code ?? '' }}" placeholder="Enter Redemption Code">
                             </div>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>Start Date <span class="required-hash">*</span></label>
+                                <label>Lease Start Date <span class="required-hash">*</span></label>
                                 <input type="text" name="start_date" id="start_date"
                                     class="form-control"
                                     value="{{ isset($data->start_date) ? $data->start_date : '' }}">
@@ -60,7 +60,7 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>End Date <span class="required-hash">*</span></label>
+                                <label>Lease End Date <span class="required-hash">*</span></label>
                                 <input type="text" name="end_date" id="end_date"
                                     class="form-control"
                                     value="{{ isset($data->end_date) ? $data->end_date : '' }}">
