@@ -329,9 +329,9 @@
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
                             
                                 @can(['cms-setting'])
-                                    <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
+                                    {{-- <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
                                         CMS Setting
-                                    </a>
+                                    </a> --}}
                                 @endcan
                                 @can(['transaction-history'])
                                     <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
