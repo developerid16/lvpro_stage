@@ -75,7 +75,7 @@
                     <h5 class="mb-3">Onboarding</h5>
 
                     <div class="mb-3">
-                        <label class="form-label">Upload Onbording PDF</label>
+                        <label class="form-label">Upload Onboarding PDF</label>
                         <input type="file" name="onboarding_pdf" class="form-control">
 
                         @if(!empty($onboarding?->file_path))
