@@ -216,8 +216,14 @@
                                 @can(['app-user-list'])
                                 <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
                                 @endcan                               
-                                @can('reward-update-request-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/reward-update-request')}}">eVoucher Approval</a>
+                                @can('evoucher-approval-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/evoucher-approval')}}">eVoucher Approval</a>
+                                @endcan
+                                @can('treats-and-deals-approval-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/treats-and-deals-approval')}}">Treats & Deals Approval</a>
+                                @endcan
+                                @can('birthday-voucher-approval-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/birthday-voucher-approval')}}">Birthday Voucher Approval</a>
                                 @endcan
                             </div>
                         </li>
