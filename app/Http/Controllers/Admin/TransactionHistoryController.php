@@ -5,11 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\TransactionHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Reward;
 use App\Models\UserWalletVoucher;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class TransactionHistoryController extends Controller
 {

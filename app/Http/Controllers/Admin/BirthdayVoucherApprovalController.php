@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Mail\NewAdminRegister;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\Reward;
@@ -12,16 +11,8 @@ use App\Models\RewardLocation;
 use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
-use App\Models\User;
-use App\Models\UserAccessRequest;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 
 class BirthdayVoucherApprovalController extends Controller
 {

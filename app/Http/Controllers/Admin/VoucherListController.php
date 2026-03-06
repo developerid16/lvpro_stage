@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Reward;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class VoucherListController extends Controller
 {

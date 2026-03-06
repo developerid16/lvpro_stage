@@ -7,7 +7,6 @@ use App\Models\Tier;
 use App\Models\Reward;
 use App\Models\VoucherLog;
 use Illuminate\Http\Request;
-use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\Purchase;
@@ -15,9 +14,7 @@ use App\Models\RewardLocation;
 use App\Models\RewardTierRate;
 use App\Models\RewardVoucher;
 use App\Models\UserWalletVoucher;
-use App\Models\VoucherLogs;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

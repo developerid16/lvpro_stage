@@ -9,17 +9,13 @@ use App\Models\CustomLocation;
 use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
-use App\Models\Evoucher;
 use App\Models\ParticipatingMerchantLocation;
-use App\Models\PushVoucherMember;
 use App\Models\Reward;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\RewardVoucher;
-use App\Models\UserPurchasedReward;
 use App\Models\UserWalletVoucher;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct

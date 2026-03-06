@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
 use App\Http\Controllers\Admin\EvoucherStockController;
-use App\Http\Controllers\Admin\RewardUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -26,13 +25,11 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
-use App\Http\Controllers\Admin\CsoIssuanceController;
 use App\Http\Controllers\Admin\CsoIssuanceFreeController;
 use App\Http\Controllers\Admin\CsoIssuancePaidController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EvoucherApprovalController;
-use App\Http\Controllers\Admin\evoucherUpdateRequestController;
 use App\Http\Controllers\Admin\FabsController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
@@ -42,9 +39,8 @@ use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\TransactionHistoryController;
-use App\Http\Controllers\Admin\treatsAndDealsApprovalController;
-use App\Http\Controllers\Admin\treatsAndDealsUpdateRequestController;
 use App\Http\Controllers\Admin\TreatsDealsStockController;
+use App\Http\Controllers\Admin\TreatsAndDealsApprovalController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
@@ -130,17 +126,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('roles/datatable', [RoleController::class, 'datatable']);
     Route::resource('roles', RoleController::class);
 
-
-    
-
-    Route::get('reward-redemption/datatable', [RewardRedemptionController::class, 'datatable']);
-    Route::post('reward-redemption-delete', [RewardRedemptionController::class, 'deleteReward']);
-    Route::post('reward-redemption-change-date', [RewardRedemptionController::class, 'changeDateReward']);
-    Route::resource('redemption-reward', RewardRedemptionController::class);
-
-    Route::get('reward-redemption-pos/datatable', [RewardRedemptionController::class, 'datatablePOS']);
-    Route::get('reward-redemption-pos', [RewardRedemptionController::class, 'posIndex']);
-    Route::resource('redemption-reward-pos', RewardRedemptionController::class);
 
 
  Route::get('app-user/show/{id}', [AppUserController::class, 'show'])
