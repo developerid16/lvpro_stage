@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Tier;
-use App\Models\Reward;
 use Illuminate\Http\Request;
-use App\Models\TierMilestone;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
 use App\Models\VoucherLog;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CsoPhysicalController extends Controller
 {

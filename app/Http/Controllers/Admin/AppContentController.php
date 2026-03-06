@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AppContent;
 use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
-use Illuminate\Support\Facades\Storage;
 
 class AppContentController extends Controller
 {

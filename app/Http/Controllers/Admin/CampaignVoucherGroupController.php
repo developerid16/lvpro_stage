@@ -9,8 +9,6 @@ use App\Models\GroupUser;
 use App\Models\VoucherLogs;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Models\KeyPassbookDebit;
-use App\Models\KeyPassbookCredit;
 use Illuminate\Support\Facades\DB;
 use App\Models\UserPurchasedReward;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +16,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CampaignVoucherGroup;
 use App\Models\CampaignVoucherLog;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 
 use Illuminate\Support\Facades\Validator;

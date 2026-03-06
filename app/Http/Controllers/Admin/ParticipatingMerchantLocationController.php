@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\ParticipatingMerchant;
 use App\Models\ClubLocation;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ParticipatingMerchantLocationController extends Controller

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Fab;
 use App\Models\Fabs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;

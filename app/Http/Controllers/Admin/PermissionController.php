@@ -6,7 +6,6 @@ use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PermissionController extends Controller
 {

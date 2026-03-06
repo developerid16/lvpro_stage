@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PushVoucherMember;
-use Illuminate\Support\Facades\Auth;
 
 class PushVoucherController extends Controller
 {
