@@ -724,7 +724,7 @@
 
                                 </div>
                             </div>
-                            <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label>
+                            {{-- <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label> --}}
                             <div class="row align-items-center mb-3">
                                 <label class="col-md-4 fw-bold">Low Stock Reminder Threshold</label>
 
