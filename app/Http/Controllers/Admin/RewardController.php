@@ -529,7 +529,7 @@ class RewardController extends Controller
                             $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
 
                             if ($validityDate < $salesEndDate) {
-                                $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                                $fail('Voucher expiry date must be after or equal to Sales end date.');
                             }
                         }
                     ],
@@ -559,20 +559,20 @@ class RewardController extends Controller
                     'name.string'   => 'Voucher name must be valid text.',
                     'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                    // Redemption start date & time
-                   'sales_start.required' => 'Redemption start date & time is required.',
-                   'sales_start.date'     => 'Redemption start date & time must be a valid date.',
-                   'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish Start Date.',
+                    // Sales start date & time
+                   'sales_start.required' => 'Sales start date & time is required.',
+                   'sales_start.date'     => 'Sales start date & time must be a valid date.',
+                   'sales_start.after_or_equal' => 'Sales start date & time must be after or equal to Publish Start Date.',
 
-                   // Redemption End Date & Time
-                   'sales_end.required' => 'Redemption end date & time is required.',
-                   'sales_end.date'     => 'Redemption end date & time must be a valid date.',
-                   'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+                   // Sales End Date & Time
+                   'sales_end.required' => 'Sales end date & time is required.',
+                   'sales_end.date'     => 'Sales end date & time must be a valid date.',
+                   'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
 
                    // Voucher Expiry Date
                    'voucher_validity.required' => 'Voucher expiry date is required.',
                    'voucher_validity.date'     => 'Voucher expiry date must be a valid date.',
-                   'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Redemption end date & time.',
+                   'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Sales end date & time.',
 
                      // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
@@ -1447,7 +1447,7 @@ class RewardController extends Controller
                         $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
 
                         if ($validityDate < $salesEndDate) {
-                            $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                            $fail('Voucher expiry date must be after or equal to Sales end date.');
                         }
                     }
                 ],
@@ -1475,20 +1475,20 @@ class RewardController extends Controller
                 'name.string'   => 'Voucher name must be valid text.',
                 'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                // Redemption start date & time
-                'sales_start.required' => 'Redemption start date & time is required.',
-                'sales_start.date'     => 'Redemption start date & time must be a valid date.',
-                'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish Start Date.',
+                // Sales start date & time
+                'sales_start.required' => 'Sales start date & time is required.',
+                'sales_start.date'     => 'Sales start date & time must be a valid date.',
+                'sales_start.after_or_equal' => 'Sales start date & time must be after or equal to Publish Start Date.',
 
-                // Redemption end date & time
-                'sales_end.required' => 'Redemption end date & time is required.',
-                'sales_end.date'     => 'Redemption end date & time must be a valid date.',
-                'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+                // Sales end date & time
+                'sales_end.required' => 'Sales end date & time is required.',
+                'sales_end.date'     => 'Sales end date & time must be a valid date.',
+                'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
 
                 // Voucher Validity Date
                 'voucher_validity.required' => 'Voucher expiry date is required.',
                 'voucher_validity.date'     => 'Voucher expiry date must be a valid date.',
-                'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Redemption end date & time.',
+                'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Sales end date & time.',
 
                     
                 'set_qty.required' => 'Voucher set quantity is required.',

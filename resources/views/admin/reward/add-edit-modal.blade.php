@@ -517,13 +517,13 @@
                                     <!-- Sales fields -->
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Redemption Start Date & Time <span class="required-hash">*</span></label>
+                                            <label class="sh_dec font-12">Sales Start Date & Time <span class="required-hash">*</span></label>
                                             <input type="text"  class="form-control common-datetime" name="sales_start" id="sales_start" value="{{ isset($data->sales_start_date) ? $data->sales_start_date . ' ' . $data->sales_start_time : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Redemption End Date & Time <span class="required-hash">*</span></label>
+                                            <label class="sh_dec font-12">Sales End Date & Time <span class="required-hash">*</span></label>
                                             <input type="text" class="form-control common-datetime" name="sales_end" id="sales_end" value="{{ isset($data->sales_end_date) ? $data->sales_end_date . ' ' . $data->sales_end_time : '' }}">
                                         </div>
                                     </div>
