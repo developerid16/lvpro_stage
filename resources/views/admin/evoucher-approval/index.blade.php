@@ -21,9 +21,9 @@
                     <tr>
                         <th data-field="sr_no" data-width="70">Sr. No.</th>
 
-                        <th data-field="month" data-sortable="true">
+                        {{-- <th data-field="month" data-sortable="true">
                             Month
-                        </th>
+                        </th> --}}
 
                         <th data-field="requester" data-filter-control="input">
                             Requester
@@ -32,9 +32,9 @@
                             Requested Date
                         </th>
 
-                        <th data-field="type" data-filter-control="input">
+                        {{-- <th data-field="type" data-filter-control="input">
                             Type
-                        </th>                      
+                        </th>                       --}}
                         <th data-field="reward_type" data-filter-control="input">
                             Reward Type
                         </th>                      
@@ -126,7 +126,7 @@
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: "{{ url('admin/reward-update-request/approve') }}",
+                    url: ModuleBaseUrl + "approve",
                     type: "POST",
                     data: {
                         id: id,
@@ -180,7 +180,7 @@
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: "{{ url('admin/reward-update-request') }}/" + id + "/reject",
+                    url: ModuleBaseUrl + id + "/reject",
                     type: "POST",
                     data: {
                         id: id,

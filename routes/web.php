@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
 use App\Http\Controllers\Admin\EvoucherStockController;
@@ -30,6 +31,8 @@ use App\Http\Controllers\Admin\CsoIssuanceFreeController;
 use App\Http\Controllers\Admin\CsoIssuancePaidController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\EvoucherApprovalController;
+use App\Http\Controllers\Admin\evoucherUpdateRequestController;
 use App\Http\Controllers\Admin\FabsController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
@@ -39,6 +42,8 @@ use App\Http\Controllers\Admin\ParticipatingMerchantLocationController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\TransactionHistoryController;
+use App\Http\Controllers\Admin\treatsAndDealsApprovalController;
+use App\Http\Controllers\Admin\treatsAndDealsUpdateRequestController;
 use App\Http\Controllers\Admin\TreatsDealsStockController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Admin\VoucherListController;
@@ -102,11 +107,23 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('user-rights/datatable', [UserRightsRequestController::class, 'datatable']);
     Route::resource('user-rights', UserRightsRequestController::class);
 
-    Route::post('reward-update-request/{id}/reject', [RewardUpdateRequestController::class, 'reject']);
-    Route::get('reward-update-request/datatable', [RewardUpdateRequestController::class, 'datatable']);
-    Route::get('reward-update-request/{id}', [RewardUpdateRequestController::class, 'show']);
-    Route::post('reward-update-request/approve', action: [RewardUpdateRequestController::class, 'approve']);
-    Route::resource('reward-update-request', RewardUpdateRequestController::class);
+    Route::post('evoucher-approval/{id}/reject', [EvoucherApprovalController::class, 'reject']);
+    Route::get('evoucher-approval/datatable', [EvoucherApprovalController::class, 'datatable']);
+    Route::get('evoucher-approval/{id}', [EvoucherApprovalController::class, 'show']);
+    Route::post('evoucher-approval/approve', action: [EvoucherApprovalController::class, 'approve']);
+    Route::resource('evoucher-approval', EvoucherApprovalController::class);
+
+    Route::post('birthday-voucher-approval/{id}/reject', [BirthdayVoucherApprovalController::class, 'reject']);
+    Route::get('birthday-voucher-approval/datatable', [BirthdayVoucherApprovalController::class, 'datatable']);
+    Route::get('birthday-voucher-approval/{id}', [BirthdayVoucherApprovalController::class, 'show']);
+    Route::post('birthday-voucher-approval/approve', action: [BirthdayVoucherApprovalController::class, 'approve']);
+    Route::resource('birthday-voucher-approval', BirthdayVoucherApprovalController::class);
+
+    Route::post('treats-and-deals-approval/{id}/reject', [TreatsAndDealsApprovalController::class, 'reject']);
+    Route::get('treats-and-deals-approval/datatable', [TreatsAndDealsApprovalController::class, 'datatable']);
+    Route::get('treats-and-deals-approval/{id}', [TreatsAndDealsApprovalController::class, 'show']);
+    Route::post('treats-and-deals-approval/approve', action: [TreatsAndDealsApprovalController::class, 'approve']);
+    Route::resource('treats-and-deals-approval', TreatsAndDealsApprovalController::class);
 
     Route::get('/send-sms', [App\Http\Controllers\HomeController::class, 'emailSend']);
 
