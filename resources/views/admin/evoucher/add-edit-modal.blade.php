@@ -88,7 +88,7 @@
 
         if (isDraft != 1) {
             // inputs
-            modal.find('#merchant_id').prop('disabled', true).addClass('readonly');
+            modal.find('#merchant_id').prop('readonly', true).addClass('readonly');
             modal.find('#max_quantity').prop('readonly', true).addClass('readonly');
             modal.find('#inventory_qty').prop('readonly', true).addClass('readonly');
             modal.find('#voucher_value').prop('readonly', true).addClass('readonly');
@@ -96,16 +96,16 @@
             modal.find('input[name="friendly_url"]').prop('readonly', true).addClass('readonly');
 
             // selects
-            modal.find('.inventory_type').prop('disabled', true).addClass('readonly');
-            modal.find('.cso_method').prop('disabled', true).addClass('readonly');
-            modal.find('#clearing_method').prop('disabled', true).addClass('readonly');
+            modal.find('.inventory_type').prop('readonly', true).addClass('readonly');
+            modal.find('.cso_method').prop('readonly', true).addClass('readonly');
+            modal.find('#clearing_method').prop('readonly', true).addClass('readonly');
 
             // radio buttons (Direct Utilization)
-            modal.find('input[name="direct_utilization"]').prop('disabled', true).addClass('readonly');
+            modal.find('input[name="direct_utilization"]').prop('readonly', true).addClass('readonly');
 
             // checkboxes (Publish Channel)
             modal.find('input[name="publish_independent"], input[name="publish_inhouse"]')
-                .prop('disabled', true)
+                .prop('readonly', true)
                 .addClass('readonly');
         }
 
