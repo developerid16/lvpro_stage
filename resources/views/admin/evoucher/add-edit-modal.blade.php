@@ -221,8 +221,8 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="name">Voucher Name <span class="fs-10">(Max 30 chars)</span><span class="required-hash">*</span></label>
-                                <input id="name" type="text" class="sh_dec form-control" name="name" maxlength="30" placeholder="Enter name" value="{{ $data->name ?? '' }}">
+                                <label class="sh_dec" for="name">Voucher Name <span class="fs-10">(Max 50 chars)</span><span class="required-hash">*</span></label>
+                                <input id="name" type="text" class="sh_dec form-control" name="name" maxlength="50" placeholder="Enter name" value="{{ $data->name ?? '' }}">
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
