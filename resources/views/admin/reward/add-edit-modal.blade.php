@@ -604,8 +604,8 @@
                                         <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select inventory_type" name="inventory_type">
                                             <option class="sh_dec" value="">Select Internal/External</option>
-                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
-                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
+                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}>External</option>
+                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}>Internal</option>
                                         </select>
                                     </div>
                                 </div>
@@ -659,7 +659,7 @@
 
                                             <option class="sh_dec" value="">Select Clearing Method</option>
                                             <option class="sh_dec" value="0" {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
-                                                QR
+                                                QR Code
                                             </option>                                            
                                             <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
                                                 Barcode 
@@ -806,7 +806,7 @@
                             
                             <!-- AX Item Code -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">AX Item Code</label>
+                                <label class="col-md-4 fw-bold">AX Item Code <span class="required-hash">*</span></label>
                                 <div class="col-md-6">
                                     <select class="form-select select2" name="ax_item_code">
                                         <option value="">Select AX Item Code</option>

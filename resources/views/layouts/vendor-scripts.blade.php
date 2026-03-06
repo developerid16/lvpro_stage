@@ -796,9 +796,9 @@
             fileField.hide();
             fileField.find("input").val("");
 
-            clearing.find('option[value="3"], option[value="4"]').hide();
+            clearing.find('option[value="3"]').hide();
 
-            if (clearing.val() === "3" || clearing.val() === "4") {
+            if (clearing.val() === "3") {
                 clearing.val('');
             }
 
@@ -839,8 +839,8 @@
             fileField.hide();
             fileField.find("input").val(""); // clear
             modal.find('#clearing_method option[value="2"]').show();
-            clearing.find('option[value="3"], option[value="4"]').hide();
-            if (clearing.val() === "3" || clearing.val() === "4") {
+            clearing.find('option[value="3"]').hide();
+            if (clearing.val() === "3") {
                 clearing.val('');
             }
         } else {
