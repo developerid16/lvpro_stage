@@ -96,6 +96,7 @@
                                             <label class="sh_dec form-label mb-1">Main Group</label>
                                             <select class="sh_dec form-select ig_main_select" id="ig_main_select_{{ $data->id ?? 'new' }}">
                                                 <option value="">-- Select Main Group --</option>
+                                                <option value="__all__">Select All Groups</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-4">
@@ -156,6 +157,7 @@
                                             <label class="sh_dec form-label mb-1">Membership Type Code</label>
                                             <select class="sh_dec form-select mt_select" id="mt_select_{{ $data->id ?? 'new' }}">
                                                 <option value="">-- Select Member Type --</option>
+                                                <option value="__all__">Select All Membership Types</option>
                                             </select>
                                         </div>
                                         <div class="col-12 col-md-4">
@@ -229,6 +231,8 @@
 
     var selectedIGs = [];
     var selectedMTs = [];
+    var allMainGroups = [];
+    var allSubGroups = [];
     var igIndex     = 0;
 
     // Pre-fill existing data (edit mode)
@@ -245,33 +249,110 @@
     @endif
 
     // ── LOAD MAIN GROUPS ─────────────────────────────────────────
+    // $.get(BASE_URL + 'get-main-groups', function (res) {
+    //     var $sel = $('#ig_main_select_' + UID);
+    //     $.each(res.data, function (i, name) {
+    //         $sel.append('<option value="' + name + '">' + name + '</option>');
+    //     });
+    // });
+
     $.get(BASE_URL + 'get-main-groups', function (res) {
+
         var $sel = $('#ig_main_select_' + UID);
+
+        allMainGroups = res.data;
+
         $.each(res.data, function (i, name) {
             $sel.append('<option value="' + name + '">' + name + '</option>');
         });
+
     });
 
     // ── LOAD SUB GROUPS (direct bind — NOT document.on) ──────────
+    // $('#ig_main_select_' + UID).on('change', function () {
+    //     var mainName = $(this).val();
+    //     var $subSel  = $('#ig_sub_select_' + UID);
+    //     if (!mainName) {
+    //         $subSel.html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
+    //         return;
+    //     }
+    //     $.get(BASE_URL + 'get-sub-groups', { main_name: mainName }, function (res) {
+    //         $subSel.html('<option value="">-- Select Sub Group --</option>');
+    //         $.each(res.data, function (i, name) {
+    //             $subSel.append('<option value="' + name + '">' + name + '</option>');
+    //         });
+    //         $subSel.prop('disabled', false);
+    //     });
+    // });
+
     $('#ig_main_select_' + UID).on('change', function () {
+
         var mainName = $(this).val();
         var $subSel  = $('#ig_sub_select_' + UID);
+
         if (!mainName) {
             $subSel.html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
             return;
         }
-        $.get(BASE_URL + 'get-sub-groups', { main_name: mainName }, function (res) {
-            $subSel.html('<option value="">-- Select Sub Group --</option>');
-            $.each(res.data, function (i, name) {
-                $subSel.append('<option value="' + name + '">' + name + '</option>');
+
+        // 🔹 SELECT ALL GROUPS
+        if (mainName === '__all__') {
+
+            $.get(BASE_URL + 'get-sub-groups', { main_name: allMainGroups }, function (res) {
+
+                $subSel.html(
+                    '<option value="">-- Select Sub Group --</option>' +
+                    '<option value="__all__">Select All Sub Groups</option>'
+                );
+
+               allSubGroups = res.data;
+
+                $.each(res.data, function (i, row) {
+                    $subSel.append('<option value="' + row.InterestGroupName + '">' + row.InterestGroupName + '</option>');
+                });
+                $subSel.prop('disabled', false);
+
             });
+
+            return;
+        }
+
+        // 🔹 NORMAL SINGLE GROUP
+        $.get(BASE_URL + 'get-sub-groups', { main_name: mainName }, function (res) {
+
+            $subSel.html(
+                '<option value="">-- Select Sub Group --</option>' +
+                '<option value="__all__">Select All Sub Groups</option>'
+            );
+
+           $.each(res.data, function (i, row) {
+
+                var subName = typeof row === "object" ? row.InterestGroupName : row;
+
+                $subSel.append('<option value="' + subName + '">' + subName + '</option>');
+            });
+
             $subSel.prop('disabled', false);
+
         });
+
     });
 
     // ── LOAD MEMBER TYPES ────────────────────────────────────────
+    // $.get(BASE_URL + 'get-member-types', function (res) {
+    //     var $sel = $('#mt_select_' + UID);
+    //     $.each(res.data, function (i, code) {
+    //         $sel.append('<option value="' + code + '">' + code + '</option>');
+    //     });
+    // });
+
+    var allMemberTypes = [];
+
     $.get(BASE_URL + 'get-member-types', function (res) {
         var $sel = $('#mt_select_' + UID);
+
+        allMemberTypes = res.data;
+
         $.each(res.data, function (i, code) {
             $sel.append('<option value="' + code + '">' + code + '</option>');
         });
@@ -280,45 +361,110 @@
     // ── ADD INTEREST GROUP (direct bind with .off first) ─────────
     // .off('click') ensures no duplicate listeners even if script runs again
     $('#add_ig_btn_' + UID).off('click').on('click', function () {
+
         var mainName = $('#ig_main_select_' + UID).val();
         var subName  = $('#ig_sub_select_' + UID).val();
 
         if (!mainName || !subName) {
-            Swal.fire({ icon: 'warning', title: 'Please select both Main Group and Sub Group', timer: 2000, showConfirmButton: false });
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please select both Main Group and Sub Group',
+                timer: 2000,
+                showConfirmButton: false
+            });
             return;
         }
+
+        /* SELECT ALL SUB GROUPS */
+        if (subName === '__all__') {
+
+            allSubGroups.forEach(function(sub){
+
+                var isDup = selectedIGs.some(function (ig) {
+                    return ig.main === sub.InterestGroupMainName &&
+                        ig.sub === sub.InterestGroupName;
+                });
+
+                if (isDup) return;
+
+                selectedIGs.push({
+                    main: sub.InterestGroupMainName,
+                    sub: sub.InterestGroupName
+                });
+
+                var idx = igIndex++;
+
+                var html =
+                '<div class="ig-item d-flex align-items-center justify-content-between border rounded p-2 mb-2" style="background:#eef3ff;" '+
+                'data-main="'+sub.InterestGroupMainName+'" data-sub="'+sub.InterestGroupName+'">'+
+                    '<div>'+
+                    '<input type="hidden" name="interest_groups['+idx+'][main_name]" value="'+sub.InterestGroupMainName+'">'+
+                    '<input type="hidden" name="interest_groups['+idx+'][sub_name]" value="'+sub.InterestGroupName+'">'+
+                    '<span class="badge bg-primary me-2">IG</span>'+
+                    '<strong>'+sub.InterestGroupMainName+'</strong>'+
+                    '<span class="text-muted mx-1">/</span>'+
+                    '<span>'+sub.InterestGroupName+'</span>'+
+                    '</div>'+
+                    '<button type="button" class="btn btn-sm btn-outline-danger remove-ig-btn">'+
+                    '<i class="mdi mdi-close"></i></button>'+
+                '</div>';
+
+                $('#ig_list_' + UID).append(html);
+
+            });
+
+            $('.ig_empty_msg').hide();
+
+            $('#ig_main_select_' + UID).val('');
+            $('#ig_sub_select_' + UID).val('');
+
+            return;
+        }
+
+        /* SINGLE ADD */
 
         var isDup = selectedIGs.some(function (ig) {
             return ig.main === mainName && ig.sub === subName;
         });
+
         if (isDup) {
-            Swal.fire({ icon: 'info', title: 'Already Added', text: 'This Interest Group is already in the list.', timer: 2000, showConfirmButton: false });
+            Swal.fire({
+                icon:'info',
+                title:'Already Added',
+                text:'This Interest Group is already added.',
+                timer:2000,
+                showConfirmButton:false
+            });
             return;
         }
 
         selectedIGs.push({ main: mainName, sub: subName });
-        hideIgMtError();
 
-        var idx  = igIndex++;
-        var html = '<div class="ig-item d-flex align-items-center justify-content-between border rounded p-2 mb-2" style="background:#eef3ff;" '
-            + 'data-main="' + mainName + '" data-sub="' + subName + '">'
-            + '<div>'
-            + '<input type="hidden" name="interest_groups[' + idx + '][main_name]" value="' + mainName + '">'
-            + '<input type="hidden" name="interest_groups[' + idx + '][sub_name]"  value="' + subName  + '">'
-            + '<span class="badge bg-primary me-2">IG</span>'
-            + '<strong class="sh_dec">' + mainName + '</strong>'
-            + '<span class="text-muted mx-1">/</span>'
-            + '<span class="sh_dec">' + subName + '</span>'
-            + '</div>'
-            + '<button type="button" class="btn btn-sm btn-outline-danger remove-ig-btn"><i class="mdi mdi-close"></i></button>'
-            + '</div>';
+        var idx = igIndex++;
+
+        var html =
+        '<div class="ig-item d-flex align-items-center justify-content-between border rounded p-2 mb-2" style="background:#eef3ff;" '+
+        'data-main="'+mainName+'" data-sub="'+subName+'">'+
+            '<div>'+
+            '<input type="hidden" name="interest_groups['+idx+'][main_name]" value="'+mainName+'">'+
+            '<input type="hidden" name="interest_groups['+idx+'][sub_name]" value="'+subName+'">'+
+            '<span class="badge bg-primary me-2">IG</span>'+
+            '<strong>'+mainName+'</strong>'+
+            '<span class="text-muted mx-1">/</span>'+
+            '<span>'+subName+'</span>'+
+            '</div>'+
+            '<button type="button" class="btn btn-sm btn-outline-danger remove-ig-btn">'+
+            '<i class="mdi mdi-close"></i></button>'+
+        '</div>';
 
         $('#ig_list_' + UID).append(html);
-        $('#ig_list_' + UID).closest('.tab-pane').find('.ig_empty_msg').hide();
+
+        $('.ig_empty_msg').hide();
+
         $('#ig_main_select_' + UID).val('');
         $('#ig_sub_select_' + UID).html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
-    });
 
+    });
     // ── REMOVE INTEREST GROUP (scoped to list container) ─────────
     $('#ig_list_' + UID).off('click', '.remove-ig-btn').on('click', '.remove-ig-btn', function () {
         var $item    = $(this).closest('.ig-item');
@@ -348,6 +494,31 @@
     $('#add_mt_btn_' + UID).off('click').on('click', function () {
         var code = $('#mt_select_' + UID).val();
 
+        if (code === '__all__') {
+
+            allMemberTypes.forEach(function(type){
+
+                if (selectedMTs.includes(type)) return;
+
+                selectedMTs.push(type);
+
+                var html = '<div class="mt-item d-flex align-items-center justify-content-between border rounded p-2 mb-2" style="background:#efffef;" '
+                    + 'data-code="' + type + '">'
+                    + '<div>'
+                    + '<input type="hidden" name="member_types[]" value="' + type + '">'
+                    + '<span class="badge bg-success me-2">MT</span>'
+                    + '<strong class="sh_dec">' + type + '</strong>'
+                    + '</div>'
+                    + '<button type="button" class="btn btn-sm btn-outline-danger remove-mt-btn"><i class="mdi mdi-close"></i></button>'
+                    + '</div>';
+
+                $('#mt_list_' + UID).append(html);
+
+            });
+
+            $('.mt_empty_msg').hide();
+            return;
+        }
         if (!code) {
             Swal.fire({ icon: 'warning', title: 'Please select a Member Type', timer: 2000, showConfirmButton: false });
             return;

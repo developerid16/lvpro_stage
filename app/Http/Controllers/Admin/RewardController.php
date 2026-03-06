@@ -538,6 +538,8 @@ class RewardController extends Controller
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
                     'send_reminder'      => 'required|boolean',
+                    'ax_item_code'      => 'required',
+
                     'max_quantity_physical' => 'required_if:reward_type,1|integer|min:1',
                     'max_quantity_digital' => 'required_if:reward_type,0|integer|min:1',
                     'inventory_type'       => 'required_if:reward_type,0|in:0,1',
@@ -1452,6 +1454,7 @@ class RewardController extends Controller
                 'sales_end'        => 'required|date|after_or_equal:sales_start',
                 'low_stock_1' => 'nullable|integer|min:0',
                 'low_stock_2' => 'nullable|integer|min:0',
+                'ax_item_code'      => 'required',
             ];
 
             $messages = [
