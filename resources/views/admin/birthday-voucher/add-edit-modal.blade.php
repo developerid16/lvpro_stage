@@ -390,17 +390,16 @@
                                 <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
+                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="clearing_method">Clearing Methods <span class="required-hash">*</span></label>
-                                <select class="sh_dec form-select clearing_method " name="clearing_method" id="clearing_method">
-                                    {{-- <option class="sh_dec" value="">Select Clearing Method</option>                                    --}}
-                                    <option class="sh_dec" value="2" {{ isset($data->clearing_method) && $data->clearing_method == '2' ? 'selected' : '' }}>
-                                        Merchant Code 
-                                    </option>
-                                </select>
+                                <label class="sh_dec" for="clearing_method">
+                                    Clearing Methods <span class="required-hash">*</span>
+                                </label>
+                                <input  type="text"  readonly  class="sh_dec form-control readonly"  readonly  name="" value="Merchant Code"> 
+                                <!-- send value in form -->
+                                <input type="hidden" name="clearing_method" value="2">
                             </div>
-                        </div>     
+                        </div>        
                     </div>
 
                     <div id="location_with_outlet" class="accordion">
