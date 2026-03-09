@@ -361,7 +361,7 @@
                                 <label class="sh_dec" for="cso_method">Push Method <span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select cso_method" name="cso_method">
                                     <option class="sh_dec" value="4" {{ isset($data->cso_method) && $data->cso_method == '4' ? 'selected' : '' }}> All Members</option>
-                                    <option class="sh_dec" value="5" {{ isset($data->cso_method) && $data->cso_method == '5' ? 'selected' : '' }}> Service Recovery</option>
+                                    <option class="sh_dec" value="5" {{ isset($data->cso_method) && $data->cso_method == '5' ? 'selected' : '' }}> CSO Issuance</option>
                                 </select>
                             </div>
                         </div>
