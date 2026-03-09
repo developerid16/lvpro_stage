@@ -94,7 +94,7 @@ class CsoIssuancePaidController extends Controller
                 2 => 'Push by Parameter',
                 3 => 'Push by API SRP',
                 4 => 'All Members',
-                5 => 'Service Recovery',
+                5 => 'CSO Issuance',
             ];
 
             $final_data[$key]['cso_method'] = $methods[$row->cso_method] ?? '-';
