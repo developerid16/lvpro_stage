@@ -208,12 +208,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('learn-more-page', [ContentManagementController::class, 'learnIndex']);
     Route::post('learn-more-page', [ContentManagementController::class, 'learnUpdate'])->name('learn.store');
  
-    // inside admin route group OR top-level, depending on your app
-    // Route::get('tiers/datatable', [TierController::class, 'datatable'])->name('admin.tiers.datatable');
-    // Route::resource('tiers', TierController::class);
-    // Route::post('tiers/update', [TierController::class, 'update'])->name('tiers.update');
-    // Route::post('tiers-milestone/save', [TierController::class, 'milestoneSave'])->name('tiers.milestone.save');
-
     Route::prefix('tiers')->name('admin.tiers.')->group(function () {
 
         // Main CRUD

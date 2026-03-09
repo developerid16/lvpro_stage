@@ -59,7 +59,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('master:sync-zone')->daily();
         $schedule->command('master:sync-membership-code')->daily();
         $schedule->command('master:sync-interest-group')->daily();
-        
+
+
+        $schedule->command('users:auto-logout')->everyFiveMinutes();        
         $schedule->command('voucher:generate-next-year')->yearlyOn(12, 31, '23:59');
     }
 
