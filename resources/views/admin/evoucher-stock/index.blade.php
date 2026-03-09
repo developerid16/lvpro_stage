@@ -207,31 +207,44 @@
         originalQty = parseInt($('#adjust_qty').val()) || 0;
         $('#proceedAdjustment').addClass('d-none'); // hide initially
 
-        $('#qty_plus_action, #qty_minus_action').on('click', function () {
+       $('#qty_plus_action, #qty_minus_action').on('click', function () {
+            originalQty = parseInt($('#purchased_qty').text()) || 0;
 
-            selectedType = $(this).val(); // plus or minus
+            selectedType = $(this).val();
 
             let currentQty = parseInt($('#adjust_qty').val()) || 0;
 
             if (selectedType === 'plus') {
+
                 currentQty += 1;
+
+                // allow minus when qty greater than original
+                if (currentQty > originalQty) {
+                    $('#qty_minus_action').prop('disabled', false);
+                }
+
             } else {
-                if (currentQty > 1) {
+
+                if (currentQty > originalQty) {
                     currentQty -= 1;
+                }              
+                
+                // disable minus when reached original qty
+                if (currentQty === originalQty) {
+                    $('#qty_minus_action').prop('disabled', true);
                 }
             }
 
             $('#adjust_qty').val(currentQty);
-            
-            // 🔥 Show button only if changed
+
+            // show submit if changed
             if (currentQty !== originalQty) {
                 $('#proceedAdjustment').removeClass('d-none');
             } else {
                 $('#proceedAdjustment').addClass('d-none');
             }
 
-
-            // Active styling
+            // active button styling
             $('#qty_plus_action, #qty_minus_action').removeClass('active');
             $(this).addClass('active');
         });

@@ -109,7 +109,6 @@ class AppServiceProvider extends ServiceProvider
         Department::observe(ActivityObserver::class);
         Fabs::observe(ActivityObserver::class);
         Notification::observe(ActivityObserver::class);
-        Location::observe(ActivityObserver::class);
         Merchant::observe(ActivityObserver::class);
         ParticipatingLocations::observe(ActivityObserver::class);
         ParticipatingMerchant::observe(ActivityObserver::class);

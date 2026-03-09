@@ -1439,6 +1439,7 @@ class EvoucherController extends Controller
                 'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                 'is_featured' => $request->boolean('is_featured'),
                 'csvFile'             => $reward->csvFile ?? 0,
+                'is_draft'             => 0, 
             ];
 
             $updateRequest = RewardUpdateRequest::updateOrCreate(
@@ -1446,10 +1447,12 @@ class EvoucherController extends Controller
                     'reward_id' => $reward->id,
                     'type'    => '1',
                     'status'    => 'pending',
+                  
                 ],
                 $data
             );
 
+            $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
                 /* ---------------------------------------------------
             * 7) UPDATE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/

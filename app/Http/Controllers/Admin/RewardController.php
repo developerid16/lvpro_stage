@@ -1761,6 +1761,7 @@ class RewardController extends Controller
                             'type'      => '0',
                         ],
                         [
+                            'is_draft'             => 0, 
                             'cso_method'          => (int) ($request['cso_method'] ?? 0),
                             'request_by'          => auth()->id(),
                             'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
@@ -1826,6 +1827,7 @@ class RewardController extends Controller
                             'is_featured' => $request->boolean('is_featured'),
                         ]
                     );
+                    $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
     
     
                     if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
