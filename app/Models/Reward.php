@@ -41,8 +41,7 @@ class Reward extends Model
         'publish_independent',
         'publish_inhouse',
         'send_reminder',       
-        'hide_quantity', 
-         
+        'hide_quantity',          
         'max_order',     
         'location_text',     
         'participating_merchant_id',     
@@ -75,8 +74,6 @@ class Reward extends Model
         'is_featured',
         'hide_catalogue',
         'hide_cat_time'
-        
-        
     ];
 
     protected $casts = [
@@ -95,8 +92,6 @@ class Reward extends Model
             'how_to_use'  => strip_tags($this->how_to_use),
         ]);
     }
-
-
 
 
     public static function getRewardTypeLabel(int $type): string
