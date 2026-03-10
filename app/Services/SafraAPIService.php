@@ -281,9 +281,9 @@ class SafraAPIService
                 'MerchandiseName' => ''
             ]
         );
-        // if ($response->failed()) {
-        //     throw new \Exception('Get Merchandise Item List API failed: ' . $response->body());
-        // }
+        if ($response->failed()) {
+            throw new \Exception('Get Merchandise Item List API failed: ' . $response->body());
+        }
         $data = json_decode($response->body()   , true);
         return $data ?? [];
     }

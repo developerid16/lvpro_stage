@@ -23,7 +23,8 @@ class SRPMerchandiseItemList extends Command
             ];
 
             // 👉 API call
-            $response = $safraAPIService->GetSRPMerchandiseItemList($request);
+            // $response = $safraAPIService->GetSRPMerchandiseItemList($request);
+            $response = $safraAPIService->getMerchandiseItemList($request);
             
             // 👉 Extract items safely
             $items = $response['Items'] ?? [];
@@ -37,7 +38,8 @@ class SRPMerchandiseItemList extends Command
                 GetSRPMerchandiseItemList::updateOrCreate(
                     ['item_id' => $item['ITEMID']],
                     [
-                        'item_name' => $item['ITEMNAME'] ?? null,
+                        // 'item_name' => $item['ITEMNAME'] ?? null,
+                        'item_name' => $item['SEARCHNAME'] ?? null,
                         'json'      => json_encode($item), // optional full data
                         'updated_at'=> now(),
                     ]
