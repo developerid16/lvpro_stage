@@ -35,7 +35,7 @@ class MicrosoftAuthController extends Controller
             $userMessage = $this->parseErrorMessage($error, $errorDescription);
 
             return redirect()->route('login')
-                ->withErrors(['microsoft' => $userMessage])
+                ->with(['microsoft' => $userMessage])
                 ->withInput();
         }
 
@@ -44,7 +44,7 @@ class MicrosoftAuthController extends Controller
         if (!$code) {
             Log::warning('No authorization code received');
             return redirect()->route('login')
-                ->withErrors(['microsoft' => 'No authorization code received from Microsoft']);
+                ->with(['microsoft' => 'No authorization code received from Microsoft']);
         }
 
         // ===== STEP 4: VALIDATE STATE =====
@@ -60,7 +60,7 @@ class MicrosoftAuthController extends Controller
         if ($state !== $sessionState) {
             session()->forget('azure_oauth_state');
             return redirect()->route('login')
-                ->withErrors(['microsoft' => 'Security validation failed. Please try again.']);
+                ->with(['microsoft' => 'Security validation failed. Please try again.']);
         }
 
         session()->forget('azure_oauth_state');
@@ -92,7 +92,7 @@ class MicrosoftAuthController extends Controller
                 $errorMsg = $errorData['error_description'] ?? 'Failed to authenticate with Microsoft';
                 
                 return redirect()->route('login')
-                    ->withErrors(['microsoft' => $errorMsg]);
+                    ->with(['microsoft' => $errorMsg]);
             }
 
             $tokenData = $tokenResponse->json();
@@ -107,7 +107,7 @@ class MicrosoftAuthController extends Controller
             ]);
 
             return redirect()->route('login')
-                ->withErrors(['microsoft' => 'An error occurred during authentication. Please try again.']);
+                ->with(['microsoft' => 'An error occurred during authentication. Please try again.']);
         }
 
         // ===== STEP 6: GET USER PROFILE =====
@@ -122,7 +122,7 @@ class MicrosoftAuthController extends Controller
                 ]);
 
                 return redirect()->route('login')
-                    ->withErrors(['microsoft' => 'Failed to retrieve your profile from Microsoft']);
+                    ->with(['microsoft' => 'Failed to retrieve your profile from Microsoft']);
             }
 
             $profile = $profileResponse->json();
@@ -138,7 +138,7 @@ class MicrosoftAuthController extends Controller
             ]);
 
             return redirect()->route('login')
-                ->withErrors(['microsoft' => 'Failed to retrieve your profile']);
+                ->with(['microsoft' => 'Failed to retrieve your profile']);
         }
 
         // ===== STEP 7: EXTRACT AND VALIDATE EMAIL =====
@@ -147,7 +147,7 @@ class MicrosoftAuthController extends Controller
         if (!$email) {
             Log::warning('No email found in profile', ['profile' => $profile]);
             return redirect()->route('login')
-                ->withErrors(['microsoft' => 'Could not retrieve email from your Microsoft account']);
+                ->with(['microsoft' => 'Could not retrieve email from your Microsoft account']);
         }
 
         // ===== STEP 8: CHECK IF USER EXISTS =====
@@ -157,13 +157,13 @@ class MicrosoftAuthController extends Controller
             Log::info('User not found in database', ['email' => $email]);
             
             return redirect()->route('login')
-                ->withErrors([
+                ->with([
                     'microsoft' => 'User Access Disabled. Please contact the ccc@gmail.com'
                 ]);
             // return redirect('/user-rights-form')
             //     ->with('pending_email', $email)
             //     ->with('pending_name', $profile['displayName'] ?? '')
-            //     ->withErrors(['access' => 'Your account was not found. Please request access.']);
+            //     ->with(['access' => 'Your account was not found. Please request access.']);
         }
 
         /* ===== STEP 8.1: CHECK ROLE ASSIGNED ===== */
@@ -171,7 +171,7 @@ class MicrosoftAuthController extends Controller
             Log::warning('User has no roles assigned', ['user_id' => $user->id]);
 
             return redirect()->route('login')
-                ->withErrors([
+                ->with([
                     'microsoft' => 'Login Successful, but user role is not assigned. Please contact the ccc@gmail.com'
                 ]);
         }
