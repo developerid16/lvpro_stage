@@ -260,8 +260,9 @@ class SafraAPIService
     /** get master list parameter */
     public function GetSRPMerchandiseItemList(array $itemData = []): array
     {
+        // 'sfrControlMerchandise/GetSRPMerchandiseItemList'
         $response = $this->call(
-            'sfrControlMerchandise/GetSRPMerchandiseItemList',
+            'sfrControlMerchandise/GetMerchandiseList',
             $itemData
         );
         if ($response->failed()) {

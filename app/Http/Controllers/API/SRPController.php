@@ -21,8 +21,7 @@ class SRPController extends Controller
     {
     
         try {
-            $records = $this->SafraAPIService
-                ->GetSRPMerchandiseItemList($request->all());
+            $records = $this->SafraAPIService->GetSRPMerchandiseItemList($request->all());
 
             return response()->json([
                 'status' => 'success',
