@@ -9,6 +9,11 @@ use App\Models\ParticipatingMerchantLocation;
 use App\Models\ParticipatingMerchant;
 use App\Models\ClubLocation;
 use Illuminate\Support\Facades\Validator;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Crypt;
 
 class ParticipatingMerchantLocationController extends Controller
 {
@@ -84,6 +89,16 @@ class ParticipatingMerchantLocationController extends Controller
 
         foreach ($rows->get() as $row) {
 
+            $qrUrl = $row->qrcode ? asset('uploads/qrcode/'.$row->qrcode) : '';
+            $qrBtn = '';
+
+            if (!empty($row->qrcode)) {
+                $qrUrl = asset('uploads/qrcode/'.$row->qrcode);
+
+                $qrBtn = "<a href='{$qrUrl}' download>
+                            <i class='mdi mdi-qrcode text-success action-icon font-size-18'></i>
+                        </a>";
+            }
             $final_data[$i] = [
                 'sr_no'        => $startIndex + $i + 1,
                 'name'         => $row->name,
@@ -92,19 +107,22 @@ class ParticipatingMerchantLocationController extends Controller
                 'end_date'     => $row->end_date->format(config('safra.date-format')),
                 'club_location'=> optional($row->clubLocation)->name,
                 'status'       => $row->status,
-                'created_at'   =>  $row->created_at->format(config('safra.date-format')),
-                'updated_at'   =>  $row->updated_at->format(config('safra.date-format')),
+                'created_at'   => $row->created_at->format(config('safra.date-format')),
+                'updated_at'   => $row->updated_at->format(config('safra.date-format')),
 
                 'action' =>
-                    "<div class='d-flex gap-3'>
-                        <a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
-                            <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                        </a>
+                "<div class='d-flex gap-3 justify-content-center'>
 
-                        <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
-                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                        </a>
-                    </div>",
+                    <a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
+                        <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                    </a>
+
+                    <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+                        <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                    </a>
+
+                    {$qrBtn}
+                </div>",
             ];
 
             $i++;
@@ -132,6 +150,8 @@ class ParticipatingMerchantLocationController extends Controller
         return response()->json(['status' => 'success', 'html' => $html]);
     }
 
+    
+   
     /* -----------------------------------------------------
      * STORE
      * ----------------------------------------------------- */
@@ -172,6 +192,26 @@ class ParticipatingMerchantLocationController extends Controller
         }
 
         $post_data = $validator->validated();
+
+        $qrName = 'qr_' . Str::random(8) . '.png';
+        $encryptedCode  = ParticipatingMerchantLocation::encryptCode($post_data['code']);
+
+        $path = public_path('uploads/qrcode');
+
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0755, true);
+        }
+
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->data($encryptedCode)
+            ->size(300)
+            ->margin(10)
+            ->build();
+
+        $result->saveToFile($path.'/'.$qrName);
+
+        $post_data['qrcode'] = $qrName;
 
         ParticipatingMerchantLocation::create($post_data);
 
@@ -231,9 +271,35 @@ class ParticipatingMerchantLocationController extends Controller
             ], 422);
         }
 
-        $post_data = $validator->validated();
+        $data = $validator->validated();
+        $record = ParticipatingMerchantLocation::findOrFail($id);
 
-        ParticipatingMerchantLocation::findOrFail($id)->update($post_data);
+        // Check if code changed
+        if ($record->code != $data['code']) {
+
+           $qrName = 'qr_' . Str::random(8) . '.png';
+            $encryptedCode  = ParticipatingMerchantLocation::encryptCode($data['code']);
+
+            $path = public_path('uploads/qrcode');
+
+            if (!File::exists($path)) {
+                File::makeDirectory($path, 0755, true);
+            }
+
+            $result = Builder::create()
+                ->writer(new PngWriter())
+                ->data($encryptedCode)
+                ->size(300)
+                ->margin(10)
+                ->build();
+
+            $result->saveToFile($path.'/'.$qrName);
+
+            $data['qrcode'] = $qrName;
+        }
+
+
+        ParticipatingMerchantLocation::findOrFail($id)->update($data);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Updated Successfully']);
     }
