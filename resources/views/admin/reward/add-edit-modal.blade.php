@@ -266,7 +266,7 @@
 
         if (rewardType == "1" && merchantId) {
             locationSection.show();
-            editLoadLocations(modal, merchantId);
+            // editLoadLocations(modal, merchantId);
         } else {
             locationSection.hide();
         }
@@ -728,17 +728,25 @@
 
                                 <div class="col-md-2 d-flex align-items-center">
 
-                                    <!-- Default value (so controller logic remains unchanged) -->
                                     <input type="hidden" name="hide_quantity" value="0">
 
                                     <div class="form-check mx-3">
-                                        <input  class="form-check-input" type="radio" id="hide_quantity_yes" name="hide_quantity" value="1"
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            id="hide_quantity_yes"
+                                            name="hide_quantity"
+                                            value="1"
                                             {{ isset($data) && $data->hide_quantity == 1 ? 'checked' : '' }}>
                                         <label class="form-check-label" for="hide_quantity_yes">Yes</label>
                                     </div>
 
                                     <div class="form-check">
-                                        <input class="form-check-input"   type="radio" id="hide_quantity_no" name="hide_quantity"  value="0" {{ isset($data) && $data->hide_quantity == 0 ? 'checked' : '' }}>
+                                        <input class="form-check-input"
+                                            type="radio"
+                                            id="hide_quantity_no"
+                                            name="hide_quantity"
+                                            value="0"
+                                            {{ !isset($data) || (isset($data) && $data->hide_quantity == 0) ? 'checked' : '' }}>
                                         <label class="form-check-label" for="hide_quantity_no">No</label>
                                     </div>
 
