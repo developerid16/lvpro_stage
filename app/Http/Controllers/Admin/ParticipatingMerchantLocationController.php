@@ -212,6 +212,7 @@ class ParticipatingMerchantLocationController extends Controller
         $result->saveToFile($path.'/'.$qrName);
 
         $post_data['qrcode'] = $qrName;
+        $post_data['encrypted_code'] = $encryptedCode;
 
         ParticipatingMerchantLocation::create($post_data);
 
@@ -294,6 +295,8 @@ class ParticipatingMerchantLocationController extends Controller
                 ->build();
 
             $result->saveToFile($path.'/'.$qrName);
+
+            $data['encrypted_code'] = $encryptedCode;
 
             $data['qrcode'] = $qrName;
         }
