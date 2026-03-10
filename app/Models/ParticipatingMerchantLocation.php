@@ -18,6 +18,7 @@ class ParticipatingMerchantLocation extends Model
         'start_date',
         'end_date',
         'code',
+        'qrcode',
         'participating_merchant_id',
         'club_location_id',
         'status',
@@ -39,6 +40,13 @@ class ParticipatingMerchantLocation extends Model
     public function clubLocation()
     {
         return $this->belongsTo(ClubLocation::class);
+    }
+
+     public function encryptCode($value)
+    {
+        $hex = bin2hex($value);        // convert string → hex
+        $encoded = strtoupper(base_convert($hex, 16, 36)); 
+        return substr(str_pad($encoded, 5, '0', STR_PAD_LEFT), 0, 5);
     }
 
 }
