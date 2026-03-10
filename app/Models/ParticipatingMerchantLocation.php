@@ -23,6 +23,7 @@ class ParticipatingMerchantLocation extends Model
         'club_location_id',
         'status',
         'added_by',
+        'encrypted_code'
         
     ];
 
