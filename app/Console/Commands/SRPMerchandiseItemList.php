@@ -23,7 +23,8 @@ class SRPMerchandiseItemList extends Command
             ];
 
             // 👉 API call
-            $response = $safraAPIService->GetSRPMerchandiseItemList($request);
+            // $response = $safraAPIService->GetSRPMerchandiseItemList($request);
+            $response = $safraAPIService->getMerchandiseItemList($request);
             
             // 👉 Extract items safely
             $items = $response['Items'] ?? [];
