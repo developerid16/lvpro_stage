@@ -58,10 +58,12 @@ return [
             'prefix_indexes' => true,
             'strict' => false,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? [
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // keep this!
-            ] : [],
+            // 'options' => extension_loaded('pdo_mysql') ? [
+            //     PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            //     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // keep this!
+            // ] : [],
+            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+
             'strict' => true,
         ],
 
