@@ -256,10 +256,7 @@
                 appendField('Days', d.days ? (Array.isArray(d.days) ? d.days.join(', ') : JSON.parse(d.days).join(', ')) : null);
                 appendField('Start Time', d.start_time);
                 appendField('End Time', d.end_time);
-                appendField('Maximum Quantity (Per User)', d.max_quantity);
                 appendField('Voucher Validity',formatDateOnly(d.voucher_validity));
-
-
             }
             
             if(d.type == 0){//t&d
