@@ -169,9 +169,9 @@
                 
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
 
-                 let merchantId = $('#merchant_id').val();
+                let merchantId = $('#merchant_id').val();
+                loadLocations(merchantId);
                 if(merchantId){
-                    loadLocations(merchantId);
                 }
                 
             }else if (type == "0") {
@@ -207,15 +207,16 @@
             $("#location_wrapper").html("");
 
             if (rewardType == "1" && merchantId) {
-                $("#location_section").show();
-                loadLocations(merchantId);
+                // $("#location_section").show();
+                // loadLocations(merchantId);
             } else {
-                $("#location_section").hide();
+                // $("#location_section").hide();
             }
         });
 
 
         function loadLocations(merchantId) {
+            merchantId = 1;
             $("#location_wrapper").html("");
 
             $.ajax({
@@ -368,6 +369,9 @@
 
             let usualPrice   = parseFloat($('#usual_price').val());
             let voucherValue = parseFloat($('#voucher_value').val());
+            // console.log(usualPrice,'usual_price');
+            // console.log(voucherValue,'voucher_value');
+            
 
             // Guard clauses
             if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
@@ -376,6 +380,7 @@
             }
 
             let voucherSet = usualPrice / voucherValue;
+            // console.log(voucherSet,'voucher_set');
 
             // If you want integer only (recommended)
             $('#voucher_set').val(Math.floor(voucherSet));
@@ -421,12 +426,16 @@
 
         function calculateSetQty() {
             let inventoryQty = parseFloat($('#inventory_qty').val());
+            
             let voucherSet   = parseFloat($('#voucher_set').val());
+            // console.log(inventoryQty,'inventory_qty');
+            // console.log(voucherSet,'voucher_set');
             if (!isNaN(inventoryQty) && !isNaN(voucherSet) && voucherSet > 0) {
                 $('#set_qty').val(Math.floor(inventoryQty / voucherSet));
             } else {
                 $('#set_qty').val('');
             }
         }
-    </script>     
+    </script>    
+
 @endsection

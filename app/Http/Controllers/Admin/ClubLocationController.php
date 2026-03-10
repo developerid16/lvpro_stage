@@ -6,7 +6,6 @@ use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ClubLocationController extends Controller

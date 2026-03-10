@@ -21,6 +21,12 @@
     
     $(document).on('shown.bs.modal', '#EditModal', function () {
         let modal = $(this).closest('.modal');
+        // ✅ STEP 1: Save original values for reset restoration
+        modal.find('input, select, textarea').each(function () {
+            $(this).data('originalValue', $(this).val());
+        });
+        
+      
         initTinyMCE();
 
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -76,6 +82,33 @@
         });
         
         forceInventoryReadonly(modal);
+        let isDraft = modal.find('#is_draft').val();    
+        console.log(isDraft,'isDraft');
+        
+
+        if (isDraft != 1) {
+            // inputs
+            modal.find('#merchant_id').prop('readonly', true).addClass('readonly');
+            modal.find('#max_quantity').prop('readonly', true).addClass('readonly');
+            modal.find('#inventory_qty').prop('readonly', true).addClass('readonly');
+            modal.find('#voucher_value').prop('readonly', true).addClass('readonly');
+            modal.find('#voucher_set').prop('readonly', true).addClass('readonly');
+            modal.find('input[name="friendly_url"]').prop('readonly', true).addClass('readonly');
+
+            // selects
+            modal.find('.inventory_type').prop('readonly', true).addClass('readonly');
+            modal.find('.cso_method').prop('readonly', true).addClass('readonly');
+            modal.find('#clearing_method').prop('readonly', true).addClass('readonly');
+
+            // radio buttons (Direct Utilization)
+            modal.find('input[name="direct_utilization"]').prop('readonly', true).addClass('readonly');
+
+            // checkboxes (Publish Channel)
+            modal.find('input[name="publish_independent"], input[name="publish_inhouse"]')
+                .prop('readonly', true)
+                .addClass('readonly');
+        }
+
     });
     
     $(document).on("change", ".voucher_image", function (e) {
@@ -167,9 +200,10 @@
                     id="{{ isset($data->id) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? '' }}">
                     @csrf
                     @if (isset($type))
-                        <input type="hidden" name="parent_type" value="{{ $type }}">
+                    <input type="hidden" name="parent_type" value="{{ $type }}">
                     @endif
                     @if (isset($data->id))
+                        <input type="hidden" id="is_draft" value="{{ $data->is_draft ?? 0 }}">
                         @method('PATCH')
                     @endif
                     <div class="row">                      
@@ -399,17 +433,15 @@
                                     value="{{ $data?->voucher_validity ?? '' }}"
                                     placeholder="YYYY-MM-DD"
                                 />
-
-
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_type">Merchant/Non-merchant<span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                 <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                    <option class="sh_dec" value="">Select Merchant/Non-merchant</option>
-                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Internal</option>
-                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> External</option>
+                                    <option class="sh_dec" value="">Select Internal/External</option>
+                                    <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}>External</option>
+                                    <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}>Internal</option>
                                 </select>
                             </div>
                         </div>
@@ -469,7 +501,7 @@
 
                                     <option class="sh_dec" value="">Select Clearing Method</option>
                                     <option class="sh_dec" value="0" {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
-                                        QR
+                                        QR Code
                                     </option>                                            
                                     <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
                                         Barcode 

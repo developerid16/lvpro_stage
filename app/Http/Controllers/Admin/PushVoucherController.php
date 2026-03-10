@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\PushVoucherMember;
-use Illuminate\Support\Facades\Auth;
 
 class PushVoucherController extends Controller
 {
@@ -21,8 +20,7 @@ class PushVoucherController extends Controller
         ];
 
         
-        $this->middleware('permission:push-voucher-by-parameter|push-voucher-by-member-id')
-            ->only(['index', 'datatable', 'store']);
+        $this->middleware('permission:push-voucher-log')->only(['index', 'datatable', 'store']);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);

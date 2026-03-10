@@ -140,18 +140,44 @@ class TierController extends Controller
      * GET /admin/tiers/get-sub-groups?main_name=XXX
      * Returns distinct InterestGroupName for given main name
      */
-    public function getSubGroups(Request $request)
-    {
-        $main = $request->get('main_name');
+    // public function getSubGroups(Request $request)
+    // {
+    //     $main = $request->get('main_name');
 
-        $subGroups = MemberBasicDetailIG::select('InterestGroupName')
-            ->where('InterestGroupMainName', $main)
-            ->distinct()
-            ->orderBy('InterestGroupName')
-            ->pluck('InterestGroupName');
+    //     $subGroups = MemberBasicDetailIG::select('InterestGroupName')
+    //         ->where('InterestGroupMainName', $main)
+    //         ->distinct()
+    //         ->orderBy('InterestGroupName')
+    //         ->pluck('InterestGroupName');
 
-        return response()->json(['status' => 'success', 'data' => $subGroups]);
+    //     return response()->json(['status' => 'success', 'data' => $subGroups]);
+    // }
+   public function getSubGroups(Request $request)
+{
+    $main = $request->get('main_name');
+
+    $query = MemberBasicDetailIG::select(
+        'InterestGroupMainName',
+        'InterestGroupName'
+    );
+
+    if (is_array($main)) {
+        $query->whereIn('InterestGroupMainName', $main);
+    } else {
+        $query->where('InterestGroupMainName', $main);
     }
+
+    $data = $query
+        ->distinct()
+        ->orderBy('InterestGroupMainName')
+        ->orderBy('InterestGroupName')
+        ->get();
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $data
+    ]);
+}
 
     /**
      * GET /admin/tiers/get-member-types

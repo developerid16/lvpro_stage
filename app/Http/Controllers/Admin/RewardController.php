@@ -4,28 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
+use App\Models\API\GetSRPMerchandiseItemList;
 use App\Models\Category;
 use App\Models\ClubLocation;
-use App\Models\ContentManagement;
-use App\Models\Location;
 use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
 use App\Models\ParticipatingMerchantLocation;
-use App\Models\PartnerCompany;
 use App\Models\Reward;
-use App\Models\RewardDates;
 use App\Models\RewardLocation;
 use App\Models\RewardTierRate;
 use App\Models\RewardVoucher;
 use App\Models\Tier;
-use App\Models\UserPurchasedReward;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
 use App\Models\CustomLocation;
@@ -66,6 +61,8 @@ class RewardController extends Controller
         $this->layout_data['category'] = Category::get();
         $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
 
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
+
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
         $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
 
@@ -96,7 +93,7 @@ class RewardController extends Controller
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
-            $final_data[$key]['amount'] = number_format($row->usual_price);
+            $final_data[$key]['amount'] = number_format($row->usual_price, 2);
 
             $final_data[$key]['quantity'] = max(0, (int) $total_quantity);
 
@@ -111,20 +108,7 @@ class RewardController extends Controller
             $final_data[$key]['redeemed'] = max(0, $redeemed);
 
             $duration = $row->created_at->format(config('safra.date-format'));
-             $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
-            // if (!empty($row->voucher_image)) {
-            //     $imgUrl = asset("uploads/image/{$row->voucher_image}");
-
-            //     $final_data[$key]['image'] = '
-            //         <a href="'.$imgUrl.'" target="_blank">
-            //             <img src="'.$imgUrl.'"
-            //                 class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle"
-            //                 alt="Voucher Image">
-            //         </a>';
-            // } else {
-            //     $imgUrl = asset("uploads/image/no-image.png");
-            //     $final_data[$key]['image'] = '<img src="'.$imgUrl.'"class="avatar-sm me-3 mx-lg-auto mb-3 mt-1 float-start float-lg-none rounded-circle" alt="Voucher Image">'; // nothing shown
-            // }
+            $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
            
             $start = $row->publish_start_date;
             $end   = $row->publish_end_date;
@@ -152,87 +136,103 @@ class RewardController extends Controller
             $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
             $final_data[$key]['status'] = $row->status;
 
+          
+
+           $now = Carbon::now();
+
+            /* ---------------- DRAFT OVERRIDE ---------------- */
+            if (
+                $row->is_draft == 1 &&
+                !RewardUpdateRequest::where('reward_id', $row->id)->exists()
+            ) {
+                $status = '-';
+            } else {
+
+                $salesStart = ($row->sales_start_date && $row->sales_start_time)
+                    ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
+                    : null;
+
+                $salesEnd = ($row->sales_end_date && $row->sales_end_time)
+                    ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
+                    : null;
+
+                $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
+                    ->where('status', 'approve')
+                    ->exists();
+
+                $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
+                    ->where('status', 'pending')
+                    ->exists();
+
+                    /*
+                    FINAL PRIORITY
+                    1. Expired
+                    2. Pending approval
+                    3. Approved (ONLY if start date is future)
+                    4. Active
+                    */
+
+                    // 1. EXPIRED
+                    if (
+                        ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                        ($salesEnd && $now->gt($salesEnd))
+                    ) {
+                        $status = 'expired';
+                    }
+
+                    // 2. PENDING APPROVAL
+                    elseif ($hasPending) {
+                        $status = 'pending approval';
+                    }
+
+                    // 3. APPROVED (only if sales not started yet)
+                    elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                        $status = 'approved';
+                    }
+
+                    // 4. ACTIVE (approved OR not, but within window)
+                    elseif (
+                        (!$salesStart || $now->gte($salesStart)) &&
+                        (!$salesEnd || $now->lte($salesEnd))
+                    ) {
+                        $status = 'active';
+                    }
+
+                    // SAFETY
+                    else {
+                        $status = 'Upcoming';
+                    }
+            }
+            
+            $final_data[$key]['status'] = $status;
+
             $action = "<div class='d-flex gap-3'>";
+
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+
+                if ($status == 'pending approval') {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='text-muted' 
+                                    style='cursor:not-allowed;' 
+                                    title='Editable only after approval'>
+                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                                </a>";
+
+                } else {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='edit' 
+                                    data-id='$row->id'
+                                    title='Edit'>
+                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                                </a>";
+                }
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
-
-           $now = Carbon::now();
-
-    /* ---------------- DRAFT OVERRIDE ---------------- */
-    if (
-        $row->is_draft == 1 &&
-        !RewardUpdateRequest::where('reward_id', $row->id)->exists()
-    ) {
-        $status = '-';
-    } else {
-
-        $salesStart = ($row->sales_start_date && $row->sales_start_time)
-            ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
-            : null;
-
-        $salesEnd = ($row->sales_end_date && $row->sales_end_time)
-            ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
-            : null;
-
-        $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
-            ->where('status', 'approve')
-            ->exists();
-
-        $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
-            ->where('status', 'pending')
-            ->exists();
-
-            /*
-            FINAL PRIORITY
-            1. Expired
-            2. Pending approval
-            3. Approved (ONLY if start date is future)
-            4. Active
-            */
-
-            // 1. EXPIRED
-            if (
-                ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
-                ($salesEnd && $now->gt($salesEnd))
-            ) {
-                $status = 'expired';
-            }
-
-            // 2. PENDING APPROVAL
-            elseif ($hasPending) {
-                $status = 'pending approval';
-            }
-
-            // 3. APPROVED (only if sales not started yet)
-            elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
-                $status = 'approved';
-            }
-
-            // 4. ACTIVE (approved OR not, but within window)
-            elseif (
-                (!$salesStart || $now->gte($salesStart)) &&
-                (!$salesEnd || $now->lte($salesEnd))
-            ) {
-                $status = 'active';
-            }
-
-            // SAFETY
-            else {
-                $status = 'Upcoming';
-            }
-        }
-
-
-
-            $final_data[$key]['status'] = $status;
-            // if ($type === 'campaign-voucher') {
-            // $url = url("admin/campaign-voucher-assign/$row->id");
-            // $action .= "<a href='$url' title='Assign voucher to users.' ><i class='mdi mdi-card text-info action-icon font-size-18'></i></a>";
-            // }
+          
             $final_data[$key]['action'] = $action . "</div>";
         }
         $data          = [];
@@ -528,7 +528,7 @@ class RewardController extends Controller
                         }
                     ],
         
-                    'usual_price'        => 'required|numeric|min:0',
+                    'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],
                    
                     'publish_start'    => 'required|date',
                     'publish_end'      => 'required|date|after_or_equal:publish_start',
@@ -538,6 +538,8 @@ class RewardController extends Controller
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
                     'send_reminder'      => 'required|boolean',
+                    'ax_item_code'      => 'required',
+
                     'max_quantity_physical' => 'required_if:reward_type,1|integer|min:1',
                     'max_quantity_digital' => 'required_if:reward_type,0|integer|min:1',
                     'inventory_type'       => 'required_if:reward_type,0|in:0,1',
@@ -588,7 +590,7 @@ class RewardController extends Controller
                     'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
                     'max_quantity_physical.required_if' => 'Max quantity is required',
                     'max_quantity_digital.required_if' => 'Max quantity is required',
-                    'inventory_type.required_if'       => 'Inventory type is required',
+                    'inventory_type.required_if'       => 'Internal/External is required',
                     'voucher_value.required_if'        => 'Voucher value is required',
                     'clearing_method.required_if'      => 'Clearing method is required',
 
@@ -1053,6 +1055,7 @@ class RewardController extends Controller
                 ->value('name');
         }
         $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
 
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
@@ -1444,17 +1447,14 @@ class RewardController extends Controller
                         }
                     }
                 ],
-                'usual_price' => 'required|numeric|min:0',
-
-                
+                'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
                 'publish_end'      => 'required|date|after_or_equal:publish_start',
                 'sales_start'   => 'required|date|after_or_equal:publish_start',
                 'sales_end'        => 'required|date|after_or_equal:sales_start',
-
-
                 'low_stock_1' => 'nullable|integer|min:0',
                 'low_stock_2' => 'nullable|integer|min:0',
+                'ax_item_code'      => 'required',
             ];
 
             $messages = [
@@ -1549,6 +1549,7 @@ class RewardController extends Controller
 
                 /* Inventory Type Based */
                 $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
+                $messages['inventory_qty.required_if'] = 'Internal/External is required';
 
                 /* Clearing Method Based */
                 if ($clearingMethod === 2) {
@@ -1760,6 +1761,7 @@ class RewardController extends Controller
                             'type'      => '0',
                         ],
                         [
+                            'is_draft'             => 0, 
                             'cso_method'          => (int) ($request['cso_method'] ?? 0),
                             'request_by'          => auth()->id(),
                             'voucher_image'       => $validated['voucher_image'] ?? $reward->voucher_image,
@@ -1825,6 +1827,7 @@ class RewardController extends Controller
                             'is_featured' => $request->boolean('is_featured'),
                         ]
                     );
+                    $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
     
     
                     if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {

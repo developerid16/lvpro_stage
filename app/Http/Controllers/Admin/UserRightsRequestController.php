@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Mail\NewAdminRegister;
 use App\Models\User;
 use App\Models\UserAccessRequest;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;

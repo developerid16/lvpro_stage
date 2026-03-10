@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
 use App\Http\Controllers\Admin\EvoucherStockController;
-use App\Http\Controllers\Admin\RewardUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -25,11 +25,11 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\CampaignVoucherGroupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClubLocationController;
-use App\Http\Controllers\Admin\CsoIssuanceController;
 use App\Http\Controllers\Admin\CsoIssuanceFreeController;
 use App\Http\Controllers\Admin\CsoIssuancePaidController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\EvoucherApprovalController;
 use App\Http\Controllers\Admin\FabsController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\TransactionHistoryController;
 use App\Http\Controllers\Admin\TreatsDealsStockController;
+use App\Http\Controllers\Admin\TreatsAndDealsApprovalController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
@@ -102,28 +103,29 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('user-rights/datatable', [UserRightsRequestController::class, 'datatable']);
     Route::resource('user-rights', UserRightsRequestController::class);
 
-    Route::post('reward-update-request/{id}/reject', [RewardUpdateRequestController::class, 'reject']);
-    Route::get('reward-update-request/datatable', [RewardUpdateRequestController::class, 'datatable']);
-    Route::get('reward-update-request/{id}', [RewardUpdateRequestController::class, 'show']);
-    Route::post('reward-update-request/approve', action: [RewardUpdateRequestController::class, 'approve']);
-    Route::resource('reward-update-request', RewardUpdateRequestController::class);
+    Route::post('evoucher-approval/{id}/reject', [EvoucherApprovalController::class, 'reject']);
+    Route::get('evoucher-approval/datatable', [EvoucherApprovalController::class, 'datatable']);
+    Route::get('evoucher-approval/{id}', [EvoucherApprovalController::class, 'show']);
+    Route::post('evoucher-approval/approve', action: [EvoucherApprovalController::class, 'approve']);
+    Route::resource('evoucher-approval', EvoucherApprovalController::class);
+
+    Route::post('birthday-voucher-approval/{id}/reject', [BirthdayVoucherApprovalController::class, 'reject']);
+    Route::get('birthday-voucher-approval/datatable', [BirthdayVoucherApprovalController::class, 'datatable']);
+    Route::get('birthday-voucher-approval/{id}', [BirthdayVoucherApprovalController::class, 'show']);
+    Route::post('birthday-voucher-approval/approve', action: [BirthdayVoucherApprovalController::class, 'approve']);
+    Route::resource('birthday-voucher-approval', BirthdayVoucherApprovalController::class);
+
+    Route::post('treats-and-deals-approval/{id}/reject', [TreatsAndDealsApprovalController::class, 'reject']);
+    Route::get('treats-and-deals-approval/datatable', [TreatsAndDealsApprovalController::class, 'datatable']);
+    Route::get('treats-and-deals-approval/{id}', [TreatsAndDealsApprovalController::class, 'show']);
+    Route::post('treats-and-deals-approval/approve', action: [TreatsAndDealsApprovalController::class, 'approve']);
+    Route::resource('treats-and-deals-approval', TreatsAndDealsApprovalController::class);
 
     Route::get('/send-sms', [App\Http\Controllers\HomeController::class, 'emailSend']);
 
     Route::get('roles/datatable', [RoleController::class, 'datatable']);
     Route::resource('roles', RoleController::class);
 
-
-    
-
-    Route::get('reward-redemption/datatable', [RewardRedemptionController::class, 'datatable']);
-    Route::post('reward-redemption-delete', [RewardRedemptionController::class, 'deleteReward']);
-    Route::post('reward-redemption-change-date', [RewardRedemptionController::class, 'changeDateReward']);
-    Route::resource('redemption-reward', RewardRedemptionController::class);
-
-    Route::get('reward-redemption-pos/datatable', [RewardRedemptionController::class, 'datatablePOS']);
-    Route::get('reward-redemption-pos', [RewardRedemptionController::class, 'posIndex']);
-    Route::resource('redemption-reward-pos', RewardRedemptionController::class);
 
 
  Route::get('app-user/show/{id}', [AppUserController::class, 'show'])
@@ -206,12 +208,6 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('learn-more-page', [ContentManagementController::class, 'learnIndex']);
     Route::post('learn-more-page', [ContentManagementController::class, 'learnUpdate'])->name('learn.store');
  
-    // inside admin route group OR top-level, depending on your app
-    // Route::get('tiers/datatable', [TierController::class, 'datatable'])->name('admin.tiers.datatable');
-    // Route::resource('tiers', TierController::class);
-    // Route::post('tiers/update', [TierController::class, 'update'])->name('tiers.update');
-    // Route::post('tiers-milestone/save', [TierController::class, 'milestoneSave'])->name('tiers.milestone.save');
-
     Route::prefix('tiers')->name('admin.tiers.')->group(function () {
 
         // Main CRUD

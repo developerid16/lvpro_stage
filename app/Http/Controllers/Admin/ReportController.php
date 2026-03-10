@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\SaleReportExport;
 use App\Http\Controllers\Controller;
 use App\Jobs\CustomerReport;
-use App\Jobs\NotifyUserOfCompletedExportReport;
 use App\Jobs\SalesReport;
 use App\Models\AppUser;
 use App\Models\ReportJob;
@@ -16,7 +14,6 @@ use App\Models\KeyPassbookDebit;
 use App\Models\UserPurchasedReward;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
 
 class ReportController extends Controller

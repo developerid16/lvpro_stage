@@ -17,7 +17,6 @@ use App\Models\Master\MasterZone;
 use App\Models\Merchant;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
-use App\Models\Evoucher;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\PushVoucherLog;
 use App\Models\PushVoucherMember;
@@ -25,7 +24,6 @@ use App\Models\Reward;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\RewardVoucher;
-use App\Models\UserPurchasedReward;
 use App\Models\UserWalletVoucher;
 use App\Models\VoucherLog;
 use Illuminate\Http\Request;
@@ -232,7 +230,25 @@ class EvoucherController extends Controller
 
             $action = "<div class='d-flex gap-3'>";
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+
+                if ($status == 'pending approval') {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='text-muted' 
+                                    style='cursor:not-allowed;' 
+                                    title='Editable only after approval'>
+                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                                </a>";
+
+                } else {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='edit' 
+                                    data-id='$row->id'
+                                    title='Edit'>
+                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                                </a>";
+                }
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
@@ -495,6 +511,7 @@ class EvoucherController extends Controller
     
                 $messages = [
                      // Voucher Name
+                    'inventory_type.required' => 'Internal/External is required.',
                     'name.required' => 'Voucher name is required.',
                     'name.string'   => 'Voucher name must be valid text.',
                     'name.max'      => 'Voucher name may not be greater than 191 characters.',
@@ -522,8 +539,6 @@ class EvoucherController extends Controller
                     'publish_end.required'        => 'Publish end date & time is required.',
                     'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
                     'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
-
-
                     
                     'set_qty.required' => 'Voucher set quantity is required.',
                     'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -1165,6 +1180,7 @@ class EvoucherController extends Controller
             ];
 
             $messages = [
+                'inventory_type.required' => 'Internal/External is required.',
                  // Publish Start
                 'publish_start.required' => 'Publish start date & time is required.',
                 'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
@@ -1423,6 +1439,7 @@ class EvoucherController extends Controller
                 'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                 'is_featured' => $request->boolean('is_featured'),
                 'csvFile'             => $reward->csvFile ?? 0,
+                'is_draft'             => 0, 
             ];
 
             $updateRequest = RewardUpdateRequest::updateOrCreate(
@@ -1430,10 +1447,12 @@ class EvoucherController extends Controller
                     'reward_id' => $reward->id,
                     'type'    => '1',
                     'status'    => 'pending',
+                  
                 ],
                 $data
             );
 
+            $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
                 /* ---------------------------------------------------
             * 7) UPDATE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/

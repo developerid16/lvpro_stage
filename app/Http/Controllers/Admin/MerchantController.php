@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchant;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-   use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Validator;
 
 class MerchantController extends Controller
 {

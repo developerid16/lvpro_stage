@@ -1,5 +1,5 @@
 <script>
-     $(document).on('shown.bs.modal', '#EditModal', function () {
+    $(document).on('shown.bs.modal', '#EditModal', function () {
         initFlatpickr(this);        
     });
 
@@ -8,10 +8,45 @@
             modal,
             'input[name="start_date"]',
             'input[name="end_date"]'
-        );      
+        );
+
+        // Store original values when modal opens
+        const form = $(modal).find('form')[0];
+        const originalValues = {};
+
+        $(form).find('input, select').each(function() {
+            const name = $(this).attr('name');
+            if (name) {
+                originalValues[name] = $(this).val();
+            }
+        });
+
+        // Intercept reset button
+        $(modal).find('button[type="reset"]').off('click.flatpickrReset').on('click.flatpickrReset', function(e) {
+            e.preventDefault(); // Stop native reset
+
+            // Restore ALL fields to their original server values
+            $(form).find('input, select').each(function() {
+                const name = $(this).attr('name');
+                if (this.type === 'hidden') return; // skip hidden inputs
+                if (name && originalValues[name] !== undefined) {
+                    $(this).val(originalValues[name]);
+                }
+            });
+
+            // Restore Flatpickr date pickers to original values
+            const startInput = $(form).find('input[name="start_date"]')[0];
+            const endInput   = $(form).find('input[name="end_date"]')[0];
+
+            if (startInput && startInput._flatpickr) {
+                startInput._flatpickr.setDate(originalValues['start_date'], true);
+            }
+            if (endInput && endInput._flatpickr) {
+                endInput._flatpickr.setDate(originalValues['end_date'], true);
+            }
+        });
     }
 
-   
 </script>
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">

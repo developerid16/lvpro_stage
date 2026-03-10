@@ -62,6 +62,23 @@
 
     
     $('#AddModal').on('shown.bs.modal', function () {
+        let modal = $(this);
+        let form  = modal.find('form')[0];
+
+        if (form) {
+            form.reset(); // reset full form
+        }
+
+        // clear text + number inputs
+        modal.find('input[type="text"], input[type="number"], textarea').val('');
+
+        // reset selects
+        modal.find('select').prop('selectedIndex', 0).trigger('change');
+
+        // clear file inputs
+        modal.find('input[type="file"]').val('');
+
+
 
         let preview = $(this).find('#logo_preview');
         let clearBtn = $(this).find('#clear_logo_preview');

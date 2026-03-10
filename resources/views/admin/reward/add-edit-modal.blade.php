@@ -3,6 +3,13 @@
 @endphp
 
 <script>
+    $('.select2').select2({
+        dropdownParent: $('#AddModel'),
+        placeholder: "Select AX Item Code",
+        width: '100%',
+    });
+
+
 
     // when file selected (ADD or EDIT)
     $(document).on('change', '#EditModal #csvFile', function () {
@@ -22,6 +29,12 @@
     });
 
     $(document).on('shown.bs.modal', '#EditModal', function () {
+        let modal = $(this).closest('.modal');
+        // ✅ STEP 1: Save original values for reset restoration
+        modal.find('input, select, textarea').each(function () {
+            $(this).data('originalValue', $(this).val());
+        });
+        
         initTinyMCE();
         
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
@@ -29,7 +42,6 @@
         let rewardType = $('#EditModal .reward_type').val();
         
         let merchantId = $('#EditModal #merchant_id').val();
-        let modal = $(this).closest('.modal');
         initFlatpickrDate(this);    
         $(".max_order").hide();
         $("#common_section").show();
@@ -522,7 +534,15 @@
                         <div class="col-12 col-md-6 ">
                             <div class="mb-3">
                                 <label class="sh_dec" for="usual_price">Usual Price($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
-                                <input id="usual_price" type="number" min="0" class="sh_dec form-control" name="usual_price"  placeholder="Enter Usual Price" value="{{ $data->usual_price ?? '' }}">
+                                <input 
+                                    id="usual_price"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    class="sh_dec form-control"
+                                    name="usual_price"
+                                    placeholder="Enter Usual Price"
+                                    value="{{ $data->usual_price ?? '' }}">                            
                             </div>
                         </div>
 
@@ -581,11 +601,11 @@
                                
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_type">Inventory Type (Total) <span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>
                                         <select class="sh_dec form-select inventory_type" name="inventory_type">
-                                            <option class="sh_dec" value="">Select Voucher Type</option>
-                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}> Non Merchant</option>
-                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}> Merchant</option>
+                                            <option class="sh_dec" value="">Select Internal/External</option>
+                                            <option class="sh_dec" value="1" {{ isset($data->inventory_type) && $data->inventory_type == '1' ? 'selected' : '' }}>External</option>
+                                            <option class="sh_dec" value="0" {{ isset($data->inventory_type) && $data->inventory_type == '0' ? 'selected' : '' }}>Internal</option>
                                         </select>
                                     </div>
                                 </div>
@@ -639,7 +659,7 @@
 
                                             <option class="sh_dec" value="">Select Clearing Method</option>
                                             <option class="sh_dec" value="0" {{ isset($data->clearing_method) && $data->clearing_method == '0' ? 'selected' : '' }}>
-                                                QR
+                                                QR Code
                                             </option>                                            
                                             <option class="sh_dec" value="1" {{ isset($data->clearing_method) && $data->clearing_method == '1' ? 'selected' : '' }}>
                                                 Barcode 
@@ -783,13 +803,25 @@
                                 </div>
                             </div>
 
+                            
                             <!-- AX Item Code -->
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">AX Item Code</label>
+                                <label class="col-md-4 fw-bold">AX Item Code <span class="required-hash">*</span></label>
                                 <div class="col-md-6">
-                                    <input type="text" name="ax_item_code" class="form-control readonly" readonly  value="{{ $data->ax_item_code ?? '' }}">
+                                    <select class="form-select select2" name="ax_item_code">
+                                        <option value="">Select AX Item Code</option>
+                                        @if (isset($getSRPMerchandiseItemList))                                        
+                                            @foreach ($getSRPMerchandiseItemList as $val)
+                                                <option value="{{ $val->item_id }}" {{ isset($data) && $data->ax_item_code == $val->item_id ? 'selected' : '' }}>
+                                                    {{ $val->item_id }} - {{ $val->item_name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    {{-- <input type="text" name="ax_item_code" class="form-control readonly" readonly  value="{{ $data->ax_item_code ?? '' }}"> --}}
                                 </div>
                             </div>
+
 
                             <!-- Publish Channel -->
                             <div class="row align-items-center mb-3">

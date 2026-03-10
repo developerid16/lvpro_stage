@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use App\Models\PaymentTransaction;
-use App\Models\Purchase;
 use App\Models\PushVoucherLog;
 use App\Models\PushVoucherMember;
 use App\Models\RewardVoucher;
@@ -16,7 +15,6 @@ use App\Models\UserWalletVoucher;
 use App\Models\VoucherLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 

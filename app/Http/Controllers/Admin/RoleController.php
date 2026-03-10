@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Helpers\AdminLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
-use DB;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;

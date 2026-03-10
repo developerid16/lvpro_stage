@@ -241,7 +241,7 @@
                     if (response.status) {
                         // $switch.prop('checked', !isChecked);
                         show_message(response.status, response.message);
-                        // location.reload();
+                        location.reload();
                     }
                 },
                 error: function () {
@@ -249,6 +249,51 @@
                     show_message(false, 'Server error');
                 }
             });
+
+        });
+        
+        originalQty = parseInt($('#purchased_qty').text()) || 0;
+        $('#proceedAdjustment').addClass('d-none'); // hide initially
+        $('#locationProceedAdjustment').addClass('d-none'); // hide initially
+        
+        $(document).on('click', '.location-plus', function () {
+
+            let row   = $(this).closest('tr');
+            let input = row.find('.location-qty');
+
+            let originalQty = parseInt(row.find('.loc_inventory_qty').text()) || 0;
+            let value       = parseInt(input.val()) || 0;
+
+            value += 1;
+            input.val(value);
+
+            // enable minus if greater than original
+            if (value > originalQty) {
+                row.find('.location-minus').prop('disabled', false);
+            }
+
+            $('#locationProceedAdjustment').removeClass('d-none');
+        });
+
+
+        $(document).on('click', '.location-minus', function () {
+
+            let row   = $(this).closest('tr');
+            let input = row.find('.location-qty');
+
+            let originalQty = parseInt(row.find('.loc_inventory_qty').text()) || 0;
+            let value       = parseInt(input.val()) || 0;
+
+            if (value > originalQty) {
+                value -= 1;
+                input.val(value);
+            }
+
+            // disable minus if reached original qty
+            if (value === originalQty) {
+                row.find('.location-minus').prop('disabled', true);
+                $('#locationProceedAdjustment').addClass('d-none');
+            }
 
         });
 
@@ -282,7 +327,7 @@
                 <tr data-location-id="${location.id}">
                     <td>${location.name}</td>
                     <td>
-                        <span class="badge bg-primary fs-6">${location.inventory_qty}</span>
+                        <span class="badge bg-primary fs-6 loc_inventory_qty">${location.inventory_qty}</span>
                     </td>
                     <td>
                         <span class="badge bg-info fs-6">${location.current_qty}</span>
@@ -316,44 +361,48 @@
 
 
         $('#qty_plus_action, #qty_minus_action').on('click', function () {
+            originalQty = parseInt($('#purchased_qty').text()) || 0;
 
-            selectedType = $(this).val(); // plus or minus
+            selectedType = $(this).val();
 
             let currentQty = parseInt($('#adjust_qty').val()) || 0;
 
             if (selectedType === 'plus') {
+
                 currentQty += 1;
+
+                // allow minus when qty greater than original
+                if (currentQty > originalQty) {
+                    $('#qty_minus_action').prop('disabled', false);
+                }
+
             } else {
-                if (currentQty > 1) {
+
+                if (currentQty > originalQty) {
                     currentQty -= 1;
+                }              
+                
+                // disable minus when reached original qty
+                if (currentQty === originalQty) {
+                    $('#qty_minus_action').prop('disabled', true);
                 }
             }
 
             $('#adjust_qty').val(currentQty);
 
-            // Active styling
+            // show submit if changed
+            if (currentQty !== originalQty) {
+                $('#proceedAdjustment').removeClass('d-none');
+            } else {
+                $('#proceedAdjustment').addClass('d-none');
+            }
+
+            // active button styling
             $('#qty_plus_action, #qty_minus_action').removeClass('active');
             $(this).addClass('active');
         });
 
-        $(document).on('click', '.location-plus', function () {
-
-            let input = $(this).closest('tr').find('.location-qty');
-            let value = parseInt(input.val()) || 0;
-            input.val(value + 1);
-        });
-
-        $(document).on('click', '.location-minus', function () {
-
-            let input = $(this).closest('tr').find('.location-qty');
-            let value = parseInt(input.val()) || 0;
-
-            if (value > 1) {
-                input.val(value - 1);
-            }
-        });
-
-
+       
         $(document).on('click', '.stock-adjustment', function () {
 
             let rewardId   = $(this).data('id');

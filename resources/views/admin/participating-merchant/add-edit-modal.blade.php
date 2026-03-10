@@ -35,16 +35,29 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>Department <span class="required-hash"></span></label>
-                                <select name="department_id" class="form-select">
-                                    <option value="">Select Department</option>
-                                    @foreach($departments as $department)
-                                        <option value="{{ $department->id }}"
-                                            {{ isset($data) && $data->department_id == $department->id ? 'selected' : '' }}>
-                                            {{ $department->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label>Department</label>
+
+                                @if($departments->count() == 1)
+
+                                    <input type="text" class="form-control" 
+                                        value="{{ $departments->first()->name }}" readonly>
+
+                                    <input type="hidden" name="department_id" 
+                                        value="{{ $departments->first()->id }}">
+
+                                @else
+
+                                    <select name="department_id" class="form-select">
+                                        <option value="">Select Department</option>
+                                        @foreach($departments as $department)
+                                            <option value="{{ $department->id }}"
+                                                {{ isset($data) && $data->department_id == $department->id ? 'selected' : '' }}>
+                                                {{ $department->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                @endif
                             </div>
                         </div>
 

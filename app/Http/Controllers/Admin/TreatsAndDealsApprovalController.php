@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Mail\NewAdminRegister;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchantLocation;
 use App\Models\Reward;
@@ -12,28 +11,20 @@ use App\Models\RewardLocation;
 use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
-use App\Models\User;
-use App\Models\UserAccessRequest;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
 
-class RewardUpdateRequestController extends Controller
+class TreatsAndDealsApprovalController extends Controller
 {
     function __construct()
     {
 
-        $this->view_file_path = "admin.reward-update-request.";
-        $permission_prefix = $this->permission_prefix = 'reward-update-request';
+        $this->view_file_path = "admin.treats-and-deals-approval.";
+        $permission_prefix = $this->permission_prefix = 'treats-and-deals-approval';
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title' => 'eVoucher Approval',
-            'module_base_url' => url('admin/reward-update-request')
+            'title' => 'Treats and Deals Approval',
+            'module_base_url' => url('admin/treats-and-deals-approval')
         ];
 
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
@@ -54,7 +45,7 @@ class RewardUpdateRequestController extends Controller
     public function datatable(Request $request)
     {
       
-        $query = RewardUpdateRequest::with('requester')->orderBy('created_at', 'desc');
+        $query = RewardUpdateRequest::with('requester')->where('type','0')->orderBy('created_at', 'desc');
 
         $filters = json_decode($request->get('filter'), true) ?? [];
 
@@ -543,8 +534,8 @@ class RewardUpdateRequestController extends Controller
                     'club_classification_id' => (int) ($update->club_classification_id),
                     'fabs_category_id'       => (int) ($update->fabs_category_id),
                     'smc_classification_id'  => (int) ($update->smc_classification_id),
-                    'ax_item_code'           => (int) ($update->ax_item_code),
-                    'usual_price'         => (int) ($update->usual_price),
+                    'ax_item_code'           => $update->ax_item_code,
+                    'usual_price'         =>$update->usual_price ?? null,
                     
                     'max_quantity'    => (int) ($update->max_quantity ?? 0),
                     'category_id'     => (int) ($update->category_id ?? 0),

@@ -324,27 +324,98 @@
         return parts[0] + ' ' + parts[1];
     }
 
+    // function initFlatpickrDate(context = document) {
+
+    //     context.querySelectorAll('.js-flat-date').forEach(function (el) {
+
+    //         // prevent double init (important for edit modal)
+    //         if (el._flatpickr) {
+    //             el._flatpickr.destroy();
+    //         }
+
+    //         flatpickr(el, {
+    //             dateFormat: 'Y-m-d',   // backend format
+    //             altInput: true,
+    //             altFormat: 'Y-m-d',
+    //             allowInput: true,
+
+    //             onReady(_, __, instance) {
+    //                 // instance.altInput.placeholder = 'yyyy-MM-dd';
+    //             }
+    //         });
+    //     });
+    // }
+
     function initFlatpickrDate(context = document) {
 
-        context.querySelectorAll('.js-flat-date').forEach(function (el) {
+    // Init .js-flat-date pickers
+    context.querySelectorAll('.js-flat-date').forEach(function (el) {
+        if (el._flatpickr) {
+            el._flatpickr.destroy();
+        }
+        flatpickr(el, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'Y-m-d',
+            allowInput: true,
+        });
+    });
 
-            // prevent double init (important for edit modal)
-            if (el._flatpickr) {
-                el._flatpickr.destroy();
+    // Init start/end date pairs
+    bindStartEndFlatpickrEdit(
+        context,
+        'input[name="publish_start"]',
+        'input[name="publish_end"]'
+    );
+    bindStartEndFlatpickrEdit(
+        context,
+        'input[name="sales_start"]',
+        'input[name="sales_end"]'
+    );
+
+    // ✅ STEP 2: Intercept Reset Button
+    const $modal = $(context).closest('.modal').length
+        ? $(context).closest('.modal')
+        : $(context);
+
+    $modal.find('button[type="reset"]').off('click.flatpickrReset').on('click.flatpickrReset', function (e) {
+        e.preventDefault();
+
+        const $form = $modal.find('form');
+
+        // ✅ Restore all normal inputs/selects
+        $form.find('input, select, textarea').each(function () {
+            if (this.type === 'hidden') return;
+
+            // Skip flatpickr's auto-generated altInput (no name attr)
+            if ($(this).hasClass('flatpickr-input') && !$(this).attr('name')) return;
+
+            const original = $(this).data('originalValue');
+            if (original !== undefined) {
+                $(this).val(original);
             }
+        });
 
-            flatpickr(el, {
-                dateFormat: 'Y-m-d',   // backend format
-                altInput: true,
-                altFormat: 'Y-m-d',
-                allowInput: true,
-
-                onReady(_, __, instance) {
-                    // instance.altInput.placeholder = 'yyyy-MM-dd';
-                }
+        // ✅ Restore multi-select (days[]) to original server selected options
+        $form.find('select').each(function () {
+            $(this).find('option').each(function () {
+                this.selected = this.defaultSelected;
             });
         });
-    }
+
+        // ✅ Restore all Flatpickr instances
+        $form.find('input[name]').each(function () {
+            if (this._flatpickr) {
+                const original = $(this).data('originalValue');
+                if (original) {
+                    this._flatpickr.setDate(original, true);
+                } else {
+                    this._flatpickr.clear();
+                }
+            }
+        });
+    });
+}
 
     function safeEnableEndPicker(instance, anchorDate) {
         instance.set('minDate', anchorDate);
@@ -575,7 +646,6 @@
         summary.html(names.map(n => `<div>• ${n}</div>`).join(""));
         wrapper.show();
     }
-
     
     $(document).on("change", ".outlet-checkbox", function () {
 
@@ -631,7 +701,9 @@
         if (method === "2") {
             merchantField.show();
             outletSection.show();
-            modal.find('.inventory_type').val("0").trigger('change');
+            if (modal.find('.inventory_type').val() == "1") {
+                modal.find('.inventory_type').val("0").trigger('change');
+            }            
             // Hide inventory type 1 option
             // modal.find('.inventory_type option[value="1"]').hide();
         } else {
@@ -661,7 +733,9 @@
         // 🔒 If clearing = 2 → inventory 1 not allowed
         if (method === 2) {
             // modal.find('.inventory_type option[value="1"]').hide();
-            modal.find('.inventory_type').val("0").trigger('change');
+            if (modal.find('.inventory_type').val() == "1") {
+                modal.find('.inventory_type').val("0").trigger('change');
+            } 
         } else {
             // modal.find('.inventory_type option[value="1"]').show();
         }
@@ -722,9 +796,9 @@
             fileField.hide();
             fileField.find("input").val("");
 
-            clearing.find('option[value="3"], option[value="4"]').hide();
+            clearing.find('option[value="3"]').hide();
 
-            if (clearing.val() === "3" || clearing.val() === "4") {
+            if (clearing.val() === "3") {
                 clearing.val('');
             }
 
@@ -765,8 +839,8 @@
             fileField.hide();
             fileField.find("input").val(""); // clear
             modal.find('#clearing_method option[value="2"]').show();
-            clearing.find('option[value="3"], option[value="4"]').hide();
-            if (clearing.val() === "3" || clearing.val() === "4") {
+            clearing.find('option[value="3"]').hide();
+            if (clearing.val() === "3") {
                 clearing.val('');
             }
         } else {
@@ -849,161 +923,6 @@
     }
 
  
-    // function initTinyMCE(context = document) {
-    //     if (typeof tinymce === 'undefined') return;
-    
-    //     // remove existing editors (important for edit modal)
-    //     tinymce.remove(context.querySelectorAll('textarea.wysiwyg'));
-    
-    //     tinymce.init({
-    //         selector: "textarea.wysiwyg",
-    //         height: 200,
-    //         valid_elements: '*[*]',
-    //         relative_urls: false,
-    //         remove_script_host: false,
-    //         convert_urls: true,
-    //         forced_root_block: false,
-    //         entity_encoding: 'raw',
-    
-    //         setup: function (editor) {
-    //             editor.on('keydown', function (e) {
-    //                 const text = editor.getContent({ format: 'text' });
-    
-    //                 if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-    //                     e.preventDefault();
-    //                 }
-    //             });
-    //         },
-    
-    //         images_upload_url: '{{ url("admin/image-upload-editor") }}',
-    //         images_upload_base_path: "{{ asset('images') }}/",
-    
-    //         plugins: [
-    //             "advlist autolink link image lists charmap preview hr anchor",
-    //             "searchreplace wordcount visualblocks code fullscreen",
-    //             "table emoticons"
-    //         ],
-    
-    //         toolbar:
-    //             "undo redo | styleselect | bold italic | " +
-    //             "alignleft aligncenter alignright alignjustify | " +
-    //             "bullist numlist outdent indent | link image | code",
-    //             style_formats: [{
-    //                 title: 'Bold text',
-    //                 inline: 'b'
-    //             },
-    //             {
-    //                 title: 'Red text',
-    //                 inline: 'span',
-    //                 styles: {
-    //                     color: '#ff0000'
-    //                 }
-    //             },
-    //             {
-    //                 title: 'Red header',
-    //                 block: 'h1',
-    //                 styles: {
-    //                     color: '#ff0000'
-    //                 }
-    //             },
-    //             {
-    //                 title: 'Example 1',
-    //                 inline: 'span',
-    //                 classes: 'example1'
-    //             },
-    //             {
-    //                 title: 'Example 2',
-    //                 inline: 'span',
-    //                 classes: 'example2'
-    //             },
-    //             {
-    //                 title: 'Table styles'
-    //             },
-    //             {
-    //                 title: 'Table row 1',
-    //                 selector: 'tr',
-    //                 classes: 'tablerow1'
-    //             }
-    //         ]
-    //     });
-    // }    
-    
-    // function initEditor() {
-    //     if (typeof tinymce === 'undefined') return;
-                
-    //     tinymce.init({
-    //         selector: "textarea.wysiwyg",
-    //         height: 200,
-    //         valid_elements: '*[*]',
-    //         relative_urls: false,
-    //         remove_script_host: false,
-    //         convert_urls: true,
-    //         forced_root_block: false,
-    //         entity_encoding: 'raw',
-    
-    //         setup: function (editor) {
-    //             editor.on('keydown', function (e) {
-    //                 const text = editor.getContent({ format: 'text' });
-    
-    //                 if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-    //                     e.preventDefault();
-    //                 }
-    //             });
-    //         },
-    
-    //         images_upload_url: '{{ url("admin/image-upload-editor") }}',
-    //         images_upload_base_path: "{{ asset('images') }}/",
-    
-    //         plugins: [
-    //             "advlist autolink link image lists charmap print preview hr anchor pagebreak",
-    //             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media",
-    //             "save table directionality emoticons template textcolor"
-    //         ],
-    
-    //         toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
-    //         style_formats: [{
-    //                 title: 'Bold text',
-    //                 inline: 'b'
-    //             },
-    //             {
-    //                 title: 'Red text',
-    //                 inline: 'span',
-    //                 styles: {
-    //                     color: '#ff0000'
-    //                 }
-    //             },
-    //             {
-    //                 title: 'Red header',
-    //                 block: 'h1',
-    //                 styles: {
-    //                     color: '#ff0000'
-    //                 }
-    //             },
-    //             {
-    //                 title: 'Example 1',
-    //                 inline: 'span',
-    //                 classes: 'example1'
-    //             },
-    //             {
-    //                 title: 'Example 2',
-    //                 inline: 'span',
-    //                 classes: 'example2'
-    //             },
-    //             {
-    //                 title: 'Table styles'
-    //             },
-    //             {
-    //                 title: 'Table row 1',
-    //                 selector: 'tr',
-    //                 classes: 'tablerow1'
-    //             }
-    //         ]
-    //     });
-    
-    
-    // }
-
-   
     function initTinyMCE() {
 
     if (typeof tinymce === 'undefined') return;
@@ -1368,7 +1287,7 @@
 
     $(document).on('input', 'input[type="number"]', function () {
 
-        let maxLength = 7; // change if needed
+        let maxLength = 6; // change if needed
 
         if (this.value.length > maxLength) {
             this.value = this.value.slice(0, maxLength);
