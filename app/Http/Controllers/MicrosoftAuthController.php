@@ -156,10 +156,14 @@ class MicrosoftAuthController extends Controller
         if (!$user) {
             Log::info('User not found in database', ['email' => $email]);
             
-            return redirect('/user-rights-form')
-                ->with('pending_email', $email)
-                ->with('pending_name', $profile['displayName'] ?? '')
-                ->withErrors(['access' => 'Your account was not found. Please request access.']);
+            return redirect()->route('login')
+                ->withErrors([
+                    'microsoft' => 'User Access Disabled. Please contact the ccc@gmail.com'
+                ]);
+            // return redirect('/user-rights-form')
+            //     ->with('pending_email', $email)
+            //     ->with('pending_name', $profile['displayName'] ?? '')
+            //     ->withErrors(['access' => 'Your account was not found. Please request access.']);
         }
 
         /* ===== STEP 8.1: CHECK ROLE ASSIGNED ===== */
