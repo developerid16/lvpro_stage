@@ -262,7 +262,7 @@
         let locationSection = modal.find('#location_section');
         let locationWrapper = modal.find('#location_wrapper');
 
-        locationWrapper.html("");
+        // locationWrapper.html("");
 
         if (rewardType == "1" && merchantId) {
             locationSection.show();
