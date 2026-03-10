@@ -46,7 +46,8 @@ use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MicrosoftAuthController;
 use Illuminate\Support\Facades\Artisan;
-
+use App\Services\SafraAPIService;
+use App\Models\API\GetSRPMerchandiseItemList;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -57,6 +58,40 @@ use Illuminate\Support\Facades\Artisan;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::any('/test-srp-data', function () {
+    $safraAPIService = new SafraAPIService(); 
+    $response = $safraAPIService->getMerchandiseItemList();
+    $items = $response['Items'] ?? [];
+
+            if (empty($items)) {
+                $this->warn('No items found from API.');
+                return self::SUCCESS;
+            }
+            foreach ($items as $item) {
+                // DB::table('get_srp_master_list_parameter')->updateOrInsert(
+                //     ['item_id' => (string)$item['ITEMID']],
+                //     [
+                //         'item_name'  => $item['SEARCHNAME'] ?? null,
+                //         'json'       => json_encode($item),
+                //         'updated_at' => now(),
+                //         'created_at' => now(),
+                //     ]
+                // );
+                // dd($item);
+                GetSRPMerchandiseItemList::updateOrCreate(
+                    ['item_id' => $item['ITEMID']],
+                    [
+                        // 'item_name' => $item['ITEMNAME'] ?? null,
+                        'item_name' => $item['SEARCHNAME'] ?? null,
+                        'json'      => json_encode($item), // optional full data
+                        'updated_at'=> now(),
+                    ]
+                );
+            }
+     dd($response);
+});
+
 
 Auth::routes();
 Route::get('/clear', function () {
