@@ -62,11 +62,9 @@
                                                 <input name="email" type="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" id="username" placeholder="Enter Email" autocomplete="email" autofocus>
 
                                                 @if(session()->has('email'))
-
-
-                                                <span class="invalid-feedback d-block" role="alert">
-                                                    <strong>{{ session()->get('email') }}</strong>
-                                                </span>
+                                                    <span class="invalid-feedback d-block" role="alert">
+                                                        <strong>{{ session()->get('email') }}</strong>
+                                                    </span>
 
                                                 @endif
                                             </div>
@@ -100,7 +98,13 @@
                                                 <button class="btn btn-primary waves-effect waves-light" type="submit">Log In</button>
                                                 {{-- <button type="button" class="btn btn-primary waves-effect waves-light mt-2" onclick="login()">Login with Microsoft</button> --}}
 
-                                                    <a href="{{ url('sso-redirect') }}" class="mt-2 btn btn-primary waves-effect waves-light mt-2 text-white">Login with Microsoft</a>
+                                                <a href="{{ url('sso-redirect') }}" class="mt-2 btn btn-primary waves-effect waves-light mt-2 text-white">Login with Microsoft</a>
+                                                 @if(session()->has('microsoft'))
+                                                    <span class="invalid-feedback d-block" role="alert">
+                                                        <strong>{{ session()->get('microsoft') }}</strong>
+                                                    </span>
+
+                                                @endif
                                             </div>
 
                                         </form>
