@@ -204,7 +204,7 @@
             let merchantId = $(this).val();
             let rewardType = $('.reward_type').val();
 
-            $("#location_wrapper").html("");
+            // $("#location_wrapper").html("");
 
             if (rewardType == "1" && merchantId) {
                 // $("#location_section").show();
