@@ -162,6 +162,16 @@ class MicrosoftAuthController extends Controller
                 ->withErrors(['access' => 'Your account was not found. Please request access.']);
         }
 
+        /* ===== STEP 8.1: CHECK ROLE ASSIGNED ===== */
+        if (!$user->roles()->exists()) {
+            Log::warning('User has no roles assigned', ['user_id' => $user->id]);
+
+            return redirect()->route('login')
+                ->withErrors([
+                    'microsoft' => 'Login Successful, but user role is not assigned. Please contact the ccc@gmail.com'
+                ]);
+        }
+
         // ===== STEP 9: UPDATE USER AND LOGIN =====
         $user->update([
             'name' => $profile['displayName'] ?? $user->name,
