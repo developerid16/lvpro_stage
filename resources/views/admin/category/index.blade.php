@@ -40,6 +40,20 @@
     </div>
 </div>
 
+<div class="modal fade" id="rewardModal" data-bs-backdrop="static"
+    data-bs-keyboard="false" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">           
+            <div class="modal-header">
+                <h5 class="sh_sub_title modal-title">Rewards List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="rewardList"></ul>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Create -->
 @can("$permission_prefix-create")
 @include('admin.category.add-edit-modal')

@@ -6,6 +6,7 @@ use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Reward;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
@@ -75,6 +76,9 @@ class CategoryController extends Controller
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
             }
+            $action .= "<a href='javascript:void(0)' class='view_rewards' data-id='{$row->id}'>
+                <i class='mdi mdi-gift text-info action-icon font-size-18'></i>
+            </a>";
             $action .= "
              <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
                             <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
@@ -116,6 +120,15 @@ class CategoryController extends Controller
         return response()->json(['status' => 'success', 'html' => $html]);
     }
 
+
+    public function categoryRewards($id)
+    {
+        $rewards = Reward::where('category_id', $id)->pluck('name');
+
+        return response()->json([
+            'rewards' => $rewards
+        ]);
+    }
 
     /* -----------------------------------------------------
      * STORE category
