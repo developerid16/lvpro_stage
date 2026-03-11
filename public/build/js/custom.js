@@ -166,6 +166,20 @@ function remove_errors(form_id = null) {
     $('.img-delete-btn').trigger('click');
 }
 
+function resetForm() {
+
+    // reset form
+    $('form')[0].reset();
+
+    // remove validation error classes
+    $('.is-invalid').removeClass('is-invalid');
+    $('.is-valid').removeClass('is-valid');
+
+    // hide error messages
+    $('.invalid-feedback').text('').hide();
+    $('.error').text('').hide();
+
+}
 
 
 function show_message(status, text) {

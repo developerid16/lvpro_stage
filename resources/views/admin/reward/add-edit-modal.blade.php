@@ -218,11 +218,11 @@
         let usualPrice   = parseFloat($('#EditModal #usual_price').val());
         let voucherValue = parseFloat($('#EditModal #voucher_value').val());
         if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
-            $('#EditModal #voucher_set').val('');
+            // $('#EditModal #voucher_set').val('');
             return;
         }
         let voucherSet = usualPrice / voucherValue;
-        $('#EditModal #voucher_set').val(Math.floor(voucherSet));  
+        // $('#EditModal #voucher_set').val(Math.floor(voucherSet));  
         calculateSetQty();      
     }
 
@@ -685,10 +685,11 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                        <input id="voucher_set" type="number" min="0" readonly  placeholder="Voucher Set" class="sh_dec form-control readonly"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                        <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                        <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
+
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
@@ -965,7 +966,7 @@
                         <div class="{{ $colClass }} mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light"
                                     type="reset"
-                                    onclick="remove_errors()">
+                                    onclick="resetFormById()">
                                 Reset
                             </button>
                         </div>
