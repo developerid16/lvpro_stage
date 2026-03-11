@@ -85,6 +85,29 @@
     $('#AddModal').on('shown.bs.modal', function () {
         $('.validation-error').hide();
     });
+
+    $(document).on('click', '.view_rewards', function () {
+
+        var id = $(this).data('id');
+
+        $.get(ModuleBaseUrl + 'rewards/' + id, function(res){
+
+            let html = '';
+
+            if(!res.rewards || res.rewards.length === 0){
+                html = '<li class="text-danger">No rewards found</li>';
+            } else {
+                res.rewards.forEach(function(r){
+                    html += '<li>' + r + '</li>';
+                });
+            }
+
+            $('#rewardList').html(html);
+            $('#rewardModal').modal('show');
+
+        });
+
+    });
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection

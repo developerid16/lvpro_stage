@@ -353,6 +353,11 @@
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         }
 
+        $(document).on('change','#expiry_type',function(){
+            let modal = $(this).closest('.modal');
+            handleExpiryType(modal);
+        });
+
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 @endsection

@@ -4,6 +4,11 @@
 @endphp
 <script>   
 
+    $(document).on('change','#expiry_type',function(){
+        let modal = $(this).closest('.modal');
+        handleExpiryType(modal);
+    });
+
     $(document).on("change", ".voucher_image", function (e) {
 
         const modal = $('#EditModal');
@@ -59,6 +64,7 @@
         $(document).on('keyup change input','#EditModal #inventory_qty, #EditModal #voucher_set, #EditModal #voucher_value', editCalculateSetQty);
 
         let modal = $(this).closest('.modal');
+        handleExpiryType(modal);
         initFlatpickrDate(this);  
         bindMonthFlatpickr(this);
 
@@ -347,16 +353,45 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
+                            <label class="form-label">Voucher Expiry Type <span class="required-hash">*</span></label>
+
+                            <select name="expiry_type" id="expiry_type" class="form-control">
+                                <option value="">Select Expiry Type</option>
+                                <option value="fixed" {{ ($data?->expiry_type ?? '') == 'fixed' ? 'selected' : '' }}>
+                                    Fixed Expiry Date
+                                </option>
+                                <option value="validity" {{ ($data?->expiry_type ?? '') == 'validity' ? 'selected' : '' }}>
+                                    Validity Period (from redemption)
+                                </option>
+                                <option value="no_expiry" {{ ($data?->expiry_type ?? '') == 'no_expiry' ? 'selected' : '' }}>
+                                    No Expiry
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 d-none" id="fixed_expiry_div">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_validity">Voucher Validity Date <span class="required-hash">*</span></label>
                                <input
                                     id="voucher_validity"
                                     type="text"
-                                    class="sh_dec form-control js-flat-date voucher_validity"
+                                    class="sh_dec form-control js-flat-date"
                                     name="voucher_validity"
                                     value="{{ $data?->voucher_validity ?? '' }}"
                                     placeholder="YYYY-MM-DD"
                                 />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 d-none" id="validity_period_div">
+                            <div class="mb-3">
+                                <label class="form-label">Validity Period <span class="required-hash">*</span></label>
+    
+                                <select name="validity_month" class="form-control">
+                                    <option value="">Select Month</option>
+                                    <option value="1" {{ ($data?->validity_month ?? '') == 1 ? 'selected' : '' }}>1 Month</option>
+                                    <option value="2" {{ ($data?->validity_month ?? '') == 2 ? 'selected' : '' }}>2 Months</option>
+                                </select>
+    
+                                <small>Validity counted from day of redemption</small>
                             </div>
                         </div>
                          <div class="col-12 col-md-6">

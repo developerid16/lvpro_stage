@@ -374,7 +374,10 @@ class RewardController extends Controller
                     'send_reminder'          => $request->send_reminder ?? 0,
 
                     'where_use'                  => $request->where_use,
-                    'voucher_validity' => $request->filled('voucher_validity') ? $request->voucher_validity : null,
+                    'expiry_type' => $request->expiry_type,
+                    'voucher_validity' => $request->expiry_type === 'fixed' ? $request->voucher_validity : null,
+                    'validity_month' => $request->expiry_type === 'validity'  ? $request->validity_month : null,
+                
                     'inventory_type'            => $request->filled('inventory_type') ? (int) $request->inventory_type : 0,
                     'inventory_qty'             => $request->filled('inventory_qty') ? (int) $request->inventory_qty : 0,
                     'voucher_value'             => $request->filled('voucher_value') ? (float) $request->voucher_value : 0,
@@ -514,19 +517,28 @@ class RewardController extends Controller
                     'how_to_use'         => 'required|string',
                     'merchant_id'        => 'required|exists:merchants,id',
                     'reward_type'        => 'required|in:0,1',
+                    'expiry_type' => 'required|in:fixed,validity,no_expiry',
+
                     'voucher_validity' => [
-                        'required',
+                        'required_if:expiry_type,fixed',
+                        'nullable',
                         'date',
                         function ($attribute, $value, $fail) use ($request) {
 
-                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                            if ($request->expiry_type === 'fixed') {
 
-                            if ($validityDate < $salesEndDate) {
-                                $fail('Voucher expiry date must be after or equal to Sales end date.');
+                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                                $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                                if ($validityDate < $salesEndDate) {
+                                    $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                                }
+
                             }
                         }
                     ],
+
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
         
                     'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],
                    
@@ -565,10 +577,15 @@ class RewardController extends Controller
                    'sales_end.date'     => 'Sales end date & time must be a valid date.',
                    'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
 
-                   // Voucher Expiry Date
-                   'voucher_validity.required' => 'Voucher expiry date is required.',
-                   'voucher_validity.date'     => 'Voucher expiry date must be a valid date.',
-                   'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Sales end date & time.',
+                    // Voucher Validity Date
+                   'expiry_type.required' => 'Please select voucher expiry type.',
+
+                    'voucher_validity.required_if' => 'Voucher expiry date is required when Fixed Expiry Date is selected.',
+                    'voucher_validity.date' => 'Voucher expiry date must be a valid date.',
+
+                    'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
+                    'validity_month.integer' => 'Validity period must be a number.',
+                    'validity_month.min' => 'Validity period must be at least 1 month.',
 
                      // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
@@ -795,7 +812,10 @@ class RewardController extends Controller
     
                     'send_reminder'          => $request->send_reminder ?? 0,
     
-                    'voucher_validity'          => $request->filled('voucher_validity') ? $request->voucher_validity : null,
+                    'expiry_type' => $request->expiry_type,
+                    'voucher_validity' => $request->expiry_type === 'fixed' ? $request->voucher_validity : null,
+                    'validity_month' => $request->expiry_type === 'validity'  ? $request->validity_month : null,
+
                     'where_use'                 => $request->filled('where_use') ? $request->where_use : null,
                     'inventory_type'            => $request->filled('inventory_type') ? $request->inventory_type : 0,
                     'inventory_qty'             => $request->filled('inventory_qty') ? $request->inventory_qty : 0,
@@ -865,7 +885,9 @@ class RewardController extends Controller
                     'suspend_deal'        => $request->has('suspend_deal') ? 1 : 0,
                     'suspend_voucher'     => $request->has('suspend_voucher') ? 1 : 0,
                     'is_featured' => $request->boolean('is_featured'),
-                    'voucher_validity' => $request->filled('voucher_validity') ? $request->voucher_validity : null,
+                     'expiry_type' => $request->expiry_type,
+                    'voucher_validity' => $request->expiry_type === 'fixed' ? $request->voucher_validity : null,
+                    'validity_month' => $request->expiry_type === 'validity'  ? $request->validity_month : null,
                     'inventory_type'            => $request->filled('inventory_type') ? (int) $request->inventory_type : 0,
                     'inventory_qty'             => $request->filled('inventory_qty') ? (int) $request->inventory_qty : 0,
                     'voucher_value'             => $request->filled('voucher_value') ? (float) $request->voucher_value : 0,
@@ -1010,7 +1032,7 @@ class RewardController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Reward Created Successfully And Sent For Approval Successfully'
+                'message' => 'Reward Created Successfully'
             ]);
 
         } catch (\Throwable $e) {
@@ -1243,7 +1265,9 @@ class RewardController extends Controller
                     'send_reminder'          => $request->send_reminder ?? 0,
 
                     // Digital
-                    'voucher_validity'          => $request->voucher_validity,
+                    'expiry_type' => $request->expiry_type,
+                    'voucher_validity' => $request->expiry_type === 'fixed' ? $request->voucher_validity : null,
+                    'validity_month' => $request->expiry_type === 'validity'  ? $request->validity_month : null,
                     'where_use'                  => $request->where_use,
                     'inventory_type'            => $request->inventory_type ?? 0,
                     'inventory_qty'             => $request->inventory_qty ?? 0,
@@ -1434,19 +1458,28 @@ class RewardController extends Controller
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
+                'expiry_type' => 'required|in:fixed,validity,no_expiry',
+
                 'voucher_validity' => [
-                    'required',
+                    'required_if:expiry_type,fixed',
+                    'nullable',
                     'date',
                     function ($attribute, $value, $fail) use ($request) {
 
-                        $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                        $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                        if ($request->expiry_type === 'fixed') {
 
-                        if ($validityDate < $salesEndDate) {
-                            $fail('Voucher expiry date must be after or equal to Sales end date.');
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                            if ($validityDate < $salesEndDate) {
+                                $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                            }
+
                         }
                     }
                 ],
+
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
                 'publish_end'      => 'required|date|after_or_equal:publish_start',
@@ -1482,10 +1515,15 @@ class RewardController extends Controller
                 'sales_end.date'     => 'Sales end date & time must be a valid date.',
                 'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
 
-                // Voucher Validity Date
-                'voucher_validity.required' => 'Voucher expiry date is required.',
-                'voucher_validity.date'     => 'Voucher expiry date must be a valid date.',
-                'voucher_validity.after_or_equal' => 'Voucher expiry date must be after or equal to Sales end date & time.',
+                 // Voucher Validity Date
+                'expiry_type.required' => 'Please select voucher expiry type.',
+
+                'voucher_validity.required_if' => 'Voucher expiry date is required when Fixed Expiry Date is selected.',
+                'voucher_validity.date' => 'Voucher expiry date must be a valid date.',
+
+                'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
+                'validity_month.integer' => 'Validity period must be a number.',
+                'validity_month.min' => 'Validity period must be at least 1 month.',
 
                     
                 'set_qty.required' => 'Voucher set quantity is required.',
@@ -1810,7 +1848,9 @@ class RewardController extends Controller
                             'publish_inhouse'     => $request->publish_inhouse ?? 0,
                             'send_reminder'       => $request->send_reminder ?? 0,
     
-                            'voucher_validity'    => $request->voucher_validity,
+                             'expiry_type' => $request->expiry_type,
+                            'voucher_validity' => $request->expiry_type === 'fixed' ? $request->voucher_validity : null,
+                            'validity_month' => $request->expiry_type === 'validity'  ? $request->validity_month : null,
                             'where_use'           => $request->where_use,
                             'inventory_type'      => $request->inventory_type ?? 0,
                             'inventory_qty'       => $request->inventory_qty ?? 0,
@@ -1960,7 +2000,7 @@ class RewardController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Reward Updated Successfully And Sent For Approval Successfully'
+                'message' => 'Reward Updated Successfully'
             ]);
 
         } catch (\Throwable $e) {

@@ -50,6 +50,8 @@ class RewardUpdateRequest extends Model
         'location_text',     
         'participating_merchant_id',     
         'voucher_validity',
+        'expiry_type',
+        'validity_month',
         'where_use',  
         'inventory_qty',
         'inventory_type',

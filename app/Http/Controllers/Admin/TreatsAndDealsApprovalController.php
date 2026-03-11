@@ -357,156 +357,7 @@ class TreatsAndDealsApprovalController extends Controller
             $type = (int) $update->type; // 0  = treat&deals, 1 = eVoucher, 2 = Birthday
 
           
-            if ($type == '1') {//evocuher
-
-                $reward->update([
-                    'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
-                    'voucher_detail_img'   => $update->voucher_detail_img ?? $reward->voucher_detail_img,
-
-                    'name'                 => $update->name,
-                    'description'          => $update->description,
-                    'term_of_use'          => $update->term_of_use,
-                    'how_to_use'           => $update->how_to_use,
-
-                    'merchant_id'          => $update->merchant_id,
-                    'reward_type'          => $update->reward_type,
-                    'type'                 => 1,
-
-                    'direct_utilization'   => $update->direct_utilization,
-                    
-                    'publish_start_date'   => $update->publish_start_date,
-                    'publish_start_time'   => $update->publish_start_time,
-                    'publish_end_date'     => $update->publish_end_date,
-                    'publish_end_time'     => $update->publish_end_time,
-                    
-                    'sales_start_date'     => $update->sales_start_date,
-                    'sales_start_time'     => $update->sales_start_time,
-                    'sales_end_date'       => $update->sales_end_date,
-                    'sales_end_time'       => $update->sales_end_time,
-                    
-                    'voucher_validity'     => $update->voucher_validity,
-                    'friendly_url'         => $update->friendly_url,
-                    
-                    'max_quantity'    => (int) ($update->max_quantity ?? 0),
-                    'category_id'     => (int) ($update->category_id ?? 0),
-                    'inventory_type'  => (int) ($update->inventory_type ?? 0),
-                    'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
-                    'voucher_value'   => (float) ($update->voucher_value ?? 0),
-                    'voucher_set'     => (int) ($update->voucher_set ?? 0),
-                    'set_qty'         => (int) ($update->set_qty ?? 0),
-                    'clearing_method' => (int) ($update->clearing_method ?? 0),
-                    'cso_method' => (int) ($update->cso_method ?? 0),
-                    'start_time'         => $update->start_time,
-                    'end_time'           => $update->end_time,
-                    'days'           => $update->days,
-
-
-                    'location_text'        => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
-
-                    'hide_quantity'        => $update->hide_quantity,
-                    'low_stock_1'          => $update->low_stock_1,
-                    'low_stock_2'          => $update->low_stock_2,
-
-                    'suspend_deal'         => $update->suspend_deal,
-                    'suspend_voucher'      => $update->suspend_voucher,
-                    'csvFile'               => $update->csvFile,
-                    'is_featured' =>        $update->is_featured,
-                    'is_draft'             => 0,
-                ]);
-                $update->update([
-                    'status' => 'approved',
-                ]);
-
-
-            }else if($type == '2'){//birthday
-
-                $reward->update([
-                    'from_month' => $update->from_month,
-                    'to_month' => $update->to_month,
-                    'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
-                    'voucher_detail_img'   => $update->voucher_detail_img ?? $reward->voucher_detail_img,
-                    'name' => $update->name,
-                    'description' => $update->description,
-                    'term_of_use' => $update->term_of_use,
-                    'how_to_use' => $update->how_to_use,
-                    'merchant_id' => $update->merchant_id,
-                    'reward_type' => $update->reward_type,
-                    'voucher_validity' => $update->voucher_validity,
-                    'inventory_type'  => (int) ($update->inventory_type ?? 0),
-                    'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
-                    'voucher_value'   => (float) ($update->voucher_value ?? 0),
-                    'voucher_set'     => (int) ($update->voucher_set ?? 0),
-                    'set_qty'         => (int) ($update->set_qty ?? 0),
-                    'clearing_method' => (int) ($update->clearing_method ?? 0),
-                    'location_text' => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
-                    'hide_quantity' => $update->hide_quantity,
-                    'csvFile'               => $update->csvFile,
-                    'low_stock_1' => $update->low_stock_1,
-                    'low_stock_2' => $update->low_stock_2,
-                ]);
-
-                $update->update([
-                    'status' => 'approved',
-                ]);
-
-                $pendingLocations = RewardParticipatingMerchantLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->get();
-
-                // Remove old live mappings
-                ParticipatingLocations::where('reward_id', $reward->id)->delete();
-
-                // Insert approved mappings
-                foreach ($pendingLocations as $loc) {
-
-                    $participating_loc = ParticipatingLocations::create([
-                        'reward_id'                 => $reward->id,
-                        'club_location_id'          => $loc->club_location_id, // ✅ missing in your code
-                        'participating_merchant_id' => $loc->participating_merchant_id,
-                        'location_id'               => $loc->location_id,
-                        'is_selected'               => $loc->is_selected ?? 1,
-                    ]);
-                }
-
-                // Clear update table
-                RewardParticipatingMerchantLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->delete();
-                
-
-
-                $pendingClubs = RewardLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->get();
-
-                // Remove old live club inventory
-                RewardLocation::where('reward_id', $reward->id)->delete();
-
-                // Insert approved club inventory
-                foreach ($pendingClubs as $club) {
-
-                    RewardLocation::create([
-                        'reward_id'     => $reward->id,
-                        'merchant_id'   => $club->merchant_id,
-                        'location_id'   => $club->location_id,
-                        'is_selected'   => $club->is_selected ?? 1,
-                        'inventory_qty' => $club->inventory_qty,
-                        'total_qty'     => $club->total_qty,
-                    ]);
-                }
-
-                // Clear update table
-                RewardLocationUpdate::where(
-                    'reward_id',
-                    $reward->id
-                )->delete();
-                
-            }else if($type == '0'){//treat&deals
+            if($type == '0'){//treat&deals
                 
                 $reward->update([
                     'voucher_image'        => $update->voucher_image ?? $reward->voucher_image,
@@ -529,6 +380,8 @@ class TreatsAndDealsApprovalController extends Controller
                     'sales_end_date'       => $update->sales_end_date,
                     'sales_end_time'       => $update->sales_end_time,
                     'voucher_validity'     => $update->voucher_validity,
+                    'expiry_type'          => $update->expiry_type,
+                    'validity_month'        => $update->validity_month,
                     
                     'friendly_url'         => (int) ($update->friendly_url),
                     'club_classification_id' => (int) ($update->club_classification_id),

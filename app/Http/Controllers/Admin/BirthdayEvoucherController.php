@@ -258,17 +258,29 @@ class BirthdayEvoucherController extends Controller
                 'how_to_use'     => 'required|string',
 
                 'merchant_id'      => 'required|exists:merchants,id',
+                'expiry_type' => 'required|in:fixed,validity,no_expiry',
+
                 'voucher_validity' => [
-                    'required',
+                    'required_if:expiry_type,fixed',
+                    'nullable',
                     'date',
                     function ($attribute, $value, $fail) use ($request) {
-                        $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                        $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
-                        if ($validityDate < $salesEndDate) {
-                            $fail('Voucher validity date must be after or equal to Redemption end date.');
+
+                        if ($request->expiry_type === 'fixed') {
+
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                            if ($validityDate < $salesEndDate) {
+                                $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                            }
+
                         }
                     }
                 ],
+
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+    
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
                 'set_qty'          => 'required|numeric|min:1',
@@ -450,7 +462,9 @@ class BirthdayEvoucherController extends Controller
                     'how_to_use'  => $validated['how_to_use'],
                     'merchant_id' => $validated['merchant_id'],
                     'reward_type' => 0,
-                    'voucher_validity' => $request->voucher_validity,
+                    'expiry_type' => $request['expiry_type'],
+                    'voucher_validity' => $request['expiry_type'] === 'fixed' ? $request['voucher_validity'] : null,
+                    'validity_month' => $request['expiry_type'] === 'validity'  ? $request['validity_month'] : null,
                     'inventory_type'   => 0,
                     'inventory_qty'    => (int) ($request->inventory_qty ?? 0),
                     'voucher_value'    => (float) $validated['voucher_value'],
@@ -478,7 +492,9 @@ class BirthdayEvoucherController extends Controller
                     'how_to_use'  => $validated['how_to_use'],
                     'merchant_id' => $validated['merchant_id'],
                     'reward_type' => 0,
-                    'voucher_validity' => $request->voucher_validity,
+                    'expiry_type' => $request['expiry_type'],
+                    'voucher_validity' => $request['expiry_type'] === 'fixed' ? $request['voucher_validity'] : null,
+                    'validity_month' => $request['expiry_type'] === 'validity'  ? $request['validity_month'] : null,
                     'inventory_type'   => 0,
                     'inventory_qty'    => (int) ($request->inventory_qty ?? 0),
                     'voucher_value'    => (float) $validated['voucher_value'],
@@ -775,17 +791,29 @@ class BirthdayEvoucherController extends Controller
                 'term_of_use'       => 'required|string',
                 'how_to_use'        => 'required|string',
                 'merchant_id'       => 'required|exists:merchants,id',
-                'voucher_validity'  => [
-                    'required',
+                'expiry_type' => 'required|in:fixed,validity,no_expiry',
+
+                'voucher_validity' => [
+                    'required_if:expiry_type,fixed',
+                    'nullable',
                     'date',
                     function ($attribute, $value, $fail) use ($request) {
-                        $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                        $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
-                        if ($validityDate < $salesEndDate) {
-                            $fail('Voucher validity date must be after or equal to Redemption end date.');
+
+                        if ($request->expiry_type === 'fixed') {
+
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
+                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+
+                            if ($validityDate < $salesEndDate) {
+                                $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                            }
+
                         }
                     }
                 ],
+
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+    
                 'inventory_qty'     => 'nullable|integer|min:0',
                 'voucher_value'     => 'required|numeric|min:0',
                 'voucher_set'       => 'required|integer|min:1',
@@ -955,7 +983,9 @@ class BirthdayEvoucherController extends Controller
                 'how_to_use'     => $validated['how_to_use'],
                 'merchant_id'    => $validated['merchant_id'],
                 'reward_type'    => 0,
-                'voucher_validity'   => $validated['voucher_validity'] ?? null,
+                'expiry_type' => $validated['expiry_type'],
+                'voucher_validity' => $validated['expiry_type'] === 'fixed' ? $validated['voucher_validity'] : null,
+                'validity_month' => $validated['expiry_type'] === 'validity'  ? $validated['validity_month'] : null,
                 'inventory_type'      => 0,
                 'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
                 'voucher_value'      =>(int) ($validated['voucher_value']),

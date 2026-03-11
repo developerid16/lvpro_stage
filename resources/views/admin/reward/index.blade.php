@@ -436,6 +436,11 @@
                 $('#set_qty').val('');
             }
         }
+
+        $(document).on('change','#expiry_type',function(){
+            let modal = $(this).closest('.modal');
+            handleExpiryType(modal);
+        });
     </script>    
 
 @endsection

@@ -925,7 +925,7 @@
  
     function initTinyMCE() {
 
-    if (typeof tinymce === 'undefined') return;
+        if (typeof tinymce === 'undefined') return;
 
         // Remove old instances (important for modal edit)
         tinymce.remove('textarea.wysiwyg');
@@ -1298,6 +1298,23 @@
     $('#AddModal').on('shown.bs.modal', function () {
         $('.validation-error').hide();
     });
+
+    function handleExpiryType(modal){
+
+        let type = $(modal).find('#expiry_type').val();
+
+        $(modal).find('#fixed_expiry_div').addClass('d-none');
+        $(modal).find('#validity_period_div').addClass('d-none');
+
+        if(type === 'fixed'){
+            $(modal).find('#fixed_expiry_div').removeClass('d-none');
+        }
+
+        if(type === 'validity'){
+            $(modal).find('#validity_period_div').removeClass('d-none');
+        }
+
+}
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
