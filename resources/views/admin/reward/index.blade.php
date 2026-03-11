@@ -420,7 +420,7 @@
         $(document).on('input', '#inventory_qty', calculateSetQty);
 
         // when voucher_set changes
-        // $(document).on('input', '#voucher_set', calculateSetQty);
+        $(document).on('input', '#voucher_set', calculateSetQty);
 
         $(document).on('input', '#voucher_value', calculateSetQty);
 
