@@ -11,5 +11,10 @@ class Category extends Model
         'name',
     ];
     public $table = 'category';
+
+    public function rewards()
+    {
+        return $this->hasMany(Reward::class, 'category_id');
+    }
 }
 

@@ -22,7 +22,6 @@ class SRPController extends Controller
     
         try {
             // $records = $this->SafraAPIService->GetSRPMerchandiseItemList($request->all());
-           try {
             $records = $this->SafraAPIService
                 ->getMerchandiseItemList();
 
@@ -38,9 +37,6 @@ class SRPController extends Controller
         }
     }
 
-    /**
-     * Summary of merchandiseItemList
-     */ 
     public function merchandiseItemList(Request $request)
     {
         try {

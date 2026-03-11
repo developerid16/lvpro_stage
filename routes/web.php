@@ -326,6 +326,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
 
 
+    Route::get('category/rewards/{id}', [CategoryController::class, 'categoryRewards']);   
     Route::get('category/datatable', [CategoryController::class, 'datatable'])->name('admin.category.datatable');
     Route::resource('category', CategoryController::class);
 

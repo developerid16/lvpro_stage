@@ -40,6 +40,20 @@
     </div>
 </div>
 
+<div class="modal fade" id="rewardModal" data-bs-backdrop="static"
+    data-bs-keyboard="false" aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">           
+            <div class="modal-header">
+                <h5 class="sh_sub_title modal-title">Rewards List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="rewardList"></ul>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Create -->
 @can("$permission_prefix-create")
 @include('admin.category.add-edit-modal')
@@ -68,7 +82,29 @@
         preview.style.display = 'block';
     });
 
-   
+
+    $(document).on('click','.view_rewards',function(){
+
+        var id = $(this).data('id');
+
+        $.get(ModuleBaseUrl + 'rewards/' + id, function(res){
+
+            let html = '';
+
+            if(res.rewards.length === 0){
+                html = '<li class="text-danger">No rewards found</li>';
+            } else {
+                res.rewards.forEach(function(r){
+                    html += '<li>'+ r +'</li>';
+                });
+            }
+
+            $('#rewardList').html(html);
+            $('#rewardModal').modal('show');
+
+        });
+
+    });
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection
