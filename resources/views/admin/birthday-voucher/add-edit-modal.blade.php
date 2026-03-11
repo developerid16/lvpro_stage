@@ -547,7 +547,7 @@
 
                     <div class="row">
                         <div class="col-6 mt-3 d-grid">
-                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="remove_errors()">Reset</button>
+                            <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light" type="reset" onclick="resetFormById()">Reset</button>
                         </div>
 
                         

@@ -375,7 +375,7 @@
 
             // Guard clauses
             if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
-                $('#voucher_set').val('');
+                // $('#voucher_set').val('');
                 return;
             }
 
@@ -383,7 +383,7 @@
             // console.log(voucherSet,'voucher_set');
 
             // If you want integer only (recommended)
-            $('#voucher_set').val(Math.floor(voucherSet));
+            // $('#voucher_set').val(Math.floor(voucherSet));
             calculateSetQty();
         }
 
@@ -420,7 +420,7 @@
         $(document).on('input', '#inventory_qty', calculateSetQty);
 
         // when voucher_set changes
-        $(document).on('input', '#voucher_set', calculateSetQty);
+        // $(document).on('input', '#voucher_set', calculateSetQty);
 
         $(document).on('input', '#voucher_value', calculateSetQty);
 

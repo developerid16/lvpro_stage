@@ -694,7 +694,7 @@
                         <div class="{{ $colClass }} mt-3 d-grid">
                             <button class="sh_btn_sec btn btn-outline-danger waves-effect waves-light"
                                     type="reset"
-                                    onclick="remove_errors()">
+                                    onclick="resetFormById()">
                                 Reset
                             </button>
                         </div>
