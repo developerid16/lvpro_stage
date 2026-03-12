@@ -1285,7 +1285,7 @@
             .addClass('mdi-chevron-down');
     });
 
-    $(document).on('input', 'input[type="number"]', function () {
+    $(document).on('input', 'input[type="number"]:not(.validity_month)', function () {
 
         let maxLength = 6; // change if needed
 
@@ -1314,7 +1314,49 @@
             $(modal).find('#validity_period_div').removeClass('d-none');
         }
 
-}
+    }
+
+    function limitMonthInput(selector, max = 12) {
+        $(document).on('input', selector, function () {
+
+            let value = $(this).val();
+
+            // allow only 2 digits
+            if (value.length > 2) {
+                value = value.slice(0, 2);
+                $(this).val(value);
+            }
+
+            let num = parseInt(value);
+
+            if (num > max) {
+                $(this).val(max);
+            }
+
+            if (num < 1 || isNaN(num)) {
+                $(this).val('');
+            }
+        });
+    }
+
+    $(document).on('input', '.validity_month', function () {
+
+        let value = $(this).val();
+
+        if (value.length > 2) {
+            value = value.slice(0, 2);
+        }
+
+        let num = parseInt(value);
+
+        if (num > 12) {
+            value = 12;
+        }
+
+        $(this).val(value);
+
+    });
+
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>

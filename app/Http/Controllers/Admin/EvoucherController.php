@@ -505,7 +505,7 @@ class EvoucherController extends Controller
                         }
                     ],
 
-                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
     
                     'category_id'      => 'nullable',
                     'inventory_type'   => 'required|in:0,1',
@@ -545,6 +545,7 @@ class EvoucherController extends Controller
                     'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                     'validity_month.integer' => 'Validity period must be a number.',
                     'validity_month.min' => 'Validity period must be at least 1 month.',
+                    'validity_month.max' => 'Validity period may not be greater than 12 months.',
 
                      // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
@@ -1199,7 +1200,7 @@ class EvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
 
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
@@ -1246,6 +1247,7 @@ class EvoucherController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
+                'validity_month.max' => 'Validity period may not be greater than 12 months.',
 
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',

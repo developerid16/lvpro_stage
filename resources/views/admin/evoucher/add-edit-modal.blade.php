@@ -192,6 +192,9 @@
         editToggleClearingFields(modal);
         editToggleInventoryFields(modal);
     });
+
+    limitMonthInput('#validity_month');
+
 </script>
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -460,16 +463,18 @@
                         <div class="col-12 col-md-6 d-none" id="validity_period_div">
                             <div class="mb-3">
                                 <label class="form-label">Validity Period <span class="required-hash">*</span></label>
-    
-                                <select name="validity_month" class="form-control">
-                                    <option value="">Select Month</option>
-                                    <option value="1" {{ ($data?->validity_month ?? '') == 1 ? 'selected' : '' }}>1 Month</option>
-                                    <option value="2" {{ ($data?->validity_month ?? '') == 2 ? 'selected' : '' }}>2 Months</option>
-                                </select>
-    
+                                <input id="validity_month"
+                                    type="number"
+                                    class="sh_dec form-control validity_month"
+                                    name="validity_month"
+                                    max="12"
+                                    min="1"
+                                    value="{{ isset($data->validity_month) ? $data->validity_month : '' }}"
+                                    placeholder="Month"/>
                                 <small>Validity counted from day of redemption</small>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_type">Internal/External<span class="required-hash">*</span></label>

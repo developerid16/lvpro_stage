@@ -539,7 +539,7 @@ class RewardController extends Controller
                         }
                     ],
 
-                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
         
                     'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],
                    
@@ -587,7 +587,7 @@ class RewardController extends Controller
                     'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                     'validity_month.integer' => 'Validity period must be a number.',
                     'validity_month.min' => 'Validity period must be at least 1 month.',
-
+                    'validity_month.max' => 'Validity period may not be greater than 12 months.',
                      // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
                     'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
@@ -1480,7 +1480,7 @@ class RewardController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
                 'publish_end'      => 'required|date|after_or_equal:publish_start',
@@ -1525,7 +1525,7 @@ class RewardController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
-
+                'validity_month.max' => 'Validity period may not be greater than 12 months.',
                     
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
