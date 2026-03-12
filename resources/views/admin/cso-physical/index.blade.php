@@ -18,6 +18,7 @@
                 <select id="filter_by" class="form-select">
                     <option value="member_id">Member ID</option>
                     <option value="receipt_no">Receipt Number</option>
+                     <option value="redeemed_date">Redeemed Date</option>
                 </select>
             </div>
 
@@ -25,7 +26,11 @@
                 <label class="form-label fw-bold">Search</label>
                 <input type="text" id="filter_value" class="form-control"
                     placeholder="Enter Member ID or Receipt No">
-                </div>
+            </div>
+            <div class="col-md-3" id="date_filter_box" style="display:none;">
+                <label class="form-label fw-bold">Redeemed Date</label>
+                <input type="text" id="redeemed_date" class="sh_dec form-control js-flat-date" placeholder="YYYY-MM-DD">                
+            </div>
                 
             <div class="col-md-1">
                 <button id="searchBtn" class="btn btn-primary w-100">
@@ -87,6 +92,7 @@
 
         params.data.filter_by = $('#filter_by').val();
         params.data.filter_value = $('#filter_value').val();
+        params.data.redeemed_date = $('#redeemed_date').val();
 
         $.get(DataTableUrl + '?' + $.param(params.data))
             .then(function (res) {
@@ -102,14 +108,31 @@
 
     $('#resetBtn').on('click', function () {
 
-        // reset filter inputs
         $('#filter_by').val('member_id');
         $('#filter_value').val('');
+        $('#redeemed_date').val('');
 
-        // reload table without filters
+        $('#filter_value').closest('.col-md-3').show();
+        $('#date_filter_box').hide();
+
         $('#bstable').bootstrapTable('refresh', { pageNumber: 1 });
     });
 
+    $('#filter_by').on('change', function () {
+
+        let type = $(this).val();
+
+        if(type === 'redeemed_date'){
+            initFlatpickrDate();
+            $('#filter_value').closest('.col-md-3').hide();
+            $('#date_filter_box').show();
+        }else{
+            $('#filter_value').closest('.col-md-3').show();
+            $('#date_filter_box').hide();
+            $('#redeemed_date').val('');
+        }
+
+    });
 
 
 

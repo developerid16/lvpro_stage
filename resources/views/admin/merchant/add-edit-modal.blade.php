@@ -49,7 +49,7 @@ $(document).on("click", "#clear_logo_preview", function () {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form class="z-index-1" method="POST" action="javascript:void(0)"
+                <form class="z-index-1" method="POST" action="javascript:void(0)" enctype="multipart/form-data"
                     id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? ''}}">
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
@@ -74,7 +74,14 @@ $(document).on("click", "#clear_logo_preview", function () {
                                 <div class="d-flex justify-content-between mt-1">
                                     <span class="text-secondary">(Size: 100px × 100px | Format: PNG, JPG, JPEG)</span>
                                     <div class="position-relative d-inline-block">
-                                        <img id="logo_preview" src="{{ isset($data) && $data->logo ? imageExists('uploads/image/' . $data->logo) : '' }}" style="max-width:50px;"  alt="Logo Preview" />
+                                        <img 
+                                            id="logo_preview"
+                                            data-original="{{ isset($data) && $data->logo ? asset('uploads/image/'.$data->logo) : asset('uploads/image/no-image.png') }}"
+                                            src="{{ isset($data) && $data->logo ? asset('uploads/image/'.$data->logo) : asset('uploads/image/no-image.png') }}"
+                                            style="max-width:50px;"
+                                            alt="Logo Preview"
+                                            />
+                                        {{-- <img id="logo_preview" src="{{ isset($data) && $data->logo ? imageExists('uploads/image/' . $data->logo) : '' }}" style="max-width:50px;"  alt="Logo Preview" /> --}}
                                         <a href="javascript:void(0);" id="clear_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
                                     </div>
                                 </div>

@@ -42,7 +42,7 @@ class CsoPhysicalController extends Controller
             ->select('purchases.*');
 
         // --------------------------------
-        // FILTER: Member ID / Receipt No
+        // FILTER: Member ID / Receipt No / Redeemed Date
         // --------------------------------
         if ($request->filled('filter_by') && $request->filled('filter_value')) {
             if ($request->filter_by === 'member_id') {
@@ -52,6 +52,9 @@ class CsoPhysicalController extends Controller
             if ($request->filter_by === 'receipt_no') {
                 $qb->where('receipt_no', 'like', '%' . $request->filter_value . '%');
             }
+        }
+        if ($request->filter_by === 'redeemed_date' && $request->filled('redeemed_date')) {
+            $qb->whereDate('redeemed_at', $request->redeemed_date);
         }
 
         $result = $this->get_sort_offset_limit_query($request, $qb, [
