@@ -196,6 +196,7 @@ function remove_errors(form_id = null) {
     clearBtn.hide();
 }
 
+
 function show_message(status, text) {
     if (status == 'fail') {
         status = 'error';
