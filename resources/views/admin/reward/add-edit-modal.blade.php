@@ -804,11 +804,11 @@
                                 <div class="col-md-6 d-flex">
                                     <div class="me-3">
                                         <label class="sh_dec">Low Stock Reminder 1 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
+                                        <input type="number" min="0" class="form-control stock-input" name="low_stock_1" placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                                     </div>
                                     <div>
                                         <label class="sh_dec">Low Stock Reminder 2 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
+                                        <input type="number" min="0" class="form-control stock-input"  name="low_stock_2" placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                                     </div>
                                 </div>                               
                             </div>

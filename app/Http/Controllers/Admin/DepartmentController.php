@@ -33,7 +33,7 @@ class DepartmentController extends Controller
      * ----------------------------------------------------- */
     public function index(Request $request)
     {
-        $this->layout_data['club_locations'] = ClubLocation::all();
+        $this->layout_data['club_locations'] = ClubLocation::orderBy('name', 'ASC')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -102,7 +102,7 @@ class DepartmentController extends Controller
     public function create()
     {
         $this->layout_data['data'] = null;
-        $this->layout_data['club_locations'] = ClubLocation::all();
+        $this->layout_data['club_locations'] = ClubLocation::orderBy('name', 'ASC')->get();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
     }
@@ -129,7 +129,7 @@ class DepartmentController extends Controller
     public function edit($id)
     {
         $this->layout_data['data'] = Department::findOrFail($id);
-        $this->layout_data['club_locations'] = ClubLocation::all();
+        $this->layout_data['club_locations'] = ClubLocation::orderBy('name', 'ASC')->get();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
         return response()->json(['status' => 'success', 'html' => $html]);
     }

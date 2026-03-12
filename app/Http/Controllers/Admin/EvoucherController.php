@@ -61,11 +61,11 @@ class EvoucherController extends Controller
 
         $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
         $this->layout_data['memberReward'] = Reward::where('cso_method',1)->get();
         $this->layout_data['parameterReward'] = Reward::where('cso_method',2)->get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         $this->layout_data['master_card_types'] = MasterCardType::get();
         $this->layout_data['master_dependent_types'] = MasterDependentType::get();
@@ -885,8 +885,8 @@ class EvoucherController extends Controller
 
         $reward->voucher_validity =  ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
         $this->layout_data['data'] = $reward;
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         $this->layout_data['location_text'] = null;
 

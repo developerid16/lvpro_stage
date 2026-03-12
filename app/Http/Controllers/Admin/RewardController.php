@@ -58,14 +58,14 @@ class RewardController extends Controller
 
         $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['fabs'] = Fabs::where('status','Active')->orderBy('name', 'ASC')->get();
 
-        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::orderBy('item_name', 'ASC')->get();
 
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
-        $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['tiers'] = Tier::where('status', 'Active')->orderBy('tier_name', 'ASC')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -531,8 +531,8 @@ class RewardController extends Controller
                                 $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
                                 $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
 
-                                if ($validityDate < $salesEndDate) {
-                                    $fail('Voucher expiry date must be after or equal to Redemption end date.');
+                                if ($validityDate <= $salesEndDate) {
+                                    $fail('Voucher expiry date must be greater than Redemption end date.');
                                 }
 
                             }
@@ -646,6 +646,12 @@ class RewardController extends Controller
                         if (isset($locData['selected'])) {
                             $hasSelected = true;
                             $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+                            $messages = [
+                                'locations.required' => 'Please select at least one location.',
+                                'locations.*.inventory_qty.required' => 'Inventory quantity is required for selected location.',
+                                'locations.*.inventory_qty.integer' => 'Inventory quantity must be a valid number.',
+                                'locations.*.inventory_qty.min' => 'Inventory quantity must be at least 1.',
+                            ];
                         }
                     }
     
@@ -1077,14 +1083,14 @@ class RewardController extends Controller
             $this->layout_data['location_text'] = CustomLocation::where('id', $reward->location_text)
                 ->value('name');
         }
-        $this->layout_data['fabs'] = Fabs::where('status','Active')->get();
-        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::get();
+        $this->layout_data['fabs'] = Fabs::where('status','Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::orderBy('item_name', 'ASC')->get();
 
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
-        $this->layout_data['tiers'] = Tier::where('status', 'Active')->get();
-        $this->layout_data['category'] = Category::get();
+        $this->layout_data['tiers'] = Tier::where('status', 'Active')->orderBy('tier_name', 'ASC')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
         // 👉 Build simple array: [location_id => inventory_qty]
         $this->layout_data['savedLocations'] = $reward ? $reward->rewardLocations->pluck('inventory_qty','location_id')  : [];
         $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
