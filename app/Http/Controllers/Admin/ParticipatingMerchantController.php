@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\ParticipatingMerchant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ParticipatingMerchantController extends Controller
 {
@@ -137,11 +138,19 @@ class ParticipatingMerchantController extends Controller
      * ----------------------------------------------------- */
     public function store(Request $request)
     {
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
-            'department_id'   => 'nullable|exists:departments,id',
+            'department_id'   => 'required|exists:departments,id',
             'status' => 'required|in:Active,Inactive',
         ]);       
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
 
         $post_data['department_id'] = $post_data['department_id'] ?: null;
         ParticipatingMerchant::create($post_data);
@@ -170,12 +179,20 @@ class ParticipatingMerchantController extends Controller
     {
         $merchant = ParticipatingMerchant::findOrFail($id);
 
-        $post_data = $this->validate($request, [
+        $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
-            'department_id'   => 'nullable|exists:departments,id',
+            'department_id'   => 'required|exists:departments,id',
             'status' => 'required|in:Active,Inactive',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $post_data = $validator->validated();
         $post_data['department_id'] = $post_data['department_id'] ?: null;
         $merchant->update($post_data);
 

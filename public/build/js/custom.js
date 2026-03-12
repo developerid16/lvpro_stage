@@ -153,17 +153,47 @@ function show_errors(error, form_id = null) {
     hide_loader()
 }
 
+// function remove_errors(form_id = null) {
+//     if (!form_id) {
+//         $(".validation-error").remove();
+//         $(".error, .custom-error").html('');
+//     } else {
+//         $(form_id).find(".validation-error").remove();
+//         $(form_id).find(".error, .custom-error").html('');
+
+//     }
+//     hide_loader();
+//     $('.img-delete-btn').trigger('click');
+// }
+
+
 function remove_errors(form_id = null) {
+
     if (!form_id) {
         $(".validation-error").remove();
         $(".error, .custom-error").html('');
     } else {
         $(form_id).find(".validation-error").remove();
         $(form_id).find(".error, .custom-error").html('');
-
     }
+
     hide_loader();
-    $('.img-delete-btn').trigger('click');
+
+    // reset file input
+    $('#logo_input').val('');
+
+    let modal = $('.modal.show');
+    let preview = modal.find('#logo_preview');
+    let clearBtn = modal.find('#clear_logo_preview');
+
+    if(modal.attr('id') === 'EditModal'){
+        let original = preview.data('original');
+        preview.attr('src', original);
+    } else {
+        preview.attr('src', "{{ asset('uploads/image/no-image.png') }}");
+    }
+
+    clearBtn.hide();
 }
 
 function resetForm() {

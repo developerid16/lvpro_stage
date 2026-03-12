@@ -35,7 +35,7 @@
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label>Department</label>
+                                <label class="sh_dec" for="department_id">Department <span class="required-hash">*</span></label>
 
                                 @if($departments->count() == 1)
 

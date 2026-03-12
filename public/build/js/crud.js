@@ -371,11 +371,9 @@ $(document).ready(function () {
                         show_message(response.status, response.message);
                         refresh_datatable("#bstable");
                     },
-                    error: function (response) {
-                        if(response.status === 403) {
-                            show_message('error', response.responseJSON?.message || 'You do not have permission.');
-                            return;
-                        }
+                    error: function (response) {                        
+                        show_message('error', response.responseJSON?.message || 'You do not have permission.');
+                        return;                        
                     }
                 });
             }
