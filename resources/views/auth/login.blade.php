@@ -43,14 +43,14 @@
                         <div class="w-100">
                             <div class="d-flex flex-column h-100">
                                 <div class="mb-4 mb-md-5">
-                                    <a href="{{url('/')}}"class="d-block auth-logo">
+                                    <a href="javascript:void(0)"class="d-block auth-logo">
                                         <img src="{{ URL::asset('/build/images/logo-dark.png') }}?q={{ time() }}" alt="" style="height: 120px;" class="auth-logo-dark">
                                         <img src="{{ URL::asset('/build/images/logo-light.png') }}?q={{ time() }}" alt="" style="height: 120px;" class="auth-logo-light">
                                     </a>
                                     <h5 class="" style="font-weight: 800;">Digital Voucher System</h5>
                                     <div class="d-flex" style="align-items: center;">
                                         <h6 class="text-primary">Powered by</h6>
-                                        <img src="{{ URL::asset('/build/images/trex-logo.png') }}?q={{ time() }}" alt="" style="width: 36%;height: 32px;" class="auth-trex-logo-dark">
+                                        <img src="{{ URL::asset('/build/images/trex-logo.png') }}?q={{ time() }}" alt="" style="max-width:100px" class="auth-trex-logo-dark">
                                     </div>
                                 </div>
                                 <div class="my-auto">

@@ -2,24 +2,36 @@
     <div class="navbar-header">
         <div class="d-flex">
             <!-- LOGO -->
-            <div class="navbar-brand-box main_logo">
-                <a href="{{url('/')}}" class="logo logo-dark">
-                    <span class="logo-sm">
-                        <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="22">
-                    </span>
-                    <span class="logo-lg">
-                        <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
-                    </span>
-                </a>
+           <div class="navbar-brand-box main_logo d-flex align-items-center justify-content-between gap-4">
 
-                <a href="{{url('/')}}" class="logo logo-light">
-                    <span class="logo-sm">
-                        <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="50">
-                    </span>
-                    <span class="logo-lg">
-                        <img src="{{ URL::asset('/build/images/logo-light.png') }}" alt="" height="50">
-                    </span>
-                </a>
+                <div>
+                    <a href="javascript:void(0)" class="logo logo-dark">
+                        <span class="logo-sm">
+                            <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="22">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
+                        </span>
+                    </a>
+
+                    <a href="javascript:void(0)" class="logo logo-light">
+                        <span class="logo-sm">
+                            <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="50">
+                        </span>
+                        <span class="logo-lg">
+                            <img src="{{ URL::asset('/build/images/logo-light.png') }}" alt="" height="50">
+                        </span>
+                    </a>
+                </div>
+
+                <div class="d-flex align-items-center powered-by-box">
+                    <h6 class="text-primary mb-0 me-2">Powered by</h6>
+                    <img src="{{ URL::asset('/build/images/trex-logo.png') }}?q={{ time() }}" 
+                        alt="" 
+                        style="max-width:100px" 
+                        class="auth-trex-logo-dark">
+                </div>
+
             </div>
 
             <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light"
