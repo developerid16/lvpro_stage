@@ -526,9 +526,9 @@
 
                         <div class="col-12 col-md-6 where_use">
                             <div class="mb-3">
-                                <label class="sh_dec" for="where_use">Where To Use  <span class="fs-10">(Max 15 chars)</span><span class="required-hash"></span></label>
+                                <label class="sh_dec" for="where_use">Where To Use  <span class="fs-10"></span><span class="required-hash"></span></label>
                                 <input id="where_use" type="text" class="sh_dec form-control" name="where_use"
-                                    value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use" maxlength="15"/>
+                                    value="{{ isset($data->where_use) ?  $data->where_use : '' }}" placeholder="Where To Use"/>
                             </div>
                         </div>
                         

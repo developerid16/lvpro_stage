@@ -49,7 +49,7 @@ $(document).on("click", "#clear_logo_preview", function () {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form class="z-index-1" method="POST" action="javascript:void(0)"
+                <form class="z-index-1" method="POST" action="javascript:void(0)" enctype="multipart/form-data"
                     id="{{ (isset($data->id)) ? 'edit_frm' : 'add_frm' }}" data-id="{{ $data->id ?? ''}}">
                     @csrf
                     @if(isset($data->id)) @method('PATCH') @endif
