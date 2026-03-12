@@ -522,8 +522,8 @@ class RewardController extends Controller
                             $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
                             $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
 
-                            if ($validityDate < $salesEndDate) {
-                                $fail('Voucher expiry date must be after or equal to Sales end date.');
+                            if ($validityDate <= $salesEndDate) {
+                                $fail('Voucher expiry date must be greater than Sales end date.');
                             }
                         }
                     ],

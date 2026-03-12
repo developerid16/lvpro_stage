@@ -38,11 +38,11 @@ class ParticipatingMerchantController extends Controller
         $user = Auth::user();
 
         if ($user->roles->contains('id', 1)) {
-            $this->layout_data['departments'] = Department::all();
+            $this->layout_data['departments'] = Department::orderBy('name', 'ASC')->get();
         } else {
             $departmentIds = $user->roles->pluck('department')->filter();
 
-            $this->layout_data['departments'] = Department::whereIn('id', $departmentIds)->get();
+            $this->layout_data['departments'] = Department::whereIn('id', $departmentIds)->orderBy('name', 'ASC')->get();
         }
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -156,7 +156,7 @@ class ParticipatingMerchantController extends Controller
     public function edit($id)
     {
         $this->layout_data['data'] = ParticipatingMerchant::findOrFail($id);
-        $this->layout_data['departments'] = Department::all();
+        $this->layout_data['departments'] = Department::orderBy('name', 'ASC')->get();
         $html = view($this->view_file_path . 'add-edit-modal', $this->layout_data)->render();
 
         return response()->json(['status' => 'success', 'html' => $html]);
