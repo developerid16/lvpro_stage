@@ -3,31 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Mail\RewardExpiredMail;
-use Carbon\Carbon;
-use App\Models\Sale;
 use App\Models\User;
-use App\Models\Reward;
-use App\Models\AppUser;
-use App\Models\RefundSale;
+
 use App\Mail\AccountVerify;
 use App\Mail\APHExpiry;
 use App\Mail\BroadcastEmail;
 use App\Mail\ForgotPassword;
 use App\Mail\KeyExpiry;
-use App\Models\BrandMapping;
 use Illuminate\Http\Request;
 use App\Mail\NewAdminRegister;
-use App\Models\KeyPassbookDebit;
-use App\Models\KeyPassbookCredit;
-use App\Models\UserAccessRequest;
 use Illuminate\Support\Facades\DB;
-use App\Models\UserPurchasedReward;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
-    use App\Services\SafraService;
+use App\Services\SafraService;
 
 class HomeController extends Controller
 {
@@ -111,10 +102,153 @@ class HomeController extends Controller
         dd("all email send");
     }
 
-    public function root()
-    {
-            return view('index', );
+  public function root(Request $request)
+{
+    $type = $request->type ?? 'month';
+
+    if ($type == 'year') {
+
+        $year = date('Y');
+
+        /* Issued vouchers */
+
+        $issuanceRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("MONTH(created_at) as month, COUNT(id) as total")
+            ->whereYear('created_at', $year)
+            ->where('reward_status','issued')
+            ->groupByRaw("MONTH(created_at)")
+            ->pluck('total','month')
+            ->toArray();
+
+        $issuanceLabels = [
+            'Jan','Feb','Mar','Apr','May','Jun',
+            'Jul','Aug','Sep','Oct','Nov','Dec'
+        ];
+
+        $issuanceValues = [];
+
+        for ($i=1;$i<=12;$i++){
+            $issuanceValues[] = $issuanceRaw[$i] ?? 0;
+        }
+
+        /* Redeemed vouchers */
+
+        $redeemRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("MONTH(redeemed_at) as month, COUNT(id) as total")
+            ->whereYear('redeemed_at', $year)
+            ->where('reward_status','redeemed')
+            ->groupByRaw("MONTH(redeemed_at)")
+            ->pluck('total','month')
+            ->toArray();
+
+        $redeemLabels = $issuanceLabels;
+
+        $redeemValues = [];
+
+        for ($i=1;$i<=12;$i++){
+            $redeemValues[] = $redeemRaw[$i] ?? 0;
+        }
+
+    } else {
+
+    if ($type == 'month') {
+
+        $month = date('m');
+        $year  = date('Y');
+
+        /* Issued vouchers - date wise */
+
+        $issuanceRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("DAY(created_at) as day, COUNT(id) as total")
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->where('reward_status','issued')
+            ->groupByRaw("DAY(created_at)")
+            ->pluck('total','day')
+            ->toArray();
+
+        $daysInMonth = date('t');
+
+        $issuanceLabels = [];
+        $issuanceValues = [];
+
+        for ($i=1;$i<=$daysInMonth;$i++){
+            $issuanceLabels[] = $i;
+            $issuanceValues[] = $issuanceRaw[$i] ?? 0;
+        }
+
+
+        /* Redeemed vouchers - date wise */
+
+        $redeemRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("DAY(redeemed_at) as day, COUNT(id) as total")
+            ->whereYear('redeemed_at', $year)
+            ->whereMonth('redeemed_at', $month)
+            ->where('reward_status','redeemed')
+            ->groupByRaw("DAY(redeemed_at)")
+            ->pluck('total','day')
+            ->toArray();
+
+        $redeemLabels = $issuanceLabels;
+
+        $redeemValues = [];
+
+        for ($i=1;$i<=$daysInMonth;$i++){
+            $redeemValues[] = $redeemRaw[$i] ?? 0;
+        }
+
     }
+    elseif ($type == 'week') {
+
+        $start = now()->startOfWeek();
+        $end   = now()->endOfWeek();
+
+        $weekDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+        /* Issued vouchers - day wise */
+
+        $issuanceRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("DAYOFWEEK(created_at) as day, COUNT(id) as total")
+            ->whereBetween('created_at', [$start,$end])
+            ->where('reward_status','issued')
+            ->groupByRaw("DAYOFWEEK(created_at)")
+            ->pluck('total','day')
+            ->toArray();
+
+        $issuanceLabels = $weekDays;
+        $issuanceValues = [];
+
+        for ($i=2;$i<=8;$i++){
+            $issuanceValues[] = $issuanceRaw[$i] ?? 0;
+        }
+
+        /* Redeemed vouchers - day wise */
+
+        $redeemRaw = DB::table('user_wallet_vouchers')
+            ->selectRaw("DAYOFWEEK(redeemed_at) as day, COUNT(id) as total")
+            ->whereBetween('redeemed_at', [$start,$end])
+            ->where('reward_status','redeemed')
+            ->groupByRaw("DAYOFWEEK(redeemed_at)")
+            ->pluck('total','day')
+            ->toArray();
+
+        $redeemLabels = $weekDays;
+        $redeemValues = [];
+
+        for ($i=2;$i<=8;$i++){
+            $redeemValues[] = $redeemRaw[$i] ?? 0;
+        }
+
+    }
+}
+    return view('index', compact(
+        'type',
+        'issuanceLabels',
+        'issuanceValues',
+        'redeemLabels',
+        'redeemValues'
+    ));
+}
 
     /*Language Translation*/
     public function lang($locale)
