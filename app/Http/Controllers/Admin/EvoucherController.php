@@ -650,6 +650,7 @@ class EvoucherController extends Controller
             * ---------------------------------------------------*/
             $reward = Reward::create([
                 'type'  => '1',
+                'status'    => 'pending',
                 'days'  => $request->input('days'),
 
                 'start_time' => $request->start_time,

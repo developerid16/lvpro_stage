@@ -755,6 +755,7 @@ class RewardController extends Controller
     
                 $reward = Reward::create([
                     'type'               => '0',
+                    'status'    => 'pending',
                     'cso_method'          => (int) ($request['cso_method'] ?? 0),
                     'voucher_image'      => $validated['voucher_image'],
                     'voucher_detail_img' => $validated['voucher_detail_img'],

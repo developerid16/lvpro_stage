@@ -413,6 +413,7 @@ class TreatsAndDealsApprovalController extends Controller
                     'csvFile'               => $update->csvFile,
                     'is_featured' =>        $update->is_featured,
                     'is_draft'             => 0,
+                    
                 ]);
                 $update->update([
                     'status' => 'approved',
@@ -560,6 +561,7 @@ class TreatsAndDealsApprovalController extends Controller
                     'where_use'          => $update->where_use,
                     'is_draft'             => 0,   // 🔑 important
                     'csvFile'               => $update->csvFile,
+                    'status' => 'approved',
 
                 ]);
 
