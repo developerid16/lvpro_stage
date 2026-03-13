@@ -11,18 +11,19 @@
 
 <div class="row">
 
+    <!-- Voucher Issuance Trend -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Voucher Issuance Trend</h4>
-
-                <form method="GET" action="{{ url('/') }}">
-                    <select name="type" class="form-select" onchange="this.form.submit()">
-                        <option value="week" {{ $type == 'week' ? 'selected' : '' }}>Week</option>
-                        <option value="month" {{ $type == 'month' ? 'selected' : '' }}>Month</option>
-                        <option value="year" {{ $type == 'year' ? 'selected' : '' }}>Year</option>
+                <div class="col-md-3">
+                    <select id="trendType" class="form-control">
+                        <option value="week" selected>Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
                     </select>
-                </form>
+                </div>
+
             </div>
             <div class="card-body">
                 <div id="voucherIssuanceChart"></div>
@@ -30,6 +31,7 @@
         </div>
     </div>
 
+    <!-- Voucher Redeem Trend -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
@@ -41,6 +43,34 @@
         </div>
     </div>
 
+    <!-- Redemption by Outlet -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h4 class="mb-0">Outlet Performance</h4></div>
+            <div class="card-body">
+                <div id="outletPerformanceChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
+
+                <select id="rateTrendType" class="form-control w-auto">
+                    <option value="week">Week</option>
+                    <option value="month" selected>Month</option>
+                </select>
+
+            </div>
+
+            <div class="card-body">
+                <div id="redemptionRateTrendChart"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection
 @section('script')
@@ -48,8 +78,6 @@
 <script>
 </script>
 <script src="{{ URL::asset('/build/libs/apexcharts/apexcharts.min.js') }}"></script>
-
-<!-- dashboard init -->
 {{-- <script src="{{ URL::asset('build/js/pages/dashboard.init.js') }}"></script> --}}
 
 <script>
@@ -59,126 +87,265 @@
             scrollTop: height
         }, 'slow');
     }
-</script><script src="{{ URL::asset('/build/libs/apexcharts/apexcharts.min.js') }}"></script>
-
+</script>
 <script>
 
-var issuanceLabels = @json($issuanceLabels);
-var issuanceValues = @json($issuanceValues);
+   
 
-var redeemLabels = @json($redeemLabels);
-var redeemValues = @json($redeemValues);
+    var issuanceChart;
+    var redeemChart;
 
-/* Issuance Chart */
+    function loadCharts(type='week')
+    {
+        $.get("{{ url('admin/voucher-trend-data') }}",{type:type},function(res){
 
-var issuanceOptions = {
-    chart: {
-        type: 'area',
-        height: 350,
-        toolbar: { show: false },
-        zoom: { enabled: false }
-    },
-    colors: ['#556ee6'],
-    dataLabels: { enabled: false },
-    stroke: {
-        curve: 'smooth',
-        width: 3
-    },
-    markers: {
-        size: 5,
-        hover: { size: 7 }
-    },
-    series: [{
-        name: "Vouchers Issued",
-        data: issuanceValues
-    }],
-    xaxis: {
-        categories: issuanceLabels,
-        title: { text: "Period" }
-    },
-    yaxis: {
-        title: { text: "Total Issued" }
-    },
-    fill: {
-        type: "gradient",
-        gradient: {
-            shadeIntensity: 1,
-            opacityFrom: 0.4,
-            opacityTo: 0.1,
-            stops: [0, 90, 100]
-        }
-    },
-    tooltip: {
-        y: {
-            formatter: function(val) {
-                return val + " vouchers";
+            if(issuanceChart){
+
+                issuanceChart.updateOptions({
+                    xaxis:{categories:res.labels},
+                    series:[{data:res.issuance}]
+                });
+
+                redeemChart.updateOptions({
+                    xaxis:{categories:res.labels},
+                    series:[{data:res.redeem}]
+                });
+
+                return;
             }
-        }
+
+            issuanceChart = new ApexCharts(
+                document.querySelector("#voucherIssuanceChart"),
+                {
+                    chart:{type:'area',height:350},
+                    series:[{name:'Issued',data:res.issuance}],
+                    xaxis:{categories:res.labels}
+                }
+            );
+
+            issuanceChart.render();
+
+
+            redeemChart = new ApexCharts(
+                document.querySelector("#voucherRedeemChart"),
+                {
+                    chart:{type:'line',height:350},
+                    series:[{name:'Redeemed',data:res.redeem}],
+                    xaxis:{categories:res.labels}
+                }
+            );
+
+            redeemChart.render();
+
+        });
     }
-};
-
-var issuanceChart = new ApexCharts(
-    document.querySelector("#voucherIssuanceChart"),
-    issuanceOptions
-);
-
-issuanceChart.render();
 
 
-/* Redeem Chart */
+    
+    var outletCountChart = null;
+    var outletValueChart = null;
+    var outletPerformanceChart = null;
 
-var redeemOptions = {
-    chart: {
-        type: 'area',
-        height: 350,
-        toolbar: { show: false },
-        zoom: { enabled: false }
-    },
-    colors: ['#34c38f'],
-    dataLabels: { enabled: false },
-    stroke: {
-        curve: 'smooth',
-        width: 3
-    },
-    markers: {
-        size: 5,
-        hover: { size: 7 }
-    },
-    series: [{
-        name: "Vouchers Redeemed",
-        data: redeemValues
-    }],
-    xaxis: {
-        categories: redeemLabels,
-        title: { text: "Period" }
-    },
-    yaxis: {
-        title: { text: "Total Redeemed" }
-    },
-    fill: {
-        type: "gradient",
-        gradient: {
-            shadeIntensity: 1,
-            opacityFrom: 0.4,
-            opacityTo: 0.1,
-            stops: [0, 90, 100]
-        }
-    },
-    tooltip: {
-        y: {
-            formatter: function(val) {
-                return val + " vouchers";
+    function loadOutletCharts()
+    {
+        $.get("{{ url('admin/outlet-redemption-data') }}", function(res){
+
+            var fullLabels = res.labels;
+
+            var shortLabels = res.labels.map(function(name){
+                return name.length > 8 ? name.substring(0,10) + '…' : name;
+            });
+
+            function tooltipFormatter(seriesIndex, dataPointIndex){
+                return fullLabels[dataPointIndex];
             }
-        }
+
+            /* ---------------- Chart 1 ---------------- */
+
+            if(!outletCountChart){
+
+                outletCountChart = new ApexCharts(
+                    document.querySelector("#outletCountChart"),
+                    {
+                        chart:{type:'bar',height:320},
+                        series:[{
+                            name:'Redemption Count',
+                            data:res.count
+                        }],
+                        xaxis:{categories:shortLabels},
+                        tooltip:{
+                            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                                return '<div class="apex-tooltip">'+
+                                    fullLabels[dataPointIndex] +
+                                    '<br>Count: '+series[seriesIndex][dataPointIndex]+
+                                    '</div>';
+                            }
+                        }
+                    }
+                );
+
+                outletCountChart.render();
+
+            }else{
+
+                outletCountChart.updateOptions({
+                    series:[{data:res.count}],
+                    xaxis:{categories:shortLabels}
+                });
+
+            }
+
+
+            /* ---------------- Chart 2 ---------------- */
+
+            if(!outletValueChart){
+
+                outletValueChart = new ApexCharts(
+                    document.querySelector("#outletValueChart"),
+                    {
+                        chart:{type:'bar',height:320},
+                        colors:['#34c38f'],
+                        series:[{
+                            name:'Redemption Value',
+                            data:res.value
+                        }],
+                        xaxis:{categories:shortLabels},
+                        tooltip:{
+                            custom: function({series, seriesIndex, dataPointIndex}) {
+                                return '<div class="apex-tooltip">'+
+                                    fullLabels[dataPointIndex] +
+                                    '<br>Value: '+series[seriesIndex][dataPointIndex]+
+                                    '</div>';
+                            }
+                        }
+                    }
+                );
+
+                outletValueChart.render();
+
+            }else{
+
+                outletValueChart.updateOptions({
+                    series:[{data:res.value}],
+                    xaxis:{categories:shortLabels}
+                });
+
+            }
+
+
+            /* ---------------- Chart 3 ---------------- */
+
+            if(!outletPerformanceChart){
+
+                outletPerformanceChart = new ApexCharts(
+                    document.querySelector("#outletPerformanceChart"),
+                    {
+                        chart:{type:'bar',height:320},
+                        plotOptions:{bar:{columnWidth:'45%'}},
+                        colors:['#556ee6','#34c38f'],
+                        series:[
+                            {name:'Redemption Count',data:res.count},
+                            {name:'Redemption Value',data:res.value}
+                        ],
+                        xaxis:{categories:shortLabels},
+                        legend:{position:'top'},
+                        tooltip:{
+                            custom: function({series, seriesIndex, dataPointIndex}) {
+                                return '<div class="apex-tooltip">'+
+                                    fullLabels[dataPointIndex] +
+                                    '<br>'+series[seriesIndex][dataPointIndex]+
+                                    '</div>';
+                            }
+                        }
+                    }
+                );
+
+                outletPerformanceChart.render();
+
+            }else{
+
+                outletPerformanceChart.updateOptions({
+                    series:[
+                        {name:'Redemption Count',data:res.count},
+                        {name:'Redemption Value',data:res.value}
+                    ],
+                    xaxis:{categories:shortLabels}
+                });
+
+            }
+
+        });
     }
-};
 
-var redeemChart = new ApexCharts(
-    document.querySelector("#voucherRedeemChart"),
-    redeemOptions
-);
+    var redemptionRateTrendChart = null;
 
-redeemChart.render();
+    function loadRedemptionRateTrend(type='month')
+    {
+        $.get("{{ url('admin/redemption-rate-trend-data') }}",{type:type},function(res){
+
+            if(!redemptionRateTrendChart){
+
+                redemptionRateTrendChart = new ApexCharts(
+                    document.querySelector("#redemptionRateTrendChart"),
+                    {
+                        chart:{type:'line',height:350},
+                        stroke:{width:[3,3,3]},
+                        colors:['#556ee6','#34c38f','#f46a6a'],
+                        series:[
+                            {name:'Issued',data:res.issued},
+                            {name:'Redeemed',data:res.redeemed},
+                            {name:'Redemption Rate %',data:res.rate}
+                        ],
+                        xaxis:{categories:res.labels},
+                        yaxis:[
+                            {title:{text:'Vouchers'}},
+                            {
+                                opposite:true,
+                                title:{text:'Rate %'}
+                            }
+                        ],
+                        tooltip:{
+                            shared:true
+                        }
+                    }
+                );
+
+                redemptionRateTrendChart.render();
+
+            }else{
+
+                redemptionRateTrendChart.updateOptions({
+                    series:[
+                        {name:'Issued',data:res.issued},
+                        {name:'Redeemed',data:res.redeemed},
+                        {name:'Redemption Rate %',data:res.rate}
+                    ],
+                    xaxis:{categories:res.labels}
+                });
+
+            }
+
+        });
+    }
+
+
+    $(document).ready(function(){
+        
+        loadCharts();
+        loadOutletCharts();
+        loadRedemptionRateTrend();
+        
+        $('#trendType').change(function(){
+            loadCharts($(this).val());
+        });
+        
+        $('#rateTrendType').change(function(){
+            loadRedemptionRateTrend($(this).val());
+        });
+    });
+
+   
 
 </script>
+
 @endsection

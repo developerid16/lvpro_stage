@@ -129,7 +129,14 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middleware(['web', 'auth', 'OTPVerify'])->name('root');
 
+
+
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify'])->group(function () {
+    // <!-- Dashboard graph -->
+    Route::get('/voucher-trend-data', [HomeController::class,'voucherTrendData']);
+    Route::get('/outlet-redemption-data',[HomeController::class,'outletRedemptionData']);
+    Route::get('/redemption-rate-trend-data',[HomeController::class,'redemptionRateTrendData']);
+
 
     Route::get('/safra-check', [HomeController::class, 'checkMember']);
 
