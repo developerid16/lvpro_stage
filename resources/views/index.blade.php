@@ -8,6 +8,11 @@
 @slot('li_1') Dashboard @endslot
 @slot('title') Dashboard @endslot
 @endcomponent
+<style>
+    .apexcharts-toolbar{
+        display: none !important;
+    }
+</style>
 
 <div class="row">
 
@@ -16,13 +21,11 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Voucher Issuance Trend</h4>
-                <div class="col-md-3">
-                    <select id="trendType" class="form-control">
-                        <option value="week" selected>Week</option>
-                        <option value="month">Month</option>
-                        <option value="year">Year</option>
-                    </select>
-                </div>
+                <select id="trendType" class="form-control w-auto">
+                    <option value="week" selected>Week</option>
+                    <option value="month">Month</option>
+                    <option value="year">Year</option>
+                </select>
 
             </div>
             <div class="card-body">
@@ -53,14 +56,15 @@
         </div>
     </div>
 
+    <!---Redemption rate-->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
 
                 <select id="rateTrendType" class="form-control w-auto">
-                    <option value="week">Week</option>
-                    <option value="month" selected>Month</option>
+                    <option value="week" selected>Week</option>
+                    <option value="month">Month</option>
                 </select>
 
             </div>
@@ -70,6 +74,63 @@
             </div>
         </div>
     </div>
+
+     <!-- Voucher Issuance Method -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Voucher Issuance Method Distribution</h4>
+            </div>
+    
+            <div class="card-body">
+                <div id="issuanceMethodChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voucher Issuance Method -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Category Performance Summary</h4>
+            </div>
+    
+            <div class="card-body">
+                <div id="categoryPerformanceChart"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Transactions Trend -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Monthly Transactions Trend</h4>
+            </div>
+    
+            <div class="card-body">
+                <div id="monthlyTransactionsChart"></div>
+            </div>
+        </div>
+    </div>
+    
+   
+    <!-- Monthly Transactions Trend -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Purchase Frequency Distribution</h4>
+            </div>
+    
+            <div class="card-body">
+                <div id="purchaseFrequencyChart"></div>
+            </div>
+        </div>
+    </div>
+
+
+    
+   
 
 </div>
 @endsection
@@ -88,12 +149,20 @@
         }, 'slow');
     }
 </script>
-<script>
 
-   
+<script>  
 
     var issuanceChart;
     var redeemChart;
+    var outletCountChart = null;
+    var outletValueChart = null;
+    var outletPerformanceChart = null;
+    var redemptionRateTrendChart = null;
+    var categoryChart = null;
+    var issuanceMethodChart = null;
+    var monthlyTransactionsChart = null;
+    var purchaseFrequencyChart = null;
+
 
     function loadCharts(type='week')
     {
@@ -139,12 +208,6 @@
 
         });
     }
-
-
-    
-    var outletCountChart = null;
-    var outletValueChart = null;
-    var outletPerformanceChart = null;
 
     function loadOutletCharts()
     {
@@ -277,9 +340,7 @@
         });
     }
 
-    var redemptionRateTrendChart = null;
-
-    function loadRedemptionRateTrend(type='month')
+    function loadRedemptionRateTrend(type='week')
     {
         $.get("{{ url('admin/redemption-rate-trend-data') }}",{type:type},function(res){
 
@@ -328,13 +389,259 @@
         });
     }
 
+    function loadCategoryPerformance(){
+
+        $.get("{{ url('admin/category-performance-data') }}", function(res){
+
+            var labels = [];
+            var transactions = [];
+            var members = [];
+            var sets = [];
+            var revenue = [];
+
+            res.forEach(function(row){
+                labels.push(row.category_name);
+                transactions.push(row.transaction_count);
+                members.push(row.unique_members);
+                sets.push(row.total_sets);
+                revenue.push(row.total_revenue);
+            });
+
+            if(!categoryChart){
+
+                categoryChart = new ApexCharts(
+                    document.querySelector("#categoryPerformanceChart"),
+                    {
+                        chart:{
+                            type:'bar',
+                            height:400
+                        },
+
+                        plotOptions:{
+                            bar:{
+                                horizontal:true,
+                                barHeight:'50%'
+                            }
+                        },
+
+                        series:[
+                            {name:'Transactions',data:transactions},
+                            {name:'Unique Members',data:members},
+                            {name:'Sets Sold',data:sets},
+                            {name:'Revenue',data:revenue}
+                        ],
+
+                        xaxis:{
+                            categories:labels
+                        },
+
+                        tooltip:{
+                            shared:true,
+                            intersect:false
+                        },
+
+                        colors:[
+                            '#556ee6',
+                            '#34c38f',
+                            '#f1b44c',
+                            '#f46a6a'
+                        ]
+                    }
+                );
+
+                categoryChart.render();
+
+            }else{
+
+                categoryChart.updateOptions({
+                    series:[
+                        {name:'Transactions',data:transactions},
+                        {name:'Unique Members',data:members},
+                        {name:'Sets Sold',data:sets},
+                        {name:'Revenue',data:revenue}
+                    ],
+                    xaxis:{categories:labels}
+                });
+
+            }
+
+        });
+    }
+
+    function loadIssuanceMethodChart()
+    {
+        $.get("{{ url('admin/voucher-issuance-method-data') }}", function(res){
+
+            if(!issuanceMethodChart){
+
+                issuanceMethodChart = new ApexCharts(
+                    document.querySelector("#issuanceMethodChart"),
+                    {
+                        chart:{
+                            type:'bar',
+                            height:350
+                        },
+                        series:[{
+                            name:'Total Vouchers Issued',
+                            data:res.values
+                        }],
+                        xaxis:{
+                            categories:res.labels
+                        },
+                        colors:['#556ee6'],
+                        tooltip:{
+                            shared:true,
+                            intersect:false
+                        }
+                    }
+                );
+
+                issuanceMethodChart.render();
+
+            }else{
+
+                issuanceMethodChart.updateOptions({
+                    series:[{data:res.values}],
+                    xaxis:{categories:res.labels}
+                });
+
+            }
+
+        });
+    }
+
+    function loadMonthlyTransactionsChart(){
+
+        $.get("{{ url('admin/monthly-transactions-trend-data') }}",function(res){
+
+            if(!monthlyTransactionsChart){
+
+                monthlyTransactionsChart = new ApexCharts(
+                    document.querySelector("#monthlyTransactionsChart"),
+                    {
+                        chart:{
+                            type:'line',
+                            height:350
+                        },
+
+                        stroke:{
+                            width:[3,3]
+                        },
+
+                        series:[
+                            {
+                                name:'Transaction Count',
+                                data:res.transactions
+                            },
+                            {
+                                name:'Voucher Sets Sold',
+                                data:res.sets
+                            }
+                        ],
+
+                        xaxis:{
+                            categories:res.labels
+                        },
+
+                        colors:[
+                            '#556ee6',
+                            '#34c38f'
+                        ],
+
+                        tooltip:{
+                            shared:true,
+                            intersect:false
+                        }
+                    }
+                );
+
+                monthlyTransactionsChart.render();
+
+            }else{
+
+                monthlyTransactionsChart.updateOptions({
+                    series:[
+                        {name:'Transaction Count',data:res.transactions},
+                        {name:'Voucher Sets Sold',data:res.sets}
+                    ],
+                    xaxis:{categories:res.labels}
+                });
+
+            }
+
+        });
+    }
+
+    function loadPurchaseFrequencyChart(){
+
+    $.get("{{ url('admin/purchase-frequency-data') }}",function(res){
+
+        if(!purchaseFrequencyChart){
+
+            purchaseFrequencyChart = new ApexCharts(
+                document.querySelector("#purchaseFrequencyChart"),
+                {
+                    chart:{
+                        type:'bar',
+                        height:350,
+                        stacked:true
+                    },
+
+                    series:[
+                        {
+                            name:'Members',
+                            data:res.members
+                        },
+                        {
+                            name:'% of Transactions',
+                            data:res.percentages
+                        }
+                    ],
+
+                    xaxis:{
+                        categories:res.labels
+                    },
+
+                    colors:[
+                        '#556ee6',
+                        '#34c38f'
+                    ],
+
+                    tooltip:{
+                        shared:true,
+                        intersect:false
+                    }
+                }
+            );
+
+            purchaseFrequencyChart.render();
+
+        }else{
+
+            purchaseFrequencyChart.updateOptions({
+                series:[
+                    {name:'Members',data:res.members},
+                    {name:'% of Transactions',data:res.percentages}
+                ],
+                xaxis:{categories:res.labels}
+            });
+
+        }
+
+    });
+}
+
 
     $(document).ready(function(){
-        
+    
         loadCharts();
         loadOutletCharts();
         loadRedemptionRateTrend();
-        
+        loadIssuanceMethodChart();
+        loadCategoryPerformance();
+        loadMonthlyTransactionsChart();
+        loadPurchaseFrequencyChart();
+
         $('#trendType').change(function(){
             loadCharts($(this).val());
         });
@@ -343,8 +650,6 @@
             loadRedemptionRateTrend($(this).val());
         });
     });
-
-   
 
 </script>
 
