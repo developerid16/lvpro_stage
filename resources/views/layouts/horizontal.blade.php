@@ -438,7 +438,7 @@
 
                     <div class="mt-3 d-grid">
                         <button class="btn btn-primary waves-effect waves-light UpdatePassword"
-                            data-id="{{ Auth::user()->id }}" type="submit">Update Password..</button>
+                            data-id="{{ Auth::user()->id }}" type="submit">Update Password</button>
                     </div>
                 </form>
             </div>
