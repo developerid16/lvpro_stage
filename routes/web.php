@@ -142,6 +142,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('/category-performance-data',[HomeController::class,'categoryPerformanceData']);
     Route::get('/monthly-transactions-trend-data',[HomeController::class,'monthlyTransactionsTrendData']);
     Route::get('/purchase-frequency-data',[HomeController::class,'purchaseFrequencyData']);
+    Route::get('/demographic-purchase-data',[HomeController::class,'demographicPurchaseData']);
 
     Route::get('/safra-check', [HomeController::class, 'checkMember']);
 

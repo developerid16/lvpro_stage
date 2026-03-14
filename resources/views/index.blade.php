@@ -128,6 +128,26 @@
         </div>
     </div>
 
+    <!-- Monthly Transactions Trend -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Demographic Purchase Profiling</h4>
+                <select id="demographicType" class="form-control" style="width:200px">
+                    <option value="age">Age Distribution</option>
+                    <option value="gender">Gender Distribution</option>
+                    <option value="region">Region Distribution</option>
+                    <option value="marital">Marital Status</option>
+                </select>
+            </div>
+
+            <div class="card-body">
+                <div id="demographicChart"></div>
+            </div>
+
+        </div>
+    </div>
+
 
     
    
@@ -162,6 +182,7 @@
     var issuanceMethodChart = null;
     var monthlyTransactionsChart = null;
     var purchaseFrequencyChart = null;
+    var demographicChart = null;
 
 
     function loadCharts(type='week')
@@ -631,9 +652,89 @@
     });
 }
 
+    function loadDemographicChart(){
+
+    var type = $('#demographicType').val();
+    var range = $('#ageRange').val();
+
+    $.get("{{ url('admin/demographic-purchase-data') }}",
+    {type:type,range:range},
+    function(res){
+
+        var chartType = 'bar';
+        var options = {};
+
+        if(type === 'gender'){
+            chartType = 'donut';
+        }
+
+        if(type === 'region'){
+            chartType = 'heatmap';
+        }
+
+        if(demographicChart){
+            demographicChart.destroy();
+        }
+
+        if(chartType === 'heatmap'){
+
+            options = {
+                chart:{
+                    type:'heatmap',
+                    height:350
+                },
+                series:[{
+                    name:'Members',
+                    data:res.labels.map(function(label,i){
+                        return {x:label,y:res.values[i]};
+                    })
+                }],
+                colors:['#556ee6']
+            };
+
+        }else if(chartType === 'donut'){
+
+            options = {
+                chart:{
+                    type:'donut',
+                    height:350
+                },
+                series:res.values,
+                labels:res.labels,
+                colors:['#556ee6','#34c38f','#f1b44c','#f46a6a']
+            };
+
+        }else{
+
+            options = {
+                chart:{
+                    type:'bar',
+                    height:350
+                },
+                series:[{
+                    name:'Members',
+                    data:res.values
+                }],
+                xaxis:{
+                    categories:res.labels
+                },
+                colors:['#556ee6']
+            };
+
+        }
+
+        demographicChart = new ApexCharts(
+            document.querySelector("#demographicChart"),
+            options
+        );
+
+        demographicChart.render();
+
+    });
+}
+    
 
     $(document).ready(function(){
-    
         loadCharts();
         loadOutletCharts();
         loadRedemptionRateTrend();
@@ -641,6 +742,7 @@
         loadCategoryPerformance();
         loadMonthlyTransactionsChart();
         loadPurchaseFrequencyChart();
+        loadDemographicChart();    
 
         $('#trendType').change(function(){
             loadCharts($(this).val());
@@ -649,6 +751,11 @@
         $('#rateTrendType').change(function(){
             loadRedemptionRateTrend($(this).val());
         });
+          
+        $('#demographicType').change(function(){
+            loadDemographicChart();
+        });       
+      
     });
 
 </script>

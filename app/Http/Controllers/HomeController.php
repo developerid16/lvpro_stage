@@ -509,6 +509,90 @@ class HomeController extends Controller
         ]);
     }
 
+    public function demographicPurchaseData(Request $request)
+    {
+        $type = $request->type ?? 'age';
+        $range = $request->range ?? 'all';
+
+        $users = DB::table('payment_transactions as pt')
+            ->join('app_users as u','pt.user_id','=','u.session_id')
+            ->leftJoin('master_genders as g','u.gender','=','g.label')
+            ->leftJoin('master_marital_statuses as ms','u.marital_status','=','ms.label')
+            ->leftJoin('master_zones as z','u.residence_zone','=','z.zone_name')
+            ->select(
+                'pt.user_id',
+                'u.age',
+                'g.label as gender',
+                'ms.label as marital_status',
+                'z.zone_name as region'
+            )
+            ->distinct('pt.user_id')   // prevent duplicate users
+            ->get()
+            ->unique('user_id');       // extra safety
+
+        $ageGroups = [
+            '18-30'=>0,
+            '31-45'=>0,
+            '46-60'=>0,
+            '60+'=>0
+        ];
+
+        $gender = [];
+        $region = [];
+        $marital = [];
+
+        foreach($users as $user){
+
+            if(!$user->age) continue;
+
+            $birth = \Carbon\Carbon::createFromFormat('m/Y',$user->age);
+            $age = $birth->age;
+
+            if($age >=18 && $age <=30) $ageGroups['18-30']++;
+            elseif($age <=45) $ageGroups['31-45']++;
+            elseif($age <=60) $ageGroups['46-60']++;
+            else $ageGroups['60+']++;
+
+            if($user->gender){
+                $gender[$user->gender] = ($gender[$user->gender] ?? 0) + 1;
+            }
+
+            if($user->region){
+                $region[$user->region] = ($region[$user->region] ?? 0) + 1;
+            }
+
+            if($user->marital_status){
+                $marital[$user->marital_status] = ($marital[$user->marital_status] ?? 0) + 1;
+            }
+        }
+
+        if($type == 'gender'){
+            return response()->json([
+                'labels'=>array_keys($gender),
+                'values'=>array_values($gender)
+            ]);
+        }
+
+        if($type == 'region'){
+            return response()->json([
+                'labels'=>array_keys($region),
+                'values'=>array_values($region)
+            ]);
+        }
+
+        if($type == 'marital'){
+            return response()->json([
+                'labels'=>array_keys($marital),
+                'values'=>array_values($marital)
+            ]);
+        }
+
+        return response()->json([
+            'labels'=>array_keys($ageGroups),
+            'values'=>array_values($ageGroups)
+        ]);
+    }
+
     /*Language Translation*/
     public function lang($locale)
     {
