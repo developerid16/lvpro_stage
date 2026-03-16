@@ -204,7 +204,7 @@
             let merchantId = $(this).val();
             let rewardType = $('.reward_type').val();
 
-            $("#location_wrapper").html("");
+            // $("#location_wrapper").html("");
 
             if (rewardType == "1" && merchantId) {
                 // $("#location_section").show();
@@ -267,7 +267,7 @@
                             i++;
                         });
 
-                        html += `</div><div id="locations_error" class="text-danger mt-1"></div>`; // close row wrapper
+                        html += `</div>`; // close row wrapper
 
                         $("#location_section").html(html);
                     }

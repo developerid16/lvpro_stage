@@ -86,12 +86,17 @@ $(document).ready(function () {
                     return;
                 }
                 
+                $('#locations_error').text('');
                 $('.participating-location-error').text('');
                 let errors = response.responseJSON?.errors || {};
 
                 // 🔥 Handle club locations error in Birthday voucher
-                if (errors.locations) {
+               if (errors.locations) {
+                    console.log(errors.locations[0],'errors.locations');
+
                     $('.club-location-error').text(errors.locations[0]);
+                    $('#locations_error').text(errors.locations[0]); // correct selector
+
                     delete errors.locations;
                 }
 
@@ -119,7 +124,9 @@ $(document).ready(function () {
 
                 });
 
-               // Club Location Validation msg
+               
+
+            //    // Club Location Validation msg
                 $('.location-error-msg').remove();
 
                 Object.keys(errors).forEach(function(key) {
@@ -312,8 +319,8 @@ $(document).ready(function () {
             },
 
             error: function (response) {
-
-                 $btn.prop('disabled', false);
+                $('#EditModal #locations_error').text('');
+                $btn.prop('disabled', false);
                 $btn.data('processing', false); // 🔥 THIS WAS MISSING
 
                 if(response.status === 403) {
@@ -323,18 +330,18 @@ $(document).ready(function () {
 
                 $('.club-location-error').text('');
                 $('.participating-location-error').text('');
-
+                
                 let errors = response.responseJSON?.errors || {};
                 let locationMessages = [];
 
-                Object.keys(errors).forEach(function(key) {
+                // Object.keys(errors).forEach(function(key) {
 
-                    if (key.startsWith("locations.")) {
-                        locationMessages.push(errors[key][0]);
-                        delete errors[key];
-                    }
+                //     if (key.startsWith("locations.")) {
+                //         locationMessages.push(errors[key][0]);
+                //         delete errors[key];
+                //     }
 
-                });
+                // });
 
                 if (locationMessages.length > 0) {
                     $('.club-location-error').text(locationMessages.join(', '));
@@ -344,6 +351,35 @@ $(document).ready(function () {
                     $('.participating-location-error').text(errors.participating_merchant_locations[0]);
                     delete errors.participating_merchant_locations;
                 }
+
+                  // Club Location Validation msg
+                $('.location-error-msg').remove();
+               
+                Object.keys(errors).forEach(function(key) {
+
+                    if (key.startsWith("locations.")) {
+
+                        let match = key.match(/locations\.(\d+)\.inventory_qty/);
+
+                        if (match) {
+
+                            let locationId = match[1];
+
+                            let locationBox = $(`input[name="locations[${locationId}][inventory_qty]"]`)
+                                                .closest('.location-box');
+
+                            locationBox.after(`
+                                <div class="text-danger location-error-msg mt-1">
+                                    ${errors[key][0]}
+                                </div>
+                            `);
+                        }
+
+                        delete errors[key];
+                    }
+
+                });
+                          
 
                 show_errors(errors, "#edit_frm");
             }

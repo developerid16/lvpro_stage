@@ -619,35 +619,41 @@ class RewardController extends Controller
                     $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
                 }
                 
-                /* ---------------- RUN VALIDATOR ---------------- */
                 $validator = Validator::make($request->all(), $rules, $messages);
-                
-                if ($request->reward_type == 1) {           
-                    
-                    $rules['locations'] = 'required|array|min:1';
-    
-                    $hasSelected = false;
-    
-                    foreach ($request->locations ?? [] as $locId => $locData) {
-                        if (isset($locData['selected'])) {
-                            $hasSelected = true;
-                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
-                            $messages = [
-                                'locations.required' => 'Please select at least one location.',
-                                'locations.*.inventory_qty.required' => 'The locations inventory quantity field is required.',
-                                'locations.*.inventory_qty.integer' => 'The locations inventory quantity must be a valid number.',
-                                'locations.*.inventory_qty.min' => 'The locations inventory quantity must be at least 1.',
-                            ];
+
+                /* ---------------- LOCATION VALIDATION ---------------- */
+
+                $validator->after(function ($validator) use ($request) {
+
+                    if ((int) $request->reward_type == 1) {
+
+                        $hasSelected = false;
+
+                        foreach ($request->locations ?? [] as $locData) {
+                            if (!empty($locData['selected'])) {
+                                $hasSelected = true;
+                                break;
+                            }
+                        }
+
+                        if (!$hasSelected) {
+                            $validator->errors()->add(
+                                'locations',
+                                'Please select at least one location.'
+                            );
                         }
                     }
-    
-                    if (!$hasSelected) {
-                        $validator->errors()->add(
-                            'locations',
-                            'Please select at least one location.'
-                        );                       
-                    }
+                });
+
+                /* ---------------- RUN VALIDATOR ---------------- */
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'status' => false,
+                        'errors' => $validator->errors()
+                    ], 422);
                 }
+                
     
                 /* ---------------- DIGITAL ---------------- */
                 if ($request->reward_type == '0') {            
@@ -1537,6 +1543,9 @@ class RewardController extends Controller
                 foreach ($request->locations ?? [] as $locId => $locData) {
                     if (!empty($locData['selected'])) {
                         $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+                        $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
+                        $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
+                        $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
                     }
                 }
 

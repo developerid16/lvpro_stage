@@ -42,7 +42,7 @@ class ParticipatingMerchantLocation extends Model
         return $this->belongsTo(ClubLocation::class);
     }
 
-     public function encryptCode($value)
+     public static function encryptCode($value)
     {
         $hex = bin2hex($value);        // convert string → hex
         $encoded = strtoupper(base_convert($hex, 16, 36)); 

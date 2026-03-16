@@ -9,8 +9,6 @@
         width: '100%',
     });
 
-
-
     // when file selected (ADD or EDIT)
     $(document).on('change', '#EditModal #csvFile', function () {
         if (this.files.length > 0) {
@@ -262,7 +260,7 @@
         let locationSection = modal.find('#location_section');
         let locationWrapper = modal.find('#location_wrapper');
 
-        locationWrapper.html("");
+        // locationWrapper.html("");
 
         if (rewardType == "1" && merchantId) {
             locationSection.show();
@@ -326,7 +324,7 @@
                     i++;
                 });
 
-                html += `</div><div id="locations_error" class="text-danger mt-1"></div>`;
+                html += `</div>`;
 
                 modal.find('#location_section').html(html);
 
@@ -584,9 +582,7 @@
                         <!--Merchant Locations-->
                         <div id="location_section" class="mt-2 mb-2" style="display:none;">                            
                         </div>
-                        <div id="physical" >                          
-                        </div>
-
+                        <div id="locations_error" class="text-danger mt-1"></div>
                         <div id="digital" style="display:none; margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
 
                             <div class="row">
