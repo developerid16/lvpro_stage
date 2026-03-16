@@ -1994,20 +1994,20 @@ class RewardController extends Controller
         
             $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
             
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                    ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //         ], 404);
+            // }
                     
-            $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
-            if ($cartitem) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user cart. You cannot delete it.'
-                    ], 404);
-            }
+            // $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
+            // if ($cartitem) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user cart. You cannot delete it.'
+            //         ], 404);
+            // }
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
                 unlink(public_path('uploads/image/' . $reward->voucher_image));
             }

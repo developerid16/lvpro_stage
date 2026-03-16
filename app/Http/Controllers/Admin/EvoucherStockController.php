@@ -1107,7 +1107,7 @@ class EvoucherStockController extends Controller
         ]);
     }
 
-    public function toggleFeatured(Request $request)
+    public function toggleswalFeatured(Request $request)
     {
         $reward = Reward::findOrFail($request->id);
 

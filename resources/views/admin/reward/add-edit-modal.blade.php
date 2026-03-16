@@ -754,8 +754,14 @@
                             </div>
                             <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label>
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Low Stock Reminder Threshold</label>
-
+                               <div class="col-md-4">
+                                    <label class="fw-bold">Low Stock Reminder Threshold</label>
+                                    <ul class="text-danger mb-0 ps-3" style="font-size: 8px;">
+                                        <li>Leave empty to disable low stock alert.</li>
+                                        <li>Member interface shows "Running Out Soon" based on (Reminder 1).</li>
+                                        <li>Applies to eVoucher Team.</li>
+                                    </ul>
+                                </div>
                                 <div class="col-md-6 d-flex">
                                     <div class="me-3">
                                         <label class="sh_dec">Low Stock Reminder 1 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ParticipatingMerchantLocation;
 use App\Models\UserAccessRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -200,6 +201,8 @@ class LoginController extends Controller
     }
     protected function showLoginForm()
     {
+        ParticipatingMerchantLocation::expireLocations();
+
         return view('auth.login');
     }
     protected function userRightsForm()

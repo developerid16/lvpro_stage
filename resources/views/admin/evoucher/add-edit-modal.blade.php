@@ -378,7 +378,7 @@
                                     </div>
                                     <div class="col-12 col-md-12">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Days <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage Days <span class="required-hash"></span></label>
 
                                             @php
                                                 $selectedDays = is_array($data->days ?? null)
@@ -400,13 +400,13 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Start Time <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage Start Time <span class="required-hash"></span></label>
                                             <input type="time"  class="form-control" name="start_time" value="{{ isset($data->start_time) ? $data->start_time  : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">End Time <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage End Time <span class="required-hash"></span></label>
                                             <input type="time" class="form-control" name="end_time"  value="{{ isset($data->end_time) ? $data->end_time  : '' }}">
                                         </div>
                                     </div>
