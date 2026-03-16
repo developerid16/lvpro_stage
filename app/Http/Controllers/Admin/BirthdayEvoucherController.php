@@ -1133,14 +1133,14 @@ class BirthdayEvoucherController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
             }
 
-            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+            // $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
 
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //     ], 404);
+            // }
 
         
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {

@@ -550,7 +550,7 @@ class RewardController extends Controller
     
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
-                    'send_reminder'      => 'required|boolean',
+                    'send_reminder'      => 'nullable|boolean',
                     'ax_item_code'      => 'required',
 
                     'max_quantity_physical' => 'required_if:reward_type,1|integer|min:1',
@@ -778,6 +778,7 @@ class RewardController extends Controller
     
                 $reward = Reward::create([
                     'type'               => '0',
+                    'status'    => 'pending',
                     'cso_method'          => (int) ($request['cso_method'] ?? 0),
                     'voucher_image'      => $validated['voucher_image'],
                     'voucher_detail_img' => $validated['voucher_detail_img'],
@@ -1465,8 +1466,7 @@ class RewardController extends Controller
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
-                'expiry_type' => 'required|in:fixed,validity,no_expiry',
-
+               
                 'voucher_validity' => [
                     'required_if:expiry_type,fixed',
                     'nullable',
@@ -2039,20 +2039,20 @@ class RewardController extends Controller
         
             $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
             
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                    ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //         ], 404);
+            // }
                     
-            $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
-            if ($cartitem) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user cart. You cannot delete it.'
-                    ], 404);
-            }
+            // $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
+            // if ($cartitem) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user cart. You cannot delete it.'
+            //         ], 404);
+            // }
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
                 unlink(public_path('uploads/image/' . $reward->voucher_image));
             }

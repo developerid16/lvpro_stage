@@ -415,6 +415,7 @@ class EvoucherApprovalController extends Controller
                     'csvFile'               => $update->csvFile,
                     'is_featured' =>        $update->is_featured,
                     'is_draft'             => 0,
+                    'status' => 'approved',
                 ]);
                 $update->update([
                     'status' => 'approved',
