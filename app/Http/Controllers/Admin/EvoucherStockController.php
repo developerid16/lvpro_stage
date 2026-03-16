@@ -149,21 +149,21 @@ class EvoucherStockController extends Controller
             // }
 
             $final_data[$key]['hide_catalogue'] = '-';
-            // if (Auth::user()->can($this->permission_prefix . '-hide-catalogue')) {
+            if (Auth::user()->can('hide-from-catalogue-voucher')) {
                 $final_data[$key]['hide_catalogue'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input hide-catalogue-switch" type="checkbox" data-id="'.$row->id.'" '.($row->hide_catalogue ? 'checked' : '').'>
                     </div>';
-            // }
+            }
 
             $final_data[$key]['is_featured'] = '-';
 
-            // if (Auth::user()->can($this->permission_prefix . '-featured-toggle')) {
+            if (Auth::user()->can('is-featured-voucher')) {
                 $final_data[$key]['is_featured'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input featured-toggle-switch" type="checkbox"  data-id="'.$row->id.'" '.($row->is_featured ? 'checked' : '').'>
                     </div>';
-            // }
+            }
         
 
             $final_data[$key]['action'] = $action . "</div>";
@@ -1107,7 +1107,7 @@ class EvoucherStockController extends Controller
         ]);
     }
 
-    public function toggleFeatured(Request $request)
+    public function toggleswalFeatured(Request $request)
     {
         $reward = Reward::findOrFail($request->id);
 

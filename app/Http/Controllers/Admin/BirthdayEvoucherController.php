@@ -49,13 +49,13 @@ class BirthdayEvoucherController extends Controller
     public function index(Request $request)
     {
 
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
         $this->layout_data['rewards'] = Reward::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         // 🔥 ADD THIS
-        $this->layout_data['club_location'] = ClubLocation::where('status','Active')->get();
+        $this->layout_data['club_location'] = ClubLocation::where('status','Active')->orderBy('name', 'ASC')->get();
 
         return view($this->view_file_path . "index")
             ->with($this->layout_data);
@@ -656,10 +656,10 @@ class BirthdayEvoucherController extends Controller
         ])->find($id);
 
         $this->layout_data['data'] = $reward;
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['club_location'] = ClubLocation::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['club_location'] = ClubLocation::orderBy('name', 'ASC')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         // -------------------------------
         // GROUP SELECTED OUTLETS
@@ -1133,14 +1133,14 @@ class BirthdayEvoucherController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
             }
 
-            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+            // $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
 
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //     ], 404);
+            // }
 
         
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
