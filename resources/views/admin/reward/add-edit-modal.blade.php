@@ -319,8 +319,6 @@
                                         placeholder="Qty"
                                         style="max-width:100px">
                                 </div>
-
-
                             </div>
                         </div>
                     `;

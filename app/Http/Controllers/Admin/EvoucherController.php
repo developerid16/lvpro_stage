@@ -159,70 +159,73 @@ class EvoucherController extends Controller
             
             $now = Carbon::now();
 
-            /* ---------------- DRAFT OVERRIDE ---------------- */
-            if (
-                $row->is_draft == 1 &&
-                !RewardUpdateRequest::where('reward_id', $row->id)->exists()
-            ) {
-                $status = '-';
-            } else {
+                /* ---------------- DRAFT OVERRIDE ---------------- */
+                if (
+                    $row->is_draft == 1 &&
+                    !RewardUpdateRequest::where('reward_id', $row->id)->exists()
+                ) {
+                    $status = '-';
+                } else {
 
-                $salesStart = ($row->sales_start_date && $row->sales_start_time)
-                    ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
-                    : null;
+                    $salesStart = ($row->sales_start_date && $row->sales_start_time)
+                        ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
+                        : null;
 
-                $salesEnd = ($row->sales_end_date && $row->sales_end_time)
-                    ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
-                    : null;
+                    $salesEnd = ($row->sales_end_date && $row->sales_end_time)
+                        ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
+                        : null;
 
-                $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'approve')
-                    ->exists();
+                     $latestRequest = RewardUpdateRequest::where('reward_id', $row->id)->latest('id')->first();
 
-                $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'pending')
-                    ->exists();
+                    $hasApproved = $latestRequest && $latestRequest->status === 'approve';
+                    $hasPending  = $latestRequest && $latestRequest->status === 'pending';
+                    $hasRejected = $latestRequest && $latestRequest->status === 'rejected';
 
-            /*
-            FINAL PRIORITY
-            1. Expired
-            2. Pending approval
-            3. Approved (ONLY if start date is future)
-            4. Active
-            */
+                    /*
+                    FINAL PRIORITY
+                    1. Expired
+                    2. Rejected
+                    3. Pending approval
+                    4. Approved (ONLY if start date is future)
+                    5. Active
+                    */
 
-            // 1. EXPIRED
-            if (
-                ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
-                ($salesEnd && $now->gt($salesEnd))
-            ) {
-                $status = 'expired';
-            }
+                    // 1. EXPIRED
+                    if (
+                        ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                        ($salesEnd && $now->gt($salesEnd))
+                    ) {
+                        $status = 'expired';
+                    }
 
-            // 2. PENDING APPROVAL
-            elseif ($hasPending) {
-                $status = 'pending approval';
-            }
+                    // 2. REJECTED
+                    elseif ($hasRejected) {
+                        $status = 'rejected';
+                    }
 
-            // 3. APPROVED (only if sales not started yet)
-            elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
-                $status = 'approved';
-            }
+                    // 3. PENDING APPROVAL
+                    elseif ($hasPending) {
+                        $status = 'pending approval';
+                    }
 
-            // 4. ACTIVE (approved OR not, but within window)
-            elseif (
-                (!$salesStart || $now->gte($salesStart)) &&
-                (!$salesEnd || $now->lte($salesEnd))
-            ) {
-                $status = 'active';
-            }
+                    // 4. APPROVED (only if sales not started yet)
+                    elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                        $status = 'approved';
+                    }
 
-            // SAFETY
-            else {
-                $status = 'Upcoming';
-            }
-        }
+                    // 5. ACTIVE
+                    elseif (
+                        (!$salesStart || $now->gte($salesStart)) &&
+                        (!$salesEnd || $now->lte($salesEnd))
+                    ) {
+                        $status = 'active';
+                    }
 
+                    // SAFETY
+                    else {
+                        $status = 'Upcoming';
+                    }
+                }
 
 
             $final_data[$key]['status'] = $status;

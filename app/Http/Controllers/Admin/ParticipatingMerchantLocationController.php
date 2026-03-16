@@ -47,10 +47,10 @@ class ParticipatingMerchantLocationController extends Controller
         $this->layout_data['participating_merchant']   = $pm;
 
         // Club Locations dropdown depends on participating merchant
-        $this->layout_data['locations'] = ClubLocation::all();
+        $this->layout_data['locations'] = ClubLocation::orderBy('name', 'asc')->get();
 
         // Participating merchant list dropdown
-        $this->layout_data['merchants'] = ParticipatingMerchant::where('id',$merchant)->orderBy('name')->get();
+        $this->layout_data['merchants'] = ParticipatingMerchant::where('id',$merchant)->orderBy('name', 'asc')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }

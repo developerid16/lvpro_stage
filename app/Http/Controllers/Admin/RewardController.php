@@ -136,11 +136,10 @@ class RewardController extends Controller
             $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
             $final_data[$key]['status'] = $row->status;
 
-          
+            $now = Carbon::now();
 
-           $now = Carbon::now();
 
-            /* ---------------- DRAFT OVERRIDE ---------------- */
+           /* ---------------- DRAFT OVERRIDE ---------------- */
             if (
                 $row->is_draft == 1 &&
                 !RewardUpdateRequest::where('reward_id', $row->id)->exists()
@@ -156,53 +155,58 @@ class RewardController extends Controller
                     ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
                     : null;
 
-                $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'approve')
-                    ->exists();
+                $latestRequest = RewardUpdateRequest::where('reward_id', $row->id)->latest('id')->first();
 
-                $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'pending')
-                    ->exists();
+                $hasApproved = $latestRequest && $latestRequest->status === 'approve';
+                $hasPending  = $latestRequest && $latestRequest->status === 'pending';
+                $hasRejected = $latestRequest && $latestRequest->status === 'rejected';
 
-                    /*
-                    FINAL PRIORITY
-                    1. Expired
-                    2. Pending approval
-                    3. Approved (ONLY if start date is future)
-                    4. Active
-                    */
+                /*
+                FINAL PRIORITY
+                1. Expired
+                2. Rejected
+                3. Pending approval
+                4. Approved (ONLY if start date is future)
+                5. Active
+                */
 
-                    // 1. EXPIRED
-                    if (
-                        ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
-                        ($salesEnd && $now->gt($salesEnd))
-                    ) {
-                        $status = 'expired';
-                    }
+                // 1. EXPIRED
+                if (
+                    ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                    ($salesEnd && $now->gt($salesEnd))
+                ) {
+                    $status = 'expired';
+                }
 
-                    // 2. PENDING APPROVAL
-                    elseif ($hasPending) {
-                        $status = 'pending approval';
-                    }
+                // 2. REJECTED
+                elseif ($hasRejected) {
+                    $status = 'rejected';
+                }
 
-                    // 3. APPROVED (only if sales not started yet)
-                    elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
-                        $status = 'approved';
-                    }
+                // 3. PENDING APPROVAL
+                elseif ($hasPending) {
+                    $status = 'pending approval';
+                }
 
-                    // 4. ACTIVE (approved OR not, but within window)
-                    elseif (
-                        (!$salesStart || $now->gte($salesStart)) &&
-                        (!$salesEnd || $now->lte($salesEnd))
-                    ) {
-                        $status = 'active';
-                    }
+                // 4. APPROVED (only if sales not started yet)
+                elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                    $status = 'approved';
+                }
 
-                    // SAFETY
-                    else {
-                        $status = 'Upcoming';
-                    }
+                // 5. ACTIVE
+                elseif (
+                    (!$salesStart || $now->gte($salesStart)) &&
+                    (!$salesEnd || $now->lte($salesEnd))
+                ) {
+                    $status = 'active';
+                }
+
+                // SAFETY
+                else {
+                    $status = 'Upcoming';
+                }
             }
+
             
             $final_data[$key]['status'] = $status;
 
@@ -630,9 +634,9 @@ class RewardController extends Controller
                             $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
                             $messages = [
                                 'locations.required' => 'Please select at least one location.',
-                                'locations.*.inventory_qty.required' => 'Inventory quantity is required for selected location.',
-                                'locations.*.inventory_qty.integer' => 'Inventory quantity must be a valid number.',
-                                'locations.*.inventory_qty.min' => 'Inventory quantity must be at least 1.',
+                                'locations.*.inventory_qty.required' => 'The locations inventory quantity field is required.',
+                                'locations.*.inventory_qty.integer' => 'The locations inventory quantity must be a valid number.',
+                                'locations.*.inventory_qty.min' => 'The locations inventory quantity must be at least 1.',
                             ];
                         }
                     }

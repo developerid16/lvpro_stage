@@ -118,7 +118,7 @@
                             </div>
                         </div>
 
-                        {{-- <div class="col-12 col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label>Club Location <span class="required-hash"></span></label>
                                 <select name="club_location_id" class="form-select">
@@ -131,7 +131,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div> --}}
+                        </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
