@@ -343,7 +343,7 @@
                                         id="direct_no"
                                         name="direct_utilization"
                                         value="0"
-                                        {{ isset($data) && $data->direct_utilization == 0 ? 'checked' : '' }}>
+                                       {{ !isset($data) || (isset($data) && $data->hide_quantity == 0) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="direct_no">No</label>
                                 </div>
 
@@ -387,7 +387,7 @@
                                     </div>
                                     <div class="col-12 col-md-12">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Days <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage Days <span class="required-hash"></span></label>
 
                                             @php
                                                 $selectedDays = is_array($data->days ?? null)
@@ -409,13 +409,13 @@
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">Start Time <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage Start Time <span class="required-hash"></span></label>
                                             <input type="time"  class="form-control" name="start_time" value="{{ isset($data->start_time) ? $data->start_time  : '' }}">
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <div class="mb-3 sh_dec">
-                                            <label class="sh_dec font-12">End Time <span class="required-hash"></span></label>
+                                            <label class="sh_dec font-12">Usage End Time <span class="required-hash"></span></label>
                                             <input type="time" class="form-control" name="end_time"  value="{{ isset($data->end_time) ? $data->end_time  : '' }}">
                                         </div>
                                     </div>
@@ -641,11 +641,11 @@
                         <div class="col-md-6 d-flex">
                             <div class="me-3">
                                 <label class="sh_dec">Low Stock Reminder 1 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
+                                <input type="number" min="0" class="form-control stock-input" name="low_stock_1" placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                             </div>
                             <div>
                                 <label class="sh_dec">Low Stock Reminder 2 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
+                                <input type="number" min="0" class="form-control stock-input"  name="low_stock_2" placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                             </div>
                         </div>                               
                     </div>

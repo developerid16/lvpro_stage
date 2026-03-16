@@ -619,3 +619,6 @@ input::placeholder {
         display: none !important;
     }
 }
+.tox .tox-tbtn__select-label {
+    color: #000;
+}

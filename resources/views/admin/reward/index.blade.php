@@ -44,7 +44,7 @@
                             <th data-field="amount" data-sortable="true">Amount</th>
                             <th data-field="quantity" data-sortable="true">Total</th>
                             <th data-field="balance">Balance</th>
-                            <th data-field="purchased" data-sortable="true">Issuance</th>
+                            <th data-field="purchased" data-sortable="true">Sold</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>
@@ -267,7 +267,7 @@
                             i++;
                         });
 
-                        html += `</div><div id="locations_error" class="text-danger mt-1"></div>`; // close row wrapper
+                        html += `</div>`; // close row wrapper
 
                         $("#location_section").html(html);
                     }

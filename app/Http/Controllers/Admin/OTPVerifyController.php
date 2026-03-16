@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ParticipatingMerchantLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cache;
@@ -58,7 +59,6 @@ class OTPVerifyController extends Controller
             Session::put('IS_OTP_VERIFY', true);
             
             $url = getRedirectUrl(auth()->user());
-
             if ($url) {
                 return redirect($url);
             }

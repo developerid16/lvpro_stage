@@ -1294,6 +1294,43 @@
         }
 
     });
+    $(document).on('keydown', 'input[type="number"]', function(e) {
+        if (e.key === '-' || e.key === 'Minus') {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('keydown', '.stock-input', function(e) {
+
+        // block decimal and minus
+        if (e.key === '.' || e.key === 'Decimal' || e.key === '-' || e.key === 'Minus') {
+            e.preventDefault();
+        }
+
+    });
+
+    $(document).on('input', '.stock-input', function () {
+
+        let value = this.value.replace(/[^0-9]/g, ''); // allow digits only
+        let maxLength = 6;
+
+        if (value.length > maxLength) {
+            value = value.slice(0, maxLength);
+        }
+
+        this.value = value;
+
+    });
+
+    $(document).on('paste', '.stock-input', function(e) {
+
+        let paste = (e.originalEvent || e).clipboardData.getData('text');
+
+        if (!/^\d+$/.test(paste)) {
+            e.preventDefault();
+        }
+
+});
 
     $('#AddModal').on('shown.bs.modal', function () {
         $('.validation-error').hide();
