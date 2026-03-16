@@ -400,7 +400,7 @@ class TreatsAndDealsApprovalController extends Controller
                     'clearing_method' => (int) ($update->clearing_method ?? 0),
 
                     'location_text'        => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
+                    'participating_merchant_id' => !empty($update->participating_merchant_id) ? $update->participating_merchant_id : null,
                     'hide_quantity'        => $update->hide_quantity,
                     'low_stock_1'          => $update->low_stock_1,
                     'low_stock_2'          => $update->low_stock_2,

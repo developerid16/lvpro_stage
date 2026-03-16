@@ -267,6 +267,7 @@
         let locationWrapper = modal.find('#location_wrapper');
 
         // locationWrapper.html("");
+        // locationWrapper.html("");
 
         if (rewardType == "1" && merchantId) {
             locationSection.show();
@@ -323,8 +324,6 @@
                                         placeholder="Qty"
                                         style="max-width:100px">
                                 </div>
-
-
                             </div>
                         </div>
                     `;
@@ -332,7 +331,7 @@
                     i++;
                 });
 
-                html += `</div><div id="locations_error" class="text-danger mt-1"></div>`;
+                html += `</div>`;
 
                 modal.find('#location_section').html(html);
 
@@ -630,9 +629,7 @@
                         <!--Merchant Locations-->
                         <div id="location_section" class="mt-2 mb-2" style="display:none;">                            
                         </div>
-                        <div id="physical" >                          
-                        </div>
-
+                        <div id="locations_error" class="text-danger mt-1"></div>
                         <div id="digital" style="display:none; margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
 
                             <div class="row">

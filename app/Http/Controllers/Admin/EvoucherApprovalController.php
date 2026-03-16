@@ -390,7 +390,7 @@ class EvoucherApprovalController extends Controller
                     'friendly_url'         => $update->friendly_url,
                     
                     'max_quantity'    => (int) ($update->max_quantity ?? 0),
-                    'category_id'     => (int) ($update->category_id ?? 0),
+                    'category_id' => !empty($update->category_id) ? $update->category_id : null,
                     'inventory_type'  => (int) ($update->inventory_type ?? 0),
                     'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
                     'voucher_value'   => (float) ($update->voucher_value ?? 0),
@@ -404,8 +404,7 @@ class EvoucherApprovalController extends Controller
 
 
                     'location_text'        => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
-
+                    'participating_merchant_id' => !empty($update->participating_merchant_id) ? $update->participating_merchant_id : null,
                     'hide_quantity'        => $update->hide_quantity,
                     'low_stock_1'          => $update->low_stock_1,
                     'low_stock_2'          => $update->low_stock_2,
