@@ -538,7 +538,7 @@ class RewardController extends Controller
     
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
-                    'send_reminder'      => 'required|boolean',
+                    'send_reminder'      => 'nullable|boolean',
                     'ax_item_code'      => 'required',
 
                     'max_quantity_physical' => 'required_if:reward_type,1|integer|min:1',
@@ -1436,6 +1436,7 @@ class RewardController extends Controller
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
+               
                 'voucher_validity' => [
                     'required',
                     'date',

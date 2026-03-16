@@ -44,7 +44,7 @@
                             <th data-field="amount" data-sortable="true">Amount</th>
                             <th data-field="quantity" data-sortable="true">Total</th>
                             <th data-field="balance">Balance</th>
-                            <th data-field="purchased" data-sortable="true">Issuance</th>
+                            <th data-field="purchased" data-sortable="true">Sold</th>
                             <th data-field="redeemed">Redeemed</th>
                             <th data-field="duration">Publish Date Duration</th>
                             <th data-field="image">Image</th>

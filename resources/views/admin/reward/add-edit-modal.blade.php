@@ -901,7 +901,7 @@
                         </div>
                     </div>
 
-                    <div class="row align-items-center mb-3">
+                    {{-- <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Is Featured</label>
                         <div class="col-md-6">
                             <div class="form-check form-switch">
@@ -914,7 +914,7 @@
                                 >
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
 
                     <input type="hidden" name="action" class="action-field" value="">
