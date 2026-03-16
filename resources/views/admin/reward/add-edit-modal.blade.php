@@ -759,7 +759,6 @@
                                     <ul class="text-danger mb-0 ps-3" style="font-size: 8px;">
                                         <li>Leave empty to disable low stock alert.</li>
                                         <li>Member interface shows "Running Out Soon" based on (Reminder 1).</li>
-                                        <li>Applies to eVoucher Team.</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6 d-flex">
