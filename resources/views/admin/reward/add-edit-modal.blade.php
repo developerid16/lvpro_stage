@@ -656,7 +656,7 @@
                                         <input id="csvFile" type="file" class="sh_dec form-control" name="csvFile" accept=".xlsx,.xls,.csv">
                                         <div class="d-flex justify-content-between align-items-center mt-1">
                                             <div>
-                                                <label class="small text-muted">  Download demo file:
+                                                <label class="small text-muted">  Download Template:
                                                     <a href="{{ asset('demo-reward.xlsx') }}" download class="text-primary fw-bold"> Click here </a>
                                                 </label>
                                             </div>

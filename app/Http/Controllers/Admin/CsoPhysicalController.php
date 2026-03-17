@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
 use App\Models\VoucherLog;
+use Illuminate\Support\Facades\Auth;
 
 class CsoPhysicalController extends Controller
 {

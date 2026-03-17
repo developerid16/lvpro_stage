@@ -77,7 +77,7 @@
                                     <input id="memberId" type="file" class="form-control" name="memberId" accept=".xlsx,.xls">
                                     <div class="mt-1">
                                         <label class="small text-muted">
-                                            Download demo file:
+                                            Download Template:
                                             <a href="{{ asset('demo-push-voucher.xlsx') }}" download class="text-primary fw-bold">
                                                 Click here
                                             </a>
