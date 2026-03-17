@@ -9,7 +9,9 @@ use App\Models\ParticipatingMerchantLocation;
 use App\Models\ParticipatingMerchant;
 use App\Models\ClubLocation;
 use Illuminate\Support\Facades\Validator;
-use Endroid\QrCode\Builder\Builder;
+// use Endroid\QrCode\Builder\Builder;
+// use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
@@ -202,12 +204,19 @@ class ParticipatingMerchantLocationController extends Controller
             File::makeDirectory($path, 0755, true);
         }
 
-        $result = Builder::create()
-            ->writer(new PngWriter())
-            ->data($encryptedCode)
-            ->size(300)
-            ->margin(10)
-            ->build();
+        // $result = Builder::create()
+        //     ->writer(new PngWriter())
+        //     ->data($encryptedCode)
+        //     ->size(300)
+        //     ->margin(10)
+        //     ->build();
+
+        $qrCode = QrCode::create($encryptedCode)
+            ->setSize(300)
+            ->setMargin(10);
+
+        $writer = new PngWriter();
+        $result = $writer->write($qrCode);
 
         $result->saveToFile($path.'/'.$qrName);
 
@@ -287,19 +296,28 @@ class ParticipatingMerchantLocationController extends Controller
                 File::makeDirectory($path, 0755, true);
             }
 
-            $result = Builder::create()
-                ->writer(new PngWriter())
-                ->data($encryptedCode)
-                ->size(300)
-                ->margin(10)
-                ->build();
+            // $result = Builder::create()
+            //     ->writer(new PngWriter())
+            //     ->data($encryptedCode)
+            //     ->size(300)
+            //     ->margin(10)
+            //     ->build();
+
+            // $result->saveToFile($path.'/'.$qrName);
+
+            $qrCode = QrCode::create($encryptedCode)
+                ->setSize(300)
+                ->setMargin(10);
+
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
 
             $result->saveToFile($path.'/'.$qrName);
 
-            $data['encrypted_code'] = $encryptedCode;
+                $data['encrypted_code'] = $encryptedCode;
 
-            $data['qrcode'] = $qrName;
-        }
+                $data['qrcode'] = $qrName;
+            }
 
         $data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
 
