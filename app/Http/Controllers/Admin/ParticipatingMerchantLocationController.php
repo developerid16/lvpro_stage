@@ -233,6 +233,7 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function edit($id)
     {
+        
         $row = ParticipatingMerchantLocation::findOrFail($id);
 
         $this->layout_data['data'] = $row;
