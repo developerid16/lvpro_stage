@@ -137,12 +137,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('/outlet-redemption-data',[HomeController::class,'outletRedemptionData']);
     Route::get('/redemption-rate-trend-data',[HomeController::class,'redemptionRateTrendData']);
     Route::get('/voucher-issuance-method-data', [HomeController::class,'voucherIssuanceMethodData']);
-    
+    Route::get('/campaign-performance-data',[HomeController::class,'campaignPerformanceData']);
     // <!-- treats and deals graph -->
     Route::get('/category-performance-data',[HomeController::class,'categoryPerformanceData']);
     Route::get('/monthly-transactions-trend-data',[HomeController::class,'monthlyTransactionsTrendData']);
     Route::get('/purchase-frequency-data',[HomeController::class,'purchaseFrequencyData']);
     Route::get('/demographic-purchase-data',[HomeController::class,'demographicPurchaseData']);
+    Route::get('/member-participation-data',[HomeController::class,'memberParticipationData']);
+
 
     Route::get('/safra-check', [HomeController::class, 'checkMember']);
 

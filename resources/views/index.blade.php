@@ -55,6 +55,15 @@
             </div>
         </div>
     </div>
+    <!-- Redemption by Outlet -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><h4 class="mb-0">Campaign Performance Comparison</h4></div>
+            <div class="card-body">
+                <div id="campaignChart"></div>
+            </div>
+        </div>
+    </div>
 
     <!---Redemption rate-->
     <div class="col-md-6">
@@ -148,10 +157,24 @@
         </div>
     </div>
 
+    <!-- Monthly Transactions Trend -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Monthly Unique Member Participation</h4>
+                <select id="participationType" onchange="loadMemberParticipationChart()">
+                    <option value="month">Month</option>
+                    <option value="week" selected>Week</option>
+                    <option value="year">Year</option>
+                </select>
+            </div>
 
-    
-   
+            <div class="card-body">
+                <div id="memberChart"></div>
+            </div>
 
+        </div>
+    </div>
 </div>
 @endsection
 @section('script')
@@ -183,6 +206,8 @@
     var monthlyTransactionsChart = null;
     var purchaseFrequencyChart = null;
     var demographicChart = null;
+    var memberChart = null;
+    var campaignChart = null;
 
 
     function loadCharts(type='week')
@@ -654,95 +679,227 @@
 
     function loadDemographicChart(){
 
-    var type = $('#demographicType').val();
-    var range = $('#ageRange').val();
+        var type = $('#demographicType').val();
+        var range = $('#ageRange').val();
 
-    $.get("{{ url('admin/demographic-purchase-data') }}",
-    {type:type,range:range},
-    function(res){
+        $.get("{{ url('admin/demographic-purchase-data') }}",
+        {type:type,range:range},
+        function(res){
 
-        var chartType = 'bar';
-        var options = {};
+            var chartType = 'bar';
+            var options = {};
 
-        if(type === 'gender'){
-            chartType = 'donut';
-        }
+            if(type === 'gender'){
+                chartType = 'donut';
+            }
 
-        if(type === 'region'){
-            chartType = 'heatmap';
-        }
+            if(type === 'region'){
+                chartType = 'heatmap';
+            }
 
-        if(demographicChart){
-            demographicChart.destroy();
-        }
+            if(demographicChart){
+                demographicChart.destroy();
+            }
 
-        if(chartType === 'heatmap'){
+            if(chartType === 'heatmap'){
 
-            options = {
+                options = {
+                    chart:{
+                        type:'heatmap',
+                        height:350
+                    },
+                    series:[{
+                        name:'Members',
+                        data:res.labels.map(function(label,i){
+                            return {x:label,y:res.values[i]};
+                        })
+                    }],
+                    colors:['#556ee6']
+                };
+
+            }else if(chartType === 'donut'){
+
+                options = {
+                    chart:{
+                        type:'donut',
+                        height:350
+                    },
+                    series:res.values,
+                    labels:res.labels,
+                    colors:['#556ee6','#34c38f','#f1b44c','#f46a6a']
+                };
+
+            }else{
+
+                options = {
+                    chart:{
+                        type:'bar',
+                        height:350
+                    },
+                    series:[{
+                        name:'Members',
+                        data:res.values
+                    }],
+                    xaxis:{
+                        categories:res.labels
+                    },
+                    colors:['#556ee6']
+                };
+
+            }
+
+            demographicChart = new ApexCharts(
+                document.querySelector("#demographicChart"),
+                options
+            );
+
+            demographicChart.render();
+
+        });
+    }
+
+    function loadMemberParticipationChart(){
+
+        var type = $('#participationType').val();
+
+        $.get("{{ url('admin/member-participation-data') }}",
+        {type:type},
+        function(res){
+
+            // destroy old chart
+            if(memberChart && typeof memberChart.destroy === "function"){
+                memberChart.destroy();
+            }
+
+            var options = {
                 chart:{
-                    type:'heatmap',
+                    type:'line',
                     height:350
                 },
-                series:[{
-                    name:'Members',
-                    data:res.labels.map(function(label,i){
-                        return {x:label,y:res.values[i]};
-                    })
-                }],
-                colors:['#556ee6']
-            };
-
-        }else if(chartType === 'donut'){
-
-            options = {
-                chart:{
-                    type:'donut',
-                    height:350
+                series:[
+                    {
+                        name:'Unique Members',
+                        data:res.unique_members   // ✅ correct
+                    },
+                    {
+                        name:'Repeat Purchase Rate (%)',
+                        data:res.repeat_rate      // ✅ correct
+                    }
+                ],
+                xaxis:{
+                    categories:res.labels
                 },
-                series:res.values,
-                labels:res.labels,
-                colors:['#556ee6','#34c38f','#f1b44c','#f46a6a']
+                stroke:{
+                    curve:'smooth'
+                },
+                yaxis:[
+                    {
+                        title:{ text:'Members' }
+                    },
+                    {
+                        opposite:true,
+                        title:{ text:'Repeat %' }
+                    }
+                ],
+                colors:['#556ee6','#34c38f'],
+                tooltip:{
+                    shared:true
+                }
             };
 
-        }else{
+            memberChart = new ApexCharts(
+                document.querySelector("#memberChart"),
+                options
+            );
 
-            options = {
+            memberChart.render();
+
+            // ✅ show totals separately (not in chart)
+            $('#totalMembers').text(res.total_unique_members);
+            $('#repeatRate').text(res.overall_repeat_rate + '%');
+        });
+    }
+    
+
+    function loadCampaignChart(){
+
+        $.get("{{ url('admin/campaign-performance-data') }}", function(res){
+
+            if(campaignChart && typeof campaignChart.destroy === "function"){
+                campaignChart.destroy();
+            }
+
+            var el = document.querySelector("#campaignChart");
+
+            if(!el){
+                console.error("Chart element not found");
+                return;
+            }
+
+            var options = {
                 chart:{
                     type:'bar',
                     height:350
                 },
-                series:[{
-                    name:'Members',
-                    data:res.values
-                }],
+                series:[
+                    {
+                        name:'Vouchers Issued',
+                        data:res.issued || []
+                    },
+                    {
+                        name:'Vouchers Redeemed',
+                        data:res.redeemed || []
+                    },
+                    {
+                        name:'Redemption Rate (%)',
+                        type:'line',
+                        data:res.rate || []
+                    }
+                ],
                 xaxis:{
-                    categories:res.labels
+                    categories:res.labels || []
                 },
-                colors:['#556ee6']
+                yaxis:[
+                    {
+                        title:{ text:'Count' }
+                    },
+                    {
+                        opposite:true,
+                        title:{ text:'Rate (%)' }
+                    }
+                ],
+                colors:['#556ee6','#34c38f','#f46a6a'],
+                stroke:{
+                    width:[0,0,3]
+                },
+                dataLabels:{
+                    enabled:true,
+                    enabledOnSeries:[2]
+                },
+                tooltip:{
+                    shared:true,
+                    intersect:false
+                }
             };
 
-        }
+            campaignChart = new ApexCharts(el, options);
+            campaignChart.render();
+        });
+    }
 
-        demographicChart = new ApexCharts(
-            document.querySelector("#demographicChart"),
-            options
-        );
 
-        demographicChart.render();
-
-    });
-}
     
-
     $(document).ready(function(){
         loadCharts();
         loadOutletCharts();
         loadRedemptionRateTrend();
+        loadCampaignChart();    
         loadIssuanceMethodChart();
         loadCategoryPerformance();
         loadMonthlyTransactionsChart();
         loadPurchaseFrequencyChart();
         loadDemographicChart();    
+        loadMemberParticipationChart();    
 
         $('#trendType').change(function(){
             loadCharts($(this).val());
@@ -754,6 +911,10 @@
           
         $('#demographicType').change(function(){
             loadDemographicChart();
+        });       
+      
+        $('#participationType').change(function(){
+            loadMemberParticipationChart();
         });       
       
     });

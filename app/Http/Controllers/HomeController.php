@@ -593,6 +593,129 @@ class HomeController extends Controller
         ]);
     }
 
+    public function memberParticipationData(Request $request)
+    {
+        $type = $request->type ?? 'week';
+
+        $months = [
+            1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'May',6=>'Jun',
+            7=>'Jul',8=>'Aug',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dec'
+        ];
+
+        $allData = DB::table('payment_transactions')
+            ->select('user_id','created_at')
+            ->get();
+
+        // 🔥 overall unique users
+        $totalUniqueUsers = $allData->pluck('user_id')->unique()->count();
+
+        // 🔥 overall repeat users (2+ transactions)
+        $totalRepeatUsers = $allData
+            ->groupBy('user_id')
+            ->filter(fn($g) => $g->count() >= 2)
+            ->count();
+
+        $overallRepeatRate = $totalUniqueUsers > 0
+            ? round(($totalRepeatUsers / $totalUniqueUsers) * 100, 2)
+            : 0;
+
+        // 🔹 Grouped data
+        $data = $allData->groupBy(function($item) use ($type){
+
+            if($type == 'week'){
+                return \Carbon\Carbon::parse($item->created_at)->format('D');
+            }
+
+            if($type == 'year'){
+                return \Carbon\Carbon::parse($item->created_at)->month;
+            }
+
+            return \Carbon\Carbon::parse($item->created_at)->format('d');
+        });
+
+        $labels = [];
+        $uniqueData = [];
+        $repeatRate = [];
+
+        foreach ($data as $key => $items) {
+
+            if($type == 'year'){
+                $label = $months[$key];
+            }else{
+                $label = $key;
+            }
+
+            $labels[] = $label;
+
+            $uniqueMembers = collect($items)->pluck('user_id')->unique()->count();
+
+            $repeatMembers = collect($items)
+                ->groupBy('user_id')
+                ->filter(fn($g) => $g->count() >= 2)
+                ->count();
+
+            $uniqueData[] = $uniqueMembers;
+
+            $repeatRate[] = $uniqueMembers > 0
+                ? round(($repeatMembers / $uniqueMembers) * 100, 2)
+                : 0;
+        }
+
+        return response()->json([
+            'labels' => array_values($labels),
+            'unique_members' => array_values($uniqueData),
+            'repeat_rate' => array_values($repeatRate),
+
+            // 🔥 NEW DATA
+            'total_unique_members' => $totalUniqueUsers,
+            'overall_repeat_rate' => $overallRepeatRate
+        ]);
+    }
+
+    public function campaignPerformanceData()
+    {
+        $data = DB::table('rewards')
+            ->select(
+                'name as campaign',
+                DB::raw('SUM(purchased_qty) as issued'),
+                DB::raw("SUM(CASE WHEN status = 'redeemed' THEN 1 ELSE 0 END) as redeemed")
+            )
+            ->groupBy('name')
+            ->get();
+
+        $labels = [];
+        $issued = [];
+        $redeemed = [];
+        $rate = [];
+
+        foreach ($data as $row) {
+
+            $labels[] = $row->campaign;
+
+            $issued[] = $row->issued ?? 0;
+            $redeemed[] = $row->redeemed ?? 0;
+
+            $rate[] = $row->issued > 0
+                ? round(($row->redeemed / $row->issued) * 100, 2)
+                : 0;
+
+                $issued[] = (int) $row->issued ?? 0;
+                $redeemed[] = (int) $row->redeemed ?? 0;
+
+                $rate[] = ($row->issued > 0)
+                    ? round(($row->redeemed / $row->issued) * 100, 2)
+                : 0;
+        }
+
+        
+        return response()->json([
+            'labels' => $labels,
+            'issued' => $issued,
+            'redeemed' => $redeemed,
+            'rate' => $rate
+        ]);
+    }
+
     /*Language Translation*/
     public function lang($locale)
     {
