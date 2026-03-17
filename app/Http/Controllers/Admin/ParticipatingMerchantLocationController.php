@@ -213,7 +213,7 @@ class ParticipatingMerchantLocationController extends Controller
 
         $post_data['qrcode'] = $qrName;
         $post_data['encrypted_code'] = $encryptedCode;
-
+        $post_data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
         ParticipatingMerchantLocation::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Created Successfully']);
@@ -301,6 +301,7 @@ class ParticipatingMerchantLocationController extends Controller
             $data['qrcode'] = $qrName;
         }
 
+        $data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
 
         ParticipatingMerchantLocation::findOrFail($id)->update($data);
 

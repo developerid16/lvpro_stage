@@ -372,7 +372,7 @@ class EvoucherController extends Controller
                     'inventory_type'     => Reward::intOrZero($request, 'inventory_type'),
                     'inventory_qty'      => Reward::intOrZero($request, 'inventory_qty'),
 
-                    'category_id'        => Reward::intOrZero($request, 'category_id'),
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : null,
 
                     'friendly_url'       => $request->friendly_url,
                     'voucher_value'      => Reward::intOrZero($request, 'voucher_value'),
@@ -707,7 +707,7 @@ class EvoucherController extends Controller
                 'inventory_qty'       => (int) ($request->inventory_qty ?? 0),
 
                 'friendly_url'        => $validated['friendly_url'] ?? null,
-                'category_id'         => (int) ($request->filled('category_id') ? $request->category_id : 0),
+                'category_id'            => $request->filled('category_id') ? $request->category_id : null,
 
                 'voucher_value'       => (float) ($validated['voucher_value'] ?? 0),
                 'voucher_set'         => (int) ($validated['voucher_set'] ?? 0),
@@ -763,7 +763,8 @@ class EvoucherController extends Controller
                 'voucher_validity' => $validated['expiry_type'] === 'fixed' ? $validated['voucher_validity'] : null,
                 'validity_month' => $validated['expiry_type'] === 'validity'  ? $validated['validity_month'] : null,
 
-                'category_id'          => $validated['category_id'],
+                'category_id'            => $request->filled('category_id') ? $request->category_id : null,
+
                 'friendly_url'         => $validated['friendly_url'],
                 'inventory_type'       => $validated['inventory_type'],
                 'inventory_qty'        => $request->inventory_qty ?? 0,
@@ -1469,7 +1470,7 @@ class EvoucherController extends Controller
                 'inventory_type'     => $validated['inventory_type'],
                 
                 'max_quantity'       =>(int) ($validated['max_quantity']),
-                'category_id'        =>(int) ($validated['category_id']),
+                'category_id'        =>(int) ($validated['category_id'] ?? null),
                 'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
                 'voucher_value'      =>(int) ($validated['voucher_value']),
                 'voucher_set'        =>(int) ($validated['voucher_set']),
