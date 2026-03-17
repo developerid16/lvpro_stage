@@ -201,7 +201,7 @@ class LoginController extends Controller
     }
     protected function showLoginForm()
     {
-        // ParticipatingMerchantLocation::expireLocations();
+        ParticipatingMerchantLocation::expireLocations();
 
         return view('auth.login');
     }
