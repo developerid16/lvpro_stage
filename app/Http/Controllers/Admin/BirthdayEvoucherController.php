@@ -49,13 +49,13 @@ class BirthdayEvoucherController extends Controller
     public function index(Request $request)
     {
 
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
         $this->layout_data['rewards'] = Reward::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         // 🔥 ADD THIS
-        $this->layout_data['club_location'] = ClubLocation::where('status','Active')->get();
+        $this->layout_data['club_location'] = ClubLocation::where('status','Active')->orderBy('name', 'ASC')->get();
 
         return view($this->view_file_path . "index")
             ->with($this->layout_data);
@@ -279,7 +279,7 @@ class BirthdayEvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
     
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
@@ -303,6 +303,18 @@ class BirthdayEvoucherController extends Controller
                 'voucher_detail_img.image'     => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'     => 'Voucher Detail Image must be png, jpg, jpeg',
                 'voucher_detail_img.max'       => 'Voucher Detail Image may not be greater than 2048 KB',
+
+                // Voucher Validity Date
+                'expiry_type.required' => 'Please select voucher expiry type.',
+
+                'voucher_validity.required_if' => 'Voucher expiry date is required when Fixed Expiry Date is selected.',
+                'voucher_validity.date' => 'Voucher expiry date must be a valid date.',
+
+                'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
+                'validity_month.integer' => 'Validity period must be a number.',
+                'validity_month.min' => 'Validity period must be at least 1 month.',
+                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+
             ];
 
             /* ---------------------------------------------------
@@ -644,10 +656,10 @@ class BirthdayEvoucherController extends Controller
         ])->find($id);
 
         $this->layout_data['data'] = $reward;
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['club_location'] = ClubLocation::get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['club_location'] = ClubLocation::orderBy('name', 'ASC')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         // -------------------------------
         // GROUP SELECTED OUTLETS
@@ -812,7 +824,7 @@ class BirthdayEvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
     
                 'inventory_qty'     => 'nullable|integer|min:0',
                 'voucher_value'     => 'required|numeric|min:0',
@@ -837,6 +849,18 @@ class BirthdayEvoucherController extends Controller
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
                 'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
+
+                // Voucher Validity Date
+                'expiry_type.required' => 'Please select voucher expiry type.',
+
+                'voucher_validity.required_if' => 'Voucher expiry date is required when Fixed Expiry Date is selected.',
+                'voucher_validity.date' => 'Voucher expiry date must be a valid date.',
+
+                'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
+                'validity_month.integer' => 'Validity period must be a number.',
+                'validity_month.min' => 'Validity period must be at least 1 month.',
+                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+
             ];
 
              /* ---------------------------------------------------
@@ -1109,14 +1133,14 @@ class BirthdayEvoucherController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
             }
 
-            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+            // $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
 
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //     ], 404);
+            // }
 
         
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {

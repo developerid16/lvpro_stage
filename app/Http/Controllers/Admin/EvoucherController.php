@@ -61,11 +61,11 @@ class EvoucherController extends Controller
 
         $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $this->layout_data['type'] = $type;
-        $this->layout_data['category'] = Category::get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
         $this->layout_data['memberReward'] = Reward::where('cso_method',1)->get();
         $this->layout_data['parameterReward'] = Reward::where('cso_method',2)->get();
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         $this->layout_data['master_card_types'] = MasterCardType::get();
         $this->layout_data['master_dependent_types'] = MasterDependentType::get();
@@ -159,70 +159,73 @@ class EvoucherController extends Controller
             
             $now = Carbon::now();
 
-            /* ---------------- DRAFT OVERRIDE ---------------- */
-            if (
-                $row->is_draft == 1 &&
-                !RewardUpdateRequest::where('reward_id', $row->id)->exists()
-            ) {
-                $status = '-';
-            } else {
+                /* ---------------- DRAFT OVERRIDE ---------------- */
+                if (
+                    $row->is_draft == 1 &&
+                    !RewardUpdateRequest::where('reward_id', $row->id)->exists()
+                ) {
+                    $status = '-';
+                } else {
 
-                $salesStart = ($row->sales_start_date && $row->sales_start_time)
-                    ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
-                    : null;
+                    $salesStart = ($row->sales_start_date && $row->sales_start_time)
+                        ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
+                        : null;
 
-                $salesEnd = ($row->sales_end_date && $row->sales_end_time)
-                    ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
-                    : null;
+                    $salesEnd = ($row->sales_end_date && $row->sales_end_time)
+                        ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
+                        : null;
 
-                $hasApproved = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'approve')
-                    ->exists();
+                     $latestRequest = RewardUpdateRequest::where('reward_id', $row->id)->latest('id')->first();
 
-                $hasPending = RewardUpdateRequest::where('reward_id', $row->id)
-                    ->where('status', 'pending')
-                    ->exists();
+                    $hasApproved = $latestRequest && $latestRequest->status === 'approve';
+                    $hasPending  = $latestRequest && $latestRequest->status === 'pending';
+                    $hasRejected = $latestRequest && $latestRequest->status === 'rejected';
 
-            /*
-            FINAL PRIORITY
-            1. Expired
-            2. Pending approval
-            3. Approved (ONLY if start date is future)
-            4. Active
-            */
+                    /*
+                    FINAL PRIORITY
+                    1. Expired
+                    2. Rejected
+                    3. Pending approval
+                    4. Approved (ONLY if start date is future)
+                    5. Active
+                    */
 
-            // 1. EXPIRED
-            if (
-                ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
-                ($salesEnd && $now->gt($salesEnd))
-            ) {
-                $status = 'expired';
-            }
+                    // 1. EXPIRED
+                    if (
+                        ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                        ($salesEnd && $now->gt($salesEnd))
+                    ) {
+                        $status = 'expired';
+                    }
 
-            // 2. PENDING APPROVAL
-            elseif ($hasPending) {
-                $status = 'pending approval';
-            }
+                    // 2. REJECTED
+                    elseif ($hasRejected) {
+                        $status = 'rejected';
+                    }
 
-            // 3. APPROVED (only if sales not started yet)
-            elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
-                $status = 'approved';
-            }
+                    // 3. PENDING APPROVAL
+                    elseif ($hasPending) {
+                        $status = 'pending approval';
+                    }
 
-            // 4. ACTIVE (approved OR not, but within window)
-            elseif (
-                (!$salesStart || $now->gte($salesStart)) &&
-                (!$salesEnd || $now->lte($salesEnd))
-            ) {
-                $status = 'active';
-            }
+                    // 4. APPROVED (only if sales not started yet)
+                    elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                        $status = 'approved';
+                    }
 
-            // SAFETY
-            else {
-                $status = 'Upcoming';
-            }
-        }
+                    // 5. ACTIVE
+                    elseif (
+                        (!$salesStart || $now->gte($salesStart)) &&
+                        (!$salesEnd || $now->lte($salesEnd))
+                    ) {
+                        $status = 'active';
+                    }
 
+                    // SAFETY
+                    else {
+                        $status = 'Upcoming';
+                    }
+                }
 
 
             $final_data[$key]['status'] = $status;
@@ -369,7 +372,7 @@ class EvoucherController extends Controller
                     'inventory_type'     => Reward::intOrZero($request, 'inventory_type'),
                     'inventory_qty'      => Reward::intOrZero($request, 'inventory_qty'),
 
-                    'category_id'        => Reward::intOrZero($request, 'category_id'),
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : null,
 
                     'friendly_url'       => $request->friendly_url,
                     'voucher_value'      => Reward::intOrZero($request, 'voucher_value'),
@@ -505,7 +508,7 @@ class EvoucherController extends Controller
                         }
                     ],
 
-                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
     
                     'category_id'      => 'nullable',
                     'inventory_type'   => 'required|in:0,1',
@@ -545,6 +548,7 @@ class EvoucherController extends Controller
                     'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                     'validity_month.integer' => 'Validity period must be a number.',
                     'validity_month.min' => 'Validity period must be at least 1 month.',
+                    'validity_month.max' => 'Validity period may not be greater than 12 months.',
 
                      // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
@@ -665,6 +669,7 @@ class EvoucherController extends Controller
             * ---------------------------------------------------*/
             $reward = Reward::create([
                 'type'  => '1',
+                'status'    => 'pending',
                 'days'  => $request->input('days'),
 
                 'start_time' => $request->start_time,
@@ -702,7 +707,7 @@ class EvoucherController extends Controller
                 'inventory_qty'       => (int) ($request->inventory_qty ?? 0),
 
                 'friendly_url'        => $validated['friendly_url'] ?? null,
-                'category_id'         => (int) ($request->filled('category_id') ? $request->category_id : 0),
+                'category_id'            => $request->filled('category_id') ? $request->category_id : null,
 
                 'voucher_value'       => (float) ($validated['voucher_value'] ?? 0),
                 'voucher_set'         => (int) ($validated['voucher_set'] ?? 0),
@@ -758,7 +763,8 @@ class EvoucherController extends Controller
                 'voucher_validity' => $validated['expiry_type'] === 'fixed' ? $validated['voucher_validity'] : null,
                 'validity_month' => $validated['expiry_type'] === 'validity'  ? $validated['validity_month'] : null,
 
-                'category_id'          => $validated['category_id'],
+                'category_id'            => $request->filled('category_id') ? $request->category_id : null,
+
                 'friendly_url'         => $validated['friendly_url'],
                 'inventory_type'       => $validated['inventory_type'],
                 'inventory_qty'        => $request->inventory_qty ?? 0,
@@ -884,8 +890,8 @@ class EvoucherController extends Controller
 
         $reward->voucher_validity =  ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
         $this->layout_data['data'] = $reward;
-        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->get();
-        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->get();
+        $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
+        $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         $this->layout_data['location_text'] = null;
 
@@ -1199,7 +1205,7 @@ class EvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
 
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
@@ -1246,6 +1252,7 @@ class EvoucherController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
+                'validity_month.max' => 'Validity period may not be greater than 12 months.',
 
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -1463,7 +1470,7 @@ class EvoucherController extends Controller
                 'inventory_type'     => $validated['inventory_type'],
                 
                 'max_quantity'       =>(int) ($validated['max_quantity']),
-                'category_id'        =>(int) ($validated['category_id']),
+                'category_id'        =>(int) ($validated['category_id'] ?? null),
                 'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
                 'voucher_value'      =>(int) ($validated['voucher_value']),
                 'voucher_set'        =>(int) ($validated['voucher_set']),
@@ -1598,14 +1605,14 @@ class EvoucherController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
             }
 
-            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+            // $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
 
-            if ($walletExists) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'This reward exists in user wallet. You cannot delete it.'
-                ], 404);
-            }
+            // if ($walletExists) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+            //     ], 404);
+            // }
         
             if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
                 unlink(public_path('uploads/image/' . $reward->voucher_image));

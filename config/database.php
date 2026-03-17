@@ -62,11 +62,14 @@ return [
             //      PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             //      PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // keep this!
             //  ] : [],
-            'options' => (env('APP_URL') === 'https://safradvscmsuat.interactive-experience.tech/')
-                ? (extension_loaded('pdo_mysql') ? [
-                    PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-                ] : [])
+             'options' => in_array(rtrim(env('APP_URL'), '/'), [
+                'https://safradvscmsuat.interactive-experience.tech',
+                'https://safradvscms-stg.interactive-experience.tech'
+            ]) 
+            ? (extension_loaded('pdo_mysql') ? [
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ] : [])
             : [],
           
             'strict' => true,

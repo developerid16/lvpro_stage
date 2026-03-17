@@ -613,3 +613,12 @@ input::placeholder {
 .fs-10{
     font-size: 10px !important;
 }
+
+@media (max-width: 768px) {
+    .powered-by-box {
+        display: none !important;
+    }
+}
+.tox .tox-tbtn__select-label {
+    color: #000;
+}

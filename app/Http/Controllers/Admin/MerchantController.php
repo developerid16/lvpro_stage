@@ -6,6 +6,7 @@ use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchant;
+use App\Models\Reward;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -262,9 +263,21 @@ class MerchantController extends Controller
      * ----------------------------------------------------- */
     public function destroy($id)
     {
+        // suspend rewards using this merchant
+        Reward::where('merchant_id', $id)->update([
+            'suspend_voucher' => 1,
+            'suspend_deal' => 1,
+            'merchant_id' => null
+        ]);
+
         Merchant::where('id', $id)->delete();
+
         AdminLogger::log('delete', Merchant::class, $id);
-        return response()->json(['status' => 'success', 'message' => 'Merchant Deleted Successfully']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Merchant Deleted Successfully'
+        ]);
     }
 
 

@@ -267,6 +267,7 @@
         let locationWrapper = modal.find('#location_wrapper');
 
         // locationWrapper.html("");
+        // locationWrapper.html("");
 
         if (rewardType == "1" && merchantId) {
             locationSection.show();
@@ -323,8 +324,6 @@
                                         placeholder="Qty"
                                         style="max-width:100px">
                                 </div>
-
-
                             </div>
                         </div>
                     `;
@@ -332,7 +331,7 @@
                     i++;
                 });
 
-                html += `</div><div id="locations_error" class="text-danger mt-1"></div>`;
+                html += `</div>`;
 
                 modal.find('#location_section').html(html);
 
@@ -351,7 +350,7 @@
     $(document).on('input', '#usual_price, #voucher_value', function () {
         calculateVoucherSet();
     });
-
+    limitMonthInput('#validity_month');
 </script>
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   
@@ -513,13 +512,14 @@
                         <div class="col-12 col-md-6 d-none" id="validity_period_div">
                             <div class="mb-3">
                                 <label class="form-label">Validity Period <span class="required-hash">*</span></label>
-    
-                                <select name="validity_month" class="form-control">
-                                    <option value="">Select Month</option>
-                                    <option value="1" {{ ($data?->validity_month ?? '') == 1 ? 'selected' : '' }}>1 Month</option>
-                                    <option value="2" {{ ($data?->validity_month ?? '') == 2 ? 'selected' : '' }}>2 Months</option>
-                                </select>
-    
+                                <input id="validity_month"
+                                    type="number"
+                                    class="sh_dec form-control validity_month"
+                                    name="validity_month"
+                                    max="12"
+                                    min="1"
+                                    value="{{ isset($data->validity_month) ? $data->validity_month : '' }}"
+                                    placeholder="Month"/>
                                 <small>Validity counted from day of redemption</small>
                             </div>
                         </div>
@@ -629,9 +629,7 @@
                         <!--Merchant Locations-->
                         <div id="location_section" class="mt-2 mb-2" style="display:none;">                            
                         </div>
-                        <div id="physical" >                          
-                        </div>
-
+                        <div id="locations_error" class="text-danger mt-1"></div>
                         <div id="digital" style="display:none; margin-top: 10px; border: #e0e0e0 1px dashed; padding-top: 10px;">
 
                             <div class="row">
@@ -798,16 +796,21 @@
                             </div>
                             {{-- <label for="" class="mb-2"><span class=""><b>Clearing Method:</b></span> CSO Issuance</label> --}}
                             <div class="row align-items-center mb-3">
-                                <label class="col-md-4 fw-bold">Low Stock Reminder Threshold</label>
-
+                               <div class="col-md-4">
+                                    <label class="fw-bold">Low Stock Reminder Threshold</label>
+                                    <ul class="text-danger mb-0 ps-3" style="font-size: 8px;">
+                                        <li>Leave empty to disable low stock alert.</li>
+                                        <li>Member interface shows "Running Out Soon" based on (Reminder 1).</li>
+                                    </ul>
+                                </div>
                                 <div class="col-md-6 d-flex">
                                     <div class="me-3">
                                         <label class="sh_dec">Low Stock Reminder 1 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control" name="low_stock_1"placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
+                                        <input type="number" min="0" class="form-control stock-input" name="low_stock_1" placeholder="" value="{{ $data->low_stock_1 ?? '' }}">
                                     </div>
                                     <div>
                                         <label class="sh_dec">Low Stock Reminder 2 <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
-                                        <input type="number" min="0" class="form-control"  name="low_stock_2"placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
+                                        <input type="number" min="0" class="form-control stock-input"  name="low_stock_2" placeholder="" value="{{ $data->low_stock_2 ?? '' }}">
                                     </div>
                                 </div>                               
                             </div>
@@ -940,7 +943,7 @@
                         </div>
                     </div>
 
-                    <div class="row align-items-center mb-3">
+                    {{-- <div class="row align-items-center mb-3">
                         <label class="col-md-4 fw-bold">Is Featured</label>
                         <div class="col-md-6">
                             <div class="form-check form-switch">
@@ -953,7 +956,7 @@
                                 >
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
 
                     <input type="hidden" name="action" class="action-field" value="">

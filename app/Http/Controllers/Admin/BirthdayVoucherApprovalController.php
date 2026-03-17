@@ -380,7 +380,7 @@ class BirthdayVoucherApprovalController extends Controller
                     'set_qty'         => (int) ($update->set_qty ?? 0),
                     'clearing_method' => (int) ($update->clearing_method ?? 0),
                     'location_text' => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
+                    'participating_merchant_id' => !empty($update->participating_merchant_id) ? $update->participating_merchant_id : null,
                     'hide_quantity' => $update->hide_quantity,
                     'csvFile'               => $update->csvFile,
                     'low_stock_1' => $update->low_stock_1,

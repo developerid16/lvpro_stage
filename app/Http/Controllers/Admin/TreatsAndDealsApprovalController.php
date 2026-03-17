@@ -384,14 +384,14 @@ class TreatsAndDealsApprovalController extends Controller
                     'validity_month'        => $update->validity_month,
                     
                     'friendly_url'         => (int) ($update->friendly_url),
-                    'club_classification_id' => (int) ($update->club_classification_id),
-                    'fabs_category_id'       => (int) ($update->fabs_category_id),
-                    'smc_classification_id'  => (int) ($update->smc_classification_id),
-                    'ax_item_code'           => $update->ax_item_code,
-                    'usual_price'         =>$update->usual_price ?? null,
+                    'club_classification_id' => (int) ($update->club_classification_id ?? null),
+                    'fabs_category_id'       => (int) ($update->fabs_category_id ?? null),
+                    'smc_classification_id'  => (int) ($update->smc_classification_id ?? null),
+                    'ax_item_code'           => $update->ax_item_code ?? null,
+                    'usual_price'         =>$update->usual_price ?? 0,
                     
                     'max_quantity'    => (int) ($update->max_quantity ?? 0),
-                    'category_id'     => (int) ($update->category_id ?? 0),
+                    'category_id'     => (int) ($update->category_id ?? null),
                     'inventory_type'  => (int) ($update->inventory_type ?? 0),
                     'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
                     'voucher_value'   => (float) ($update->voucher_value ?? 0),
@@ -400,7 +400,7 @@ class TreatsAndDealsApprovalController extends Controller
                     'clearing_method' => (int) ($update->clearing_method ?? 0),
 
                     'location_text'        => $update->location_text,
-                    'participating_merchant_id' => $update->participating_merchant_id,
+                    'participating_merchant_id' => !empty($update->participating_merchant_id) ? $update->participating_merchant_id : null,
                     'hide_quantity'        => $update->hide_quantity,
                     'low_stock_1'          => $update->low_stock_1,
                     'low_stock_2'          => $update->low_stock_2,
@@ -413,6 +413,7 @@ class TreatsAndDealsApprovalController extends Controller
                     'where_use'          => $update->where_use,
                     'is_draft'             => 0,   // 🔑 important
                     'csvFile'               => $update->csvFile,
+                    'status' => 'approved',
 
                 ]);
 

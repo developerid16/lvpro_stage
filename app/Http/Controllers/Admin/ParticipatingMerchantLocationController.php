@@ -47,10 +47,10 @@ class ParticipatingMerchantLocationController extends Controller
         $this->layout_data['participating_merchant']   = $pm;
 
         // Club Locations dropdown depends on participating merchant
-        $this->layout_data['locations'] = ClubLocation::all();
+        $this->layout_data['locations'] = ClubLocation::orderBy('name', 'asc')->get();
 
         // Participating merchant list dropdown
-        $this->layout_data['merchants'] = ParticipatingMerchant::where('id',$merchant)->orderBy('name')->get();
+        $this->layout_data['merchants'] = ParticipatingMerchant::where('id',$merchant)->orderBy('name', 'asc')->get();
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
@@ -213,7 +213,7 @@ class ParticipatingMerchantLocationController extends Controller
 
         $post_data['qrcode'] = $qrName;
         $post_data['encrypted_code'] = $encryptedCode;
-
+        $post_data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
         ParticipatingMerchantLocation::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Created Successfully']);
@@ -224,6 +224,7 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function edit($id)
     {
+        
         $row = ParticipatingMerchantLocation::findOrFail($id);
 
         $this->layout_data['data'] = $row;
@@ -301,6 +302,7 @@ class ParticipatingMerchantLocationController extends Controller
             $data['qrcode'] = $qrName;
         }
 
+        $data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
 
         ParticipatingMerchantLocation::findOrFail($id)->update($data);
 

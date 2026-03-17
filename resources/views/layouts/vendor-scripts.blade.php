@@ -1285,7 +1285,7 @@
             .addClass('mdi-chevron-down');
     });
 
-    $(document).on('input', 'input[type="number"]', function () {
+    $(document).on('input', 'input[type="number"]:not(.validity_month)', function () {
 
         let maxLength = 6; // change if needed
 
@@ -1294,6 +1294,43 @@
         }
 
     });
+    $(document).on('keydown', 'input[type="number"]', function(e) {
+        if (e.key === '-' || e.key === 'Minus') {
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('keydown', '.stock-input', function(e) {
+
+        // block decimal and minus
+        if (e.key === '.' || e.key === 'Decimal' || e.key === '-' || e.key === 'Minus') {
+            e.preventDefault();
+        }
+
+    });
+
+    $(document).on('input', '.stock-input', function () {
+
+        let value = this.value.replace(/[^0-9]/g, ''); // allow digits only
+        let maxLength = 6;
+
+        if (value.length > maxLength) {
+            value = value.slice(0, maxLength);
+        }
+
+        this.value = value;
+
+    });
+
+    $(document).on('paste', '.stock-input', function(e) {
+
+        let paste = (e.originalEvent || e).clipboardData.getData('text');
+
+        if (!/^\d+$/.test(paste)) {
+            e.preventDefault();
+        }
+
+});
 
     $('#AddModal').on('shown.bs.modal', function () {
         $('.validation-error').hide();
@@ -1314,7 +1351,49 @@
             $(modal).find('#validity_period_div').removeClass('d-none');
         }
 
-}
+    }
+
+    function limitMonthInput(selector, max = 12) {
+        $(document).on('input', selector, function () {
+
+            let value = $(this).val();
+
+            // allow only 2 digits
+            if (value.length > 2) {
+                value = value.slice(0, 2);
+                $(this).val(value);
+            }
+
+            let num = parseInt(value);
+
+            if (num > max) {
+                $(this).val(max);
+            }
+
+            if (num < 1 || isNaN(num)) {
+                $(this).val('');
+            }
+        });
+    }
+
+    $(document).on('input', '.validity_month', function () {
+
+        let value = $(this).val();
+
+        if (value.length > 2) {
+            value = value.slice(0, 2);
+        }
+
+        let num = parseInt(value);
+
+        if (num > 12) {
+            value = 12;
+        }
+
+        $(this).val(value);
+
+    });
+
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
