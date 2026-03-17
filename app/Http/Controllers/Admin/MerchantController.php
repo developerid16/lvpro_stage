@@ -266,6 +266,7 @@ class MerchantController extends Controller
         // suspend rewards using this merchant
         Reward::where('merchant_id', $id)->update([
             'suspend_voucher' => 1,
+            'suspend_deal' => 1,
             'merchant_id' => null
         ]);
 

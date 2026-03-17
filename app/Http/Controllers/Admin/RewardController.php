@@ -365,13 +365,13 @@ class RewardController extends Controller
 
                     'friendly_url'           => $request->friendly_url,
 
-                    'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
-                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : 0,
-                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : 0,
-                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : 0,
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : null,
+                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : null,
+                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : null,
+                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : null,
 
 
-                    'ax_item_code'           => $request->ax_item_code ?? 0,
+                    'ax_item_code'           => $request->ax_item_code ?? null,
 
                     'publish_independent'    => $request->publish_independent ?? 0,
                     'publish_inhouse'        => $request->publish_inhouse ?? 0,
@@ -641,9 +641,35 @@ class RewardController extends Controller
 
                 /* ---------------- LOCATION VALIDATION ---------------- */
 
+
+                if ((int) $request->reward_type === 1) {
+
+                    $rules['max_quantity_physical'] = 'required|integer|min:1';
+                    $rules['locations'] = 'required|array|min:1';
+
+                    $hasSelected = false;
+
+                    foreach ($request->locations ?? [] as $locId => $locData) {
+
+                        if (!empty($locData['selected'])) {
+
+                            $hasSelected = true;
+
+                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+
+                            $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
+                            $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
+                            $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
+                        }
+                    }
+                }
+
+                $validator = Validator::make($request->all(), $rules, $messages);
+
+                /* AFTER VALIDATION CHECK */
                 $validator->after(function ($validator) use ($request) {
 
-                    if ((int) $request->reward_type == 1) {
+                    if ((int) $request->reward_type === 1) {
 
                         $hasSelected = false;
 
@@ -663,8 +689,7 @@ class RewardController extends Controller
                     }
                 });
 
-                /* ---------------- RUN VALIDATOR ---------------- */
-
+                /* FINAL CHECK */
                 if ($validator->fails()) {
                     return response()->json([
                         'status' => false,
@@ -819,11 +844,11 @@ class RewardController extends Controller
     
                     'friendly_url'           => $request->friendly_url,
     
-                    'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
-                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : 0,
-                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : 0,
-                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : 0,
-                    'ax_item_code'           => $request->ax_item_code,
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : null,
+                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : null,
+                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : null,
+                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : null,
+                    'ax_item_code'           => $request->ax_item_code ?? null,
     
                     'publish_independent'    => $request->publish_independent ?? 0,
                     'publish_inhouse'        => $request->publish_inhouse ?? 0,
@@ -889,11 +914,11 @@ class RewardController extends Controller
                     'low_stock_2'         => $request->low_stock_2,
                     'friendly_url'        => $request->friendly_url,
     
-                    'category_id'            => $request->category_id ?? 0,
-                    'club_classification_id' => $request->club_classification_id ?? 0,
-                    'fabs_category_id'       => $request->fabs_category_id ?? 0,
-                    'smc_classification_id'  => $request->smc_classification_id ?? 0,
-                    'ax_item_code'           => $request->ax_item_code ?? 0,
+                    'category_id'            => $request->category_id ?? null,
+                    'club_classification_id' => $request->club_classification_id ?? null,
+                    'fabs_category_id'       => $request->fabs_category_id ?? null,
+                    'smc_classification_id'  => $request->smc_classification_id ?? null,
+                    'ax_item_code'           => $request->ax_item_code ?? null,
     
                     'publish_independent' => $request->publish_independent ?? 0,
                     'publish_inhouse'     => $request->publish_inhouse ?? 0,
@@ -1272,11 +1297,11 @@ class RewardController extends Controller
                     'low_stock_2'        => $request->low_stock_2,
                     'friendly_url'       => $request->friendly_url,
 
-                    'ax_item_code'           => $request->ax_item_code,
-                    'category_id'            => $request->filled('category_id') ? $request->category_id : 0,
-                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : 0,
-                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : 0,
-                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : 0,
+                    'ax_item_code'           => $request->ax_item_code ?? null,
+                    'category_id'            => $request->filled('category_id') ? $request->category_id : null,
+                    'club_classification_id' => $request->filled('club_classification_id') ? $request->club_classification_id : null,
+                    'fabs_category_id'       => $request->filled('fabs_category_id') ? $request->fabs_category_id : null,
+                    'smc_classification_id'  => $request->filled('smc_classification_id') ? $request->smc_classification_id : null,
 
                     'publish_independent'    => $request->publish_independent ?? 0,
                     'publish_inhouse'        => $request->publish_inhouse ?? 0,
@@ -1858,11 +1883,11 @@ class RewardController extends Controller
                             'low_stock_2'         => $request->low_stock_2,
                             'friendly_url'        => $request->friendly_url,
     
-                            'category_id'            => $request->category_id ?? 0,
-                            'club_classification_id' => $request->club_classification_id ?? 0,
-                            'fabs_category_id'       => $request->fabs_category_id ?? 0,
-                            'smc_classification_id'  => $request->smc_classification_id ?? 0,
-                            'ax_item_code'           => $request->ax_item_code ?? 0,
+                            'category_id'            => $request->category_id ?? null,
+                            'club_classification_id' => $request->club_classification_id ?? null,
+                            'fabs_category_id'       => $request->fabs_category_id ?? null,
+                            'smc_classification_id'  => $request->smc_classification_id ?? null,
+                            'ax_item_code'           => $request->ax_item_code ?? null,
     
                             'publish_independent' => $request->publish_independent ?? 0,
                             'publish_inhouse'     => $request->publish_inhouse ?? 0,

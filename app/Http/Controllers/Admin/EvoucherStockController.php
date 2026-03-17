@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel; // THIS is correct
 use App\Rules\SingleCodeColumnFile;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class EvoucherStockController extends Controller
 {

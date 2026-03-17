@@ -165,7 +165,7 @@
                 $(".max_order").hide(); // also show location section
                 $("#digital").hide(); // show physical fields
                 $("#participating_merchant_location").hide(); // also show location section
-                $('#collection_reminder_title').html('Send Collection Reminder <span class="required-hash">*</span>');
+                $('#collection_reminder_title').html('Send Collection Reminder <span class="required-hash"></span>');
                 
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
 
@@ -182,7 +182,7 @@
                 $(".max_order").show(); // also show location section// also show location section
                 $("#physical").hide(); // show physical fields
                 $("#location_section").hide(); // also show location section
-                $('#collection_reminder_title').html('Send Reminder <span class="required-hash">*</span>');
+                $('#collection_reminder_title').html('Send Reminder <span class="required-hash"></span>');
 
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Reminder';
 
