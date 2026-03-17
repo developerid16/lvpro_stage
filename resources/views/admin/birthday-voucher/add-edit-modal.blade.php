@@ -226,7 +226,7 @@
     //     }
     // }  
    
-       limitMonthInput('#validity_month');
+    limitMonthInput('#validity_month');
 
 </script>
 

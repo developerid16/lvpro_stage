@@ -16,6 +16,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Auth;
 
 class ParticipatingMerchantLocationController extends Controller
 {

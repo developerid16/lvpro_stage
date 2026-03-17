@@ -387,7 +387,7 @@
                                     <input id="memberId" type="file" class="form-control" name="memberId" accept=".xlsx,.xls">
                                     <div class="mt-1">
                                         <label class="small text-muted">
-                                            Download demo file:
+                                            Download Template:
                                             <a href="{{ asset('demo-push-voucher.xlsx') }}" download class="text-primary fw-bold">
                                                 Click here
                                             </a>
@@ -472,6 +472,7 @@
                 inventoryDiv.style.display = 'block';
 
                 const inventoryInput = document.getElementById('inventory_qty');
+                $('#inventory_qty').css('background-color', '#eff2f7');
                 calculateSetQty();
                 inventoryInput.value = count;
 

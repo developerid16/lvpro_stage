@@ -6,6 +6,7 @@ use App\Models\TransactionHistory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\UserWalletVoucher;
+use Illuminate\Support\Facades\Auth;
 
 class TransactionHistoryController extends Controller
 {
