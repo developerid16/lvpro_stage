@@ -1420,6 +1420,9 @@
 
     });
 
+    $(document).on('input', '#voucher_set, #inventory_qty, #set_qty, #voucher_value', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>

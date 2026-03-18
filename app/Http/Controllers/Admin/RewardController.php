@@ -519,7 +519,7 @@ class RewardController extends Controller
                     'name'               => 'required|string|max:191',
                     'description'        => 'required|string',
                     'term_of_use'        => 'required|string',
-                    'how_to_use'         => 'required|string',
+                    'how_to_use'         => 'nullable|string',
                     'merchant_id'        => 'required|exists:merchants,id',
                     'reward_type'        => 'required|in:0,1',
                     'expiry_type' => 'required|in:fixed,validity,no_expiry',
@@ -532,11 +532,11 @@ class RewardController extends Controller
 
                             if ($request->expiry_type === 'fixed') {
 
-                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                                $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->startOfDay();
+                                $validityDate = \Carbon\Carbon::parse($value)->startOfDay();
 
-                                if ($validityDate <= $salesEndDate) {
-                                    $fail('Voucher expiry date must be greater than Redemption end date.');
+                                if ($validityDate->lt($salesEndDate)) {
+                                    $fail('Voucher expiry date must be after or equal to Redemption end date.');
                                 }
 
                             }
@@ -622,8 +622,8 @@ class RewardController extends Controller
                 /* ---------------- TIER RULES ---------------- */
     
                 foreach ($tiers as $tier) {
-                    $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
-                    $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
+                    $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
+                    $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
                 }
             
                 if ((int) $request->inventory_type === 1) {
@@ -1497,12 +1497,12 @@ class RewardController extends Controller
                 'name'        => 'required|string|max:191',
                 'description' => 'required|string',
                 'term_of_use' => 'required|string',
-                'how_to_use'  => 'required|string',
+                'how_to_use'  => 'nullable|string',
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
                
-                'voucher_validity' => [
+               'voucher_validity' => [
                     'required_if:expiry_type,fixed',
                     'nullable',
                     'date',
@@ -1510,17 +1510,16 @@ class RewardController extends Controller
 
                         if ($request->expiry_type === 'fixed') {
 
-                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->startOfDay();
+                            $validityDate = \Carbon\Carbon::parse($value)->startOfDay();
 
-                            if ($validityDate < $salesEndDate) {
+                            if ($validityDate->lt($salesEndDate)) {
                                 $fail('Voucher expiry date must be after or equal to Redemption end date.');
                             }
 
                         }
                     }
                 ],
-
                 'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
@@ -1586,8 +1585,8 @@ class RewardController extends Controller
             $tiers = Tier::where('status', 'Active')->get();
 
             foreach ($tiers as $tier) {
-                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
-                $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
+                $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
+                $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
             }
 
 

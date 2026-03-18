@@ -109,10 +109,10 @@ class NotificationController extends Controller
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        =>  'nullable|image|max:2048',
+            'img'        =>  'required|image|max:2048',
         ],
         $messages = [
-                   'img.required' => 'Image is required',
+                   'img.required' => 'Image field is required',
                ]
         );
     
@@ -169,10 +169,10 @@ class NotificationController extends Controller
             'desc'       => 'required|string',
             'date'       => 'required|date',
             'type'       => 'required|string|max:100',
-            'img'        =>  'nullable|image|max:2048',
+            'img'        =>  'required|image|max:2048',
         ],
         $messages = [
-                   'img.required' => 'Image is required',
+                   'img.required' => 'Image field is required',
                ]
         );
     

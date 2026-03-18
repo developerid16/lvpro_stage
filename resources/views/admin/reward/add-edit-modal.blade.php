@@ -441,7 +441,7 @@
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec">How to use <span class="required-hash">*</span></label>
+                                <label class="sh_dec">How to use <span class="required-hash"></span></label>
                                 <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
@@ -591,7 +591,7 @@
 
                         <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per member) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
                                 <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_physical"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
@@ -617,7 +617,7 @@
 
                                     <div class="col-4">
                                         <div class="mb-3">
-                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
+                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
                                             <input id="tier_{{ $tier->id }}" type="number" min="0" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"  
                                              value="{{ $price }}">
                                         </div>
@@ -635,7 +635,7 @@
                             <div class="row">
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
+                                        <label class="sh_dec" for="max_quantity">Maximum Quantity (Per member) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
                                         <input id="max_quantity" type="number" min="0" class="sh_dec form-control" name="max_quantity_digital"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                                     </div>
                                 </div>
@@ -672,26 +672,26 @@
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                        <input id="inventory_qty" type="number" min="0" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
+                                        <input id="inventory_qty" type="number" min="0"  step="1" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                        <input id="voucher_value" type="number" min="0" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                        <input id="voucher_value" type="number" min="0"  step="1" placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                        <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                        <input id="voucher_set" type="number" min="0"  step="1"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                                     </div>
                                 </div>
 
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
                                         <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                        <input id="set_qty" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                        <input id="set_qty"  step="1" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">

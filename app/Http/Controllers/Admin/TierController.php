@@ -202,12 +202,11 @@ class TierController extends Controller
     {
         // Step 1: Validate basic fields
         $validator = Validator::make($request->all(), [
-            'code'      => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
+            'code'      => 'required',
             'status'    => 'required',
             'tier_name' => 'required',
         ], [
             'code.required'      => 'Code is required',
-            'code.regex'         => 'Code may contain only letters, numbers and hyphens',
             'status.required'    => 'Status is required',
             'tier_name.required' => 'Tier name is required',
         ]);
@@ -294,12 +293,11 @@ class TierController extends Controller
     {
         // Step 1: Validate basic fields
         $validator = Validator::make($request->all(), [
-            'code'      => ['required', 'regex:/^[A-Za-z0-9\-]+$/'],
+            'code'      => 'required',
             'status'    => 'required',
             'tier_name' => 'required',
         ], [
             'code.required'      => 'Code is required',
-            'code.regex'         => 'Code may contain only letters, numbers and hyphens',
             'status.required'    => 'Status is required',
             'tier_name.required' => 'Tier name is required',
         ]);
