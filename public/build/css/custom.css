@@ -622,3 +622,8 @@ input::placeholder {
 .tox .tox-tbtn__select-label {
     color: #000;
 }
+
+.tox .tox-menubar, .tox .tox-edit-area__iframe, .tox .tox-statusbar{
+    background: white !important;
+}
+

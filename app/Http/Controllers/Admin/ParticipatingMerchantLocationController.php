@@ -14,6 +14,8 @@ use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ParticipatingMerchantLocationController extends Controller
 {
@@ -158,19 +160,30 @@ class ParticipatingMerchantLocationController extends Controller
     public function store(Request $request)
     {
        $validator = Validator::make($request->all(), [
-           'name'              => 'required|string|max:255',
-           'code'              => 'required|string|max:100',
+           'name'              => 'required|string|max:255',           
            'participating_merchant_id' => 'required|exists:participating_merchants,id',
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
             'club_location_id'  => 'nullable|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
-        ], [
+            'code' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('participating_merchant_location', 'code')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('participating_merchant_id', $request->participating_merchant_id);
+                    }),
+            ],
+            ],
+
+         [
             'participating_merchant_id.required' => 'Participating merchant is required',
             'participating_merchant_id.exists'   => 'Invalid participating merchant',
 
             'name.required' => 'Name is required',
             'code.required' => 'Redemption code is required',
+            'code.unique' => 'This code already exists for the selected merchant',
 
             'start_date.required' => 'Lease start date is required',
             'start_date.date'     => 'Lease start date must be a valid date',
@@ -213,7 +226,7 @@ class ParticipatingMerchantLocationController extends Controller
 
         $post_data['qrcode'] = $qrName;
         $post_data['encrypted_code'] = $encryptedCode;
-
+        $post_data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
         ParticipatingMerchantLocation::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Created Successfully']);
@@ -224,6 +237,7 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function edit($id)
     {
+        
         $row = ParticipatingMerchantLocation::findOrFail($id);
 
         $this->layout_data['data'] = $row;
@@ -244,14 +258,24 @@ class ParticipatingMerchantLocationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'              => 'required|string|max:255',
-            'code'              => 'required|string|max:100',
+            
             'start_date'        => 'required|date',
             'end_date'          => 'required|date|after_or_equal:start_date',
             'club_location_id'  => 'nullable|exists:club_locations,id',
             'status'            => 'required|in:Active,Inactive',
+            'code' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('participating_merchant_location', 'code')
+                    ->where(fn ($q) => $q->where('participating_merchant_id', $request->participating_merchant_id))
+                    ->ignore($id), // ✅ correct
+            ],
+            
         ], [
             'name.required' => 'Name is required',
             'code.required' => 'Redemption code is required',
+            'code.unique' => 'This code already exists for the selected merchant',
 
             'start_date.required' => 'Lease start date is required',
             'start_date.date'     => 'Lease start date must be a valid date',
@@ -301,6 +325,7 @@ class ParticipatingMerchantLocationController extends Controller
             $data['qrcode'] = $qrName;
         }
 
+        $data['club_location_id'] = !empty($request->club_location_id)  ? $request->club_location_id  : null;
 
         ParticipatingMerchantLocation::findOrFail($id)->update($data);
 

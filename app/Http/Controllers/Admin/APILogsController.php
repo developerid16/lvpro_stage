@@ -9,6 +9,7 @@ use App\Models\Sale;
 use App\Models\UserWalletVoucher;
 use App\Models\VoucherLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class APILogsController extends Controller
 {

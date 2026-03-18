@@ -185,7 +185,7 @@ class MicrosoftAuthController extends Controller
 
         Auth::login($user);
 
-        session(['IS_OTP_VERIFY' => true]);
+        // session(['IS_OTP_VERIFY' => true]);
 
         Log::info('User logged in successfully', ['user_id' => $user->id]);
 
