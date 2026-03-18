@@ -53,7 +53,7 @@ class ParticipatingMerchantLocation extends Model
     public static function expireLocations()
     {
         ParticipatingMerchantLocation::where('status', 'Active')
-            ->whereDate('end_date', '<', now())
+            ->where('end_date', '<', now())
             ->update([
                 'status' => 'Inactive'
             ]);
