@@ -13,169 +13,197 @@
         display: none !important;
     }
 </style>
+<div class="d-flex justify-content-end mb-3">
+    <select id="rewardTypeFilter" class="form-control w-auto">
+        <option value="">All</option>
+        <option value="0">Treats & Deals</option>
+        <option value="1">E-Voucher</option>
+    </select>
+</div>
 
 <div class="row">
+    <div id="evoucherSection" class="row">
 
-    <!-- Voucher Issuance Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Voucher Issuance Trend</h4>
-                <select id="trendType" class="form-control w-auto">
-                    <option value="week" selected>Week</option>
-                    <option value="month">Month</option>
-                    <option value="year">Year</option>
-                </select>
+        <!-- Voucher Issuance Trend -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Voucher Issuance Trend</h4>
+                    <select id="trendType" class="form-control w-auto">
+                        <option value="week" selected>Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select>
 
-            </div>
-            <div class="card-body">
-                <div id="voucherIssuanceChart"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Voucher Redeem Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Voucher Redeem Trend</h4>
-            </div>
-            <div class="card-body">
-                <div id="voucherRedeemChart"></div>
+                </div>
+                <div class="card-body">
+                    <div id="voucherIssuanceChart"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Redemption by Outlet -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header"><h4 class="mb-0">Outlet Performance</h4></div>
-            <div class="card-body">
-                <div id="outletPerformanceChart"></div>
+        <!-- Voucher Redeem Trend -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Voucher Redeem Trend</h4>
+                </div>
+                <div class="card-body">
+                    <div id="voucherRedeemChart"></div>
+                </div>
             </div>
         </div>
-    </div>
-    <!-- Redemption by Outlet -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header"><h4 class="mb-0">Campaign Performance Comparison</h4></div>
-            <div class="card-body">
-                <div id="campaignChart"></div>
+
+        <!-- Redemption by Outlet -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0">Outlet Performance</h4></div>
+                <div class="card-body">
+                    <div id="outletPerformanceChart"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!---Redemption rate-->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
-
-                <select id="rateTrendType" class="form-control w-auto">
-                    <option value="week" selected>Week</option>
-                    <option value="month">Month</option>
-                </select>
-
-            </div>
-
-            <div class="card-body">
-                <div id="redemptionRateTrendChart"></div>
+        <!-- Campaign Performance Comparison -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0">Campaign Performance Comparison</h4></div>
+                <div class="card-body">
+                    <div id="campaignChart"></div>
+                </div>
             </div>
         </div>
+
+        <!---Voucher Redemption Rate Trend-->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
+
+                    <select id="rateTrendType" class="form-control w-auto">
+                        <option value="week" selected>Week</option>
+                        <option value="month">Month</option>
+                    </select>
+
+                </div>
+
+                <div class="card-body">
+                    <div id="redemptionRateTrendChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voucher Issuance Method Distribution -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Voucher Issuance Method Distribution</h4>
+                </div>
+        
+                <div class="card-body">
+                    <div id="issuanceMethodChart"></div>
+                </div>
+            </div>
+        </div>
+
+        
+
     </div>
 
-     <!-- Voucher Issuance Method -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Voucher Issuance Method Distribution</h4>
+    <div id="treatsDealsSection" class="row">
+
+        <!-- Voucher Issuance Method -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Category Performance Summary</h4>
+                </div>
+        
+                <div class="card-body">
+                    <div id="categoryPerformanceChart"></div>
+                </div>
             </div>
+        </div>
+
+        <!-- Monthly Transactions Trend -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Monthly Transactions Trend</h4>
+                </div>
+        
+                <div class="card-body">
+                    <div id="monthlyTransactionsChart"></div>
+                </div>
+            </div>
+        </div>  
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4  class="mb-0">Monthly Spending Trend</h4>
+                </div>
     
-            <div class="card-body">
-                <div id="issuanceMethodChart"></div>
+                <div class="card-body">
+                    <div id="topDealsChart"></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Voucher Issuance Method -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Category Performance Summary</h4>
-            </div>
-    
-            <div class="card-body">
-                <div id="categoryPerformanceChart"></div>
+        <!-- Monthly Transactions Trend -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Monthly Unique Member Participation</h4>
+                    <select id="participationType" onchange="loadMemberParticipationChart()">
+                        <option value="month">Month</option>
+                        <option value="week" selected>Week</option>
+                        <option value="year">Year</option>
+                    </select>
+                </div>
+
+                <div class="card-body">
+                    <div id="memberChart"></div>
+                </div>
+
             </div>
         </div>
-    </div>
-    
-    <!-- Monthly Transactions Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Monthly Transactions Trend</h4>
-            </div>
-    
-            <div class="card-body">
-                <div id="monthlyTransactionsChart"></div>
+
+         <!-- Purchase Frequency Distribution -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Purchase Frequency Distribution</h4>
+                </div>
+        
+                <div class="card-body">
+                    <div id="purchaseFrequencyChart"></div>
+                </div>
             </div>
         </div>
-    </div>
     
-   
-    <!-- Monthly Transactions Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Purchase Frequency Distribution</h4>
-            </div>
-    
-            <div class="card-body">
-                <div id="purchaseFrequencyChart"></div>
-            </div>
-        </div>
-    </div>
+         <!-- Demographic Purchase Profiling -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Demographic Purchase Profiling</h4>
+                    <select id="demographicType" class="form-control" style="width:200px">
+                        <option value="age">Age Distribution</option>
+                        <option value="gender">Gender Distribution</option>
+                        <option value="region">Region Distribution</option>
+                        <option value="marital">Marital Status</option>
+                    </select>
+                </div>
 
-    <!-- Monthly Transactions Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Demographic Purchase Profiling</h4>
-                <select id="demographicType" class="form-control" style="width:200px">
-                    <option value="age">Age Distribution</option>
-                    <option value="gender">Gender Distribution</option>
-                    <option value="region">Region Distribution</option>
-                    <option value="marital">Marital Status</option>
-                </select>
+                <div class="card-body">
+                    <div id="demographicChart"></div>
+                </div>
+
             </div>
-
-            <div class="card-body">
-                <div id="demographicChart"></div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Monthly Transactions Trend -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Monthly Unique Member Participation</h4>
-                <select id="participationType" onchange="loadMemberParticipationChart()">
-                    <option value="month">Month</option>
-                    <option value="week" selected>Week</option>
-                    <option value="year">Year</option>
-                </select>
-            </div>
-
-            <div class="card-body">
-                <div id="memberChart"></div>
-            </div>
-
         </div>
     </div>
 </div>
+
 @endsection
 @section('script')
 <!-- apexcharts -->
@@ -208,6 +236,7 @@
     var demographicChart = null;
     var memberChart = null;
     var campaignChart = null;
+    var topDealsChart = null;
 
 
     function loadCharts(type='week')
@@ -465,7 +494,7 @@
 
                         plotOptions:{
                             bar:{
-                                horizontal:true,
+                                horizontal:false,
                                 barHeight:'50%'
                             }
                         },
@@ -819,12 +848,22 @@
             $('#repeatRate').text(res.overall_repeat_rate + '%');
         });
     }
-    
 
     function loadCampaignChart(){
 
         $.get("{{ url('admin/campaign-performance-data') }}", function(res){
 
+            var fullLabels = res.labels;
+
+            var shortLabels = res.labels.map(function(name){
+                return name.length > 8 ? name.substring(0,10) + '…' : name;
+            });
+
+            function tooltipFormatter(seriesIndex, dataPointIndex){
+                return fullLabels[dataPointIndex];
+            }
+
+            
             if(campaignChart && typeof campaignChart.destroy === "function"){
                 campaignChart.destroy();
             }
@@ -856,8 +895,14 @@
                         data:res.rate || []
                     }
                 ],
-                xaxis:{
-                    categories:res.labels || []
+                xaxis:{categories:shortLabels},
+                tooltip:{
+                    custom: function({series, seriesIndex, dataPointIndex, w}) {
+                        return '<div class="apex-tooltip">'+
+                            fullLabels[dataPointIndex] +
+                            '<br>Count: '+series[seriesIndex][dataPointIndex]+
+                            '</div>';
+                    }
                 },
                 yaxis:[
                     {
@@ -876,19 +921,91 @@
                     enabled:true,
                     enabledOnSeries:[2]
                 },
-                tooltip:{
-                    shared:true,
-                    intersect:false
-                }
+               
             };
 
             campaignChart = new ApexCharts(el, options);
             campaignChart.render();
         });
     }
-
-
     
+    function loadTopDealsChart(){
+
+        $.get("{{ url('admin/top-deals-data') }}", function(res){
+
+            var labels = [];
+            var counts = [];
+            var revenue = [];
+
+            res.forEach(function(item){
+                labels.push(item.voucher_name);
+                counts.push(item.purchase_count);
+                revenue.push(item.total_revenue);
+            });
+
+            if(!topDealsChart){
+
+                topDealsChart = new ApexCharts(
+                    document.querySelector("#topDealsChart"),
+                    {
+                        chart:{
+                            type:'bar',
+                            height:350
+                        },
+
+                        plotOptions:{
+                            bar:{
+                                horizontal:false,
+                                barHeight:'50%'
+                            }
+                        },
+
+                        series:[
+                            {
+                                name:'Purchase Count',
+                                data:counts
+                            },
+                            {
+                                name:'Revenue',
+                                data:revenue
+                            }
+                        ],
+
+                        xaxis:{
+                            categories:labels
+                        },
+
+                        colors:[
+                            '#556ee6',
+                            '#34c38f'
+                        ],
+
+                        tooltip:{
+                            shared:true,
+                            intersect:false
+                        }
+                    }
+                );
+
+                topDealsChart.render();
+
+            }else{
+
+                topDealsChart.updateOptions({
+                    series:[
+                        {name:'Purchase Count',data:counts},
+                        {name:'Revenue',data:revenue}
+                    ],
+                    xaxis:{categories:labels}
+                });
+
+            }
+
+        });
+    }
+
+
+
     $(document).ready(function(){
         loadCharts();
         loadOutletCharts();
@@ -900,6 +1017,31 @@
         loadPurchaseFrequencyChart();
         loadDemographicChart();    
         loadMemberParticipationChart();    
+        loadTopDealsChart();
+
+
+        $('#rewardTypeFilter').trigger('change');
+        $(document).on('change', '#rewardTypeFilter', function () {
+
+            let type = $(this).val();
+
+            if (type === "0") {
+                // Treats & Deals
+                $('#treatsDealsSection').show();
+                $('#evoucherSection').hide();
+
+            } else if (type === "1") {
+                // E-Voucher
+                $('#treatsDealsSection').hide();
+                $('#evoucherSection').show();
+
+            } else {
+                // ✅ ALL (empty or anything else)
+                $('#treatsDealsSection').show();
+                $('#evoucherSection').show();
+            }
+
+        });
 
         $('#trendType').change(function(){
             loadCharts($(this).val());

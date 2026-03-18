@@ -716,6 +716,23 @@ class HomeController extends Controller
         ]);
     }
 
+    public function topDealsData()
+    {
+        $data = DB::table('payment_transactions as pt')
+            ->join('user_wallet_vouchers as uwv','pt.receipt_no','=','uwv.receipt_no')
+            ->join('rewards as r','uwv.reward_id','=','r.id')
+            ->select(
+                'r.name as voucher_name',
+                DB::raw('COUNT(pt.id) as purchase_count'),
+                DB::raw('SUM(pt.request_amount) as total_revenue')
+            )
+            ->groupBy('r.id','r.name')
+            ->orderByDesc('total_revenue')
+            ->limit(5)
+            ->get();
+
+        return response()->json($data);
+    }
     /*Language Translation*/
     public function lang($locale)
     {
