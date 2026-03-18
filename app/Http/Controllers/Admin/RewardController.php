@@ -532,11 +532,11 @@ class RewardController extends Controller
 
                             if ($request->expiry_type === 'fixed') {
 
-                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                                $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->startOfDay();
+                                $validityDate = \Carbon\Carbon::parse($value)->startOfDay();
 
-                                if ($validityDate <= $salesEndDate) {
-                                    $fail('Voucher expiry date must be greater than Redemption end date.');
+                                if ($validityDate->lt($salesEndDate)) {
+                                    $fail('Voucher expiry date must be after or equal to Redemption end date.');
                                 }
 
                             }
@@ -1502,7 +1502,7 @@ class RewardController extends Controller
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
                
-                'voucher_validity' => [
+               'voucher_validity' => [
                     'required_if:expiry_type,fixed',
                     'nullable',
                     'date',
@@ -1510,17 +1510,16 @@ class RewardController extends Controller
 
                         if ($request->expiry_type === 'fixed') {
 
-                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->format('Y-m-d');
-                            $validityDate = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                            $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->startOfDay();
+                            $validityDate = \Carbon\Carbon::parse($value)->startOfDay();
 
-                            if ($validityDate < $salesEndDate) {
+                            if ($validityDate->lt($salesEndDate)) {
                                 $fail('Voucher expiry date must be after or equal to Redemption end date.');
                             }
 
                         }
                     }
                 ],
-
                 'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
