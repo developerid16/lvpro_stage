@@ -441,7 +441,7 @@
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec">How to use <span class="required-hash">*</span></label>
+                                <label class="sh_dec">How to use <span class="required-hash"></span></label>
                                 <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>

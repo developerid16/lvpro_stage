@@ -519,7 +519,7 @@ class RewardController extends Controller
                     'name'               => 'required|string|max:191',
                     'description'        => 'required|string',
                     'term_of_use'        => 'required|string',
-                    'how_to_use'         => 'required|string',
+                    'how_to_use'         => 'nullable|string',
                     'merchant_id'        => 'required|exists:merchants,id',
                     'reward_type'        => 'required|in:0,1',
                     'expiry_type' => 'required|in:fixed,validity,no_expiry',
@@ -1497,7 +1497,7 @@ class RewardController extends Controller
                 'name'        => 'required|string|max:191',
                 'description' => 'required|string',
                 'term_of_use' => 'required|string',
-                'how_to_use'  => 'required|string',
+                'how_to_use'  => 'nullable|string',
 
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',

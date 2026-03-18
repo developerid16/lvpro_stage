@@ -472,7 +472,7 @@ class EvoucherController extends Controller
                     'name'             => 'required|string|max:191',
                     'description'      => 'required|string',
                     'term_of_use'      => 'required|string',
-                    'how_to_use'       => 'required|string',
+                    'how_to_use'       => 'nullable|string',
     
                     'merchant_id'      => 'required|exists:merchants,id',
     
@@ -1166,7 +1166,7 @@ class EvoucherController extends Controller
                 'name'             => 'required|string|max:191',
                 'description'      => 'required|string',
                 'term_of_use'      => 'required|string',
-                'how_to_use'       => 'required|string',
+                'how_to_use'       => 'nullable|string',
 
                 'merchant_id'      => 'required|exists:merchants,id',
 
