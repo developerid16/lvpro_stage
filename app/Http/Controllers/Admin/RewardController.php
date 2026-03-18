@@ -409,7 +409,7 @@ class RewardController extends Controller
                         'tier_id'   => $tier->id,
                         'price' => $request->filled("tier_{$tier->id}")
                             ? (float) $request->input("tier_{$tier->id}")
-                            : 0,
+                            : null,
                     ]);
                 }
 
@@ -952,7 +952,7 @@ class RewardController extends Controller
                     RewardTierRate::create([
                         'reward_id' => $reward->id,
                         'tier_id'   => $tier->id,
-                        'price'     => $request->input("tier_{$tier->id}"),
+                        'price'     => $request->input("tier_{$tier->id}") ?? null,
                     ]);
                 }
     

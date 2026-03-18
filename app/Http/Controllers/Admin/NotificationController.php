@@ -112,7 +112,9 @@ class NotificationController extends Controller
             'img'        =>  'required|image|max:2048',
         ],
         $messages = [
-                   'img.required' => 'Image field is required',
+                'img.required' => 'Image field is required',
+                'short_desc.required' => 'Short description field is required',
+                'desc.required' => 'Description field is required',
                ]
         );
     
@@ -173,6 +175,8 @@ class NotificationController extends Controller
         ],
         $messages = [
                    'img.required' => 'Image field is required',
+                    'short_desc.required' => 'Short description field is required',
+                'desc.required' => 'Description field is required',
                ]
         );
     
