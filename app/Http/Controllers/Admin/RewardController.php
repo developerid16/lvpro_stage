@@ -622,8 +622,8 @@ class RewardController extends Controller
                 /* ---------------- TIER RULES ---------------- */
     
                 foreach ($tiers as $tier) {
-                    $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
-                    $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
+                    $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
+                    $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
                 }
             
                 if ((int) $request->inventory_type === 1) {
@@ -1586,8 +1586,8 @@ class RewardController extends Controller
             $tiers = Tier::where('status', 'Active')->get();
 
             foreach ($tiers as $tier) {
-                $rules["tier_{$tier->id}"] = 'required|numeric|min:0';
-                $messages["tier_{$tier->id}.required"] = "{$tier->tier_name} price is required";
+                $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
+                $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
             }
 
 

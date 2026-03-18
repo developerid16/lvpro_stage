@@ -617,7 +617,7 @@
 
                                     <div class="col-4">
                                         <div class="mb-3">
-                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
+                                            <label class="sh_dec" for="tier_{{ $tier->id }}">{{ $tier->tier_name }}  Price <span class="fs-10">(Max 6 digits)</span><span class="required-hash"></span></label>
                                             <input id="tier_{{ $tier->id }}" type="number" min="0" class="sh_dec form-control" name="tier_{{ $tier->id }}"  placeholder="Enter {{ $tier->tier_name }} Price"  
                                              value="{{ $price }}">
                                         </div>
