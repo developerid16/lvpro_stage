@@ -794,6 +794,7 @@
             fileField.show();
             qtyField.show();
         } else if (type === "0") {
+             modal.find('#inventory_qty').css('background-color', 'rgb(255, 255, 255)');
 
             clearing.find('option[value="2"]').show();
 
@@ -839,6 +840,8 @@
             // 🔥 Hide option 2
             clearingSelect.find('option[value="2"]').hide();
         } else if (type === "0") {
+            modal.find('#inventory_qty').css('background-color', 'rgb(255, 255, 255)');
+
             modal.find('#inventory_qty').val('');
             qtyField.show();
             fileField.hide();
