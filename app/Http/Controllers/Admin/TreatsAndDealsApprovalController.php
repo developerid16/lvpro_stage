@@ -412,15 +412,22 @@ class TreatsAndDealsApprovalController extends Controller
                     'expiry_type'          => $update->expiry_type,
                     'validity_month'        => $update->validity_month,
                     
-                    'friendly_url'         => (int) ($update->friendly_url),
-                    'club_classification_id' => (int) ($update->club_classification_id ?? null),
-                    'fabs_category_id'       => (int) ($update->fabs_category_id ?? null),
-                    'smc_classification_id'  => (int) ($update->smc_classification_id ?? null),
-                    'ax_item_code'           => $update->ax_item_code ?? null,
-                    'usual_price'         =>$update->usual_price ?? 0,
+                   'friendly_url' => !empty($update->friendly_url) ? $update->friendly_url : null,
+
+                    'club_classification_id' => !empty($update->club_classification_id) ? $update->club_classification_id : null,
+
+                    'fabs_category_id' => !empty($update->fabs_category_id) ? $update->fabs_category_id : null,
+
+                    'smc_classification_id' => !empty($update->smc_classification_id) ? $update->smc_classification_id : null,
+
+                    'ax_item_code' => !empty($update->ax_item_code) ? $update->ax_item_code : null,
+
+                    'usual_price' => is_numeric($update->usual_price) ? $update->usual_price : 0,
+
+                    'max_quantity' => is_numeric($update->max_quantity) ? (int)$update->max_quantity : 0,
+
+                    'category_id' => !empty($update->category_id) ? (int)$update->category_id : null,
                     
-                    'max_quantity'    => (int) ($update->max_quantity ?? 0),
-                    'category_id'     => (int) ($update->category_id ?? null),
                     'inventory_type'  => (int) ($update->inventory_type ?? 0),
                     'inventory_qty'   => (int) ($update->inventory_qty ?? 0),
                     'voucher_value'   => (float) ($update->voucher_value ?? 0),
