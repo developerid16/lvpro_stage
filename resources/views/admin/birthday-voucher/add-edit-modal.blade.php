@@ -414,13 +414,13 @@
                          <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="voucher_value" type="number" min="0"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                <input id="voucher_value" type="number" min="0" step="1"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                <input id="voucher_set" type="number" min="0"  step="1" placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">

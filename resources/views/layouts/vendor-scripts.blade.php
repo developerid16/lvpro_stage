@@ -1420,7 +1420,7 @@
 
     });
 
-    $(document).on('input', '#voucher_set, #inventory_qty, #set_qty', function () {
+    $(document).on('input', '#voucher_set, #inventory_qty, #set_qty, #voucher_value', function () {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
 </script>
