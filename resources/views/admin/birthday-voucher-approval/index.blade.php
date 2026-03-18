@@ -232,7 +232,7 @@
             appendHtmlField('Voucher T&C', d.term_of_use);
             appendHtmlField('How To Use', d.how_to_use);
 
-            appendField('Merchant', d.merchant_name ?? d.merchant_id);
+            appendField('Merchant', d.merchant?.name ?? d.merchant.name);
             if(d.type == 1){//evoucher
                 appendField('Voucher Type', 'E-Voucher');
                 appendField('Direct Utilization', d.direct_utilization ? 'Yes' : null);

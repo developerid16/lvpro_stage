@@ -245,7 +245,7 @@ class TreatsAndDealsApprovalController extends Controller
         $data = RewardUpdateRequest::with([
             'requester',
             'reward',
-            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name'
+            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name','merchant'
         ])->findOrFail($id);
         // $data->voucher_image_url = imageExists($data->voucher_image);
         // $data->voucher_detail_img_url = imageExists($data->voucher_detail_img);

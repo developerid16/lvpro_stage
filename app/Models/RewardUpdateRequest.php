@@ -150,5 +150,9 @@ class RewardUpdateRequest extends Model
         return $this->belongsTo(CustomLocation::class, 'location_text', 'id');
     }
 
+     public function merchant()
+    {
+        return $this->belongsTo(Merchant::class, 'merchant_id');
+    }
    
 }
