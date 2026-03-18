@@ -1502,7 +1502,9 @@ class RewardController extends Controller
                 'merchant_id' => 'required|exists:merchants,id',
                 'reward_type' => 'required|in:0,1',
                
-               'voucher_validity' => [
+                'expiry_type' => 'required|in:fixed,validity,no_expiry',
+
+                'voucher_validity' => [
                     'required_if:expiry_type,fixed',
                     'nullable',
                     'date',
@@ -1520,6 +1522,7 @@ class RewardController extends Controller
                         }
                     }
                 ],
+
                 'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
                 'publish_start'    => 'required|date',
@@ -1621,7 +1624,7 @@ class RewardController extends Controller
                 $rules['voucher_set']          = 'required|numeric|min:1';
                 $rules['set_qty']              = 'required|numeric|min:1';
                 $rules['max_quantity_digital'] = 'required|integer|min:1';
-                $rules['voucher_validity']     = 'required|date|after_or_equal:sales_end';
+                // $rules['voucher_validity']     = 'required|date|after_or_equal:sales_end';
                 $rules['inventory_type']       = 'required|in:0,1';
                 $rules['voucher_value']        = 'required|numeric|min:1';
                 $rules['clearing_method']      = 'required|in:0,1,2,3,4';
