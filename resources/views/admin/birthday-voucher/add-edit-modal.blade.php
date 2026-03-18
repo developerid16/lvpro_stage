@@ -226,7 +226,7 @@
     //     }
     // }  
    
-       limitMonthInput('#validity_month');
+    limitMonthInput('#validity_month');
 
 </script>
 
@@ -315,7 +315,7 @@
 
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
-                                <label class="sh_dec">How to use <span class="required-hash">*</span></label>
+                                <label class="sh_dec">How to use <span class="required-hash"></span></label>
                                 <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
@@ -408,25 +408,25 @@
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="inventory_qty" type="number" min="0"  placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
+                                <input id="inventory_qty" type="number" min="0"  step="1" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                             </div>
                         </div>
                          <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_value">Voucher Value ($) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="voucher_value" type="number" min="0"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
+                                <input id="voucher_value" type="number" min="0" step="1"  placeholder="Enter Voucher Value" class="sh_dec form-control"   name="voucher_value" value="{{ $data->voucher_value ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="voucher_set">Voucher Set (Per Transaction) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="voucher_set" type="number" min="0"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
+                                <input id="voucher_set" type="number" min="0"  step="1" placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
                                 <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
-                                <input id="set_qty" type="number" min="0" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
+                                <input id="set_qty" type="number" min="0"  step="1" readonly   placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>
                          <div class="col-12 col-md-6">

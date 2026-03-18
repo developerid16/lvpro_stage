@@ -13,6 +13,7 @@ use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class BirthdayVoucherApprovalController extends Controller
 {
@@ -244,7 +245,7 @@ class BirthdayVoucherApprovalController extends Controller
         $data = RewardUpdateRequest::with([
             'requester',
             'reward',
-            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name'
+            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name','merchant'
         ])->findOrFail($id);
         // $data->voucher_image_url = imageExists($data->voucher_image);
         // $data->voucher_detail_img_url = imageExists($data->voucher_detail_img);

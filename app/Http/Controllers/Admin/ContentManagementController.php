@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\ContentManagement;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class ContentManagementController extends Controller
 {

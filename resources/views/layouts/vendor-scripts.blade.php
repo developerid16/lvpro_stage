@@ -105,6 +105,7 @@
         let endPickerInstance;
 
         const startPickerInstance = flatpickr(startEl, {
+            allowInput: true,
             enableTime: true,
             enableSeconds: false,
             time_24hr: true,
@@ -139,7 +140,8 @@
                     const startDate = instance.selectedDates[0];
                     endPickerInstance.set('minDate', startDate);
                     endPickerInstance.set('clickOpens', true);
-                    endPickerInstance.altInput.removeAttribute('disabled');
+                    // endPickerInstance.altInput.removeAttribute('disabled');
+                    endPickerInstance.altInput.readOnly = true;
                     endPickerInstance.jumpToDate(startDate);
                 }
             },
@@ -152,12 +154,14 @@
                 } else {
                     endPickerInstance.clear();
                     endPickerInstance.set('clickOpens', false);
-                    endPickerInstance.altInput.setAttribute('disabled', true);
+                    // endPickerInstance.altInput.setAttribute('disabled', true);
+                    endPickerInstance.altInput.readOnly = true;
                 }
             }
         });
 
         endPickerInstance = flatpickr(endEl, {
+            allowInput: true,
             enableTime: true,
             enableSeconds: false,
             time_24hr: true,
@@ -193,7 +197,8 @@
         if (startPickerInstance.selectedDates.length) {
             safeEnableEndPicker(endPickerInstance, startPickerInstance.selectedDates[0]);
         } else {
-            endPickerInstance.altInput.setAttribute('disabled', true);
+            // endPickerInstance.altInput.setAttribute('disabled', true);
+            endPickerInstance.altInput.readOnly = true;
         }
     }
        
@@ -789,6 +794,7 @@
             fileField.show();
             qtyField.show();
         } else if (type === "0") {
+             modal.find('#inventory_qty').css('background-color', 'rgb(255, 255, 255)');
 
             clearing.find('option[value="2"]').show();
 
@@ -834,6 +840,8 @@
             // 🔥 Hide option 2
             clearingSelect.find('option[value="2"]').hide();
         } else if (type === "0") {
+            modal.find('#inventory_qty').css('background-color', 'rgb(255, 255, 255)');
+
             modal.find('#inventory_qty').val('');
             qtyField.show();
             fileField.hide();
@@ -932,8 +940,13 @@
 
         tinymce.init({
             selector: "textarea.wysiwyg",
-            height: 200,
+            paste_enable_default_filters: true,
 
+            height: 200,
+            sticky: true, // ✅ ADD THIS
+               // OPTIONAL (better control)
+            toolbar_sticky: true,
+            toolbar_sticky_offset: 60, // adjust based on your header
             // IMPORTANT → prevents multiple block stacking
             forced_root_block: 'p',
 
@@ -1006,6 +1019,13 @@
         });
     }
 
+   
+    $(document).on('scroll wheel touchmove', function () {
+        // $('.tox-tinymce-aux').hide();
+        $('.tox-tiered-menu').css('display', 'none');
+
+    });
+
     function initEditor() {
 
         if (typeof tinymce === 'undefined') return;
@@ -1015,7 +1035,13 @@
 
         tinymce.init({
             selector: "textarea.wysiwyg",
+              paste_enable_default_filters: true,
+
             height: 200,
+             sticky: true, // ✅ ADD THIS
+               // OPTIONAL (better control)
+            toolbar_sticky: true,
+            toolbar_sticky_offset: 60, // adjust based on your header
 
             // IMPORTANT → prevents multiple block stacking
             forced_root_block: 'p',
@@ -1394,6 +1420,9 @@
 
     });
 
+    $(document).on('input', '#voucher_set, #inventory_qty, #set_qty, #voucher_value', function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>

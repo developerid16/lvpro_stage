@@ -132,6 +132,7 @@
                 inventoryDiv.style.display = 'block';
 
                 const inventoryInput = document.getElementById('inventory_qty');
+                $('#inventory_qty').css('background-color', '#eff2f7');
                 calculateSetQty();
                 inventoryInput.value = count;
 

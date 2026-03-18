@@ -237,8 +237,7 @@ class EvoucherController extends Controller
                 if ($status == 'pending approval') {
 
                     $action .= "<a href='javascript:void(0)' 
-                                    class='text-muted' 
-                                    style='cursor:not-allowed;' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
@@ -473,7 +472,7 @@ class EvoucherController extends Controller
                     'name'             => 'required|string|max:191',
                     'description'      => 'required|string',
                     'term_of_use'      => 'required|string',
-                    'how_to_use'       => 'required|string',
+                    'how_to_use'       => 'nullable|string',
     
                     'merchant_id'      => 'required|exists:merchants,id',
     
@@ -1167,7 +1166,7 @@ class EvoucherController extends Controller
                 'name'             => 'required|string|max:191',
                 'description'      => 'required|string',
                 'term_of_use'      => 'required|string',
-                'how_to_use'       => 'required|string',
+                'how_to_use'       => 'nullable|string',
 
                 'merchant_id'      => 'required|exists:merchants,id',
 
@@ -1791,7 +1790,7 @@ class EvoucherController extends Controller
 
                     $userId = $user->session_id;
 
-                    // ===== MAX QTY PER USER (SET LOGIC) =====
+                    // ===== MAX QTY PER member (SET LOGIC) =====
                     if (!is_null($reward->max_quantity)) {
         
                         $voucherSet = (int) ($reward->voucher_set ?: 1);
@@ -1808,7 +1807,7 @@ class EvoucherController extends Controller
                         if ($remainingEffectiveQty <= 0) {
                             return response()->json([
                                 'status' => false,
-                                'message'    => 'Maximum limit per user exceeded',
+                                'message'    => 'Maximum limit per member exceeded',
                                 'data'   => []
                             ], 422);
                         }
@@ -1816,7 +1815,7 @@ class EvoucherController extends Controller
                         if ($remainingEffectiveQty <= 0) {
                             return response()->json([
                                 'status' => false,
-                                'message'    => 'Maximum limit per user exceeded',
+                                'message'    => 'Maximum limit per member exceeded',
                                 'data'   => []
                             ], 422);
                         }

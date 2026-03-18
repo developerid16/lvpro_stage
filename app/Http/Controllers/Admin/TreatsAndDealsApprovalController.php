@@ -13,6 +13,7 @@ use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class TreatsAndDealsApprovalController extends Controller
 {
@@ -244,7 +245,7 @@ class TreatsAndDealsApprovalController extends Controller
         $data = RewardUpdateRequest::with([
             'requester',
             'reward',
-            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name'
+            'tierRates.tier:id,tier_name','rewardLocations','participatingLocations','customLocation:id,name','merchant'
         ])->findOrFail($id);
         // $data->voucher_image_url = imageExists($data->voucher_image);
         // $data->voucher_detail_img_url = imageExists($data->voucher_detail_img);
@@ -276,7 +277,7 @@ class TreatsAndDealsApprovalController extends Controller
                 });
         }
 
-            
+
         $pendingLocations = RewardParticipatingMerchantLocationUpdate::where('reward_id', $data->reward_id)->get();
 
         if ($pendingLocations->isNotEmpty()) {
@@ -301,8 +302,36 @@ class TreatsAndDealsApprovalController extends Controller
                 ];
             });
         }
+        $datetimeFields = [
+            'publish_start' => ['date' => 'publish_start_date', 'time' => 'publish_start_time'],
+            'publish_end'   => ['date' => 'publish_end_date',   'time' => 'publish_end_time'],
+            'sales_start'   => ['date' => 'sales_start_date',   'time' => 'sales_start_time'],
+            'sales_end'     => ['date' => 'sales_end_date',     'time' => 'sales_end_time'],
+        ];
 
+        foreach ($datetimeFields as $key => $fields) {
 
+            $date = $data->{$fields['date']} ?? null;
+            $time = $data->{$fields['time']} ?? null;
+
+            if ($date) {
+
+                // 👇 extract only date part (remove existing time)
+                $onlyDate = Carbon::parse($date)->format('Y-m-d');
+
+                $finalDateTime = $time 
+                    ? $onlyDate . ' ' . $time 
+                    : $onlyDate . ' 00:00:00';
+
+                $data[$key . '_datetime'] = Carbon::parse($finalDateTime)
+                    ->format('Y-m-d H:i:s');
+            } else {
+                $data[$key . '_datetime'] = null;
+            }
+        }
+        if (!empty($data->voucher_validity)) {
+            $data->voucher_validity_date = Carbon::parse($data->voucher_validity)->format('Y-m-d');
+        }
         return response()->json([
             'status' => 'success',
             'data' => $data

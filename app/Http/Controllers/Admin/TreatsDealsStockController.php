@@ -25,6 +25,7 @@ use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\UserWalletVoucher;
+use Illuminate\Support\Facades\Auth;
 
 class TreatsDealsStockController extends Controller
 {

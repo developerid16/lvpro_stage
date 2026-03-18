@@ -227,36 +227,29 @@
             appendHtmlField('Voucher T&C', d.term_of_use);
             appendHtmlField('How To Use', d.how_to_use);
 
-            appendField('Merchant', d.merchant_name ?? d.merchant_id);
-            if(d.type == 1){//evoucher
-                appendField('Voucher Type', 'E-Voucher');
-                appendField('Direct Utilization', d.direct_utilization ? 'Yes' : null);
-            }
+            appendField('Merchant', d.merchant?.name ?? d.merchant.name);
+          
             if(d.type == 0){//t&d
                 appendField('Voucher Type', d.reward_type == 0 ? 'Digital' : 'Physical');
-                appendField('Voucher Validity',formatDateOnly(d.voucher_validity));
+                appendField('Voucher Validity',d.voucher_validity_date);
 
 
                 if(d.reward_type == 1){//physical
                     appendField('Where To Use', d.where_use);
                 }
             }
+
+            appendField('Publish Start Date & Time', d.publish_start_datetime);
+            appendField('Publish End Date & Time', d.publish_end_datetime);
+            appendField('Sales Start Date & Time', d.sales_start_datetime);
+            appendField('Sales End Date & Time', d.sales_end_datetime);
             
-            appendField('Publish Start Date & Time',formatDateTime(d.publish_start_date, d.publish_start_time));
-            appendField('Publish End Date & Time',formatDateTime(d.publish_end_date, d.publish_end_time));
-            appendField('Sales Start Date & Time',formatDateTime(d.sales_start_date, d.sales_start_time));
-            appendField('Sales End Date & Time', formatDateTime(d.sales_end_date, d.sales_end_time));
+            // appendField('Publish Start Date & Time',formatDateTime(d.publish_start_date, d.publish_start_time));
+            // appendField('Publish End Date & Time',formatDateTime(d.publish_end_date, d.publish_end_time));
+            // appendField('Sales Start Date & Time',formatDateTime(d.sales_start_date, d.sales_start_time));
+            // appendField('Sales End Date & Time', formatDateTime(d.sales_end_date, d.sales_end_time));
 
-            if(d.type == 1){//evoucher
-                appendField('Days', d.days ? (Array.isArray(d.days) ? d.days.join(', ') : JSON.parse(d.days).join(', ')) : null);
-                appendField('Start Time', d.start_time);
-                appendField('End Time', d.end_time);
-                appendField('Maximum Quantity (Per User)', d.max_quantity);
-                appendField('Voucher Validity',formatDateOnly(d.voucher_validity));
-
-
-            }
-            
+          
             if(d.type == 0){//t&d
 
                 appendTierRates(d.tier_rates);
@@ -266,7 +259,7 @@
                 appendField('Usual Price', d.usual_price);
             }
             if(d.type != 2){//bday 
-                appendField('Maximum Quantity (Per User)', d.max_quantity);
+                appendField('Maximum Quantity (Per member)', d.max_quantity);
             }
             
             if(d.reward_type == 0){//digital
