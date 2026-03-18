@@ -426,7 +426,7 @@
                        
                         <div class="col-12 col-md-6 max_qty">
                             <div class="mb-3">
-                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per User) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
+                                <label class="sh_dec" for="max_quantity">Maximum Quantity (Per member) <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>
                                 <input id="max_quantity" type="number" min="0" maxlength="10" class="sh_dec form-control" name="max_quantity"   placeholder="Enter Maximum Quantity" value="{{ $data->max_quantity ?? '' }}">
                             </div>
                         </div>
