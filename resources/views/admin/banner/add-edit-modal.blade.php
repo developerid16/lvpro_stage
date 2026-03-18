@@ -1,3 +1,42 @@
+<script>
+    // Image Preview (Scoped to Current Modal)   
+    $(document).on("change", "#EditModal #desktop_logo_input", function () {
+
+        let file = this.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#EditModal #desktop_logo_preview")
+                .attr("src", e.target.result)
+                .show()
+                .removeAttr('data-file'); // remove old
+
+            $("#EditModal #clear_desktop_logo_preview").show();
+        };
+
+        reader.readAsDataURL(file);
+    });
+    $(document).on("change", "#EditModal #mobile_logo_input", function () {
+
+        let file = this.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+            $("#EditModal #mobile_logo_preview")
+                .attr("src", e.target.result)
+                .show()
+                .removeAttr('data-file');
+
+            $("#EditModal #clear_mobile_logo_preview").show();
+        };
+
+        reader.readAsDataURL(file);
+    });
+</script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
     data-bs-keyboard="false">
     

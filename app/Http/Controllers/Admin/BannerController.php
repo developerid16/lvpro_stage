@@ -236,7 +236,16 @@ class BannerController extends Controller
     public function destroy(string $id)
     {
 
-        Banner::where('id',$id)->delete();
+        $banner = Banner::findOrFail($id);
+
+        if ($banner->desktop_image && file_exists(public_path('uploads/image/' . $banner->desktop_image))) {
+            unlink(public_path('uploads/image/' . $banner->desktop_image));
+        }
+
+        if ($banner->mobile_image && file_exists(public_path('uploads/image/' . $banner->mobile_image))) {
+            unlink(public_path('uploads/image/' . $banner->mobile_image));
+        }
+
 
         AdminLogger::log('delete',Banner::class,$id);
 

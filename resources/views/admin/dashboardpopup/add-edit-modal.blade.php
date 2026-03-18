@@ -47,47 +47,42 @@
         });
     }
 
-
-
-    // Image Preview (Scoped to Current Modal)
-    // Image Preview (Fully Scoped)
-    $(document).on("change", "#logo_input", function () {
+    // Image Preview (Scoped to Current Modal)   
+    $(document).on("change", "#EditModal #desktop_logo_input", function () {
 
         let file = this.files[0];
-        let modal = $(this).closest('.modal');
-
-        let preview = modal.find('#logo_preview');
-        let clearBtn = modal.find('#clear_logo_preview');
-
-        if (!file) {
-            preview.attr("src", "{{ asset('uploads/image/no-image.png') }}");
-            clearBtn.hide();
-            return;
-        }
+        if (!file) return;
 
         let reader = new FileReader();
 
         reader.onload = function (e) {
-            preview.attr("src", e.target.result);
-            preview.show();
-            clearBtn.show();
+            $("#EditModal #desktop_logo_preview")
+                .attr("src", e.target.result)
+                .show()
+                .removeAttr('data-file'); // remove old
+
+            $("#EditModal #clear_desktop_logo_preview").show();
         };
 
         reader.readAsDataURL(file);
     });
+    $(document).on("change", "#EditModal #mobile_logo_input", function () {
 
+        let file = this.files[0];
+        if (!file) return;
 
-    // Clear Button
-    $(document).on("click", "#clear_logo_preview", function () {
+        let reader = new FileReader();
 
-        let modal = $(this).closest('.modal');
+        reader.onload = function (e) {
+            $("#EditModal #mobile_logo_preview")
+                .attr("src", e.target.result)
+                .show()
+                .removeAttr('data-file');
 
-        modal.find('#logo_input').val('');
-        modal.find('#logo_preview')
-            .attr("src", "{{ asset('uploads/image/no-image.png') }}")
-            .show();
+            $("#EditModal #clear_mobile_logo_preview").show();
+        };
 
-        $(this).hide();
+        reader.readAsDataURL(file);
     });
 </script>
 <div class="modal fade" id="{{ (isset($data->id)) ? 'EditModal' : 'AddModal' }}" tabindex="-1" data-bs-backdrop="static"
@@ -163,23 +158,53 @@
                                 <div class="error" id="frequency_error"></div>
                             </div>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <!-- Desktop Banner -->
+                        <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec">Upload Image <span class="required-hash">*</span></label>
-                                <input 
-                                    type="file" 
-                                    name="image" 
-                                    class="form-control"
-                                    id="logo_input" 
-                                    accept=".png,.jpg,.jpeg"
-                                >
+                                <label>Upload Image (Desktop)</label>
 
-                                <div class="d-flex justify-content-between mt-1">
-                                    <span class="text-secondary">(Size: 100px × 100px | Format: PNG, JPG, JPEG)</span>
-                                    <div class="position-relative d-inline-block">
-                                        <img id="logo_preview" src="{{ isset($data) && $data->image ? imageExists('uploads/image/' . $data->image) : '' }}" style="max-width:50px;"  alt="Logo Preview" />
-                                        <a href="javascript:void(0);" id="clear_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
+                                <input type="file" name="desktop_image" id="desktop_logo_input"   class="form-control" accept=".jpg,.jpeg,.png">
+
+                                <div class="d-flex justify-content-between mt-2">
+
+                                    <span class="text-secondary">
+                                        (Size: 1712 × 240 | Format: PNG, JPG, JPEG)
+                                    </span>
+
+                                    <div class="position-relative">
+
+                                        <img id="desktop_logo_preview"
+                                            data-file="{{ $data->desktop_image ?? '' }}" src="{{ !empty($data->desktop_image) ? imageExists('uploads/image/'.$data->desktop_image) : imageExists('uploads/image/no-image.png') }}" style="max-width:50px;">
+                                       
+                                        <a href="javascript:void(0);" id="clear_desktop_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
+
+
                                     </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Mobile Banner -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label>Upload Image (Mobile)</label>
+
+                                <input type="file" name="mobile_image" id="mobile_logo_input" class="form-control" accept=".jpg,.jpeg,.png">                                  
+
+                                <div class="d-flex justify-content-between mt-2">
+
+                                    <span class="text-secondary">
+                                        (Size: 768 × 100 | Format: JPG, PNG)
+                                    </span>                                   
+
+                                    <div class="position-relative">
+                                        <img id="mobile_logo_preview" data-file="{{ $data->mobile_image ?? '' }}" src="{{ !empty($data->mobile_image) ? imageExists('uploads/image/'.$data->mobile_image) : imageExists('uploads/image/no-image.png') }}" style="max-width:50px;">
+
+                                        <a href="javascript:void(0);" id="clear_mobile_logo_preview" class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle p-0 img-delete-btn" style="  display:none;"><span class="mdi mdi-close-thick"></span></a>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
