@@ -237,8 +237,7 @@ class EvoucherController extends Controller
                 if ($status == 'pending approval') {
 
                     $action .= "<a href='javascript:void(0)' 
-                                    class='text-muted' 
-                                    style='cursor:not-allowed;' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
