@@ -1412,8 +1412,8 @@
 
         let num = parseInt(value);
 
-        if (num > 12) {
-            value = 12;
+        if (num > 99) {
+            value = 99;
         }
 
         $(this).val(value);

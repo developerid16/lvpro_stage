@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
@@ -235,6 +236,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('dashboardpopup/datatable', [DashboardPopupController::class, 'datatable']);
     Route::resource('dashboardpopup', DashboardPopupController::class);
     
+    Route::get('banner/datatable', [BannerController::class, 'datatable']);
+    Route::resource('banner', BannerController::class);
    
     Route::post('announcements/reorder', [AnnouncementController::class, 'reorder']);
     Route::get('announcement/datatable', [AnnouncementController::class, 'datatable']);

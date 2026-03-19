@@ -28,6 +28,8 @@
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75" data-width-unit="px" data-searchable="false">Sr. No.</th>
                          <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
                         <th data-field="date">Date</th>
+                         <th data-field="desktop_image">Desktop Image</th>
+                        <th data-field="mobile_image">Mobile Image</th>
                         <th data-field="frequency" data-filter-control="select" data-sortable="false" data-filter-data="var:frequencyOptions">Frequency</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
@@ -214,6 +216,11 @@
             form.reset(); // reset full form
         }
 
+        modal.find('#desktop_logo_preview').hide();
+        modal.find('#mobile_logo_preview').hide();
+
+        modal.find('#clear_desktop_logo_preview').hide();
+        modal.find('#clear_mobile_logo_preview').hide();
         // clear text + number inputs
         modal.find('input[type="text"], input[type="number"], textarea').val('');
 
@@ -223,50 +230,92 @@
         // clear file inputs
         modal.find('input[type="file"]').val('');
 
+    });    
 
-        let preview = $(this).find('#logo_preview');
-        let clearBtn = $(this).find('#clear_logo_preview');
 
-        // Always show default no-image in Add
-        preview.attr('src', "{{ asset('uploads/image/no-image.png') }}").hide();
-        $('.validation-error').hide();
-        clearBtn.hide();
+/* IMAGE PREVIEW */
+
+function imagePreview(input, preview, clearBtn){
+
+    $(document).on("change", input, function () {
+
+        let file = this.files[0];
+
+        if (!file) return;
+
+        let reader = new FileReader();
+
+        reader.onload = function(e){
+            $(preview)
+                .attr("src", e.target.result) // 👈 FORCE update
+                .removeAttr('data-file')      // 👈 remove old flag
+                .show();
+
+            $(clearBtn).show();
+        };
+
+        reader.readAsDataURL(file);
     });
-    function imagePreview(inputSelector, previewSelector) {
-        $(document).on("change", inputSelector, function () {
-            let file = this.files[0];
-            let preview = $(previewSelector);
+}
 
-            const clearBtn = $('#clear_logo_preview');
-            if (!file) {
-                preview.attr("src", "").hide();
-                clearBtn.hide();
-                return;
-            }
+imagePreview(
+    "#desktop_logo_input",
+    "#desktop_logo_preview",
+    "#clear_desktop_logo_preview"
+);
 
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                preview.attr("src", e.target.result).show();
-            };
+imagePreview(
+    "#mobile_logo_input",
+    "#mobile_logo_preview",
+    "#clear_mobile_logo_preview"
+);
 
-            clearBtn.show();
-            reader.readAsDataURL(file);
-        });
+
+/* CLEAR IMAGE */
+
+$(document).on("click","#clear_desktop_logo_preview",function(){
+
+    let modal = $(this).closest('.modal');
+
+    modal.find('#desktop_logo_input').val('');
+    modal.find('#desktop_logo_preview').hide();
+
+    $(this).hide();
+
+});
+
+$(document).on("click","#clear_mobile_logo_preview",function(){
+
+    let modal = $(this).closest('.modal');
+
+    modal.find('#mobile_logo_input').val('');
+    modal.find('#mobile_logo_preview').hide();
+
+    $(this).hide();
+
+});
+
+
+/* EDIT MODAL IMAGE SHOW */
+
+$(document).on('shown.bs.modal','#EditModal',function(){
+
+    let modal = $(this);
+
+    let desktopSrc = modal.find('#desktop_logo_preview').attr('src');
+    let mobileSrc  = modal.find('#mobile_logo_preview').attr('src');
+
+    if(desktopSrc){
+        modal.find('#desktop_logo_preview').show();
+        modal.find('#clear_desktop_logo_preview').show();
     }
-    $(document).on('click', '#clear_logo_preview', function () {
 
-        const modal = $(this).closest('.modal'); // auto-detect modal
-        const input = modal.find('#logo_input')[0];
-        const preview = modal.find('#logo_preview');
+    if(mobileSrc){
+        modal.find('#mobile_logo_preview').show();
+        modal.find('#clear_mobile_logo_preview').show();
+    }
 
-        if (input) {
-            input.value = '';   // reset file input
-        }
-
-        preview.attr('src', '').hide();
-        $(this).hide();
-    });
-    imagePreview("#logo_input", "#logo_preview");
+});
 </script>
 <script src="{{ URL::asset('build/js/crud.js')}}"></script>
 @endsection
