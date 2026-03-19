@@ -6,7 +6,7 @@ use App\Helpers\AdminLogger;
 use App\Models\Tier;
 use App\Models\TierInterestGroup;
 use App\Models\TierMemberType;
-use App\Models\API\MemberBasicDetailIG;
+use App\Models\Master\MasterInterestGroup;
 use App\Models\API\MemberBasicDetailsModified;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -26,7 +26,6 @@ class TierController extends Controller
             'module_base_url'   => url('admin/tiers')
         ];
 
-        
         $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
         $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
@@ -124,64 +123,58 @@ class TierController extends Controller
 
     /**
      * GET /admin/tiers/get-main-groups
-     * Returns distinct InterestGroupMainName list
+     * Returns distinct { interest_group_main_id, interest_group_main_name } list.
+     * The blade uses interest_group_main_id as the <option value> so that
+     * getSubGroups() can filter by UUID (reliable) instead of by name string.
      */
     public function getMainGroups()
     {
-        $groups = MemberBasicDetailIG::select('InterestGroupMainName')
-            ->distinct()
-            ->orderBy('InterestGroupMainName')
-            ->pluck('InterestGroupMainName');
+        $groups = MasterInterestGroup::select('interest_group_main_id', 'interest_group_main_name')
+            ->groupBy('interest_group_main_id', 'interest_group_main_name')
+            ->orderBy('interest_group_main_name')
+            ->get();
 
         return response()->json(['status' => 'success', 'data' => $groups]);
     }
 
     /**
-     * GET /admin/tiers/get-sub-groups?main_name=XXX
-     * Returns distinct InterestGroupName for given main name
+     * GET /admin/tiers/get-sub-groups?interest_group_main_id=UUID
+     *  OR /admin/tiers/get-sub-groups?interest_group_main_id[]=UUID1&interest_group_main_id[]=UUID2
+     *
+     * Returns { interest_group_main_name, interest_group_name } pairs
+     * filtered by interest_group_main_id (UUID), so name-case differences
+     * can never cause empty results.
      */
-    // public function getSubGroups(Request $request)
-    // {
-    //     $main = $request->get('main_name');
+    public function getSubGroups(Request $request)
+    {
+        $mainIds = $request->get('interest_group_main_id');
 
-    //     $subGroups = MemberBasicDetailIG::select('InterestGroupName')
-    //         ->where('InterestGroupMainName', $main)
-    //         ->distinct()
-    //         ->orderBy('InterestGroupName')
-    //         ->pluck('InterestGroupName');
+        $query = MasterInterestGroup::select(
+            'interest_group_main_name',
+            'interest_group_name'
+        );
 
-    //     return response()->json(['status' => 'success', 'data' => $subGroups]);
-    // }
-   public function getSubGroups(Request $request)
-{
-    $main = $request->get('main_name');
+        if (is_array($mainIds)) {
+            $query->whereIn('interest_group_main_id', $mainIds);
+        } else {
+            $query->where('interest_group_main_id', $mainIds);
+        }
 
-    $query = MemberBasicDetailIG::select(
-        'InterestGroupMainName',
-        'InterestGroupName'
-    );
+        $data = $query
+            ->distinct()
+            ->orderBy('interest_group_main_name')
+            ->orderBy('interest_group_name')
+            ->get();
 
-    if (is_array($main)) {
-        $query->whereIn('InterestGroupMainName', $main);
-    } else {
-        $query->where('InterestGroupMainName', $main);
+        return response()->json([
+            'status' => 'success',
+            'data'   => $data,
+        ]);
     }
-
-    $data = $query
-        ->distinct()
-        ->orderBy('InterestGroupMainName')
-        ->orderBy('InterestGroupName')
-        ->get();
-
-    return response()->json([
-        'status' => 'success',
-        'data' => $data
-    ]);
-}
 
     /**
      * GET /admin/tiers/get-member-types
-     * Returns distinct MembershipTypeCode list
+     * Returns distinct MembershipTypeCode list.
      */
     public function getMemberTypes()
     {
@@ -219,12 +212,12 @@ class TierController extends Controller
         }
 
         // Step 2: At least one IG OR one Member Type must be provided
-        $hasIG = $request->filled('interest_groups') 
-                 && is_array($request->interest_groups) 
+        $hasIG = $request->filled('interest_groups')
+                 && is_array($request->interest_groups)
                  && count(array_filter($request->interest_groups)) > 0;
 
-        $hasMT = $request->filled('member_types') 
-                 && is_array($request->member_types) 
+        $hasMT = $request->filled('member_types')
+                 && is_array($request->member_types)
                  && count(array_filter($request->member_types)) > 0;
 
         if (!$hasIG && !$hasMT) {
@@ -266,6 +259,7 @@ class TierController extends Controller
                 }
             }
 
+            AdminLogger::log('create', Tier::class, $tier->id);
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Tier Created Successfully']);
 
@@ -310,12 +304,12 @@ class TierController extends Controller
         }
 
         // Step 2: At least one IG OR one Member Type must be provided
-        $hasIG = $request->filled('interest_groups') 
-                 && is_array($request->interest_groups) 
+        $hasIG = $request->filled('interest_groups')
+                 && is_array($request->interest_groups)
                  && count(array_filter($request->interest_groups)) > 0;
 
-        $hasMT = $request->filled('member_types') 
-                 && is_array($request->member_types) 
+        $hasMT = $request->filled('member_types')
+                 && is_array($request->member_types)
                  && count(array_filter($request->member_types)) > 0;
 
         if (!$hasIG && !$hasMT) {
@@ -362,6 +356,7 @@ class TierController extends Controller
                 }
             }
 
+            AdminLogger::log('update', Tier::class, $id);
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Tier Updated Successfully']);
 
@@ -391,6 +386,9 @@ class TierController extends Controller
         }
     }
 
+    // =====================================================================
+    // MISC
+    // =====================================================================
     public function milestoneSave(Request $request)
     {
         return redirect('admin/tiers');

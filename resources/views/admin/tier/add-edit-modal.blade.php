@@ -125,7 +125,7 @@
                                                 <div>
                                                     <input type="hidden" name="interest_groups[{{ $loop->index }}][main_name]" value="{{ $ig->interest_group_main_name }}">
                                                     <input type="hidden" name="interest_groups[{{ $loop->index }}][sub_name]"  value="{{ $ig->interest_group_name }}">
-                                                    <span class="badge bg-primary me-2">IG</span>
+                                                    <span class="badge bg-primary me-2">CI</span>
                                                     <strong class="sh_dec">{{ $ig->interest_group_main_name }}</strong>
                                                     <span class="text-muted mx-1">/</span>
                                                     <span class="sh_dec">{{ $ig->interest_group_name }}</span>
@@ -260,10 +260,14 @@
 
         var $sel = $('#ig_main_select_' + UID);
 
-        allMainGroups = res.data;
+        allMainGroups = res.data; // array of { interest_group_main_id, interest_group_main_name }
 
-        $.each(res.data, function (i, name) {
-            $sel.append('<option value="' + name + '">' + name + '</option>');
+        $.each(res.data, function (i, group) {
+            $sel.append(
+                '<option value="' + group.interest_group_main_id + '" data-name="' + group.interest_group_main_name + '">'
+                + group.interest_group_main_name +
+                '</option>'
+            );
         });
 
     });
@@ -287,28 +291,35 @@
 
     $('#ig_main_select_' + UID).on('change', function () {
 
-        var mainName = $(this).val();
+        var mainId   = $(this).val();
+        var mainName = $(this).find('option:selected').data('name') || '';
         var $subSel  = $('#ig_sub_select_' + UID);
 
-        if (!mainName) {
+        if (!mainId) {
             $subSel.html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
             return;
         }
 
-        // 🔹 SELECT ALL GROUPS
-        if (mainName === '__all__') {
+        // 🔹 SELECT ALL GROUPS — send all IDs to get all sub-groups at once
+        if (mainId === '__all__') {
 
-            $.get(BASE_URL + 'get-sub-groups', { main_name: allMainGroups }, function (res) {
+            var allIds = allMainGroups.map(function(g) { return g.interest_group_main_id; });
+
+            $.get(BASE_URL + 'get-sub-groups', { interest_group_main_id: allIds }, function (res) {
 
                 $subSel.html(
                     '<option value="">-- Select Sub Group --</option>' +
                     '<option value="__all__">Select All Sub Groups</option>'
                 );
 
-               allSubGroups = res.data;
+                allSubGroups = res.data; // [{ interest_group_main_name, interest_group_name }]
 
                 $.each(res.data, function (i, row) {
-                    $subSel.append('<option value="' + row.InterestGroupName + '">' + row.InterestGroupName + '</option>');
+                    $subSel.append(
+                        '<option value="' + row.interest_group_name + '" data-main="' + row.interest_group_main_name + '">'
+                        + row.interest_group_name +
+                        '</option>'
+                    );
                 });
                 $subSel.prop('disabled', false);
 
@@ -317,19 +328,25 @@
             return;
         }
 
-        // 🔹 NORMAL SINGLE GROUP
-        $.get(BASE_URL + 'get-sub-groups', { main_name: mainName }, function (res) {
+        // 🔹 NORMAL SINGLE GROUP — send selected ID
+        $.get(BASE_URL + 'get-sub-groups', { interest_group_main_id: mainId }, function (res) {
 
             $subSel.html(
                 '<option value="">-- Select Sub Group --</option>' +
                 '<option value="__all__">Select All Sub Groups</option>'
             );
 
-           $.each(res.data, function (i, row) {
+            allSubGroups = res.data; // store for __all__ sub-group use
 
-                var subName = typeof row === "object" ? row.InterestGroupName : row;
+            $.each(res.data, function (i, row) {
+                var subName  = row.interest_group_name;
+                var mainNm   = row.interest_group_main_name;
 
-                $subSel.append('<option value="' + subName + '">' + subName + '</option>');
+                $subSel.append(
+                    '<option value="' + subName + '" data-main="' + mainNm + '">'
+                    + subName +
+                    '</option>'
+                );
             });
 
             $subSel.prop('disabled', false);
@@ -362,10 +379,11 @@
     // .off('click') ensures no duplicate listeners even if script runs again
     $('#add_ig_btn_' + UID).off('click').on('click', function () {
 
-        var mainName = $('#ig_main_select_' + UID).val();
-        var subName  = $('#ig_sub_select_' + UID).val();
+        var mainId   = $('#ig_main_select_' + UID).val();
+        var $subOpt  = $('#ig_sub_select_' + UID).find('option:selected');
+        var subName  = $subOpt.val();
 
-        if (!mainName || !subName) {
+        if (!mainId || !subName) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Please select both Main Group and Sub Group',
@@ -381,29 +399,29 @@
             allSubGroups.forEach(function(sub){
 
                 var isDup = selectedIGs.some(function (ig) {
-                    return ig.main === sub.InterestGroupMainName &&
-                        ig.sub === sub.InterestGroupName;
+                    return ig.main === sub.interest_group_main_name &&
+                        ig.sub === sub.interest_group_name;
                 });
 
                 if (isDup) return;
 
                 selectedIGs.push({
-                    main: sub.InterestGroupMainName,
-                    sub: sub.InterestGroupName
+                    main: sub.interest_group_main_name,
+                    sub: sub.interest_group_name
                 });
 
                 var idx = igIndex++;
 
                 var html =
                 '<div class="ig-item d-flex align-items-center justify-content-between border rounded p-2 mb-2" style="background:#eef3ff;" '+
-                'data-main="'+sub.InterestGroupMainName+'" data-sub="'+sub.InterestGroupName+'">'+
+                'data-main="'+sub.interest_group_main_name+'" data-sub="'+sub.interest_group_name+'">'+
                     '<div>'+
-                    '<input type="hidden" name="interest_groups['+idx+'][main_name]" value="'+sub.InterestGroupMainName+'">'+
-                    '<input type="hidden" name="interest_groups['+idx+'][sub_name]" value="'+sub.InterestGroupName+'">'+
-                    '<span class="badge bg-primary me-2">IG</span>'+
-                    '<strong>'+sub.InterestGroupMainName+'</strong>'+
+                    '<input type="hidden" name="interest_groups['+idx+'][main_name]" value="'+sub.interest_group_main_name+'">'+
+                    '<input type="hidden" name="interest_groups['+idx+'][sub_name]" value="'+sub.interest_group_name+'">'+
+                    '<span class="badge bg-primary me-2">CI</span>'+
+                    '<strong>'+sub.interest_group_main_name+'</strong>'+
                     '<span class="text-muted mx-1">/</span>'+
-                    '<span>'+sub.InterestGroupName+'</span>'+
+                    '<span>'+sub.interest_group_name+'</span>'+
                     '</div>'+
                     '<button type="button" class="btn btn-sm btn-outline-danger remove-ig-btn">'+
                     '<i class="mdi mdi-close"></i></button>'+
@@ -414,14 +432,16 @@
             });
 
             $('.ig_empty_msg').hide();
+            hideIgMtError();
 
             $('#ig_main_select_' + UID).val('');
-            $('#ig_sub_select_' + UID).val('');
+            $('#ig_sub_select_' + UID).html('<option value="">-- Select Main Group First --</option>').prop('disabled', true);
 
             return;
         }
 
-        /* SINGLE ADD */
+        /* SINGLE ADD — mainName comes from the sub-option's data-main attribute */
+        var mainName = $subOpt.data('main') || '';
 
         var isDup = selectedIGs.some(function (ig) {
             return ig.main === mainName && ig.sub === subName;
@@ -439,6 +459,7 @@
         }
 
         selectedIGs.push({ main: mainName, sub: subName });
+        hideIgMtError();
 
         var idx = igIndex++;
 

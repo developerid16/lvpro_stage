@@ -286,13 +286,12 @@
 </div>
 
 @endsection
-
 @section('script')
 <script>
     var ModuleBaseUrl = "{{route('admin.tiers.update') }}";
-     
+
         $(document).ready(function () {
-        
+
             $(document).on('change','.radio-earning',function (e) {
                 const checkbox = $(this);
                 console.log("data",checkbox.attr("data-colid"));
@@ -300,7 +299,7 @@
                 $('#keys-' +colid).toggleClass('d-none');
                 $('#reward-'+colid).toggleClass('d-none');
             });
-   
+
         $(document).on("submit",".save-btn",function (e) {
             e.preventDefault();
             const btn = $(this);
@@ -319,7 +318,7 @@
             success:function(response){
             if(response.status === 'success'){
             show_message(response.status,response.message);
-             
+
               } else {
             show_message(response.status,response.message);
             }
