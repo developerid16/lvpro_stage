@@ -343,7 +343,7 @@
                                         id="direct_no"
                                         name="direct_utilization"
                                         value="0"
-                                       {{ !isset($data) || (isset($data) && $data->hide_quantity == 0) ? 'checked' : '' }}>
+                                       {{ !isset($data) || (isset($data) && $data->direct_utilization == 0) ? 'checked' : '' }}>
                                     <label class="form-check-label" for="direct_no">No</label>
                                 </div>
 

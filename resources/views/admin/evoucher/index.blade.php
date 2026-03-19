@@ -451,7 +451,7 @@
 
     <script>
         let participatingLocations = {};
-
+     
         document.getElementById('csvFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (!file) return;
