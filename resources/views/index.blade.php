@@ -649,62 +649,62 @@
 
     function loadPurchaseFrequencyChart(){
 
-    $.get("{{ url('admin/purchase-frequency-data') }}",function(res){
+        $.get("{{ url('admin/purchase-frequency-data') }}",function(res){
 
-        if(!purchaseFrequencyChart){
+            if(!purchaseFrequencyChart){
 
-            purchaseFrequencyChart = new ApexCharts(
-                document.querySelector("#purchaseFrequencyChart"),
-                {
-                    chart:{
-                        type:'bar',
-                        height:350,
-                        stacked:true
-                    },
-
-                    series:[
-                        {
-                            name:'Members',
-                            data:res.members
+                purchaseFrequencyChart = new ApexCharts(
+                    document.querySelector("#purchaseFrequencyChart"),
+                    {
+                        chart:{
+                            type:'bar',
+                            height:350,
+                            stacked:true
                         },
-                        {
-                            name:'% of Transactions',
-                            data:res.percentages
+
+                        series:[
+                            {
+                                name:'Members',
+                                data:res.members
+                            },
+                            {
+                                name:'% of Transactions',
+                                data:res.percentages
+                            }
+                        ],
+
+                        xaxis:{
+                            categories:res.labels
+                        },
+
+                        colors:[
+                            '#556ee6',
+                            '#34c38f'
+                        ],
+
+                        tooltip:{
+                            shared:true,
+                            intersect:false
                         }
-                    ],
-
-                    xaxis:{
-                        categories:res.labels
-                    },
-
-                    colors:[
-                        '#556ee6',
-                        '#34c38f'
-                    ],
-
-                    tooltip:{
-                        shared:true,
-                        intersect:false
                     }
-                }
-            );
+                );
 
-            purchaseFrequencyChart.render();
+                purchaseFrequencyChart.render();
 
-        }else{
+            }else{
 
-            purchaseFrequencyChart.updateOptions({
-                series:[
-                    {name:'Members',data:res.members},
-                    {name:'% of Transactions',data:res.percentages}
-                ],
-                xaxis:{categories:res.labels}
-            });
+                purchaseFrequencyChart.updateOptions({
+                    series:[
+                        {name:'Members',data:res.members},
+                        {name:'% of Transactions',data:res.percentages}
+                    ],
+                    xaxis:{categories:res.labels}
+                });
 
-        }
+            }
 
-    });
-}
+        });
+    }
 
     function loadDemographicChart(){
 
@@ -1069,15 +1069,15 @@
     $(document).ready(function(){
         loadCharts();
         loadOutletCharts();
-        loadRedemptionRateTrend();
         loadCampaignChart();    
+        loadRedemptionRateTrend();
         loadIssuanceMethodChart();
         loadCategoryPerformance();
         loadMonthlyTransactionsChart();
+        loadTopDealsChart();
+        loadMemberParticipationChart();    
         loadPurchaseFrequencyChart();
         loadDemographicChart();    
-        loadMemberParticipationChart();    
-        loadTopDealsChart();
 
 
         $('#rewardTypeFilter').trigger('change');
