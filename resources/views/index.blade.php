@@ -57,7 +57,7 @@
         <!-- Redemption by Outlet -->
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header"><h4 class="mb-0">Outlet Performance</h4></div>
+                <div class="card-header"><h4 class="mb-0">Redemption by Outlet</h4></div>
                 <div class="card-body">
                     <div id="outletPerformanceChart"></div>
                 </div>
@@ -856,80 +856,116 @@
             var fullLabels = res.labels;
 
             var shortLabels = res.labels.map(function(name){
-                return name.length > 8 ? name.substring(0,10) + '…' : name;
+                return name.length > 10 ? name.substring(0,10) + '…' : name;
             });
 
-            function tooltipFormatter(seriesIndex, dataPointIndex){
-                return fullLabels[dataPointIndex];
-            }
-
-            
-            if(campaignChart && typeof campaignChart.destroy === "function"){
+            if(campaignChart){
                 campaignChart.destroy();
             }
 
             var el = document.querySelector("#campaignChart");
-
-            if(!el){
-                console.error("Chart element not found");
-                return;
-            }
+            if(!el) return;
 
             var options = {
                 chart:{
                     type:'bar',
-                    height:350
+                    height:350,
+                    stacked:false
                 },
+
                 series:[
                     {
-                        name:'Vouchers Issued',
-                        data:res.issued || []
+                        name:'Issued',
+                        type:'column',
+                        data:res.issued
                     },
                     {
-                        name:'Vouchers Redeemed',
-                        data:res.redeemed || []
+                        name:'Redeemed',
+                        type:'column',
+                        data:res.redeemed
                     },
                     {
-                        name:'Redemption Rate (%)',
+                        name:'Rate (%)',
                         type:'line',
-                        data:res.rate || []
+                        data:res.rate
                     }
                 ],
-                xaxis:{categories:shortLabels},
-                tooltip:{
-                    custom: function({series, seriesIndex, dataPointIndex, w}) {
-                        return '<div class="apex-tooltip">'+
-                            fullLabels[dataPointIndex] +
-                            '<br>Count: '+series[seriesIndex][dataPointIndex]+
-                            '</div>';
+
+                xaxis:{
+                    categories:shortLabels,
+                    labels:{
+                        rotate:-45,
+                        trim:false
                     }
                 },
+
                 yaxis:[
                     {
-                        title:{ text:'Count' }
+                        title:{ text:'Vouchers' },
+                        labels:{
+                            formatter: val => parseInt(val)
+                        }
                     },
                     {
                         opposite:true,
-                        title:{ text:'Rate (%)' }
+                        title:{ text:'Rate (%)' },
+                        labels:{
+                            formatter: val => val + '%'
+                        }
                     }
                 ],
-                colors:['#556ee6','#34c38f','#f46a6a'],
+
+                plotOptions:{
+                    bar:{
+                        columnWidth:'40%'
+                    }
+                },
+
                 stroke:{
                     width:[0,0,3]
                 },
-                dataLabels:{
-                    enabled:true,
-                    enabledOnSeries:[2]
+
+                colors:[
+                    '#556ee6',   // issued
+                    '#34c38f',   // redeemed
+                    '#f46a6a'    // rate
+                ],
+
+                markers:{
+                    size:5
                 },
-               
+
+                tooltip:{
+                    shared:true,
+                    intersect:false,
+                    custom:function({dataPointIndex}){
+                        return `
+                            <div class="apex-tooltip">
+                                <b>${fullLabels[dataPointIndex]}</b><br/>
+                                Issued: ${res.issued[dataPointIndex]}<br/>
+                                Redeemed: ${res.redeemed[dataPointIndex]}<br/>
+                                Rate: ${res.rate[dataPointIndex]}%
+                            </div>
+                        `;
+                    }
+                },
+
+                legend:{
+                    position:'top'
+                },
+
+                dataLabels:{
+                    enabled:false
+                }
             };
 
             campaignChart = new ApexCharts(el, options);
             campaignChart.render();
         });
     }
+
     
-    function loadTopDealsChart(){
+   function loadTopDealsChart(){
 
         $.get("{{ url('admin/top-deals-data') }}", function(res){
 
@@ -937,10 +973,17 @@
             var counts = [];
             var revenue = [];
 
+            // extract data
             res.forEach(function(item){
                 labels.push(item.voucher_name);
                 counts.push(item.purchase_count);
                 revenue.push(item.total_revenue);
+            });
+
+            var fullLabels = labels;
+
+            var shortLabels = labels.map(function(name){
+                return name.length > 10 ? name.substring(0,10) + '…' : name;
             });
 
             if(!topDealsChart){
@@ -956,7 +999,7 @@
                         plotOptions:{
                             bar:{
                                 horizontal:false,
-                                barHeight:'50%'
+                                columnWidth:'50%'
                             }
                         },
 
@@ -972,18 +1015,26 @@
                         ],
 
                         xaxis:{
-                            categories:labels
+                            categories:shortLabels,
+                            labels:{
+                                rotate:-30
+                            }
+                        },
+
+                        tooltip:{
+                            custom: function({series, seriesIndex, dataPointIndex}) {
+                                return '<div class="apex-tooltip">'+
+                                    fullLabels[dataPointIndex] +
+                                    '<br>Count: '+counts[dataPointIndex] +
+                                    '<br>Revenue: '+revenue[dataPointIndex] +
+                                    '</div>';
+                            }
                         },
 
                         colors:[
                             '#556ee6',
                             '#34c38f'
-                        ],
-
-                        tooltip:{
-                            shared:true,
-                            intersect:false
-                        }
+                        ]
                     }
                 );
 
@@ -996,15 +1047,24 @@
                         {name:'Purchase Count',data:counts},
                         {name:'Revenue',data:revenue}
                     ],
-                    xaxis:{categories:labels}
+                    xaxis:{
+                        categories:shortLabels
+                    },
+                    tooltip:{
+                        custom: function({series, seriesIndex, dataPointIndex}) {
+                            return '<div class="apex-tooltip">'+
+                                fullLabels[dataPointIndex] +
+                                '<br>Count: '+counts[dataPointIndex] +
+                                '<br>Revenue: '+revenue[dataPointIndex] +
+                                '</div>';
+                        }
+                    }
                 });
 
             }
 
         });
     }
-
-
 
     $(document).ready(function(){
         loadCharts();
