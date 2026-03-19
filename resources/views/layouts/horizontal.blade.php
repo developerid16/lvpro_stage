@@ -71,77 +71,77 @@
 
             <div class="dropdown d-inline-block">
 
-    <!-- 🔔 BUTTON -->
-    <button type="button"
-        class="btn header-item noti-icon waves-effect position-relative"
-        id="page-header-notifications-dropdown"
-        data-bs-toggle="dropdown"
-        aria-expanded="false">
+                <!-- 🔔 BUTTON -->
+                <button type="button"
+                    class="btn header-item noti-icon waves-effect position-relative"
+                    id="page-header-notifications-dropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
 
-        <i class="mdi mdi-bell-outline" style="font-size:22px;"></i>
+                    <i class="mdi mdi-bell-outline" style="font-size:22px;"></i>
 
-        @php
-            $unread = $notifications->where('is_read', 0)->count();
-        @endphp
+                    @php
+                        $unread = $notifications->where('is_read', 0)->count();
+                    @endphp
 
-        @if($unread > 0)
-            <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">
-                {{ $unread }}
-            </span>
-        @endif
-    </button>
+                    @if($unread > 0)
+                        <span class="badge bg-danger rounded-pill position-absolute top-[14px] right-0 translate-middle">
+                            {{ $unread }}
+                        </span>
+                    @endif
+                </button>
 
-    <!-- 🔽 DROPDOWN -->
-    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-        aria-labelledby="page-header-notifications-dropdown">
+                <!-- 🔽 DROPDOWN -->
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                    aria-labelledby="page-header-notifications-dropdown">
 
-        <div class="p-3 border-bottom">
-            <h6 class="m-0">Notifications</h6>
-        </div>
+                    <div class="p-3 border-bottom">
+                        <h6 class="m-0">Notifications</h6>
+                    </div>
 
-        <div style="max-height: 300px; overflow-y:auto;">
+                    <div style="max-height: 300px; overflow-y:auto;">
 
-            @forelse($notifications as $item)
-                <a href="javascript:void(0)"
-                   class="dropdown-item notification-item"
-                   data-id="{{ $item->id }}">
+                        @forelse($notifications as $item)
+                            <a href="javascript:void(0)"
+                            class="dropdown-item notification-item"
+                            data-id="{{ $item->id }}">
 
-                    <div class="d-flex">
+                                <div class="d-flex">
 
-                        <div class="avatar-xs me-3 position-relative">
-                            <span class="avatar-title bg-warning rounded-circle">
-                                <i class="mdi mdi-bell-outline"></i>
-                            </span>
+                                    <div class="avatar-xs me-3 position-relative">
+                                        <span class="avatar-title bg-warning rounded-circle">
+                                            <i class="mdi mdi-bell-outline"></i>
+                                        </span>
 
-                            @if($item->is_read == 0)
-                                <span style="position:absolute;top:0;right:0;width:8px;height:8px;background:red;border-radius:50%;"></span>
-                            @endif
-                        </div>
+                                        @if($item->is_read == 0)
+                                            <span style="position:absolute;top:0;right:0;width:8px;height:8px;background:red;border-radius:50%;"></span>
+                                        @endif
+                                    </div>
 
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">
-                                {{ $item->notification->title ?? '' }}
-                            </h6>
-                            <p class="mb-1 text-muted">
-                                {{ $item->notification->short_desc ?? '' }}
-                            </p>
-                            <small class="text-muted">
-                                {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
-                            </small>
-                        </div>
+                                    <div class="flex-grow-1" style="white-space:normal;">
+                                        <h6 class="mb-1">
+                                            {{ $item->notification->title ?? '' }}
+                                        </h6>
+                                        <p class="mb-1 text-muted">
+                                            {{ $item->notification->short_desc ?? '' }}
+                                        </p>
+                                        <small class="text-muted">
+                                            {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
+                                        </small>
+                                    </div>
+
+                                </div>
+                            </a>
+
+                        @empty
+                            <p class="text-center p-3">No notifications</p>
+                        @endforelse
 
                     </div>
-                </a>
 
-            @empty
-                <p class="text-center p-3">No notifications</p>
-            @endforelse
+                </div>
 
-        </div>
-
-    </div>
-
-</div>
+            </div>
 
             <div class="dropdown d-inline-block">
                

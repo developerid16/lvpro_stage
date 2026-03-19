@@ -627,3 +627,12 @@ input::placeholder {
     background: white !important;
 }
 
+.dropdown .header-item {
+height: auto !important;
+}
+
+.dropdown .noti-icon .badge {
+           top: 14px !important;
+    right: -1px !important;
+
+}
