@@ -82,6 +82,9 @@ class DashboardPopupController extends Controller
                                 </a>",
             ];
 
+            $final_data[$i]['desktop_image'] = imagePreviewHtml("uploads/image/{$row->desktop_image}");
+            $final_data[$i]['mobile_image'] = imagePreviewHtml("uploads/image/{$row->mobile_image}");
+
             // ---------------- ACTIONS ----------------
             $action = "<div class='d-flex gap-3'>";
             $action .= "<span class='text-muted drag-indicator' title='Drag to reorder'>
@@ -133,7 +136,8 @@ class DashboardPopupController extends Controller
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after_or_equal:start_date',
             'url'         => 'required|url|max:255',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+             'desktop_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'mobile_image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -148,12 +152,19 @@ class DashboardPopupController extends Controller
         $validated = $validator->validated();
 
         // Upload image
-        if ($request->hasFile('image')) {
-            $imageName = generateHashFileName($request->image->getClientOriginalName());
-            $request->image->move(public_path('uploads/image'), $imageName);
-            $validated['image'] = $imageName;
+        if ($request->hasFile('desktop_image')) {
+
+            $name = generateHashFileName($request->desktop_image->getClientOriginalName());
+            $request->desktop_image->move(public_path('uploads/image'), $name);
+            $validated['desktop_image'] = $name;
         }
 
+        if ($request->hasFile('mobile_image')) {
+
+            $name = generateHashFileName($request->mobile_image->getClientOriginalName());
+            $request->mobile_image->move(public_path('uploads/image'), $name);
+            $validated['mobile_image'] = $name;
+        }
         // Map popup_type → frequency
         $validated['frequency'] = $validated['popup_type'];
 
@@ -198,7 +209,8 @@ class DashboardPopupController extends Controller
             'start_date'  => 'required|date',
             'end_date'    => 'required|date|after_or_equal:start_date',
             'url'         => 'required|url|max:255',
-            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'desktop_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'mobile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -215,17 +227,26 @@ class DashboardPopupController extends Controller
         $popup = DashboardPopup::findOrFail($id);
 
         // Replace image if new uploaded
-        if ($request->hasFile('image')) {
+         if ($request->hasFile('desktop_image')) {
 
-            $imageName = generateHashFileName($request->image->getClientOriginalName());
-            $request->image->move(public_path('uploads/image'), $imageName);
-            $validated['image'] = $imageName;
+            $imageName = generateHashFileName($request->desktop_image->getClientOriginalName());
+            $request->desktop_image->move(public_path('uploads/image'), $imageName);
 
-            // Delete old image
-            if (!empty($popup->image)) {
-                
-                $oldPath = public_path('uploads/image' . $popup->image);
-                if (file_exists($oldPath)) {
+            $validated['desktop_image'] = $imageName;
+        }
+
+        if ($request->hasFile('mobile_image')) {
+
+            $imageName = generateHashFileName($request->mobile_image->getClientOriginalName());
+            $request->mobile_image->move(public_path('uploads/image'), $imageName);
+
+            $validated['mobile_image'] = $imageName;
+
+            if (!empty($banner->mobile_image)) {
+
+                $oldPath = public_path('uploads/image/'.$popup->mobile_image);
+
+                if(file_exists($oldPath)){
                     unlink($oldPath);
                 }
             }
@@ -246,7 +267,17 @@ class DashboardPopupController extends Controller
      */
     public function destroy(string $id)
     {
-        DashboardPopup::where('id', $id)->delete();
+        
+        $popup = DashboardPopup::findOrFail($id);
+
+        if ($popup->desktop_image && file_exists(public_path('uploads/image/' . $popup->desktop_image))) {
+            unlink(public_path('uploads/image/' . $popup->desktop_image));
+        }
+
+        if ($popup->mobile_image && file_exists(public_path('uploads/image/' . $popup->mobile_image))) {
+            unlink(public_path('uploads/image/' . $popup->mobile_image));
+        }
+
         AdminLogger::log('delete', DashboardPopup::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
     }

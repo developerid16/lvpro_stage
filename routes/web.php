@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
 use App\Http\Controllers\Admin\EvoucherController;
@@ -129,7 +130,24 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middleware(['web', 'auth', 'OTPVerify'])->name('root');
 
+
+
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify'])->group(function () {
+    // <!-- evoucher graph -->
+    Route::get('/voucher-trend-data', [HomeController::class,'voucherTrendData']);
+    Route::get('/outlet-redemption-data',[HomeController::class,'outletRedemptionData']);
+    Route::get('/redemption-rate-trend-data',[HomeController::class,'redemptionRateTrendData']);
+    Route::get('/voucher-issuance-method-data', [HomeController::class,'voucherIssuanceMethodData']);
+    Route::get('/campaign-performance-data',[HomeController::class,'campaignPerformanceData']);
+    
+    // <!-- treats and deals graph -->
+    Route::get('/category-performance-data',[HomeController::class,'categoryPerformanceData']);
+    Route::get('/monthly-transactions-trend-data',[HomeController::class,'monthlyTransactionsTrendData']);
+    Route::get('/purchase-frequency-data',[HomeController::class,'purchaseFrequencyData']);
+    Route::get('/demographic-purchase-data',[HomeController::class,'demographicPurchaseData']);
+    Route::get('/member-participation-data',[HomeController::class,'memberParticipationData']);
+    Route::get('/top-deals-data',[HomeController::class,'topDealsData']);
+
 
     Route::get('/safra-check', [HomeController::class, 'checkMember']);
 
@@ -218,6 +236,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('dashboardpopup/datatable', [DashboardPopupController::class, 'datatable']);
     Route::resource('dashboardpopup', DashboardPopupController::class);
     
+    Route::get('banner/datatable', [BannerController::class, 'datatable']);
+    Route::resource('banner', BannerController::class);
    
     Route::post('announcements/reorder', [AnnouncementController::class, 'reorder']);
     Route::get('announcement/datatable', [AnnouncementController::class, 'datatable']);
