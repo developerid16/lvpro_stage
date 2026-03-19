@@ -1423,6 +1423,16 @@
     $(document).on('input', '#voucher_set, #inventory_qty, #set_qty, #voucher_value', function () {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
+
+    $(document).on('click', '.notification-item', function () {
+    let id = $(this).data('id');
+
+    $.post("{{ url('admin/notification/read') }}/" + id, {
+        _token: $('meta[name="csrf-token"]').attr('content')
+    });
+
+    $(this).find('span[style]').remove();
+});
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>

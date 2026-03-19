@@ -132,7 +132,7 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middlewar
 Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify'])->group(function () {
 
     Route::get('/safra-check', [HomeController::class, 'checkMember']);
-
+    Route::post('/notification/read/{id}', [NotificationController::class, 'markAsRead']);
     Route::post('user-rights/approve', action: [UserRightsRequestController::class, 'approve']);
     Route::post('user-rights/{id}/reject', [UserRightsRequestController::class, 'reject']);
     Route::get('user-rights/datatable', [UserRightsRequestController::class, 'datatable']);

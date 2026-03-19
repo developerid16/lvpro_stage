@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\NotificationUser;
 use App\Observers\ActivityObserver;
 use App\Http\Controllers\Admin\SalesController;
 use App\Models\Announcement;
@@ -29,7 +30,6 @@ use App\Models\Master\MasterMaritalStatus;
 use App\Models\Master\MasterMembershipCode;
 use App\Models\Master\MasterZone;
 use App\Models\Merchant;
-use App\Models\Notification;
 use App\Models\ParticipatingLocations;
 use App\Models\ParticipatingMerchant;
 use App\Models\ParticipatingMerchantLocation;
@@ -65,7 +65,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
-
+use Illuminate\Support\Facades\View;
+use App\Models\Notification;
 
 
 
@@ -146,10 +147,20 @@ class AppServiceProvider extends ServiceProvider
         MemberLatestTransaction::observe(ActivityObserver::class);
         MemberBasicDetailsModified::observe(ActivityObserver::class);
         MemberBasicDetailIG::observe(ActivityObserver::class);
-        
-
 
         Paginator::useBootstrap();
+
+        View::composer('*', function ($view) {
+            $notifications = NotificationUser::with('notification')
+                ->where('notification_user.user_id', auth()->id())
+                ->join('notifications', 'notifications.id', '=', 'notification_user.notification_id')
+                ->orderBy('notification_user.is_read', 'asc') // unread first
+                ->orderBy('notification_user.created_at', 'desc')
+                ->select('notification_user.*', 'notifications.title', 'notifications.short_desc')
+                ->take(10)
+                ->get();
+            $view->with('notifications', $notifications);
+        });
 
         // URL::forceScheme('https');   
         Schema::defaultStringLength(191);
