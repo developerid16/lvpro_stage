@@ -113,6 +113,7 @@ class SafraAPIService
         $response = $this->call(
             'sfrControlMember/GetBasicDetailIg',
             [
+                "IsSync" => 1,
                 'LastModifiedTime' => $lastModified,
                 'Limit' => $limit,
             ]
@@ -302,19 +303,6 @@ class SafraAPIService
         return $data ?? [];
     }
 
-    /** get email notification */
-    public function getEmailNotification(array $itemData): array
-    {
-        $response = $this->call(
-            'sfrControlMember/GetEmailNotification',
-            $itemData
-        );
-        if ($response->failed()) {
-            throw new \Exception('Get Email Notification API failed: ' . $response->body());
-        }
-        return json_decode($response->body()   , true);
-        // return $data['email_notification_list'] ?? [];
-    }
 
-    
+
 }

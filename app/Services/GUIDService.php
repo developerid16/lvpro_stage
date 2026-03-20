@@ -103,4 +103,24 @@ class GUIDService
 
         return $data ?? [];
     }
+
+    /** get email notification */
+    public function getEmailNotification(array $itemData): array
+    {
+        $response = $this->call(
+            'sfrControlMember/GetEmailNotification',
+            $itemData
+        );
+        if ($response->failed()) {
+            throw new \Exception('Get Email Notification API failed: ' . $response->body());
+        }
+        $records = json_decode($response->body()   , true);
+        dd($records);
+        $data = $response->json();
+        if (!empty($data['MemberID'])) {
+            $data['MemberIDDecrypted'] = $this->decryptAes256Cbc($data['MemberID']);
+        }
+        return json_decode($response->body()   , true);
+        // return $data['email_notification_list'] ?? [];
+    }
 }

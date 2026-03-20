@@ -72,24 +72,4 @@ class SRPController extends Controller
             ], 500);
         }
     }
-
-    public function getEmailNotification(Request $request)
-    {
-        try {
-            $records = $this->SafraAPIService
-                ->getEmailNotification([
-                    'Token_list' => $request->get('Token_list') // Capital T
-                ]);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $records
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
 }

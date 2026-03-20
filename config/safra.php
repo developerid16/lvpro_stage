@@ -9,6 +9,6 @@ return [
     'senderid' =>  env('senderid', 'Safra SG'),
     'languagetype' =>  env('languagetype',1),
 
-    'last_modified' => '2025-09-17',
+    'last_modified' => '2025-01-01',
     'limit' => 100,
 ];
