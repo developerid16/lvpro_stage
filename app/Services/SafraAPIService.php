@@ -108,15 +108,19 @@ class SafraAPIService
     /**
      * Get IG Basic Detail Info
      */
-    public function getIGbasicdetail(string $lastModified, int $limit = 5): array
+    public function getIGbasicdetail($itemData): array
     {
+        if (isset($itemData['IsSync']) && $itemData['IsSync'] == 0) {
+            $postData['IsSync'] = 0;
+            $postData['Token'] = $itemData['Token'] ?? 100;
+        }else{
+            $postData['LastModifiedTime'] = $itemData['LastModifiedTime'] ?? '';
+            $postData['Limit'] = $itemData['Limit'] ?? 100;
+        }
+
         $response = $this->call(
             'sfrControlMember/GetBasicDetailIg',
-            [
-                "IsSync" => 1,
-                'LastModifiedTime' => $lastModified,
-                'Limit' => $limit,
-            ]
+            $itemData
         );
         if ($response->failed()) {
             throw new \Exception('SAFRA API failed: ' . $response->body());

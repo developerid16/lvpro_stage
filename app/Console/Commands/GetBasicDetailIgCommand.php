@@ -40,7 +40,10 @@ class GetBasicDetailIgCommand extends Command
 
                 do {
                     try {
-                        $response = $safraAPIService->getIGbasicdetail($lastModified, $limit);
+                        $response = $safraAPIService->getIGbasicdetail([
+                            'LastModifiedTime' => $lastModified,
+                            'Limit' => $limit,
+                        ]);
                         break;
                     } catch (\Exception $e) {
                         $retry++;

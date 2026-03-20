@@ -56,17 +56,13 @@ class MemberInformationController extends Controller
      */
     public function GetBasicDetailIg(Request $request)
     {
-        $limit = $request->limit ?? $this->limit;
-        $lastModified = $request->last_modified ?? $this->last_modified;
-
         try {
             $records = $this->SafraAPIService
-                ->getIGbasicdetail($lastModified, $limit);
+                ->getIGbasicdetail($request->all());
 
             return response()->json([
                 'status' => 'success',
                 'count' => count($records),
-                'last_sync_time' => $lastModified,
                 'data' => $records
             ]);
         } catch (\Exception $e) {
