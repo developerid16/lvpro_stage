@@ -427,6 +427,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::get('fabs/datatable', [FabsController::class, 'datatable']);
     Route::resource('fabs', FabsController::class);
+
+    Route::post('/upload-csv', [RewardController::class, 'uploadCsv'])->name('upload.csv');
 });
 
 

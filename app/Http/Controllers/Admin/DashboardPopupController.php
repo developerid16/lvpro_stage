@@ -279,6 +279,7 @@ class DashboardPopupController extends Controller
         }
 
         AdminLogger::log('delete', DashboardPopup::class, $id);
+        $popup->delete();
         return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
     }
 
