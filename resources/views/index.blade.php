@@ -873,7 +873,14 @@
 
         // ── Campaign: max 7 + live reload ───────────────────────────────────────
         $('#rewardArr').on('change', function() {
+            // ✅ Remove blank/empty values from selection
+            $('#rewardArr option:selected').each(function() {
+                if ($(this).val() === '' || $(this).val() === null) {
+                    $(this).prop('selected', false);
+                }
+            });
             var selected = $('#rewardArr option:selected');
+            console.log('Selected campaigns:', selected.map(function() { return $(this).text(); }).get());
             if (selected.length > 7) {
                 alert('Maximum 7 selections allowed');
                 selected.last().prop('selected', false);
