@@ -20,6 +20,7 @@ class GetBasicDetailIgCommand extends Command
         // ✅ DB mathi LastModified levu
         $lastModified = DB::table('api_sync_logs')
             ->where('key', 'ig_basic_detail_last_modified')
+             ->whereDate('created_at', Carbon::today())
             ->value('value') ?? Config::get('safra.last_modified');
 
         $limit = Config::get('safra.limit', 100);
