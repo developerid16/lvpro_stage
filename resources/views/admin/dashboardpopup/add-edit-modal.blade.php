@@ -161,7 +161,7 @@
                         <!-- Desktop Banner -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label>Upload Image (Desktop)</label>
+                                <label>Upload Image (Desktop) <span class="required-hash">*</span></label>
 
                                 <input type="file" name="desktop_image" id="desktop_logo_input"   class="form-control" accept=".jpg,.jpeg,.png">
 
@@ -189,7 +189,7 @@
                         <!-- Mobile Banner -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label>Upload Image (Mobile)</label>
+                                <label>Upload Image (Mobile) <span class="required-hash">*</span></label>
 
                                 <input type="file" name="mobile_image" id="mobile_logo_input" class="form-control" accept=".jpg,.jpeg,.png">                                  
 
