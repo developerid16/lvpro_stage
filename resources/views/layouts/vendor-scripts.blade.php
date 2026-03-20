@@ -870,54 +870,68 @@
     }
   
     // Show preview when selecting a new image
-    document.getElementById('voucher_image').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('voucher_image_preview');
-        
-        const clearBtn = document.getElementById('clear_voucher_image');
-
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = 'block';
-            clearBtn.style.display = 'inline-block';
-        }
-    });
+    // ✅ Fix 1: Simple null check
+    const voucherImageInput = document.getElementById('voucher_image');
+    if (voucherImageInput) {
+        document.getElementById('voucher_image').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('voucher_image_preview');
+            
+            const clearBtn = document.getElementById('clear_voucher_image');
+    
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                clearBtn.style.display = 'inline-block';
+            }
+        });
+    }
    
     // Clear image
-    document.getElementById('clear_voucher_image').addEventListener('click', function () {
-        const input = document.getElementById('voucher_image');
-        const preview = document.getElementById('voucher_image_preview');
-
-        input.value = '';
-        preview.src = '';
-        preview.style.display = 'none';
-        this.style.display = 'none';
-    });
+    // ✅ Fix 1: Simple null check
+    const clear_voucher_image = document.getElementById('clear_voucher_image');
+    if (clear_voucher_image) {
+        document.getElementById('clear_voucher_image').addEventListener('click', function () {
+            const input = document.getElementById('voucher_image');
+            const preview = document.getElementById('voucher_image_preview');
+    
+            input.value = '';
+            preview.src = '';
+            preview.style.display = 'none';
+            this.style.display = 'none';
+        });
+    }
 
     // Show preview when selecting a new image
-    document.getElementById('voucher_detail_img').addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        const preview = document.getElementById('voucher_detail_img_preview');
-        
-        const clearBtn = document.getElementById('clear_voucher_detail_img');
-
-        if (file) {
-            preview.src = URL.createObjectURL(file);
-            preview.style.display = 'block';
-            clearBtn.style.display = 'inline-block';
-        }
-    });
+    const voucher_detail_img = document.getElementById('voucher_detail_img');
+    if (voucher_detail_img) {
+        document.getElementById('voucher_detail_img').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('voucher_detail_img_preview');
+            
+            const clearBtn = document.getElementById('clear_voucher_detail_img');
+    
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                clearBtn.style.display = 'inline-block';
+            }
+        });
+    }
    
     // Clear image
-    document.getElementById('clear_voucher_detail_img').addEventListener('click', function () {
-        const input = document.getElementById('voucher_detail_img');
-        const preview = document.getElementById('voucher_detail_img_preview');
-
-        input.value = '';
-        preview.src = '';
-        preview.style.display = 'none';
-        this.style.display = 'none';
-    });
+    const clear_voucher_detail_img = document.getElementById('clear_voucher_detail_img');
+    if (clear_voucher_detail_img) {
+        document.getElementById('clear_voucher_detail_img').addEventListener('click', function () {
+            const input = document.getElementById('voucher_detail_img');
+            const preview = document.getElementById('voucher_detail_img_preview');
+    
+            input.value = '';
+            preview.src = '';
+            preview.style.display = 'none';
+            this.style.display = 'none';
+        });
+    }
 
     //count set quantitry
     function editCalculateSetQty() {
