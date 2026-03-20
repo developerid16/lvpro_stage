@@ -1424,7 +1424,7 @@
         this.value = this.value.replace(/[^0-9]/g, '');
     });
 
-      $('#csvFile').on('change', function () {
+    $('#csvFile').on('change', function () {
 
             let file = this.files[0];
             if (!file) return;
@@ -1487,14 +1487,14 @@
 
 
     $(document).on('click', '.notification-item', function () {
-    let id = $(this).data('id');
+        let id = $(this).data('id');
 
-    $.post("{{ url('admin/notification/read') }}/" + id, {
-        _token: $('meta[name="csrf-token"]').attr('content')
+        $.post("{{ url('admin/notification/read') }}/" + id, {
+            _token: $('meta[name="csrf-token"]').attr('content')
+        });
+
+        $(this).find('span[style]').remove();
     });
-
-    $(this).find('span[style]').remove();
-});
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
