@@ -30,7 +30,7 @@ use App\Models\RewardLocationUpdate;
 use App\Models\RewardParticipatingMerchantLocationUpdate;
 use App\Models\RewardUpdateRequest;
 use App\Models\UserWalletVoucher;
-
+use Illuminate\Support\Collection;
 class RewardController extends Controller
 {
     public function __construct()
@@ -219,7 +219,7 @@ class RewardController extends Controller
 
                     $action .= "<a href='javascript:void(0)' 
                                     class='' 
-                                   style='cursor:not-allowed;color:#b6b8c4 !important;' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
@@ -2177,5 +2177,79 @@ class RewardController extends Controller
             'locations' => $locations
         ]);
     }
-    
+
+
+
+   public function uploadCsv(Request $request)
+    {
+        $request->validate([
+            'csvFile' => 'required|mimes:csv,xlsx,xls'
+        ]);
+
+        $file = $request->file('csvFile');
+
+        $data = Excel::toArray([], $file)[0];
+
+        if (count($data) <= 1) {
+            return back()->with('error', 'File is empty');
+        }
+
+        $header = array_map('strtolower', $data[0]);
+        $codeIndex = array_search('code', $header);
+
+        if ($codeIndex === false) {
+            return back()->with('error', 'Code column not found');
+        }
+
+        // 🔥 collect codes
+        $fileCodes = collect(array_slice($data, 1))
+            ->pluck($codeIndex)
+            ->map(fn($c) => trim($c))
+            ->filter()
+            ->values();
+
+        $duplicates = [];
+
+        // 🔥 find duplicate codes in same file
+        $counts = $fileCodes->countBy();
+
+        foreach ($counts as $code => $count) {
+            if ($count > 1) {
+                $duplicates[] = [
+                    'code'  => $code,
+                    'error' => "Duplicate in file ({$count} times)"
+                ];
+            }
+        }
+
+        // ✅ if duplicates found → download file
+        if (!empty($duplicates)) {
+
+            return Excel::download(new class($duplicates) implements
+                \Maatwebsite\Excel\Concerns\FromCollection,
+                \Maatwebsite\Excel\Concerns\WithHeadings {
+
+                protected $data;
+
+                public function __construct($data)
+                {
+                    $this->data = $data;
+                }
+
+                public function collection()
+                {
+                    return collect($this->data);
+                }
+
+                public function headings(): array
+                {
+                    return ['Code', 'Error'];
+                }
+
+            }, 'duplicate_codes_in_file.xlsx');
+        }
+
+        return back()->with('success', 'No duplicate codes in file');
+    }
+            
 }

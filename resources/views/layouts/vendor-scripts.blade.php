@@ -1412,8 +1412,8 @@
 
         let num = parseInt(value);
 
-        if (num > 12) {
-            value = 12;
+        if (num > 99) {
+            value = 99;
         }
 
         $(this).val(value);
@@ -1423,6 +1423,68 @@
     $(document).on('input', '#voucher_set, #inventory_qty, #set_qty, #voucher_value', function () {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
+
+      $('#csvFile').on('change', function () {
+
+            let file = this.files[0];
+            if (!file) return;
+
+            let formData = new FormData();
+            formData.append('csvFile', file);
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+            $.ajax({
+                url: "{{ url('admin/upload-csv') }}",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                xhrFields: {
+                    responseType: 'blob' // 🔥 REQUIRED for download
+                },
+                success: function (res, status, xhr) {
+
+                    let disposition = xhr.getResponseHeader('Content-Disposition');
+
+                    if (disposition && disposition.includes('attachment')) {
+
+                        // 🔴 DUPLICATE FOUND → download file
+                        let blob = new Blob([res]);
+                        let link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = "duplicate_codes.xlsx";
+                        link.click();
+                        // ❌ reset file input
+                        $('#csvFile').val('');
+                        $('#uploadedFileLink').text('');
+                        $('#removeCsvFile').hide();
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Duplicate codes found',
+                            text: 'Please check downloaded file for details',
+                            confirmButtonText: 'OK'
+                        });
+                        
+                    } else {
+
+                        // ✅ NO duplicate
+                        // show_message('success', 'All codes are valid');
+
+                        // show UI (your existing code)
+                        $('#uploadedFileLink').text(file.name);
+                        $('#uploadedFile').removeClass('d-none').addClass('d-flex');
+                        $('#removeCsvFile').show();
+
+                    }
+                },
+                error: function () {
+                    show_message('error','Error while checking file');
+                }
+            });
+
+        });
+
 
     $(document).on('click', '.notification-item', function () {
     let id = $(this).data('id');

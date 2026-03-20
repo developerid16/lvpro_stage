@@ -326,6 +326,9 @@
                                 @can('dashboard-popup')
                                     <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
                                 @endcan
+                                @can('banner-list')
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/banner')}}">Banner</a>
+                                @endcan
                                 @can('notification-list')
                                     <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
                                 @endcan
