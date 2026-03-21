@@ -35,7 +35,7 @@
                         {{-- <th data-field="type" data-filter-control="input">
                             Type
                         </th>                       --}}
-                        <th data-field="reward_type" data-filter-control="input">
+                        <th data-field="reward_type" data-css="wrap-text">
                             Reward Type
                         </th>                      
                         <th data-field="name" data-filter-control="input">
@@ -46,15 +46,15 @@
                             Inventory Type
                         </th>
 
-                        <th data-field="inventory_qty">
+                        <th data-field="inventory_qty" data-css="wrap-text">
                             Inventory Qty
                         </th>
 
-                        <th data-field="voucher_value">
+                        <th data-field="voucher_value" data-css="wrap-text">
                             Voucher Value
                         </th>
 
-                        <th data-field="clearing_method">
+                        <th data-field="clearing_method" data-css="wrap-text">
                             Clearing Method
                         </th>
 
