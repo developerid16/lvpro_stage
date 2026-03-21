@@ -1067,16 +1067,16 @@
             convert_urls: true,
             entity_encoding: 'raw',
 
-            // Character limit 180
-            setup: function (editor) {
-                editor.on('keydown', function (e) {
-                    const text = editor.getContent({ format: 'text' });
+            // Character limit 180 (21-03-2026) bug fixed
+            // setup: function (editor) {
+            //     editor.on('keydown', function (e) {
+            //         const text = editor.getContent({ format: 'text' });
 
-                    if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
-                        e.preventDefault();
-                    }
-                });
-            },
+            //         if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
+            //             e.preventDefault();
+            //         }
+            //     });
+            // },
 
             // Image upload
             images_upload_url: '{{ url("admin/image-upload-editor") }}',
@@ -1094,6 +1094,8 @@
                 "alignleft aligncenter alignright alignjustify | " +
                 "bullist numlist outdent indent | link image ",
 
+            // ✅ Right click menu disabled due to UX issues and conflicts with our custom context menu
+            contextmenu: "All",
             // Allow only one block selection
             block_formats:
                 "Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3",
