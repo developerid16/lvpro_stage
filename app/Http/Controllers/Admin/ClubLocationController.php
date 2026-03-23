@@ -6,6 +6,8 @@ use App\Helpers\AdminLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
+use App\Models\RewardLocation;
+use App\Models\RewardLocationUpdate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
@@ -197,6 +199,11 @@ class ClubLocationController extends Controller
      * ----------------------------------------------------- */
     public function destroy($id)
     {
+         // delete from reward_locations
+        RewardLocation::where('location_id', $id)->delete();
+
+        // delete from reward_locations_update
+        RewardLocationUpdate::where('location_id', $id)->delete();
         ClubLocation::where('id', $id)->delete();
         AdminLogger::log('delete', ClubLocation::class, $id);
         return response()->json(['status' => 'success', 'message' => 'Location Deleted Successfully']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Models\NotificationUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
@@ -224,5 +225,15 @@ class NotificationController extends Controller
         $notification->delete();
 
         return response()->json(['status' => 'success', 'message' => 'Notification Deleted Successfully']);
+    }
+
+    public function markAsRead($id)
+    {
+        NotificationUser::where('id', $id)->update([
+            'is_read' => 1,
+            'read_at' => now()
+        ]);
+
+        return response()->json(['status' => true]);
     }
 }
