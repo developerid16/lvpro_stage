@@ -44,6 +44,7 @@ class ParticipatingMerchantLocationController extends Controller
      * ----------------------------------------------------- */
     public function index($merchant)
     {
+        ParticipatingMerchantLocation::expireLocations();
         // Participating merchant (NOT Merchant)
         $pm = ParticipatingMerchant::findOrFail($merchant);
 
