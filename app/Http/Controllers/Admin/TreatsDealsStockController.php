@@ -631,6 +631,7 @@ class TreatsDealsStockController extends Controller
                 'low_stock_1'      => 'required|integer|min:0',
                 'low_stock_2'      => 'required|integer|min:0',
                 'max_quantity_physical' => 'required_if:reward_type,1|integer|min:1',
+                'friendly_url' => 'nullable|regex:/^[a-zA-Z][a-zA-Z0-9]*$/',
                 
             ];
 
@@ -640,7 +641,8 @@ class TreatsDealsStockController extends Controller
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
                 'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes', 
-                 'max_quantity_physical.required_if' => 'Max quantity is required',
+                'max_quantity_physical.required_if' => 'Max quantity is required',
+                'friendly_url.regex' => 'Only letters allowed. URLs, numbers, spaces, and special characters like "https://" are not allowed.',
             ];
 
             /* ---------------- TIER RULES ---------------- */
