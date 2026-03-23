@@ -105,7 +105,13 @@ class HomeController extends Controller
 
     public function root()
     {
-        return view('index');
+        $rewards = DB::table('rewards')
+            ->select(
+                'name as campaign'
+            )
+            ->groupBy('name')
+            ->get();
+        return view('index', compact('rewards'));
     }
 
     // voucher trend data for dashboard graph 
@@ -672,9 +678,60 @@ class HomeController extends Controller
         ]);
     }
 
-    public function campaignPerformanceData()
+    // public function campaignPerformanceData()
+    // {
+    //     $data = DB::table('rewards')
+    //         ->select(
+    //             'name as campaign',
+    //             DB::raw('SUM(purchased_qty) as issued'),
+    //             DB::raw("SUM(CASE WHEN status = 'redeemed' THEN 1 ELSE 0 END) as redeemed")
+    //         )
+    //         ->groupBy('name')
+    //         ->get();
+
+    //     $labels = [];
+    //     $issued = [];
+    //     $redeemed = [];
+    //     $rate = [];
+
+    //     foreach ($data as $row) {
+
+    //         $labels[] = $row->campaign;
+
+    //         $issued[] = $row->issued ?? 0;
+    //         $redeemed[] = $row->redeemed ?? 0;
+
+    //         $rate[] = $row->issued > 0
+    //             ? round(($row->redeemed / $row->issued) * 100, 2)
+    //             : 0;
+
+    //             $issued[] = (int) $row->issued ?? 0;
+    //             $redeemed[] = (int) $row->redeemed ?? 0;
+
+    //             $rate[] = ($row->issued > 0)
+    //                 ? round(($row->redeemed / $row->issued) * 100, 2)
+    //             : 0;
+    //     }
+
+        
+    //     return response()->json([
+    //         'labels' => $labels,
+    //         'issued' => $issued,
+    //         'redeemed' => $redeemed,
+    //         'rate' => $rate
+    //     ]);
+    // }
+
+    public function campaignPerformanceData(Request $request)
     {
+        $rewardVals = $request->input('rewardVals', []);
+
+        // Safety: normalize to array in case single string is passed
+        if (!is_array($rewardVals)) {
+            $rewardVals = [$rewardVals];
+        }
         $data = DB::table('rewards')
+            ->whereIn('name', $rewardVals)
             ->select(
                 'name as campaign',
                 DB::raw('SUM(purchased_qty) as issued'),
@@ -683,36 +740,24 @@ class HomeController extends Controller
             ->groupBy('name')
             ->get();
 
-        $labels = [];
-        $issued = [];
+        $labels   = [];
+        $issued   = [];
         $redeemed = [];
-        $rate = [];
+        $rate     = [];
 
         foreach ($data as $row) {
-
-            $labels[] = $row->campaign;
-
-            $issued[] = $row->issued ?? 0;
-            $redeemed[] = $row->redeemed ?? 0;
-
-            $rate[] = $row->issued > 0
-                ? round(($row->redeemed / $row->issued) * 100, 2)
-                : 0;
-
-                $issued[] = (int) $row->issued ?? 0;
-                $redeemed[] = (int) $row->redeemed ?? 0;
-
-                $rate[] = ($row->issued > 0)
-                    ? round(($row->redeemed / $row->issued) * 100, 2)
-                : 0;
+            $labels[]   = $row->campaign;
+            $issued[]   = (int) ($row->issued ?? 0);
+            $redeemed[] = (int) ($row->redeemed ?? 0);
+            $rate[]     = $row->issued > 0
+                ? (float) number_format(($row->redeemed / $row->issued) * 100, 2) : 0;
         }
 
-        
         return response()->json([
-            'labels' => $labels,
-            'issued' => $issued,
+            'labels'   => $labels,
+            'issued'   => $issued,
             'redeemed' => $redeemed,
-            'rate' => $rate
+            'rate'     => $rate,
         ]);
     }
 

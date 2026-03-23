@@ -108,14 +108,19 @@ class SafraAPIService
     /**
      * Get IG Basic Detail Info
      */
-    public function getIGbasicdetail(string $lastModified, int $limit = 5): array
+    public function getIGbasicdetail($itemData): array
     {
+        if (isset($itemData['IsSync']) && $itemData['IsSync'] == 0) {
+            $postData['IsSync'] = 0;
+            $postData['Token'] = $itemData['Token'] ?? 100;
+        }else{
+            $postData['LastModifiedTime'] = $itemData['LastModifiedTime'] ?? '';
+            $postData['Limit'] = $itemData['Limit'] ?? 100;
+        }
+
         $response = $this->call(
             'sfrControlMember/GetBasicDetailIg',
-            [
-                'LastModifiedTime' => $lastModified,
-                'Limit' => $limit,
-            ]
+            $itemData
         );
         if ($response->failed()) {
             throw new \Exception('SAFRA API failed: ' . $response->body());
@@ -302,19 +307,6 @@ class SafraAPIService
         return $data ?? [];
     }
 
-    /** get email notification */
-    public function getEmailNotification(array $itemData): array
-    {
-        $response = $this->call(
-            'sfrControlMember/GetEmailNotification',
-            $itemData
-        );
-        if ($response->failed()) {
-            throw new \Exception('Get Email Notification API failed: ' . $response->body());
-        }
-        return json_decode($response->body()   , true);
-        // return $data['email_notification_list'] ?? [];
-    }
 
-    
+
 }

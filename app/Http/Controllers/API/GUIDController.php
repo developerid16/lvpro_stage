@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetMemberByToken;
 use App\Services\GUIDService;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Http\Request;
 
 class GUIDController extends Controller
 {
@@ -26,6 +27,26 @@ class GUIDController extends Controller
     {
         try {
             $records = $this->guidService->memberidByToken($request->validated());
+            return response()->json([
+                'status' => 'success',
+                'data' => $records
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getEmailNotification(Request $request)
+    {
+        try {
+            $records = $this->guidService
+                ->getEmailNotification([
+                    'Token_list' => $request->get('Token_list') // Capital T
+                ]);
+
             return response()->json([
                 'status' => 'success',
                 'data' => $records
