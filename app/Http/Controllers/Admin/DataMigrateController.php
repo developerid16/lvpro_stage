@@ -101,7 +101,8 @@ class DataMigrateController extends Controller
                 // 2) MERCHANT — fixed dummy id
                 // -----------------------------------------------
                 $itemCode   = trim($row['item_code'] ?? '');
-                $merchantId = 82;
+                $merchant = Merchant::where('name', 'merchant-data-excel')->first();
+                $merchantId = $merchant ? $merchant->id : 0;
 
                 // -----------------------------------------------
                 // 3) PARSE DATES  (format: "1/30/2026 18:00")
