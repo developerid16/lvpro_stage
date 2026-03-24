@@ -476,12 +476,27 @@ class EvoucherController extends Controller
     
                     'merchant_id'      => 'required|exists:merchants,id',
     
-                    'publish_start'    => 'required|date',
-                    'publish_end'      => 'required|date|after_or_equal:publish_start',
-                    'sales_start'   => 'required|date|after_or_equal:publish_start',
-                    'sales_end'        => 'required|date|after_or_equal:sales_start',
+                    // 'publish_start'    => 'required|date',
+                    // 'publish_end'      => 'required|date|after_or_equal:publish_start',
+                    // 'sales_start'   => 'required|date|after_or_equal:publish_start',
+                    // 'sales_end'        => 'required|date|after_or_equal:sales_start',
+
+                    'publish_start' => 'required|date',
+                    'publish_end'   => 'required|date|after:publish_start',
+                    'sales_start'   => [
+                        'required',
+                        'date',
+                        'after_or_equal:publish_start',
+                        'before_or_equal:publish_end',
+                    ],
+                    'sales_end'     => [
+                        'required',
+                        'date',
+                        'after_or_equal:sales_start',
+                        'before_or_equal:publish_end',
+                    ],
     
-                    'friendly_url'     => 'nullable|string',
+                    'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
                     'direct_utilization'=> 'nullable|boolean',
     
                     'max_quantity'     => 'required|integer|min:1',
@@ -507,7 +522,7 @@ class EvoucherController extends Controller
                         }
                     ],
 
-                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
     
                     'category_id'      => 'nullable',
                     'inventory_type'   => 'required|in:0,1',
@@ -528,15 +543,15 @@ class EvoucherController extends Controller
                     'name.string'   => 'Voucher name must be valid text.',
                     'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                    // Redemption Start Date & Time
-                   'sales_start.required' => 'Redemption start date & time is required.',
-                   'sales_start.date'     => 'Redemption start date & time must be a valid date.',
-                   'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
+                //     // Redemption Start Date & Time
+                //    'sales_start.required' => 'Redemption start date & time is required.',
+                //    'sales_start.date'     => 'Redemption start date & time must be a valid date.',
+                //    'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
 
-                   // Redemption End Date & Time
-                   'sales_end.required' => 'Redemption end date & time is required.',
-                   'sales_end.date'     => 'Redemption end date & time must be a valid date.',
-                   'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+                //    // Redemption End Date & Time
+                //    'sales_end.required' => 'Redemption end date & time is required.',
+                //    'sales_end.date'     => 'Redemption end date & time must be a valid date.',
+                //    'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
 
                    // Voucher Validity Date
                    'expiry_type.required' => 'Please select voucher expiry type.',
@@ -547,16 +562,37 @@ class EvoucherController extends Controller
                     'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                     'validity_month.integer' => 'Validity period must be a number.',
                     'validity_month.min' => 'Validity period must be at least 1 month.',
-                    'validity_month.max' => 'Validity period may not be greater than 12 months.',
+                    'validity_month.max' => 'Validity period may not be greater than 24 months.',
 
-                     // Publish Start
+                    //  // Publish Start
+                    // 'publish_start.required' => 'Publish start date & time is required.',
+                    // 'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
+
+                    // // Publish End
+                    // 'publish_end.required'        => 'Publish end date & time is required.',
+                    // 'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                    // 'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
+
+                    // Publish Start
                     'publish_start.required' => 'Publish start date & time is required.',
                     'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
 
                     // Publish End
                     'publish_end.required'        => 'Publish end date & time is required.',
                     'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
-                    'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
+                    'publish_end.after'           => 'Publish end date & time must be after Publish start date & time.',
+
+                    // Sales Start
+                    'sales_start.required'          => 'Redemption start date & time is required.',
+                    'sales_start.date'              => 'Redemption start date & time must be a valid date.',
+                    'sales_start.after_or_equal'    => 'Redemption start date & time must be on or after Publish start date & time.',
+                    'sales_start.before_or_equal'   => 'Redemption start date & time must be on or before Publish end date & time.',
+
+                    // Sales End
+                    'sales_end.required'            => 'Redemption end date & time is required.',
+                    'sales_end.date'                => 'Redemption end date & time must be a valid date.',
+                    'sales_end.after_or_equal'      => 'Redemption end date & time must be on or after Redemption start date & time.',
+                    'sales_end.before_or_equal'     => 'Redemption end date & time must be on or before Publish end date & time.',
                     
                     'set_qty.required' => 'Voucher set quantity is required.',
                     'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -566,6 +602,7 @@ class EvoucherController extends Controller
                     'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                     'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
                     'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
+                    'friendly_url.regex' => 'Only letters allowed. URLs, numbers, spaces, and special characters like "https://" are not allowed.',
                 ];
     
                 /* ---------------------------------------------------
@@ -1170,14 +1207,29 @@ class EvoucherController extends Controller
 
                 'merchant_id'      => 'required|exists:merchants,id',
 
-                'friendly_url'     => 'nullable|string',
+                'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
                 'category_id'      => 'nullable',
 
-                'publish_start'    => 'required|date',
-                'publish_end'      => 'required|date|after_or_equal:publish_start',
+                // 'publish_start'    => 'required|date',
+                // 'publish_end'      => 'required|date|after_or_equal:publish_start',
 
-                'sales_start'   => 'required|date|after_or_equal:publish_start',
-                'sales_end'        => 'required|date|after_or_equal:sales_start',
+                // 'sales_start'   => 'required|date|after_or_equal:publish_start',
+                // 'sales_end'        => 'required|date|after_or_equal:sales_start',
+
+                'publish_start'    => 'required|date',
+                'publish_end'      => 'required|date|after:publish_start',
+                'sales_start'      => [
+                    'required',
+                    'date',
+                    'after_or_equal:publish_start',
+                    'before_or_equal:publish_end',
+                ],
+                'sales_end'        => [
+                    'required',
+                    'date',
+                    'after_or_equal:sales_start',
+                    'before_or_equal:publish_end',
+                ],
 
                 'direct_utilization'=> 'nullable|boolean',
 
@@ -1204,7 +1256,7 @@ class EvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
 
                 'inventory_type'   => 'required|in:0,1',
                 'voucher_value'    => 'required|numeric|min:0',
@@ -1219,13 +1271,13 @@ class EvoucherController extends Controller
             $messages = [
                 'inventory_type.required' => 'Internal/External is required.',
                  // Publish Start
-                'publish_start.required' => 'Publish start date & time is required.',
-                'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
+                // 'publish_start.required' => 'Publish start date & time is required.',
+                // 'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
 
-                // Publish End
-                'publish_end.required'        => 'Publish end date & time is required.',
-                'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
-                'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
+                // // Publish End
+                // 'publish_end.required'        => 'Publish end date & time is required.',
+                // 'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                // 'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
 
                 // Voucher Name
                 'name.required' => 'Voucher name is required.',
@@ -1233,14 +1285,35 @@ class EvoucherController extends Controller
                 'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
                 // Redemption Start Date & Time
-                'sales_start.required' => 'Redemption start date & time is required.',
-                'sales_start.date'     => 'Redemption start date & time must be a valid date.',
-                'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
+                // 'sales_start.required' => 'Redemption start date & time is required.',
+                // 'sales_start.date'     => 'Redemption start date & time must be a valid date.',
+                // 'sales_start.after_or_equal' => 'Redemption start date & time must be after or equal to Publish start date & time.',
 
-                // Redemption End Date & Time
-                'sales_end.required' => 'Redemption end date & time is required.',
-                'sales_end.date'     => 'Redemption end date & time must be a valid date.',
-                'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+                // // Redemption End Date & Time
+                // 'sales_end.required' => 'Redemption end date & time is required.',
+                // 'sales_end.date'     => 'Redemption end date & time must be a valid date.',
+                // 'sales_end.after_or_equal' => 'Redemption end date & time must be after or equal to Redemption start date & time.',
+
+                 // Publish Start
+                'publish_start.required' => 'Publish start date & time is required.',
+                'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
+
+                // Publish End
+                'publish_end.required'        => 'Publish end date & time is required.',
+                'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                'publish_end.after'           => 'Publish end date & time must be after Publish start date & time.',
+
+                // Sales Start
+                'sales_start.required'          => 'Redemption start date & time is required.',
+                'sales_start.date'              => 'Redemption start date & time must be a valid date.',
+                'sales_start.after_or_equal'    => 'Redemption start date & time must be on or after Publish start date & time.',
+                'sales_start.before_or_equal'   => 'Redemption start date & time must be on or before Publish end date & time.',
+
+                // Sales End
+                'sales_end.required'            => 'Redemption end date & time is required.',
+                'sales_end.date'                => 'Redemption end date & time must be a valid date.',
+                'sales_end.after_or_equal'      => 'Redemption end date & time must be on or after Redemption start date & time.',
+                'sales_end.before_or_equal'     => 'Redemption end date & time must be on or before Publish end date & time.',
 
                 // Voucher Expiry Date
                 'expiry_type.required' => 'Please select voucher expiry type.',
@@ -1251,7 +1324,7 @@ class EvoucherController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
-                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+                'validity_month.max' => 'Validity period may not be greater than 24 months.',
 
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -1261,6 +1334,7 @@ class EvoucherController extends Controller
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
                 'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
+                'friendly_url.regex' => 'Only letters allowed. URLs, numbers, spaces, and special characters like "https://" are not allowed.',
             ];
 
             /* --------------------------------------------

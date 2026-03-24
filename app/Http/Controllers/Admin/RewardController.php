@@ -90,7 +90,10 @@ class RewardController extends Controller
                 // digital
                 $total_quantity = $row->inventory_qty;
             }
-            $final_data[$key]['sr_no']      = $key + 1;
+            $srNo = $key + 1;
+            $final_data[$key]['sr_no'] = $row->data_migrate_records == 1
+                ? $srNo . '<i class="mdi mdi-image-filter-tilt-shift text-danger cursor" title="Add From Excel"></i>'
+                : $srNo;
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
@@ -263,7 +266,6 @@ class RewardController extends Controller
         $tiers = Tier::where('status', operator: 'Active')->get();
 
         DB::beginTransaction();
-
         try {
             if ($isDraft) {
                 $validated = $request->all();
@@ -472,7 +474,6 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
 
                     $file = $request->file('csvFile');
-                    // $filename = time().'_'.$file->getClientOriginalName();
                     $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
 
@@ -532,8 +533,8 @@ class RewardController extends Controller
 
                             if ($request->expiry_type === 'fixed') {
 
-                                $salesEndDate = \Carbon\Carbon::parse($request->sales_end)->startOfDay();
-                                $validityDate = \Carbon\Carbon::parse($value)->startOfDay();
+                                $salesEndDate = Carbon::parse($request->sales_end)->startOfDay();
+                                $validityDate = Carbon::parse($value)->startOfDay();
 
                                 if ($validityDate->lt($salesEndDate)) {
                                     $fail('Voucher expiry date must be after or equal to Redemption end date.');
@@ -543,14 +544,24 @@ class RewardController extends Controller
                         }
                     ],
 
-                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                    'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
         
                     'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],
                    
                     'publish_start'    => 'required|date',
-                    'publish_end'      => 'required|date|after_or_equal:publish_start',
-                    'sales_start'   => 'required|date|after_or_equal:publish_start',
-                    'sales_end'        => 'required|date|after_or_equal:sales_start',
+                    'publish_end'      => 'required|date|after:publish_start',
+                    'sales_start'      => [
+                        'required',
+                        'date',
+                        'after_or_equal:publish_start',
+                        'before_or_equal:publish_end',
+                    ],
+                    'sales_end'        => [
+                        'required',
+                        'date',
+                        'after_or_equal:sales_start',
+                        'before_or_equal:publish_end',
+                    ],
     
                     'low_stock_1'      => 'nullable|min:0',
                     'low_stock_2'      => 'nullable|min:0',             
@@ -562,8 +573,7 @@ class RewardController extends Controller
                     'inventory_type'       => 'required_if:reward_type,0|in:0,1',
                     'voucher_value'        => 'required_if:reward_type,0|numeric|min:1',
                     'clearing_method'      => 'required_if:reward_type,0|in:0,1,2,3,4',
-
-
+                    'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
                 ];
     
                 $messages = [
@@ -572,15 +582,26 @@ class RewardController extends Controller
                     'name.string'   => 'Voucher name must be valid text.',
                     'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                    // Sales start date & time
-                   'sales_start.required' => 'Sales start date & time is required.',
-                   'sales_start.date'     => 'Sales start date & time must be a valid date.',
-                   'sales_start.after_or_equal' => 'Sales start date & time must be after or equal to Publish Start Date.',
+                    // Publish Start
+                    'publish_start.required' => 'Publish start date & time is required.',
+                    'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
 
-                   // Sales End Date & Time
-                   'sales_end.required' => 'Sales end date & time is required.',
-                   'sales_end.date'     => 'Sales end date & time must be a valid date.',
-                   'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
+                    // Publish End
+                    'publish_end.required'        => 'Publish end date & time is required.',
+                    'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                    'publish_end.after'           => 'Publish end date & time must be after Publish start date & time.',
+
+                    // Sales Start
+                    'sales_start.required'          => 'Sales start date & time is required.',
+                    'sales_start.date'              => 'Sales start date & time must be a valid date.',
+                    'sales_start.after_or_equal'    => 'Sales start date & time must be on or after Publish start date & time.',
+                    'sales_start.before_or_equal'   => 'Sales start date & time must be on or before Publish end date & time.',
+
+                    // Sales End
+                    'sales_end.required'            => 'Sales end date & time is required.',
+                    'sales_end.date'                => 'Sales end date & time must be a valid date.',
+                    'sales_end.after_or_equal'      => 'Sales end date & time must be on or after Sales start date & time.',
+                    'sales_end.before_or_equal'     => 'Sales end date & time must be on or before Publish end date & time.',
 
                     // Voucher Validity Date
                    'expiry_type.required' => 'Please select voucher expiry type.',
@@ -591,15 +612,7 @@ class RewardController extends Controller
                     'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                     'validity_month.integer' => 'Validity period must be a number.',
                     'validity_month.min' => 'Validity period must be at least 1 month.',
-                    'validity_month.max' => 'Validity period may not be greater than 12 months.',
-                     // Publish Start
-                    'publish_start.required' => 'Publish start date & time is required.',
-                    'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
-
-                    // Publish End
-                    'publish_end.required'        => 'Publish end date & time is required.',
-                    'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
-                    'publish_end.after_or_equal'  => 'Publish end date & time must be equal to or after Publish start date & time.',
+                    'validity_month.max' => 'Validity period may not be greater than 24 months.',
                        
                     'set_qty.required' => 'Voucher set quantity is required.',
                     'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -615,8 +628,7 @@ class RewardController extends Controller
                     'inventory_type.required_if'       => 'Internal/External is required',
                     'voucher_value.required_if'        => 'Voucher value is required',
                     'clearing_method.required_if'      => 'Clearing method is required',
-
-
+                    'friendly_url.regex' => 'Only letters allowed. URLs, numbers, spaces, and special characters like "https://" are not allowed.',
                 ];
     
                 /* ---------------- TIER RULES ---------------- */
@@ -729,10 +741,6 @@ class RewardController extends Controller
                         );
                     }
                 }
-                /* ---------------- CROSS FIELD CHECK ---------------- */
-                // $validator->after(function ($validator) use ($request, $tiers, &$rules) {
-                    /* ---------------- PHYSICAL ---------------- */
-                // });
 
                 $validator = Validator::make($request->all(), $rules, $messages);
 
@@ -1029,7 +1037,6 @@ class RewardController extends Controller
                 if ($request->inventory_type == 1 && $request->hasFile('csvFile')) {
     
                     $file = $request->file('csvFile');
-                    // $filename = time().'_'.$file->getClientOriginalName();
                     $filename = generateHashFileName($file);
                     $file->move(public_path('uploads/csv'), $filename);
     
@@ -1156,7 +1163,6 @@ class RewardController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $isDraft = $request->action === 'draft'; 
         $tiers = Tier::where('status', operator: 'Active')->get();
         $reward = Reward::findOrFail($id);
@@ -1523,41 +1529,80 @@ class RewardController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
                 'usual_price' => ['required','numeric','min:0','regex:/^\d+(\.\d{1,2})?$/'],                
-                'publish_start'    => 'required|date',
-                'publish_end'      => 'required|date|after_or_equal:publish_start',
-                'sales_start'   => 'required|date|after_or_equal:publish_start',
-                'sales_end'        => 'required|date|after_or_equal:sales_start',
+                // 'publish_start'    => 'required|date',
+                // 'publish_end'      => 'required|date|after_or_equal:publish_start',
+                // 'sales_start'   => 'required|date|after_or_equal:publish_start',
+                // 'sales_end'        => 'required|date|after_or_equal:sales_start',
+
+                'publish_start' => 'required|date',
+                'publish_end'   => 'required|date|after:publish_start',
+                'sales_start'   => [
+                    'required',
+                    'date',
+                    'after_or_equal:publish_start',
+                    'before_or_equal:publish_end',
+                ],
+                'sales_end'     => [
+                    'required',
+                    'date',
+                    'after_or_equal:sales_start',
+                    'before_or_equal:publish_end',
+                ],
+
                 'low_stock_1' => 'nullable|integer|min:0',
                 'low_stock_2' => 'nullable|integer|min:0',
                 'ax_item_code'      => 'required',
+                'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
             ];
 
             $messages = [
-                 // Publish Start
-                'publish_start.required' => 'Publish Start Date & Time is required.',
-                'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
-
-                // Publish End
-                'publish_end.required'        => 'Publish End Date & Time is required.',
-                'publish_end.date'            => 'Publish End Date must be a valid date and time.',
-                'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
-
-               // Voucher name
+                // Voucher name
                 'name.required' => 'Voucher name is required.',
                 'name.string'   => 'Voucher name must be valid text.',
                 'name.max'      => 'Voucher name may not be greater than 191 characters.',
 
-                // Sales start date & time
-                'sales_start.required' => 'Sales start date & time is required.',
-                'sales_start.date'     => 'Sales start date & time must be a valid date.',
-                'sales_start.after_or_equal' => 'Sales start date & time must be after or equal to Publish Start Date.',
+                //  // Publish Start
+                // 'publish_start.required' => 'Publish Start Date & Time is required.',
+                // 'publish_start.date'     => 'Publish Start Date must be a valid date and time.',
 
-                // Sales end date & time
-                'sales_end.required' => 'Sales end date & time is required.',
-                'sales_end.date'     => 'Sales end date & time must be a valid date.',
-                'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
+                // // Publish End
+                // 'publish_end.required'        => 'Publish End Date & Time is required.',
+                // 'publish_end.date'            => 'Publish End Date must be a valid date and time.',
+                // 'publish_end.after_or_equal'  => 'Publish End Date must be equal to or after Publish Start Date.',
+
+
+                // // Sales start date & time
+                // 'sales_start.required' => 'Sales start date & time is required.',
+                // 'sales_start.date'     => 'Sales start date & time must be a valid date.',
+                // 'sales_start.after_or_equal' => 'Sales start date & time must be after or equal to Publish Start Date.',
+
+                // // Sales end date & time
+                // 'sales_end.required' => 'Sales end date & time is required.',
+                // 'sales_end.date'     => 'Sales end date & time must be a valid date.',
+                // 'sales_end.after_or_equal' => 'Sales end date & time must be after or equal to Sales start date & time.',
+
+                // Publish Start
+                'publish_start.required' => 'Publish start date & time is required.',
+                'publish_start.date'     => 'Publish start date & time must be a valid date and time.',
+
+                // Publish End
+                'publish_end.required'        => 'Publish end date & time is required.',
+                'publish_end.date'            => 'Publish end date & time must be a valid date and time.',
+                'publish_end.after'           => 'Publish end date & time must be after Publish start date & time.',
+
+                // Sales Start
+                'sales_start.required'          => 'Sales start date & time is required.',
+                'sales_start.date'              => 'Sales start date & time must be a valid date.',
+                'sales_start.after_or_equal'    => 'Sales start date & time must be on or after Publish start date & time.',
+                'sales_start.before_or_equal'   => 'Sales start date & time must be on or before Publish end date & time.',
+
+                // Sales End
+                'sales_end.required'            => 'Sales end date & time is required.',
+                'sales_end.date'                => 'Sales end date & time must be a valid date.',
+                'sales_end.after_or_equal'      => 'Sales end date & time must be on or after Sales start date & time.',
+                'sales_end.before_or_equal'     => 'Sales end date & time must be on or before Publish end date & time.',
 
                  // Voucher Validity Date
                 'expiry_type.required' => 'Please select voucher expiry type.',
@@ -1568,7 +1613,7 @@ class RewardController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
-                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+                'validity_month.max' => 'Validity period may not be greater than 24 months.',
                     
                 'set_qty.required' => 'Voucher set quantity is required.',
                 'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
@@ -1578,6 +1623,7 @@ class RewardController extends Controller
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
                 'voucher_detail_img.mimes'    => 'Voucher Detail Image must be a file of type: png, jpg, jpeg',
                 'voucher_detail_img.max'      => 'Voucher Detail Image may not be greater than 2048 kilobytes',
+                'friendly_url.regex' => 'Only letters allowed. URLs, numbers, spaces, and special characters like "https://" are not allowed.',
             ];
 
 

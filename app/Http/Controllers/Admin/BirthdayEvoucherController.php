@@ -279,7 +279,7 @@ class BirthdayEvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
     
                 'voucher_value'    => 'required|numeric|min:0',
                 'voucher_set'      => 'required|integer|min:1',
@@ -313,7 +313,7 @@ class BirthdayEvoucherController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
-                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+                'validity_month.max' => 'Validity period may not be greater than 24 months.',
 
             ];
 
@@ -824,7 +824,7 @@ class BirthdayEvoucherController extends Controller
                     }
                 ],
 
-                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:12',
+                'validity_month' => 'required_if:expiry_type,validity|nullable|integer|min:1|max:24',
     
                 'inventory_qty'     => 'nullable|integer|min:0',
                 'voucher_value'     => 'required|numeric|min:0',
@@ -859,7 +859,7 @@ class BirthdayEvoucherController extends Controller
                 'validity_month.required_if' => 'Validity period is required when Validity Period is selected.',
                 'validity_month.integer' => 'Validity period must be a number.',
                 'validity_month.min' => 'Validity period must be at least 1 month.',
-                'validity_month.max' => 'Validity period may not be greater than 12 months.',
+                'validity_month.max' => 'Validity period may not be greater than 24 months.',
 
             ];
 
