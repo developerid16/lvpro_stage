@@ -496,7 +496,7 @@ class EvoucherController extends Controller
                         'before_or_equal:publish_end',
                     ],
     
-                    'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
+                    'friendly_url' => 'nullable|regex:/^(?!https?:\/\/)[a-zA-Z0-9-]+$/',
                     'direct_utilization'=> 'nullable|boolean',
     
                     'max_quantity'     => 'required|integer|min:1',
@@ -1207,7 +1207,7 @@ class EvoucherController extends Controller
 
                 'merchant_id'      => 'required|exists:merchants,id',
 
-                'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
+                'friendly_url' => 'nullable|regex:/^(?!https?:\/\/)[a-zA-Z0-9-]+$/',
                 'category_id'      => 'nullable',
 
                 // 'publish_start'    => 'required|date',
