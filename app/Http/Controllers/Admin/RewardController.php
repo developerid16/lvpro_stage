@@ -573,7 +573,7 @@ class RewardController extends Controller
                     'inventory_type'       => 'required_if:reward_type,0|in:0,1',
                     'voucher_value'        => 'required_if:reward_type,0|numeric|min:1',
                     'clearing_method'      => 'required_if:reward_type,0|in:0,1,2,3,4',
-                    'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
+                    'friendly_url' => 'nullable|regex:/^(?!https?:\/\/)[a-zA-Z0-9-]+$/',
                 ];
     
                 $messages = [
@@ -1554,7 +1554,7 @@ class RewardController extends Controller
                 'low_stock_1' => 'nullable|integer|min:0',
                 'low_stock_2' => 'nullable|integer|min:0',
                 'ax_item_code'      => 'required',
-                'friendly_url' => 'nullable|regex:/^[a-zA-Z]+$/',
+                'friendly_url' => 'nullable|regex:/^(?!https?:\/\/)[a-zA-Z0-9-]+$/',
             ];
 
             $messages = [
