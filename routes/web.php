@@ -435,9 +435,11 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::prefix('data-migrate')->name('admin.data-migrate.')->group(function () {
         Route::get('/', [DataMigrateController::class, 'index']);
         Route::post('/upload', [DataMigrateController::class, 'upload'])->name('upload');
+
+        Route::get('/orders', [DataMigrateController::class, 'ordersIndex'])->name('ordersIndex');
+        Route::post('/orders-upload', [DataMigrateController::class, 'ordersUpload'])->name('ordersUpload');
     });
 
 
 
 });
-
