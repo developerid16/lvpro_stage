@@ -88,7 +88,12 @@ class TreatsDealsStockController extends Controller
                 // digital
                 $total_quantity = $row->inventory_qty;
             }
-            $final_data[$key]['sr_no']      = $key + 1;
+
+            $srNo = $key + 1;
+            $final_data[$key]['sr_no'] = $row->data_migrate_records == 1
+                ? $srNo . '<i class="mdi mdi-image-filter-tilt-shift text-danger cursor" title="Add From Excel"></i>'
+                : $srNo;
+
             $final_data[$key]['code']       = $row->code;
             $final_data[$key]['name']       = $row->name;
             $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
