@@ -10,6 +10,7 @@ use App\Models\Reward;
 use App\Models\RewardUpdateRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataMigrateController extends Controller
 {
@@ -376,5 +377,73 @@ class DataMigrateController extends Controller
         $value = preg_replace('/[\x{10000}-\x{10FFFF}]/u', '', $value);
 
         return $value;
+    }
+
+    public function ordersIndex()
+    {
+        return view($this->view_file_path . "ordersIndex")->with($this->layout_data);
+    }
+
+    public function ordersUpload(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        $dataRows = Excel::toArray([], $request->file('excel_file'));
+
+        $rows   = $dataRows[0];
+        $header = array_map('trim', $rows[0]);
+
+        $finalData = [];
+        foreach ($rows as $index => $row) {
+            if ($index == 0) continue;
+            $finalData[] = array_combine($header, $row);
+        }
+
+        foreach ($finalData as $key => $row) {
+            $club_locations = DB::table('club_locations')
+                                ->where('code', $row['club_code'])
+                                ->first();
+
+            // ✅ [] append operator - not overwrite
+            $insertData = [
+                'receipt_no'    => $row['receipt_no']    ?? null,
+                'user_id'       => $row['member_id']     ?? null,
+                'reward_id'     => $row['deal_id']       ?? null,
+                'qty'           => $row['quantity']      ?? null,
+                'price'         => $row['amount']        ?? null,
+                'location_id'   => $club_locations->id   ?? null,
+                'location_type' => $club_locations->name ?? null,
+                'status'        => 'Active',
+                'reward_status' => 'purchased',
+                'used_code'     => $row['promotion_code'] ?? null,
+                'claimed_at'    => isset($row['created_date']) && is_numeric($row['created_date'])
+                        ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['created_date'])->format('Y-m-d H:i:s')
+                        : null,
+                'created_at'    => isset($row['created_date']) && is_numeric($row['created_date'])
+                        ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['created_date'])->format('Y-m-d H:i:s')
+                        : null,
+                'updated_at'    => isset($row['modified_date']) && is_numeric($row['modified_date'])
+                                    ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['modified_date'])->format('Y-m-d H:i:s')
+                                    : null,
+            ];
+            DB::table('user_wallet_vouchers')->insert($insertData);
+            // ✅ Insert into payment_transactions
+            $payment_transactions = [
+                'receipt_no'        => $row['receipt_no']  ?? null,
+                'user_id'           => $row['member_id']   ?? null,
+                'order_id'          => $row['sn']          ?? null,
+                'transaction_id'    => $row['receipt_no']  ?? null,
+                'request_amount'    => $row['amount']      ?? null,
+                'status'            => 'SUCCESS',
+                'created_at'        => $insertData['created_at'],
+                'updated_at'        => $insertData['updated_at'],
+            ];
+            // ✅ Single bulk insert OUTSIDE the loop
+            DB::table('payment_transactions')->insert($payment_transactions);
+        }
+
+        return back()->with('success', "Migration complete!");
     }
 }
