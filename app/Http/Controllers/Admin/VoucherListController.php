@@ -62,7 +62,16 @@ class VoucherListController extends Controller
         // EDIT
         if (Auth::user()->can($this->permission_prefix . '-edit')) {
            
-            $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+        $url = $row->type == 0 
+            ? url('admin/reward/' . $row->id . '/edit') 
+            : ($row->type == 1 
+                ? url('admin/evoucher/' . $row->id . '/edit') 
+                : ($row->type == 2 
+                    ? url('admin/birthday-voucher/' . $row->id . '/edit') 
+                    : '#'
+                )
+            );
+            $action .= "<a href='javascript:void(0)' class='edit' data-url='$url' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
 
         }
 

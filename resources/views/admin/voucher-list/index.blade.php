@@ -91,6 +91,7 @@
             let d = res.data;
 
             $('#v_name').text(d.name);
+            
             $('#v_type').text(
                 d.type == 0 ? 'Treats & Deals' :
                 d.type == 1 ? 'E-Voucher' : 'Birthday Voucher'
