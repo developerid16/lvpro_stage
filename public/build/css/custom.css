@@ -111,10 +111,10 @@ body[data-layout=horizontal][data-topbar=light] .topnav {
     border: 1px solid #ced4da !important;
 }
 button.swal2-confirm.swal2-styled {
-    background-color: var(--cms-color) !important;
+    /* background-color: var(--cms-color) !important; */
 }
 button.swal2-confirm.swal2-styled:hover{
-    background-color: #ef3f3b !important;
+    /* background-color: #ef3f3b !important; */
 }
 label.sh_dec.min-titleh {
     min-height: 34px;

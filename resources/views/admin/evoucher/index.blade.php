@@ -26,9 +26,17 @@
                     <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddParameterVoucher">Push Voucher By Parameter</button>
                 @endcan
             </div>
-            @can("$permission_prefix-create")
-                <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>
-            @endcan
+            <div class="d-flex gap-2">
+                @can("$permission_prefix-create")
+                    <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>Add New</button>
+                @endcan
+                @can('super admin')
+                    <a class="btn btn-danger"
+                        href="{{ url('admin/evoucher/trash') }}">
+                        <i class="mdi mdi-trash"></i> View Trash
+                    </a>
+                @endcan
+            </div>
         </div>
 
         <div class="card-body pt-0">

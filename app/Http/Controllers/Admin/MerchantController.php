@@ -9,7 +9,7 @@ use App\Models\Merchant;
 use App\Models\Reward;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
+use DB;
 class MerchantController extends Controller
 {
     function __construct()
@@ -46,7 +46,10 @@ class MerchantController extends Controller
     public function datatable(Request $request)
     {
         $qb = Merchant::query();
-
+        // ✅ Super Admin = all records, Others = only their own
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'name',
@@ -261,23 +264,66 @@ class MerchantController extends Controller
     /* -----------------------------------------------------
      * DELETE MERCHANT
      * ----------------------------------------------------- */
+    // public function destroy($id)
+    // {
+    //     // suspend rewards using this merchant
+    //     Reward::where('merchant_id', $id)->update([
+    //         'suspend_voucher' => 1,
+    //         'suspend_deal' => 1,
+    //         'merchant_id' => null
+    //     ]);
+
+    //     Merchant::where('id', $id)->delete();
+
+    //     AdminLogger::log('delete', Merchant::class, $id);
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Merchant Deleted Successfully'
+    //     ]);
+    // }
     public function destroy($id)
     {
-        // suspend rewards using this merchant
-        Reward::where('merchant_id', $id)->update([
-            'suspend_voucher' => 1,
-            'suspend_deal' => 1,
-            'merchant_id' => null
-        ]);
+        DB::beginTransaction();
 
-        Merchant::where('id', $id)->delete();
+        try {
+            $merchant = Merchant::find($id);
 
-        AdminLogger::log('delete', Merchant::class, $id);
+            if (!$merchant) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Merchant not found'
+                ], 404);
+            }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Merchant Deleted Successfully'
-        ]);
+            // Suspend rewards and detach merchant
+            Reward::where('merchant_id', $id)->update([
+                'suspend_voucher' => 1,
+                'suspend_deal' => 1,
+                'merchant_id' => null
+            ]);
+
+            // Soft delete merchant
+            $merchant->delete();
+
+            AdminLogger::log('delete', Merchant::class, $id);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Merchant moved to trash successfully'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
 
@@ -288,5 +334,116 @@ class MerchantController extends Controller
     {
         $this->layout_data['merchant'] = Merchant::findOrFail($id);
         return view($this->view_file_path . "location")->with($this->layout_data);
+    }
+
+
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $qb = Merchant::query()->onlyTrashed();
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'name',
+                'logo',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
+    
+            $rowsQueryBuilder = $result['data'];
+            $startIndex = $result['offset'] ?? 0;
+    
+            $final_data = [];
+            $i = 0;
+    
+            foreach ($rowsQueryBuilder->get() as $row) {
+                $index = $startIndex + $i + 1;
+    
+                $createdAt =  $row->created_at->format(config('safra.date-format'));
+                $updatedAt =  $row->updated_at->format(config('safra.date-format'));
+    
+                $final_data[$i] = [             
+                    'sr_no'     => $index,
+                    'name'      => $row->name,
+                    'logo' => imagePreviewHtml("uploads/image/{$row->logo}"),
+                    'status'    => $row->status,
+                    'created_at'=> $createdAt,
+                    'updated_at'=> $updatedAt,
+                    'action'    => "<div class='d-flex gap-3'>
+                                            <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                                <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                            </a>
+                                            <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                            </a>
+                                        </div>",
+                ];
+    
+                $i++;
+            }
+    
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+
+    }
+
+
+    /* -----------------------------------------------------
+     * RESTORE
+     * ----------------------------------------------------- */
+    public function restore($id)
+    {
+        Merchant::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Merchant Restored Successfully'
+        ]);
+    }
+
+    public function forceDelete($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $merchant = Merchant::withTrashed()->findOrFail($id);
+
+            // Optional: check if still linked somewhere
+            $hasRewards = Reward::where('merchant_id', $id)->exists();
+
+            if ($hasRewards) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Merchant still linked to rewards.'
+                ], 400);
+            }
+
+            // 👉 Add future cleanup here if needed
+
+            $merchant->forceDelete();
+
+            AdminLogger::log('force_delete', Merchant::class, $id);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Merchant permanently deleted'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

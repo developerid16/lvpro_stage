@@ -51,7 +51,10 @@ class ClubLocationController extends Controller
     {
         // $qb = ClubLocation::where('merchant_id', $request->merchant_id);
         $qb = ClubLocation::query();
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'name',
@@ -138,8 +141,7 @@ class ClubLocationController extends Controller
 
         // validated data
         $post_data = $validator->validated();
-
-
+        $post_data['added_by'] = Auth::user()->id;
         ClubLocation::create($post_data);
 
         return response()->json(['status' => 'success', 'message' => 'Location Created Successfully']);
@@ -199,13 +201,95 @@ class ClubLocationController extends Controller
      * ----------------------------------------------------- */
     public function destroy($id)
     {
-         // delete from reward_locations
-        RewardLocation::where('location_id', $id)->delete();
-
-        // delete from reward_locations_update
-        RewardLocationUpdate::where('location_id', $id)->delete();
-        ClubLocation::where('id', $id)->delete();
+        $location = ClubLocation::findOrFail($id);
+        $location->delete();
         AdminLogger::log('delete', ClubLocation::class, $id);
-        return response()->json(['status' => 'success', 'message' => 'Location Deleted Successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Location Deleted Successfully'
+        ]);
     }
+
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+
+            // ✅ ONLY deleted records
+            $qb = ClubLocation::onlyTrashed();
+
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'name',
+                'status',
+                'created_at',
+                'updated_at',
+                'deleted_at'
+            ]);
+
+            $rowsQueryBuilder = $result['data'];
+            $startIndex = $result['offset'] ?? 0;
+
+            $final_data = [];
+            $i = 0;
+
+            foreach ($rowsQueryBuilder->get() as $row) {
+
+                $index = $startIndex + $i + 1;
+
+                $final_data[$i] = [
+                    'sr_no' => $index,
+                    'name'  => $row->name,
+                    'code'  => $row->code,
+                    'status'=> $row->status,
+                    'deleted_at' => $row->deleted_at 
+                        ? $row->deleted_at->format(config('safra.date-format')) 
+                        : '',
+
+                    // ✅ Restore + Permanent Delete
+                    'action' => "
+                        <div class='d-flex gap-3'>
+                            <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                            </a>
+                            <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>
+                        </div>
+                    ",
+                ];
+
+                $i++;
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    public function restore($id)
+    {
+        ClubLocation::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Location Restored Successfully'
+        ]);
+    }
+    public function forceDelete($id)
+    {
+        ClubLocation::withTrashed()->findOrFail($id)->forceDelete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Location Permanently Deleted'
+        ]);
+    }
+
+
+
+
 }

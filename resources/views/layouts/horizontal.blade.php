@@ -3,7 +3,6 @@
         <div class="d-flex">
             <!-- LOGO -->
            <div class="navbar-brand-box main_logo d-flex align-items-center justify-content-between gap-4">
-
                 <div>
                     <a href="javascript:void(0)" class="logo logo-dark">
                         <span class="logo-sm">
@@ -13,7 +12,6 @@
                             <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
                         </span>
                     </a>
-
                     <a href="javascript:void(0)" class="logo logo-light">
                         <span class="logo-sm">
                             <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="50">
@@ -23,7 +21,6 @@
                         </span>
                     </a>
                 </div>
-
                 <div class="d-flex align-items-center powered-by-box">
                     <h6 class="text-primary mb-0 me-2">Powered by</h6>
                     <img src="{{ URL::asset('/build/images/trex-logo.png') }}?q={{ time() }}" 
@@ -31,7 +28,6 @@
                         style="max-width:100px" 
                         class="auth-trex-logo-dark">
                 </div>
-
             </div>
 
             <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light"
@@ -43,10 +39,53 @@
             <div class="app-search d-none d-lg-flex" style=" align-items: center;">
                 <h3 class="mb-0 logo_txt">Rewards Management System</h3>
             </div>
-
         </div>
 
-        <div class="d-flex">
+        <div class="d-flex align-items-center">
+
+            {{-- ✅ DEPARTMENT SWITCHER DROPDOWN (Super Admin ke multi-dept user dikhay) --}}
+            @if(isset($isSuperAdmin) && ($isSuperAdmin || $allDepartments->count() > 1))
+                <div class="dropdown d-inline-block me-2">
+                    <button type="button"
+                        class="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1"
+                        id="dept-switcher-btn"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        style="min-width: 160px;">
+                        <i class="bx bx-building-house font-size-14"></i>
+                        <span id="selected-dept-label">
+                            @if($selectedDeptId)
+                                {{ $allDepartments->firstWhere('id', $selectedDeptId)?->name ?? 'Department' }}
+                            @else
+                                All Departments
+                            @endif
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dept-switcher-btn" style="min-width:200px">
+                        {{-- All option --}}
+                        <form method="POST" action="{{ url('/admin/switch-department') }}">
+                            @csrf
+                            <input type="hidden" name="department_id" value="all">
+                            <button type="submit"
+                                class="dropdown-item d-flex align-items-center gap-2 {{ !$selectedDeptId ? 'active' : '' }}">
+                                <i class="bx bx-grid-alt"></i> All Departments
+                            </button>
+                        </form>
+                        <div class="dropdown-divider"></div>
+                        {{-- Each department --}}
+                        @foreach($allDepartments as $dept)
+                            <form method="POST" action="{{ url('/admin/switch-department') }}">
+                                @csrf
+                                <input type="hidden" name="department_id" value="{{ $dept->id }}">
+                                <button type="submit"
+                                    class="dropdown-item d-flex align-items-center gap-2 {{ $selectedDeptId == $dept->id ? 'active' : '' }}">
+                                    <i class="bx bx-buildings"></i> {{ $dept->name }}
+                                </button>
+                            </form>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
             <div class="dropdown d-inline-block d-lg-none ml-2">
                 <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-search-dropdown"
@@ -55,13 +94,11 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
                     aria-labelledby="page-header-search-dropdown">
-
                     <form class="p-3">
                         <div class="form-group m-0">
                             <div class="input-group">
                                 <input type="text" class="form-control" placeholder="@lang('translation.Search')"
                                     aria-label="Search input">
-
                                 <button class="btn btn-primary" type="submit"><i class="mdi mdi-magnify"></i></button>s
                             </div>
                         </div>
@@ -166,14 +203,10 @@
                                     </span>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <h6 class="mt-0 mb-1" key="t-your-order">@lang('translation.Your_order_is_placed')
-                                    </h6>
+                                    <h6 class="mt-0 mb-1" key="t-your-order">@lang('translation.Your_order_is_placed')</h6>
                                     <div class="font-size-12 text-muted">
-                                        <p class="mb-1" key="t-grammer">
-                                            @lang('translation.If_several_languages_coalesce_the_grammar')
-                                        </p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
-                                                key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                                        <p class="mb-1" key="t-grammer">@lang('translation.If_several_languages_coalesce_the_grammar')</p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-min-ago">@lang('translation.3_min_ago')</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -185,11 +218,8 @@
                                 <div class="flex-grow-1">
                                     <h6 class="mt-0 mb-1">@lang('translation.James_Lemire')</h6>
                                     <div class="font-size-12 text-muted">
-                                        <p class="mb-1" key="t-simplified">
-                                            @lang('translation.It_will_seem_like_simplified_English')
-                                        </p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
-                                                key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                                        <p class="mb-1" key="t-simplified">@lang('translation.It_will_seem_like_simplified_English')</p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -204,16 +234,12 @@
                                 <div class="flex-grow-1">
                                     <h6 class="mt-0 mb-1" key="t-shipped">@lang('translation.Your_item_is_shipped')</h6>
                                     <div class="font-size-12 text-muted">
-                                        <p class="mb-1" key="t-grammer">
-                                            @lang('translation.If_several_languages_coalesce_the_grammar')
-                                        </p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
-                                                key="t-min-ago">@lang('translation.3_min_ago')</span></p>
+                                        <p class="mb-1" key="t-grammer">@lang('translation.If_several_languages_coalesce_the_grammar')</p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-min-ago">@lang('translation.3_min_ago')</span></p>
                                     </div>
                                 </div>
                             </div>
                         </a>
-
                         <a href="" class="text-reset notification-item">
                             <div class="d-flex">
                                 <img src="{{ URL::asset('/build/images/users/avatar-4.jpg') }}"
@@ -221,11 +247,8 @@
                                 <div class="flex-grow-1">
                                     <h6 class="mt-0 mb-1">@lang('translation.Salena_Layfield')</h6>
                                     <div class="font-size-12 text-muted">
-                                        <p class="mb-1" key="t-occidental">
-                                            @lang('translation.As_a_skeptical_Cambridge_friend_of_mine_occidental')
-                                        </p>
-                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span
-                                                key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
+                                        <p class="mb-1" key="t-occidental">@lang('translation.As_a_skeptical_Cambridge_friend_of_mine_occidental')</p>
+                                        <p class="mb-0"><i class="mdi mdi-clock-outline"></i> <span key="t-hours-ago">@lang('translation.1_hours_ago')</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -233,8 +256,7 @@
                     </div>
                     <div class="p-2 border-top d-grid">
                         <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                            <i class="mdi mdi-arrow-right-circle me-1"></i> <span
-                                key="t-view-more">@lang('translation.View_More')</span>
+                            <i class="mdi mdi-arrow-right-circle me-1"></i> <span key="t-view-more">@lang('translation.View_More')</span>
                         </a>
                     </div>
                 </div>
@@ -246,20 +268,22 @@
                     <img class="rounded-circle header-profile-user"
                         src="{{ isset(Auth::user()->avatar) ? asset(Auth::user()->avatar) : asset('/build/images/users/avatar-1.jpg') }}"
                         alt="Header Avatar">
-                        <span class="d-xl-inline-block ms-1">
-                            {{ Auth::check() ? ucfirst(Auth::user()->name) : '' }}
-                        </span>
+                    <span class="d-xl-inline-block ms-1">
+                        {{ Auth::check() ? ucfirst(Auth::user()->name) : '' }}
+                    </span>
                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <!-- item-->
                     <a class="dropdown-item d-block" href="#" data-bs-toggle="modal"
-                        data-bs-target=".change-password"><i class="bx bx-wrench font-size-16 align-middle me-1"></i>
-                        <span key="t-settings">Change Password</span></a>
+                        data-bs-target=".change-password">
+                        <i class="bx bx-wrench font-size-16 align-middle me-1"></i>
+                        <span key="t-settings">Change Password</span>
+                    </a>
                     <a class="dropdown-item text-danger" href="javascript:void();"
-                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
-                            class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span
-                            key="t-logout">@lang('translation.Logout')</span></a>
+                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i>
+                        <span key="t-logout">@lang('translation.Logout')</span>
+                    </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         @csrf
                     </form>
@@ -273,213 +297,237 @@
 <div class="topnav">
     <div class="container-fluid">
         <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
-
             <div class="collapse navbar-collapse" id="topnav-menu-content">
                 <ul class="navbar-nav">
-                    @can('dashboard')
-                        <a class="nav-link  " href="{{url('/')}}">
-                            <i class="fa-solid fa-gauge-simple me-2"></i><span key="t-dashboards">Dashboard</span>
+
+                    {{-- Dashboard --}}
+                    @if($deptPermissions->contains('dashboard'))
+                        <a class="nav-link" href="{{ url('/') }}">
+                            <i class="fa-solid fa-gauge-simple me-2"></i>
+                            <span key="t-dashboards">Dashboard</span>
                         </a>
-                    @endcan
+                    @endif
 
-                    @canany(['department-list', 'role-list', 'app-user-list','cms-user-list','reward-update-request-list'])
+                    {{-- CMS User Management --}}
+                    @if(
+                        $deptPermissions->contains('department-list') ||
+                        $deptPermissions->contains('role-list') ||
+                        $deptPermissions->contains('cms-user-list') ||
+                        $deptPermissions->contains('app-user-list') ||
+                        $deptPermissions->contains('reward-update-request-list') ||
+                        $deptPermissions->contains('evoucher-approval-list') ||
+                        $deptPermissions->contains('treats-and-deals-approval-list') ||
+                        $deptPermissions->contains('birthday-voucher-approval-list')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CMS User Management</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">CMS User Management</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
-
-                                @can('role-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('/admin/roles')}}">Roles</a>
-                                @endcan
-                               
-                                @can('department-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('/admin/departments')}}">Departments</a>
-                                @endcan
-                                
-                                @can('cms-user-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/user')}}">CMS Users</a>
-                                @endcan
-                                @can(['app-user-list'])
-                                <a class="dropdown-item" key="t-dashboards" href="{{url('/admin/app-user')}}">App Users</a>
-                                @endcan                               
-                                @can('evoucher-approval-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/evoucher-approval')}}">eVoucher Approval</a>
-                                @endcan
-                                @can('treats-and-deals-approval-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/treats-and-deals-approval')}}">Treats & Deals Approval</a>
-                                @endcan
-                                @can('birthday-voucher-approval-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/birthday-voucher-approval')}}">Birthday Voucher Approval</a>
-                                @endcan
+                                @if($deptPermissions->contains('department-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/departments') }}">Departments</a>
+                                @endif
+                                @if($deptPermissions->contains('role-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/roles') }}">Roles</a>
+                                @endif
+                                @if($deptPermissions->contains('cms-user-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/user') }}">CMS Users</a>
+                                @endif
+                                @if($deptPermissions->contains('app-user-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/app-user') }}">App Users</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/evoucher-approval') }}">eVoucher Approval</a>
+                                @endif
+                                @if($deptPermissions->contains('treats-and-deals-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-approval') }}">Treats & Deals Approval</a>
+                                @endif
+                                @if($deptPermissions->contains('birthday-voucher-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-approval') }}">Birthday Voucher Approval</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan
+                    @endif
 
-                    @canany(['dashboard-popup', 'notification-list', 'content-management'])
+                    {{-- Content Management --}}
+                    @if(
+                        $deptPermissions->contains('dashboard-popup') ||
+                        $deptPermissions->contains('banner-list') ||
+                        $deptPermissions->contains('notification-list') ||
+                        $deptPermissions->contains('content-management')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Content Management</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Content Management</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                            
-                                @can('dashboard-popup')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
-                                @endcan
-                                @can('banner-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/banner')}}">Banner</a>
-                                @endcan
-                                @can('notification-list')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
-                                @endcan
-                                @can('content-management')
-                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
-                                @endcan
-                                
+                                @if($deptPermissions->contains('dashboard-popup'))
+                                    <a class="dropdown-item" href="{{ url('/admin/dashboardpopup') }}">Dashboard Popup</a>
+                                @endif
+                                @if($deptPermissions->contains('banner-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/banner') }}">Banner</a>
+                                @endif
+                                @if($deptPermissions->contains('notification-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/notification') }}">Notification</a>
+                                @endif
+                                @if($deptPermissions->contains('content-management'))
+                                    <a class="dropdown-item" href="{{ url('/admin/app-content') }}">T&C / FAQ</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan
+                    @endif
 
-                    @canany(['t&d-reward-list', 'reward-category', 'evoucher-list','birthday-voucher-list','push-voucher-by-parameter','push-voucher-by-member-id'])
+                    {{-- Rewards Management --}}
+                    @if(
+                        $deptPermissions->contains('t&d-reward-list') ||
+                        $deptPermissions->contains('reward-category') ||
+                        $deptPermissions->contains('evoucher-list') ||
+                        $deptPermissions->contains('birthday-voucher-list') ||
+                        $deptPermissions->contains('push-voucher-log')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Rewards Management</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Rewards Management</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                                @can('reward-category')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/category')}}">Reward Category</a>
-                                @endcan
-                                @can('t&d-reward-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/reward')}}">Treats & Deals</a>
-                                @endcan
-                                @can('evoucher-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/evoucher')}}">eVoucher</a>
-                                @endcan
-                                @can('birthday-voucher-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/birthday-voucher')}}">Birthday Voucher</a>
-                                @endcan
-                                @canany(['push-voucher-log'])
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/push-voucher')}}">Push Voucher Log</a>
-                                @endcanany                          
+                                @if($deptPermissions->contains('reward-category'))
+                                    <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
+                                @endif
+                                @if($deptPermissions->contains('t&d-reward-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/reward') }}">Treats & Deals</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/evoucher') }}">eVoucher</a>
+                                @endif
+                                @if($deptPermissions->contains('birthday-voucher-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/birthday-voucher') }}">Birthday Voucher</a>
+                                @endif
+                                @if($deptPermissions->contains('push-voucher-log'))
+                                    <a class="dropdown-item" href="{{ url('admin/push-voucher') }}">Push Voucher Log</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan
+                    @endif
 
-                    @canany(['cso-issuance-paid-list','cso-issuance-free-list','cso-physical-list'])
+                    {{-- CSO --}}
+                    @if(
+                        $deptPermissions->contains('cso-issuance-paid-list') ||
+                        $deptPermissions->contains('cso-issuance-free-list') ||
+                        $deptPermissions->contains('cso-physical-list')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">CSO</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">CSO</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                                @can('cso-purchase-list')
-                                    {{-- <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-purchase')}}">CSO Purchase</a> --}}
-                                @endcan                           
-                                @can('cso-physical-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-physical')}}">CSO Physical Collection</a>
-                                @endcan                           
-                                @can('cso-issuance-paid-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance-paid')}}">CSO issuance (Paid)</a>
-                                @endcan                           
-                                @can('cso-issuance-free-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/cso-issuance-free')}}">CSO issuance (Free)</a>
-                                @endcan                           
+                                @if($deptPermissions->contains('cso-physical-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-physical') }}">CSO Physical Collection</a>
+                                @endif
+                                @if($deptPermissions->contains('cso-issuance-paid-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-paid') }}">CSO issuance (Paid)</a>
+                                @endif
+                                @if($deptPermissions->contains('cso-issuance-free-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-free') }}">CSO issuance (Free)</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan                
-                    
+                    @endif
 
-                    @canany(['merchant-list', 'participating-merchant-list','fabs-list','club-location-list'])
+                    {{-- Merchant Management --}}
+                    @if(
+                        $deptPermissions->contains('merchant-list') ||
+                        $deptPermissions->contains('participating-merchant-list') ||
+                        $deptPermissions->contains('fabs-list') ||
+                        $deptPermissions->contains('club-location-list')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Merchant Management</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Merchant Management</span>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="topnav-pages">
-                                @can('merchant-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/merchants')}}">Merchant</a>
-                                @endcan
-                                @can('fabs-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/fabs')}}">Fabs</a>
-                                @endcan
-                                @can('club-location-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/club-location')}}">Club Location</a>
-                                @endcan
-                                @can('participating-merchant-list')
-                                    <a class="dropdown-item" key="t-alerts" href="{{url('admin/participating-merchant')}}">Participating Merchant</a>
-                                @endcan                           
+                                @if($deptPermissions->contains('merchant-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/merchants') }}">Merchant</a>
+                                @endif
+                                @if($deptPermissions->contains('fabs-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/fabs') }}">Fabs</a>
+                                @endif
+                                @if($deptPermissions->contains('club-location-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/club-location') }}">Club Location</a>
+                                @endif
+                                @if($deptPermissions->contains('participating-merchant-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/participating-merchant') }}">Participating Merchant</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan
+                    @endif
 
-                    @can(['tier-list'])
-                        <a class="nav-link  " href="{{url('/admin/tiers')}}">
-                            Tier Management
-                        </a>
-                    @endcan
-                   
-                    @canany(['cms-setting', 'transaction-history','voucher-logs','voucher-list'])
+                    {{-- Tier Management --}}
+                    @if($deptPermissions->contains('tier-list'))
+                        <a class="nav-link" href="{{ url('/admin/tiers') }}">Tier Management</a>
+                    @endif
+
+                    {{-- Others --}}
+                    @if(
+                        $deptPermissions->contains('cms-setting') ||
+                        $deptPermissions->contains('transaction-history') ||
+                        $deptPermissions->contains('voucher-logs') ||
+                        $deptPermissions->contains('voucher-list')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Others</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Others</span>
                                 <div class="arrow-down"></div>
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
-                            
-                                @can(['cms-setting'])
-                                    {{-- <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
-                                        CMS Setting
-                                    </a> --}}
-                                @endcan
-                                @can(['transaction-history'])
-                                    <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
-                                        Transaction History
-                                    </a>
-                                @endcan
-                                @can(['voucher-logs'])
-                                    <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
-                                        Voucher Logs
-                                    </a>
-                                @endcan
-                                @can(['voucher-list'])
-                                    <a class="dropdown-item  " href="{{url('/admin/voucher-list')}}">
-                                        Voucher List
-                                    </a>
-                                @endcan
-                            
-
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('transaction-history'))
+                                    <a class="dropdown-item" href="{{ url('/admin/transaction-history') }}">Transaction History</a>
+                                @endif
+                                @if($deptPermissions->contains('voucher-logs'))
+                                    <a class="dropdown-item" href="{{ url('/admin/voucherlogs') }}">Voucher Logs</a>
+                                @endif
+                                @if($deptPermissions->contains('voucher-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/voucher-list') }}">Voucher List</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan      
+                    @endif
 
-                    @canany(['evoucher-stock', 't&d-reward-stock'])
+                    {{-- Stock Management --}}
+                    @if(
+                        $deptPermissions->contains('evoucher-stock') ||
+                        $deptPermissions->contains('t&d-reward-stock')
+                    )
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
-                                <i class="bx bx-customize me-2"></i><span key="t-apps" class="">Stock Management</span>
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Stock Management</span>
                                 <div class="arrow-down"></div>
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
-                            
-                                @can(['t&d-reward-stock'])
-                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-stock')}}">
-                                        Treats & Deals Stock
-                                    </a>
-                                @endcan
-                                @can(['evoucher-stock'])
-                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-stock')}}">
-                                        E-Voucher Stock
-                                    </a>
-                                @endcan
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('t&d-reward-stock'))
+                                    <a class="dropdown-item" href="{{ url('/admin/treats-deals-stock') }}">Treats & Deals Stock</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-stock'))
+                                    <a class="dropdown-item" href="{{ url('/admin/evoucher-stock') }}">E-Voucher Stock</a>
+                                @endif
                             </div>
                         </li>
-                    @endcan                   
+                    @endif
+
                 </ul>
             </div>
         </nav>
     </div>
 </div>
 
-<!--  Change-Password example -->
-<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-    aria-hidden="true">
+<!--  Change-Password Modal -->
+<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -493,33 +541,31 @@
                     <div class="mb-3">
                         <label for="current_password">Current Password</label>
                         <input id="current-password" type="password"
-                            class="form-control @error('current_password') is-invalid @enderror" name="current_password"
-                            autocomplete="current_password" placeholder="Enter Current Password"
-                            value="{{ old('current_password') }}">
+                            class="form-control @error('current_password') is-invalid @enderror"
+                            name="current_password" autocomplete="current_password"
+                            placeholder="Enter Current Password" value="{{ old('current_password') }}">
                         <div class="text-danger" id="current_passwordError" data-ajax-feedback="current_password"></div>
                     </div>
-
                     <div class="mb-3">
                         <label for="newpassword">New Password</label>
                         <input id="password" type="password"
-                            class="form-control @error('password') is-invalid @enderror" name="password"
-                            autocomplete="new_password" placeholder="Enter New Password">
+                            class="form-control @error('password') is-invalid @enderror"
+                            name="password" autocomplete="new_password" placeholder="Enter New Password">
                         <div class="text-danger" id="passwordError" data-ajax-feedback="password"></div>
                     </div>
-
                     <div class="mb-3">
                         <label for="userpassword">Confirm Password</label>
-                        <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
-                            autocomplete="new_password" placeholder="Enter New Confirm password">
+                        <input id="password-confirm" type="password" class="form-control"
+                            name="password_confirmation" autocomplete="new_password"
+                            placeholder="Enter New Confirm password">
                         <div class="text-danger" id="password_confirmError" data-ajax-feedback="password-confirm"></div>
                     </div>
-
                     <div class="mt-3 d-grid">
                         <button class="btn btn-primary waves-effect waves-light UpdatePassword"
                             data-id="{{ Auth::user()->id }}" type="submit">Update Password</button>
                     </div>
                 </form>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        </div>
+    </div>
+</div>

@@ -52,24 +52,49 @@ class UserController extends Controller
     public function datatable(Request $request)
     {
         $query = User::query();
-        $query->with("roles")->whereHas('roles', function($query) {
-            $query->where('name', '!=', 'Super Admin');
-        });
+        // $query->with("roles")->whereHas('roles', function($query) {
+        //     $query->where('name', '!=', 'Super Admin');
+        // });
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('added_by', Auth::user()->id);
+        }
 
         $searched_from_relation = ['roles' => ['name']];
-        $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email', 'phone', 'status',], $searched_from_relation, ['roles' => ['roles']]);
+        $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email', 'phone', 'status'], $searched_from_relation, ['roles' => ['roles']]);
+
+        $rows = $query['data']->get();
+
+        $deptIds = $rows->flatMap(fn($user) => $user->roles->pluck('department'))
+                        ->filter()
+                        ->unique()
+                        ->values();
+
+        $departments = \App\Models\Department::whereIn('id', $deptIds)->pluck('name', 'id');
 
         $final_data = [];
-        foreach ($query['data']->get() as $key => $row) {
-            $final_data[$key]['sr_no'] = $key + 1;
-            $final_data[$key]['name'] = $row->name;
-            $final_data[$key]['email'] = $row->email;
-            $final_data[$key]['phone'] = $row->phone;
-            $final_data[$key]['status'] = $row->status;
+        foreach ($rows as $key => $row) {
+            $final_data[$key]['sr_no']   = $key + 1;
+            $final_data[$key]['name']    = $row->name;
+            $final_data[$key]['email']   = $row->email;
+            $final_data[$key]['phone']   = $row->phone;
+            $final_data[$key]['status']  = $row->status;
 
+            // Roles badges
             $roles = $row->roles->pluck('name')->toArray();
-            $roles = implode("</span><span class='badge badge-pill badge-soft-success font-size-11 me-1'>", $roles);
-            $final_data[$key]['roles']  = (!empty($roles)) ? "<span class='badge badge-pill badge-soft-success font-size-11 me-1'>" . $roles : null;
+            $roles = implode("</span><span class='badge badge-pill badge-soft-success font-size-11 me-1 mt-2'>", $roles);
+            $final_data[$key]['roles'] = (!empty($roles))
+                ? "<span class='badge badge-pill badge-soft-success font-size-11 me-1 mt-2'>" . $roles . "</span>"
+                : null;
+
+            $userDeptIds = $row->roles->pluck('department')->filter()->unique();
+            $deptBadges  = $userDeptIds->map(function($id) use ($departments) {
+                $name = $departments[$id] ?? null;
+                return $name
+                    ? "<span class='badge badge-pill badge-soft-info font-size-11 me-1 mt-2'>$name</span>"
+                    : null;
+            })->filter()->implode('');
+
+            $final_data[$key]['department'] = !empty($deptBadges) ? $deptBadges : '-';
 
             $action = "<div class='d-flex gap-3'>";
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
@@ -80,7 +105,8 @@ class UserController extends Controller
             }
             $final_data[$key]['action'] = $action . "</div>";
         }
-        $data = [];
+
+        $data          = [];
         $data['items'] = $final_data;
         $data['count'] = $query['count'];
         return $data;
@@ -316,6 +342,92 @@ class UserController extends Controller
         User::where('id', $id)->delete();
         AdminLogger::log('delete', User::class, $id);
         return response()->json(['status' => 'success', 'message' => 'User Delete Successfully']);
+    }
+
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = User::query()->onlyTrashed();
+    
+            $searched_from_relation = ['roles' => ['name']];
+            $query = $this->get_sort_offset_limit_query($request, $query, ['name', 'email', 'phone', 'status'], $searched_from_relation, ['roles' => ['roles']]);
+    
+            $rows = $query['data']->get();
+    
+            $deptIds = $rows->flatMap(fn($user) => $user->roles->pluck('department'))
+                            ->filter()
+                            ->unique()
+                            ->values();
+    
+            $departments = \App\Models\Department::whereIn('id', $deptIds)->pluck('name', 'id');
+    
+            $final_data = [];
+            foreach ($rows as $key => $row) {
+                $final_data[$key]['sr_no']   = $key + 1;
+                $final_data[$key]['name']    = $row->name;
+                $final_data[$key]['email']   = $row->email;
+                $final_data[$key]['phone']   = $row->phone;
+                $final_data[$key]['status']  = $row->status;
+    
+                // Roles badges
+                $roles = $row->roles->pluck('name')->toArray();
+                $roles = implode("</span><span class='badge badge-pill badge-soft-success font-size-11 me-1 mt-2'>", $roles);
+                $final_data[$key]['roles'] = (!empty($roles))
+                    ? "<span class='badge badge-pill badge-soft-success font-size-11 me-1 mt-2'>" . $roles . "</span>"
+                    : null;
+    
+                $userDeptIds = $row->roles->pluck('department')->filter()->unique();
+                $deptBadges  = $userDeptIds->map(function($id) use ($departments) {
+                    $name = $departments[$id] ?? null;
+                    return $name
+                        ? "<span class='badge badge-pill badge-soft-info font-size-11 me-1 mt-2'>$name</span>"
+                        : null;
+                })->filter()->implode('');
+    
+                $final_data[$key]['department'] = !empty($deptBadges) ? $deptBadges : '-';
+
+                $final_data[$key]['action'] = "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>";
+            }
+    
+            $data          = [];
+            $data['items'] = $final_data;
+            $data['count'] = $query['count'];
+            return $data;
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    /* -----------------------------------------------------
+     * RESTORE
+     * ----------------------------------------------------- */
+    public function restore($id)
+    {
+        User::withTrashed()->findOrFail($id)->restore();
+ 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'User Restored Successfully'
+        ]);
+    }
+ 
+    /* -----------------------------------------------------
+     * FORCE DELETE
+     * ----------------------------------------------------- */
+    public function forceDelete($id)
+    {
+        User::withTrashed()->findOrFail($id)->forceDelete();
+ 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'User Permanently Deleted'
+        ]);
     }
 
     
