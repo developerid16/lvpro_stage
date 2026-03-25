@@ -228,6 +228,7 @@
    
     limitMonthInput('#validity_month');
 
+
 </script>
 
 <div class="modal fade" id="{{ isset($data->id) ? 'EditModal' : 'AddModal' }}" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">   

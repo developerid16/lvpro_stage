@@ -351,10 +351,13 @@ class BirthdayEvoucherController extends Controller
 
             $locationErrors = [];
             $anyLocationUsed = false;
+            $totalLocationQty = 0;
 
             if (!empty($request->locations)) {
 
                 foreach ($request->locations as $clubId => $clubData) {
+                    $qty = isset($clubData['inventory_qty']) ? (int)$clubData['inventory_qty'] : 0;
+                    $totalLocationQty += $qty;
 
                     $inventoryQty = isset($clubData['inventory_qty']) 
                         ? (int) $clubData['inventory_qty'] 
@@ -387,6 +390,14 @@ class BirthdayEvoucherController extends Controller
                 }
             }
 
+
+
+            if ($totalLocationQty > (int)$request->inventory_qty) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Location inventory cannot exceed total inventory'
+                ], 422);
+            }
             /* At least one club must have inventory */
             if (!$anyLocationUsed) {
                 $locationErrors[] = "Please set inventory quantity for at least one club location";
@@ -428,31 +439,7 @@ class BirthdayEvoucherController extends Controller
             /* ---------------------------------------------------
             * UPLOAD IMAGE
             * ---------------------------------------------------*/
-            if ($request->hasFile('voucher_image')) {
-                $file = $request->file('voucher_image');
-                $filename = generateHashFileName($file);
-                // $filename = time().'_'.$file->getClientOriginalName();
-                $file->move(public_path('uploads/image'), $filename);
-                $validated['voucher_image'] = $filename;
-            }
-
-
-            if ($request->hasFile('voucher_detail_img')) {
-
-                $path = public_path('uploads/image');
-
-                // Create directory if not exists
-                if (!is_dir($path)) {
-                    mkdir($path, 0775, true);
-                }
-
-                $file = $request->file('voucher_detail_img');
-                $filename = generateHashFileName($file);
-                // $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move($path, $filename);
-
-                $validated['voucher_detail_img'] = $filename;
-            }
+            
    
 
             $filePath = null;
@@ -462,9 +449,34 @@ class BirthdayEvoucherController extends Controller
             
 
             foreach ($months as $monthValue) {
+                if ($request->hasFile('voucher_image')) {
+                    $file = $request->file('voucher_image');
+                    $filename = generateHashFileName($file);
+                    // $filename = time().'_'.$file->getClientOriginalName();
+                    $file->move(public_path('uploads/image'), $filename);
+                    $validated['voucher_image'] = $filename;
+                }
 
 
-               $reward = Reward::create([
+                if ($request->hasFile('voucher_detail_img')) {
+
+                    $path = public_path('uploads/image');
+
+                    // Create directory if not exists
+                    if (!is_dir($path)) {
+                        mkdir($path, 0775, true);
+                    }
+
+                    $file = $request->file('voucher_detail_img');
+                    $filename = generateHashFileName($file);
+                    // $filename = time() . '_' . $file->getClientOriginalName();
+                    $file->move($path, $filename);
+
+                    $validated['voucher_detail_img'] = $filename;
+                }
+
+
+                $reward = Reward::create([
                     'type'        => '2',
                     'month'       => $monthValue,
                     'from_month'  => $monthValue,

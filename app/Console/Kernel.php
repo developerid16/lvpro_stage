@@ -62,7 +62,7 @@ class Kernel extends ConsoleKernel
 
 
         $schedule->command('users:auto-logout')->everyFiveMinutes();        
-        $schedule->command('voucher:generate-next-year')->yearlyOn(12, 31, '23:59');
+        $schedule->command('voucher:generate-next-year')->yearlyOn(12, 1, '23:59');
     }
 
     /**
