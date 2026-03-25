@@ -253,11 +253,11 @@ class EvoucherController extends Controller
                 }
             }
             if ($row->status === 'pending') {
-                $action .= "<a href='javascript:void(0)' 
-                                class='view ms-2' 
-                                data-id='{$row->id}'>
-                                <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
-                            </a>";
+                // $action .= "<a href='javascript:void(0)' 
+                //                 class='view ms-2' 
+                //                 data-id='{$row->id}'>
+                //                 <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                //             </a>";
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
