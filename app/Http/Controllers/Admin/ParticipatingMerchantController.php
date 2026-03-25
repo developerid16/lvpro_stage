@@ -55,7 +55,10 @@ class ParticipatingMerchantController extends Controller
     public function datatable(Request $request)
     {
         $qb = ParticipatingMerchant::query();
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         if (auth()->user()->role != 1) { // not Super Admin
             $qb->where('added_by', auth()->id());
         }
@@ -151,7 +154,7 @@ class ParticipatingMerchantController extends Controller
         }
 
         $post_data = $validator->validated();
-
+        $post_data['added_by'] = Auth::user()->id;
         $post_data['department_id'] = $post_data['department_id'] ?: null;
         ParticipatingMerchant::create($post_data);
 
@@ -199,19 +202,19 @@ class ParticipatingMerchantController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Merchant Updated Successfully']);
     }
 
-
     /* -----------------------------------------------------
      * DELETE MERCHANT
      * ----------------------------------------------------- */
     public function destroy($id)
     {
-        ParticipatingMerchant::where('id', $id)->delete();
+        $department = ParticipatingMerchant::findOrFail($id);
+        $department->delete();
         AdminLogger::log('delete', ParticipatingMerchant::class, $id);
-
-        return response()->json(['status' => 'success', 'message' => 'Merchant Deleted Successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Participating Merchant Deleted Successfully'
+        ]);
     }
-
-
     /* -----------------------------------------------------
      * PARTICIPATING MERCHANT LOCATION PAGE
      * ----------------------------------------------------- */
@@ -221,4 +224,87 @@ class ParticipatingMerchantController extends Controller
 
         return view($this->view_file_path . "participating-location")->with($this->layout_data);
     }
+
+    /* -----------------------------------------------------
+     * TRASH AJAX
+     * ----------------------------------------------------- */
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $qb = ParticipatingMerchant::onlyTrashed();
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'name',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
+
+            $rowsQueryBuilder = $result['data'];
+            $startIndex       = $result['offset'] ?? 0;
+
+            $final_data = [];
+            $i = 0;
+
+            foreach ($rowsQueryBuilder->get() as $row) {
+
+                $index = $startIndex + $i + 1;
+
+                $createdAt =  $row->created_at->format(config('safra.date-format'));
+                $updatedAt =  $row->updated_at->format(config('safra.date-format'));
+
+                $final_data[$i] = [
+                    'sr_no'      => $index,
+                    'name'       => $row->name,
+                    'department' => $row->department ? $row->department->name : '-',
+                    'status'     => $row->status,
+                    'created_at' => $createdAt,
+                    'updated_at' => $updatedAt,
+                    'action'     => "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>",
+                ];
+
+                $i++;
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    /* -----------------------------------------------------
+     * RESTORE
+     * ----------------------------------------------------- */
+    public function restore($id)
+    {
+        ParticipatingMerchant::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Participating Merchant Restored Successfully'
+        ]);
+    }
+
+    /* -----------------------------------------------------
+     * FORCE DELETE
+     * ----------------------------------------------------- */
+    public function forceDelete($id)
+    {
+        ParticipatingMerchant::withTrashed()->findOrFail($id)->forceDelete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Participating Merchant Permanently Deleted'
+        ]);
+    }
+
 }

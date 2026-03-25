@@ -128,6 +128,11 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('admin/otp-resend', [OTPVerifyController::class, 'resend'])->name('otp.resend');
 });
 
+Route::post('/admin/switch-department', [
+    \App\Http\Controllers\Admin\DepartmentSwitchController::class, 
+    'switch'
+])->middleware(['web', 'auth'])->name('switch.department');
+
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->middleware(['web', 'auth', 'OTPVerify'])->name('root');
 
 
@@ -177,6 +182,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('/send-sms', [App\Http\Controllers\HomeController::class, 'emailSend']);
 
     Route::get('roles/datatable', [RoleController::class, 'datatable']);
+    Route::get('roles/trash', [RoleController::class, 'trash'])->name('admin.roles.trash');
+    Route::post('roles/{id}/restore', [RoleController::class, 'restore']);
+    Route::delete('roles/{id}/force-delete', [RoleController::class, 'forceDelete']);
     Route::resource('roles', RoleController::class);
 
 
@@ -193,6 +201,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
 
     Route::get('user/datatable', [UserController::class, 'datatable']);
+    
+    Route::get('user/trash', [UserController::class, 'trash'])->name('admin.user.trash');
+    Route::post('user/{id}/restore', [UserController::class, 'restore']);
+    Route::delete('user/{id}/force-delete', [UserController::class, 'forceDelete']);
     Route::resource('user', UserController::class);
 
    
@@ -215,6 +227,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
     Route::get('/reward/get-participating-merchant-locations',[RewardController::class, 'getParticipatingMerchantLocations']);
 
+    Route::get('reward/trash', [RewardController::class, 'trash'])->name('admin.reward.trash');
+    Route::post('reward/{id}/restore', [RewardController::class, 'restore']);
+    Route::delete('reward/{id}/force-delete', [RewardController::class, 'forceDelete']);
     Route::resource('reward', RewardController::class);
 
     Route::get('automated-reward', [RewardController::class, 'indexAutomatedReward']);
@@ -280,6 +295,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
         // Milestone save
         Route::post('/milestone/save',  [TierController::class, 'milestoneSave'])->name('milestone.save');
+
+        Route::get('trash', [TierController::class, 'trash'])->name('admin.tier.trash');
+        Route::post('{id}/restore', [TierController::class, 'restore']);
+        Route::delete('{id}/force-delete', [TierController::class, 'forceDelete']);
     });
 
     Route::get('report/customer', [ReportController::class, 'customerIndex']);
@@ -330,13 +349,24 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     //8-12-25
     
     Route::get('merchants/datatable', [MerchantController::class, 'datatable'])->name('admin.merchants.datatable');
+    Route::get('merchants/trash', [MerchantController::class, 'trash'])->name('admin.merchants.trash');
+    Route::post('merchants/{id}/restore', [MerchantController::class, 'restore']);
+    Route::delete('merchants/{id}/force-delete', [MerchantController::class, 'forceDelete']);
     Route::resource('merchants', MerchantController::class);
     
     Route::get('merchant/{merchant}/club-location', [ClubLocationController::class, 'index'])->name('admin.club-location.index');
     Route::get('club-location/datatable', [ClubLocationController::class, 'datatable'])->name('admin.club-location.datatable');
+    
+    Route::get('club-location/trash', [ClubLocationController::class, 'trash'])->name('admin.club-location.trash');
+    Route::post('club-location/{id}/restore', [ClubLocationController::class, 'restore']);
+    Route::delete('club-location/{id}/force-delete', [ClubLocationController::class, 'forceDelete']);
+
     Route::resource('club-location', ClubLocationController::class);
     
     Route::get('participating-merchant/datatable', [ParticipatingMerchantController::class, 'datatable'])->name('admin.participating-merchant.datatable');
+    Route::get('participating-merchant/trash', [ParticipatingMerchantController::class, 'trash'])->name('admin.participating-merchant.trash');
+    Route::post('participating-merchant/{id}/restore', [ParticipatingMerchantController::class, 'restore']);
+    Route::delete('participating-merchant/{id}/force-delete', [ParticipatingMerchantController::class, 'forceDelete']);
     Route::resource('participating-merchant', ParticipatingMerchantController::class);
     
     Route::get('participating-merchant/{merchant}/location', [ParticipatingMerchantLocationController::class, 'index'])->name('admin.location.index');
@@ -351,8 +381,11 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('category', CategoryController::class);
 
     Route::get('departments/datatable', [DepartmentController::class, 'datatable'])->name('admin.department.datatable');
+    Route::get('departments/trash', [DepartmentController::class, 'trash'])->name('admin.departments.trash');
+    Route::post('departments/{id}/restore', [DepartmentController::class, 'restore']);
+    Route::delete('departments/{id}/force-delete', [DepartmentController::class, 'forceDelete']);
     Route::resource('departments', DepartmentController::class);
-
+    
     Route::get('permissions/datatable', [PermissionController::class, 'datatable'])->name('admin.permission.datatable');
     Route::resource('permissions', PermissionController::class);
 
@@ -361,11 +394,17 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('evoucher/push-member-voucher', [EvoucherController::class, 'pushMemberVoucher'])->name('pushMemberVoucher');
     Route::get('reward/get-dates/{id}', [EvoucherController::class, 'getDates']);
     Route::get('evoucher/datatable', [EvoucherController::class, 'datatable']);
+    Route::get('evoucher/trash', [EvoucherController::class, 'trash'])->name('admin.evoucher.trash');
+    Route::post('evoucher/{id}/restore', [EvoucherController::class, 'restore']);
+    Route::delete('evoucher/{id}/force-delete', [EvoucherController::class, 'forceDelete']);
     Route::resource('evoucher', EvoucherController::class);
 
     Route::get('birthday-voucher/get-club-locations-with-outlets', [BirthdayEvoucherController::class, 'getClubMerchantOutletStructure']);
     Route::get('birthday-voucher/datatable', [BirthdayEvoucherController::class, 'datatable']);
     Route::get('birthday-voucher/get-club-locations', [BirthdayEvoucherController::class, 'getLocations'])->name('get.club.locations');
+    Route::get('birthday-voucher/trash', [BirthdayEvoucherController::class, 'trash'])->name('admin.birthday-voucher.trash');
+    Route::post('birthday-voucher/{id}/restore', [BirthdayEvoucherController::class, 'restore']);
+    Route::delete('birthday-voucher/{id}/force-delete', [BirthdayEvoucherController::class, 'forceDelete']);
     Route::resource('birthday-voucher', BirthdayEvoucherController::class);
     
     Route::get('push-voucher/datatable', action: [PushVoucherController::class, 'datatable']);
@@ -392,6 +431,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('cso-issuance-paid', CsoIssuancePaidController::class);    
 
     Route::get('notification/datatable', [NotificationController::class, 'datatable'])->name('notification.datatable');
+    Route::get('notification/trash', [NotificationController::class, 'trash'])->name('admin.notification.trash');
+    Route::post('notification/{id}/restore', [NotificationController::class, 'restore']);
+    Route::delete('notification/{id}/force-delete', [NotificationController::class, 'forceDelete']);
     Route::resource('notification', NotificationController::class);
 
     Route::get('home-banner/datatable', [HomeBannerController::class, 'datatable'])->name('home-banner.datatable');
@@ -426,6 +468,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('app-content', [AppContentController::class, 'store']);
 
     Route::get('fabs/datatable', [FabsController::class, 'datatable']);
+    Route::get('fabs/trash', [FabsController::class, 'trash'])->name('admin.fabs.trash');
+    Route::post('fabs/{id}/restore', [FabsController::class, 'restore']);
+    Route::delete('fabs/{id}/force-delete', [FabsController::class, 'forceDelete']);
     Route::resource('fabs', FabsController::class);
 
     Route::post('/upload-csv', [RewardController::class, 'uploadCsv'])->name('upload.csv');

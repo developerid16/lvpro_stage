@@ -47,7 +47,10 @@ class TreatsAndDealsApprovalController extends Controller
     {
       
         $query = RewardUpdateRequest::with('requester')->where('type','0')->orderBy('created_at', 'desc');
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('added_by', Auth::user()->id);
+        }
         $filters = json_decode($request->get('filter'), true) ?? [];
 
         if (!empty($filters['requester'])) {

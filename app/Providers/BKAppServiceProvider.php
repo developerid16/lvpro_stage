@@ -66,12 +66,10 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
 
-// ✅ NEW: Import for NavigationComposer
-use Illuminate\Support\Facades\View;
-use App\Http\View\Composers\NavigationComposer;
 
 
-class AppServiceProvider extends ServiceProvider
+
+class BKAppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -148,6 +146,8 @@ class AppServiceProvider extends ServiceProvider
         MemberLatestTransaction::observe(ActivityObserver::class);
         MemberBasicDetailsModified::observe(ActivityObserver::class);
         MemberBasicDetailIG::observe(ActivityObserver::class);
+        
+
 
         Paginator::useBootstrap();
 
@@ -161,6 +161,16 @@ class AppServiceProvider extends ServiceProvider
 
                 try {
                     // //code...
+                    // $sb = SaleBatch::where('status', 'In Process')->orderBy('id', 'desc')->first();
+                    // if ($sb) {
+                    //     $sales = Sale::where('batch_id', $sb->id)->selectRaw('*, sum(sale_amount) as tot_sale_amount')->groupBy('ref')->get();
+                    //     foreach ($sales as $key => $sale) {
+
+
+                    //         SalesController::updateMileStone($sale, (float)  $sale['tot_sale_amount']);
+                    //     }
+                    //     $sb->update(['status' => 'Success']);
+                    // }
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
@@ -168,8 +178,5 @@ class AppServiceProvider extends ServiceProvider
 
             return true;
         });
-
-        // ✅ NEW: Department-wise navigation composer
-        View::composer('layouts.horizontal', NavigationComposer::class);
     }
 }

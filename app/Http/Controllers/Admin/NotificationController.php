@@ -43,7 +43,10 @@ class NotificationController extends Controller
     public function datatable(Request $request)
     {
         $qb = Notification::where('type', 'promotions');
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'title',
@@ -137,6 +140,7 @@ class NotificationController extends Controller
             $post_data['img'] = $name;
         }
 
+        $post_data['added_by'] = Auth::user()->id;
 
         Notification::create($post_data);
 
@@ -216,13 +220,98 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         $notification = Notification::findOrFail($id);
+        $notification->delete();
         AdminLogger::log('delete', Notification::class, $id);
         if ($notification->img && file_exists(public_path($notification->img))) {
             unlink(public_path($notification->img));
         }
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notification Deleted Successfully'
+        ]);
+    }
 
-        $notification->delete();
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+                $qb = Notification::where('type', 'promotions')->onlyTrashed();
+            // ✅ Super Admin = all records, Other users = only their own records
+            if (!Auth::user()->hasRole('Super Admin')) {
+                $qb->where('added_by', Auth::user()->id);
+            }
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'title',
+                'type',
+                'date',
+                'created_at',
+            ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Notification Deleted Successfully']);
+            $rowsQueryBuilder = $result['data'];
+            $startIndex = $result['offset'] ?? 0;
+
+            $final_data = [];
+            $i = 0;
+
+            foreach ($rowsQueryBuilder->get() as $row) {
+                $index = $startIndex + $i + 1;
+
+                $action = "<div class='d-flex gap-3'>";
+
+                if (Auth::user()->can($this->permission_prefix . '-edit')) {
+                    // $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary font-size-18'></i></a>";
+                }
+
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'><i class='mdi mdi-delete text-danger font-size-18'></i></a>";
+                $action .= "</div>";
+
+                $final_data[$i] = [
+                    'sr_no'      => $index,
+                    'title'      => $row->title,
+                    'type'       => $row->type,
+                    'date'       => $row->date,
+                    'created_at' => $row->created_at?->format(config('safra.date-format')),
+                    'action'     => "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>",
+                ];
+                $i++;
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+
+    }
+
+     public function restore($id)
+    {
+        Notification::withTrashed()->findOrFail($id)->restore();
+ 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Notification Restored Successfully'
+        ]);
+    }
+ 
+    /* -----------------------------------------------------
+     * FORCE DELETE
+     * ----------------------------------------------------- */
+    public function forceDelete($id)
+    {
+        Notification::withTrashed()->findOrFail($id)->forceDelete();
+ 
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Notification Permanently Deleted'
+        ]);
     }
 }

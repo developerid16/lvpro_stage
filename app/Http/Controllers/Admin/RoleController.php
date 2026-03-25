@@ -53,17 +53,34 @@ class RoleController extends Controller
 
     public function datatable(Request $request)
     {
-
         $query = Role::query();
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('added_by', Auth::user()->id);
+        }
         $query->with(['permissions'])->where('name', '!=', 'super admin');
+
         $searched_from_relation = ['permissions' => ['name']];
-        // $query = $this->get_sort_offset_limit_query($request, $query, ['status',], $searched_from_relation, ['user' => ['name', 'unique_id'], 'reward' => ['reward']], $relationSort);
-        $query = $this->get_sort_offset_limit_query($request, $query, ['name'], $searched_from_relation, ['permissions' => ['permissions']] );
+        $query = $this->get_sort_offset_limit_query(
+            $request,
+            $query,
+            ['name'],
+            $searched_from_relation,
+            ['permissions' => ['permissions']]
+        );
+
+        $rows = $query['data']->get();
+        $deptIds = $rows->pluck('department')->filter()->unique()->values();
+
+        $departments = Department::whereIn('id', $deptIds)
+                        ->pluck('name', 'id'); // [id => name] format
 
         $final_data = [];
-        foreach ($query['data']->get() as $key => $row) {
-            $final_data[$key]['sr_no'] = $key + 1;
-            $final_data[$key]['name'] = $row->name;
+        foreach ($rows as $key => $row) {
+            $final_data[$key]['sr_no']        = $key + 1;
+            $final_data[$key]['name']         = $row->name;
+
+            $final_data[$key]['department']   = $departments[$row->department] ?? '-';
 
             $permission = null;
             if (!empty($row->permissions)) {
@@ -82,7 +99,8 @@ class RoleController extends Controller
             }
             $final_data[$key]['action'] = $action . "</div>";
         }
-        $data = [];
+
+        $data          = [];
         $data['items'] = $final_data;
         $data['count'] = $query['count'];
         return $data;
@@ -94,14 +112,36 @@ class RoleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    // public function store(Request $request)
+    // {
+
+    //     $validator = Validator::make($request->all(), [
+    //         'name'       => 'required|unique:roles,name',
+    //         'department' => 'required',
+    //         'status'     => 'required',
+    //         'permission' => 'required',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status'  => false,
+    //             'message' => 'Validation error',
+    //             'errors'  => $validator->errors()
+    //         ], 422);
+    //     }
+
+    //     $role = Role::create(['name' => $request->input('name'), 'department' => $request->input('department'), 'status' => $request->input('status')]);
+    //     $role->syncPermissions($request->input('permission'));
+    //     return response()->json(['status' => 'success', 'message' => 'Role Created Successfully']);
+    // }
+
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name'       => 'required|unique:roles,name',
             'department' => 'required',
             'status'     => 'required',
-            'permission' => 'required',
+            'permission' => 'required|array',
         ]);
 
         if ($validator->fails()) {
@@ -112,10 +152,22 @@ class RoleController extends Controller
             ], 422);
         }
 
-        $role = Role::create(['name' => $request->input('name'), 'department' => $request->input('department'), 'status' => $request->input('status')]);
-        $role->syncPermissions($request->input('permission'));
-        return response()->json(['status' => 'success', 'message' => 'Role Created Successfully']);
+        $role = Role::create([
+            'name'       => $request->name,
+            'department' => $request->department,
+            'status'     => $request->status,
+            'added_by'   => Auth::user()->id, // ✅ Set added_by to current user
+        ]);
+
+        // ✅ Sync multiple permissions
+        $role->syncPermissions($request->permission);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Role Created Successfully'
+        ]);
     }
+
     /**
      * Display the specified resource.
      *
@@ -181,10 +233,92 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function destroy($id)
     {
-        Role::where('id', $id)->delete();
+        $location = Role::findOrFail($id);
+        $location->delete();
         AdminLogger::log('delete', Role::class, $id);
-        return response()->json(['status' => 'success', 'message' => 'Role Delete Successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role Deleted Successfully'
+        ]);
     }
+
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $query = Role::onlyTrashed();
+
+            $query->with(['permissions'])->where('name', '!=', 'super admin');
+
+            $searched_from_relation = ['permissions' => ['name']];
+            $query = $this->get_sort_offset_limit_query(
+                $request,
+                $query,
+                ['name'],
+                $searched_from_relation,
+                ['permissions' => ['permissions']]
+            );
+
+            $rowsQueryBuilder = $query['data']->get();
+            $deptIds = $rowsQueryBuilder->pluck('department')->filter()->unique()->values();
+
+            $departments = Department::whereIn('id', $deptIds)
+                            ->pluck('name', 'id'); // [id => name] format
+
+            $final_data = [];
+            foreach ($rowsQueryBuilder as $key => $row) {
+                $final_data[$key]['sr_no']        = $key + 1;
+                $final_data[$key]['name']         = $row->name;
+
+                $final_data[$key]['department']   = $departments[$row->department] ?? '-';
+
+                $permission = null;
+                if (!empty($row->permissions)) {
+                    foreach ($row->permissions as $permissions_row) {
+                        $permission .= "<span class='badge badge-pill badge-soft-success font-size-11 me-1'>$permissions_row->name</span>";
+                    }
+                }
+                $final_data[$key]['permissions']  = $permission;
+                $final_data[$key]['action'] = "
+                        <div class='d-flex gap-3'>
+                            <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                            </a>
+                            <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>
+                        </div>
+                    ";
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    public function restore($id)
+    {
+        Role::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role Restored Successfully'
+        ]);
+    }
+    public function forceDelete($id)
+    {
+        Role::withTrashed()->findOrFail($id)->forceDelete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role Permanently Deleted'
+        ]);
+    }
+
 }

@@ -10,13 +10,24 @@
 @slot('title') Role Management @endslot
 @endcomponent
 
+
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
+        <div>
+        </div>
         {{--<h4 class="card-title mb-0">Role Management</h4>--}}
-        @if(Auth::user()->can("$permission_prefix-create"))
-        <button class="btn btn-primary sh_btn ml_auto" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
-            Add New</button>
-        @endif
+        <div class="d-flex gap-2">
+            @if(Auth::user()->can("$permission_prefix-create"))
+            <button class="btn btn-primary sh_btn ml_auto" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
+                Add New</button>
+            @endif
+            @can('super admin')
+                <a class="btn btn-danger"
+                    href="{{ url('admin/roles/trash') }}">
+                    <i class="mdi mdi-trash"></i> View Trash
+                </a>
+            @endcan
+        </div>
     </div>
 
     <div class="card-body pt-0">
@@ -26,6 +37,7 @@
                     <tr>
                         <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75" data-width-unit="px" data-searchable="false">Sr. No.</th>
                         <th data-field="name" data-filter-control="input" data-sortable="true">Name</th>
+                        <th data-field="department" data-filter-control="input" data-sortable="true">Department</th>
                         <th data-field="permissions" data-filter-control="input" data-sortable="false">Permissions</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>
