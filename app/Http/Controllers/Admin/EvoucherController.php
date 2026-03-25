@@ -234,7 +234,7 @@ class EvoucherController extends Controller
             $action = "<div class='d-flex gap-3'>";
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
 
-                if ($status == 'pending approval') {
+                if ($row->status === 'pending') {
 
                     $action .= "<a href='javascript:void(0)' 
                                     style='cursor:not-allowed;color:#b6b8c4 !important;'  
@@ -251,6 +251,13 @@ class EvoucherController extends Controller
                                     <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
                                 </a>";
                 }
+            }
+            if ($row->status === 'pending') {
+                $action .= "<a href='javascript:void(0)' 
+                                class='view ms-2' 
+                                data-id='{$row->id}'>
+                                <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                            </a>";
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
@@ -908,7 +915,41 @@ class EvoucherController extends Controller
      */
     public function show(string $id)
     {
-        abort(404);
+        $reward = Reward::with([
+            'tierRates',
+            'rewardLocations',
+            'participatingLocations',
+            'merchant',
+        ])->findOrFail($id);
+
+        $reward->voucher_validity = ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
+
+        $data = [];
+        $data['data'] = $reward;
+
+        // Location text
+        $data['location_text'] = null;
+        if (!empty($reward->location_text)) {
+            $data['location_text'] = CustomLocation::where('id', $reward->location_text)->value('name');
+        }
+
+        // Saved locations
+        $data['savedLocations'] = $reward->rewardLocations->pluck('inventory_qty','location_id');
+
+        // Participating locations
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique();
+
+        $data['participatingLocations'] = ParticipatingMerchantLocation::whereIn('id', $locationIds)
+            ->select('id','name')
+            ->get();
+
+        // Render view modal
+        $html = view($this->view_file_path . 'view', $data)->render();
+
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
     }
 
     function normalizeTime($time)
@@ -1572,7 +1613,7 @@ class EvoucherController extends Controller
                 $data
             );
 
-            $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
+            $reward->update(['is_draft' => 0,'status'    => 'pending']); // mark main reward as non-draft (it will be updated after approval)
                 /* ---------------------------------------------------
             * 7) UPDATE PARTICIPATING LOCATIONS
             * ---------------------------------------------------*/

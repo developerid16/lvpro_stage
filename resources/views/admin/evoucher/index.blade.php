@@ -864,6 +864,22 @@
             modal.find('.is-invalid').removeClass('is-invalid');
             modal.find('.invalid-feedback').remove();
 
+            if (typeof tinymce !== 'undefined') {
+                tinymce.editors.forEach(function (editor) {
+
+                    let textarea = $('#' + editor.id);
+
+                    if ($('.modal.show').attr('id') === 'EditModal') {
+                        // ✅ restore original
+                        let original = textarea.data('original') || '';
+                        editor.setContent(original);
+                    } else {
+                        // ✅ add mode → clear
+                        editor.setContent('');
+                    }
+                });
+            }
+
         }
 
         function formatToAmPm(datetimeLocal) {

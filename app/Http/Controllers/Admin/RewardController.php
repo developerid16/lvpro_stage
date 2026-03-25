@@ -215,7 +215,7 @@ class RewardController extends Controller
 
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
 
-                if ($status == 'pending approval') {
+                if ($row->status === 'pending') {
 
                     $action .= "<a href='javascript:void(0)' 
                                     class='' 
@@ -234,6 +234,15 @@ class RewardController extends Controller
                                 </a>";
                 }
             }
+
+            if ($row->status === 'pending') {
+                $action .= "<a href='javascript:void(0)' 
+                                class='view ms-2' 
+                                data-id='{$row->id}'>
+                                <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                            </a>";
+            }
+
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
@@ -651,28 +660,62 @@ class RewardController extends Controller
                 /* ---------------- LOCATION VALIDATION ---------------- */
 
 
+                // if ((int) $request->reward_type === 1) {
+
+                //     $rules['max_quantity_physical'] = 'required|integer|min:1';
+                //     $rules['locations'] = 'required|array|min:1';
+
+                //     $hasSelected = false;
+
+                //     foreach ($request->locations ?? [] as $locId => $locData) {
+
+                //         if (!empty($locData['selected'])) {
+
+                //             $hasSelected = true;
+
+                //             $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+
+                //             $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
+                //             $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
+                //             $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
+                //         }
+                //     }
+                // }
+
+               
                 if ((int) $request->reward_type === 1) {
 
                     $rules['max_quantity_physical'] = 'required|integer|min:1';
                     $rules['locations'] = 'required|array|min:1';
 
-                    $hasSelected = false;
+                    $hasQty = false;
 
                     foreach ($request->locations ?? [] as $locId => $locData) {
 
-                        if (!empty($locData['selected'])) {
-
-                            $hasSelected = true;
-
-                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
-
-                            $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
-                            $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
-                            $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
+                        if (!empty($locData['inventory_qty']) && $locData['inventory_qty'] > 0) {
+                            $hasQty = true;
                         }
+
+                        // validate each field (optional)
+                        $rules["locations.$locId.inventory_qty"] = 'nullable|integer|min:0';
+                    }
+
+                    $validator = Validator::make($request->all(), $rules, $messages);
+
+                    // 🔥 ONLY ADD ERROR IF NONE HAS VALUE
+                    if (!$hasQty) {
+                        $validator->after(function ($validator) {
+                            $validator->errors()->add('locations', 'At least one location must have inventory quantity greater than 0.');
+                        });
+                    }
+
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'status' => 'error',
+                            'errors' => $validator->errors()
+                        ], 422);
                     }
                 }
-
                 $validator = Validator::make($request->all(), $rules, $messages);
 
                 /* AFTER VALIDATION CHECK */
@@ -1099,7 +1142,41 @@ class RewardController extends Controller
      */
     public function show(string $id)
     {
-        abort(404);
+        $reward = Reward::with([
+            'tierRates',
+            'rewardLocations',
+            'participatingLocations',
+            'merchant',
+        ])->findOrFail($id);
+
+        $reward->voucher_validity = ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
+
+        $data = [];
+        $data['data'] = $reward;
+
+        // Location text
+        $data['location_text'] = null;
+        if (!empty($reward->location_text)) {
+            $data['location_text'] = CustomLocation::where('id', $reward->location_text)->value('name');
+        }
+
+        // Saved locations
+        $data['savedLocations'] = $reward->rewardLocations->pluck('inventory_qty','location_id');
+
+        // Participating locations
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique();
+
+        $data['participatingLocations'] = ParticipatingMerchantLocation::whereIn('id', $locationIds)
+            ->select('id','name')
+            ->get();
+
+        // Render view modal
+        $html = view($this->view_file_path . 'view', $data)->render();
+
+        return response()->json([
+            'status' => 'success',
+            'html' => $html
+        ]);
     }
 
     function normalizeTime($time)
@@ -1726,37 +1803,40 @@ class RewardController extends Controller
 
             $validator->after(function ($validator) use ($request, $tiers, $rewardType) {
 
-                /* Physical must select at least one location */
-                if ($rewardType === 1) {
+    /* Physical → at least one location qty > 0 */
+    if ($rewardType === 1) {
 
-                    $hasSelected = false;
+        $hasQty = false;
 
-                    foreach ($request->locations ?? [] as $locData) {
-                        if (!empty($locData['selected'])) {
-                            $hasSelected = true;
-                            break;
-                        }
-                    }
+        foreach ($request->locations ?? [] as $locData) {
 
-                    if (!$hasSelected) {
-                        $validator->errors()->add(
-                            'locations',
-                            'Please select at least one location.'
-                        );
-                    }
-                }
+            if (!empty($locData['inventory_qty']) && (int)$locData['inventory_qty'] > 0) {
+                $hasQty = true;
+                break;
+            }
+        }
 
-                /* Tier price must not exceed usual price */
-                foreach ($tiers as $tier) {
-                    $price = $request->input("tier_{$tier->id}");
-                    if ($price !== null && $price > $request->usual_price) {
-                        $validator->errors()->add(
-                            "tier_{$tier->id}",
-                            "{$tier->tier_name} price cannot be greater than Usual Price"
-                        );
-                    }
-                }
-            });
+        if (!$hasQty) {
+            $validator->errors()->add(
+                'locations',
+                'Enter quantity in at least one location.'
+            );
+        }
+    }
+
+    /* Tier price must not exceed usual price */
+    foreach ($tiers as $tier) {
+
+        $price = $request->input("tier_{$tier->id}");
+
+        if ($price !== null && $price > $request->usual_price) {
+            $validator->errors()->add(
+                "tier_{$tier->id}",
+                "{$tier->tier_name} price cannot be greater than Usual Price"
+            );
+        }
+    }
+});
 
 
             /* ---------------------------------------------------
@@ -1957,7 +2037,7 @@ class RewardController extends Controller
                             'is_featured' => $request->boolean('is_featured'),
                         ]
                     );
-                    $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
+                    $reward->update(['is_draft' => 0, 'status'    => 'pending']); // mark main reward as non-draft (it will be updated after approval)
     
     
                     if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
