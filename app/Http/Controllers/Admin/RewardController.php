@@ -74,8 +74,12 @@ class RewardController extends Controller
     {
         $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
         $query = Reward::where('type', '0');
-        if (auth()->user()->role != 1) { // not Super Admin
-            $query->where('added_by', auth()->id());
+        // if (auth()->user()->role != 1) { // not Super Admin
+        //     $query->where('added_by', auth()->id());
+        // }
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('added_by', Auth::user()->id);
         }
 
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
@@ -2112,71 +2116,71 @@ class RewardController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        DB::beginTransaction();
+    // public function destroy(string $id)
+    // {
+    //     DB::beginTransaction();
 
-        try {
+    //     try {
 
-            $reward = Reward::find($id);
-            if (!$reward) {
-                return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
-            }
+    //         $reward = Reward::find($id);
+    //         if (!$reward) {
+    //             return response()->json(['status' => 'error', 'message' => 'Reward not found'], 404);
+    //         }
         
-            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+    //         $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
             
-            // if ($walletExists) {
-            //     return response()->json([
-            //         'status' => 'error',
-            //         'message' => 'This reward exists in user wallet. You cannot delete it.'
-            //         ], 404);
-            // }
+    //         // if ($walletExists) {
+    //         //     return response()->json([
+    //         //         'status' => 'error',
+    //         //         'message' => 'This reward exists in user wallet. You cannot delete it.'
+    //         //         ], 404);
+    //         // }
                     
-            // $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
-            // if ($cartitem) {
-            //     return response()->json([
-            //         'status' => 'error',
-            //         'message' => 'This reward exists in user cart. You cannot delete it.'
-            //         ], 404);
-            // }
-            if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_image));
-            }
-            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
-            }
+    //         // $cartitem = CartItem::where('voucher_id', $reward->id)->exists();
+    //         // if ($cartitem) {
+    //         //     return response()->json([
+    //         //         'status' => 'error',
+    //         //         'message' => 'This reward exists in user cart. You cannot delete it.'
+    //         //         ], 404);
+    //         // }
+    //         if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
+    //             unlink(public_path('uploads/image/' . $reward->voucher_image));
+    //         }
+    //         if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
+    //             unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
+    //         }
 
-            if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
-                unlink(public_path('uploads/csv/' . $reward->csvFile));
-            }
+    //         if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
+    //             unlink(public_path('uploads/csv/' . $reward->csvFile));
+    //         }
            
-            RewardTierRate::where('reward_id', $reward->id)->delete();          
-            RewardLocation::where('reward_id', $reward->id)->delete();        
-            ParticipatingLocations::where('reward_id', $reward->id)->delete();
-            RewardVoucher::where('reward_id', $reward->id)->delete();
-            RewardUpdateRequest::where('reward_id', $reward->id)->delete();
-            RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
-            RewardLocationUpdate::where('reward_id', $reward->id)->delete();        
-            $reward->delete();
+    //         RewardTierRate::where('reward_id', $reward->id)->delete();          
+    //         RewardLocation::where('reward_id', $reward->id)->delete();        
+    //         ParticipatingLocations::where('reward_id', $reward->id)->delete();
+    //         RewardVoucher::where('reward_id', $reward->id)->delete();
+    //         RewardUpdateRequest::where('reward_id', $reward->id)->delete();
+    //         RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+    //         RewardLocationUpdate::where('reward_id', $reward->id)->delete();        
+    //         $reward->delete();
             
-            AdminLogger::log('delete', Reward::class, $id);
-            DB::commit();
+    //         AdminLogger::log('delete', Reward::class, $id);
+    //         DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Reward deleted successfully'
-            ]);
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Reward deleted successfully'
+    //         ]);
 
-        } catch (\Throwable $e) {
+    //     } catch (\Throwable $e) {
 
-            DB::rollBack();
+    //         DB::rollBack();
 
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 
 
     /**
@@ -2297,5 +2301,282 @@ class RewardController extends Controller
 
         return back()->with('success', 'No duplicate codes in file');
     }
-            
+
+    public function destroy(string $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $reward = Reward::find($id);
+
+            if (!$reward) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Reward not found'
+                ], 404);
+            }
+
+            // جلوگیری اگر reward wallet માં હોય
+            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+
+            if ($walletExists) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This reward exists in user wallet. You cannot delete it.'
+                ], 400);
+            }
+
+            // ✅ ONLY SOFT DELETE
+            $reward->delete();
+
+            AdminLogger::log('delete', Reward::class, $id);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Reward moved to trash successfully'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        $reward = Reward::withTrashed()->findOrFail($id);
+        $reward->restore();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Reward Restored Successfully'
+        ]);
+    }
+
+    public function forceDelete($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $reward = Reward::withTrashed()->findOrFail($id);
+
+            // ❗ Optional: prevent delete if used
+            $walletExists = UserWalletVoucher::where('reward_id', $reward->id)->exists();
+
+            if ($walletExists) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This reward exists in user wallet. Cannot permanently delete.'
+                ], 400);
+            }
+
+            // ✅ DELETE FILES
+            if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
+                unlink(public_path('uploads/image/' . $reward->voucher_image));
+            }
+
+            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
+                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
+            }
+
+            if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
+                unlink(public_path('uploads/csv/' . $reward->csvFile));
+            }
+
+            // ✅ DELETE ALL RELATED DATA
+            RewardTierRate::where('reward_id', $reward->id)->delete();
+            RewardLocation::where('reward_id', $reward->id)->delete();
+            ParticipatingLocations::where('reward_id', $reward->id)->delete();
+            RewardVoucher::where('reward_id', $reward->id)->delete();
+            RewardUpdateRequest::where('reward_id', $reward->id)->delete();
+            RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+            RewardLocationUpdate::where('reward_id', $reward->id)->delete();
+
+            // ✅ FINAL DELETE
+            $reward->forceDelete();
+
+            AdminLogger::log('force_delete', Reward::class, $id);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Reward permanently deleted'
+            ]);
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function trash(Request $request)
+    {
+        $type = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
+        $this->layout_data['type'] = $type;
+        if ($request->ajax()) {
+            $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
+            $query = Reward::where('type', '0')->onlyTrashed();
+            $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
+    
+            $final_data = [];
+            foreach ($query['data']->get() as $key => $row) {
+                $total_quantity = 0;
+                if ($row->reward_type == 1) {
+                    // physical
+                    $total_quantity = RewardLocation::where('reward_id', $row->id)->sum('inventory_qty');
+                } else {
+                    // digital
+                    $total_quantity = $row->inventory_qty;
+                }
+                $final_data[$key]['sr_no']      = $key + 1;
+                $final_data[$key]['code']       = $row->code;
+                $final_data[$key]['name']       = $row->name;
+                $final_data[$key]['reward_type'] = ($row->reward_type == 1) ? 'Physical' : 'Digital';
+                $final_data[$key]['amount'] = number_format($row->usual_price, 2);
+    
+                $final_data[$key]['quantity'] = max(0, (int) $total_quantity);
+    
+                $purchased = UserWalletVoucher::where('reward_id', $row->id)->where('reward_status', 'purchased')->count();
+    
+                $final_data[$key]['purchased'] = max(0, $purchased);
+    
+                $final_data[$key]['balance'] = max(0, $total_quantity - $purchased);
+    
+                $redeemed = UserWalletVoucher::where('reward_id', $row->id)->where('status', 'used')->count();
+    
+                $final_data[$key]['redeemed'] = max(0, $redeemed);
+    
+                $duration = $row->created_at->format(config('safra.date-format'));
+                $final_data[$key]['image'] = imagePreviewHtml("uploads/image/{$row->voucher_image}");
+               
+                $start = $row->publish_start_date;
+                $end   = $row->publish_end_date;
+    
+                $startDate = $start ? Carbon::parse($start) : null;
+                $endDate   = $end ? Carbon::parse($end) : null;
+    
+                // block zero-date (-0001-11-30)
+                $isValidStart = $startDate && $startDate->year > 0;
+                $isValidEnd   = $endDate && $endDate->year > 0;
+    
+                if ($isValidStart && $isValidEnd) {
+                    $duration = $startDate->format(config('safra.date-only')) . ' to ' . $endDate->format(config('safra.date-only'));
+                } elseif ($isValidStart) {
+                    $duration = $startDate->format(config('safra.date-only'));
+                } else {
+                    $duration = '-';
+                }
+    
+                $final_data[$key]['duration'] = $duration;
+                $final_data[$key]['status'] = $duration;
+    
+                $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
+    
+                $final_data[$key]['is_draft'] = $row->is_draft == 1 ? 'Yes' : 'No';
+                $final_data[$key]['status'] = $row->status;
+    
+                $now = Carbon::now();
+    
+    
+               /* ---------------- DRAFT OVERRIDE ---------------- */
+                if (
+                    $row->is_draft == 1 &&
+                    !RewardUpdateRequest::where('reward_id', $row->id)->exists()
+                ) {
+                    $status = '-';
+                } else {
+    
+                    $salesStart = ($row->sales_start_date && $row->sales_start_time)
+                        ? Carbon::parse($row->sales_start_date.' '.$row->sales_start_time)
+                        : null;
+    
+                    $salesEnd = ($row->sales_end_date && $row->sales_end_time)
+                        ? Carbon::parse($row->sales_end_date.' '.$row->sales_end_time)
+                        : null;
+    
+                    $latestRequest = RewardUpdateRequest::where('reward_id', $row->id)->latest('id')->first();
+    
+                    $hasApproved = $latestRequest && $latestRequest->status === 'approve';
+                    $hasPending  = $latestRequest && $latestRequest->status === 'pending';
+                    $hasRejected = $latestRequest && $latestRequest->status === 'rejected';
+    
+                    /*
+                    FINAL PRIORITY
+                    1. Expired
+                    2. Rejected
+                    3. Pending approval
+                    4. Approved (ONLY if start date is future)
+                    5. Active
+                    */
+    
+                    // 1. EXPIRED
+                    if (
+                        ($row->voucher_validity && Carbon::parse($row->voucher_validity)->lt($now)) ||
+                        ($salesEnd && $now->gt($salesEnd))
+                    ) {
+                        $status = 'expired';
+                    }
+    
+                    // 2. REJECTED
+                    elseif ($hasRejected) {
+                        $status = 'rejected';
+                    }
+    
+                    // 3. PENDING APPROVAL
+                    elseif ($hasPending) {
+                        $status = 'pending approval';
+                    }
+    
+                    // 4. APPROVED (only if sales not started yet)
+                    elseif ($hasApproved && $salesStart && $now->lt($salesStart)) {
+                        $status = 'approved';
+                    }
+    
+                    // 5. ACTIVE
+                    elseif (
+                        (!$salesStart || $now->gte($salesStart)) &&
+                        (!$salesEnd || $now->lte($salesEnd))
+                    ) {
+                        $status = 'active';
+                    }
+    
+                    // SAFETY
+                    else {
+                        $status = 'Upcoming';
+                    }
+                }
+    
+                
+                $final_data[$key]['status'] = $status;
+                
+                $final_data[$key]['action'] = "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>";
+            }
+            $data          = [];
+            $data['items'] = $final_data;
+            $data['count'] = $query['count'];
+            return $data;
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
 }

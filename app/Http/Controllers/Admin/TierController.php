@@ -46,7 +46,10 @@ class TierController extends Controller
     public function datatable(Request $request)
     {
         $qb = Tier::with(['interestGroups', 'memberTypes']);
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'code',
@@ -232,7 +235,10 @@ class TierController extends Controller
         // Step 3: Save
         DB::beginTransaction();
         try {
-            $tier = Tier::create($validator->validated());
+            // $tier = Tier::create($validator->validated());
+            $data = $validator->validated();
+            $data['added_by'] = Auth::user()->id;
+            $tier = Tier::create($data);
 
             if ($hasIG) {
                 foreach ($request->interest_groups as $ig) {
@@ -373,8 +379,8 @@ class TierController extends Controller
     {
         DB::beginTransaction();
         try {
-            TierInterestGroup::where('tier_id', $id)->delete();
-            TierMemberType::where('tier_id', $id)->delete();
+            // TierInterestGroup::where('tier_id', $id)->delete();
+            // TierMemberType::where('tier_id', $id)->delete();
             Tier::where('id', $id)->delete();
 
             AdminLogger::log('delete', Tier::class, $id);
@@ -402,5 +408,104 @@ class TierController extends Controller
     public function show(Tier $tier)
     {
         //
+    }
+
+    /* -----------------------------------------------------
+     * TRASH AJAX
+     * ----------------------------------------------------- */
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $qb = Tier::with(['interestGroups', 'memberTypes'])->onlyTrashed();
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'code',
+                'tier_name',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
+
+            $rowsQueryBuilder = $result['data'];
+            $startIndex       = $result['offset'] ?? 0;
+
+            $final_data = [];
+            $i          = 0;
+
+            foreach ($rowsQueryBuilder->get() as $row) {
+                $index = $startIndex + $i + 1;
+
+                $createdAt = $row->created_at->format(config('safra.date-format'));
+                $updatedAt = $row->updated_at->format(config('safra.date-format'));
+
+                // Build IG badges
+                $igTags = '';
+                foreach ($row->interestGroups as $ig) {
+                    $igTags .= "<span class='badge bg-soft-primary text-primary me-1 mb-1'>{$ig->interest_group_main_name} / {$ig->interest_group_name}</span>";
+                }
+
+                // Build Member Type badges
+                $mtTags = '';
+                foreach ($row->memberTypes as $mt) {
+                    $mtTags .= "<span class='badge bg-soft-success text-success me-1 mb-1'>{$mt->membership_type_code}</span>";
+                }
+
+                $final_data[$i] = [
+                    'sr_no'           => $index,
+                    'tier_name'       => $row->tier_name,
+                    'code'            => $row->code,
+                    'interest_groups' => $igTags ?: '<span class="text-muted">-</span>',
+                    'member_types'    => $mtTags ?: '<span class="text-muted">-</span>',
+                    'status'          => $row->status == 'Active'
+                        ? "<span class='badge badge-soft-success'>Active</span>"
+                        : "<span class='badge badge-soft-danger'>Inactive</span>",
+                    'created_at'      => $createdAt,
+                    'updated_at'      => $updatedAt,
+                    'action'          => "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>",
+                ];
+
+                $i++;
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    /* -----------------------------------------------------
+     * RESTORE
+     * ----------------------------------------------------- */
+    public function restore($id)
+    {
+        Tier::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Tier Restored Successfully'
+        ]);
+    }
+
+    /* -----------------------------------------------------
+     * FORCE DELETE
+     * ----------------------------------------------------- */
+    public function forceDelete($id)
+    {
+        TierInterestGroup::where('tier_id', $id)->delete();
+        TierMemberType::where('tier_id', $id)->delete();
+        Tier::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Tier Permanently Deleted'
+        ]);
     }
 }

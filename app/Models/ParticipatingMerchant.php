@@ -5,10 +5,11 @@ namespace App\Models;
 use App\Traits\AddsAddedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ParticipatingMerchant extends Model
 {
-    use HasFactory, AddsAddedBy;
+    use HasFactory, AddsAddedBy, SoftDeletes;
     protected $table = 'participating_merchants';
 
     protected $fillable = [

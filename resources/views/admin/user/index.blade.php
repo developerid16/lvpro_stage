@@ -14,10 +14,19 @@
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
         {{--<h4 class="card-title mb-0">User Management</h4>--}}
-        @if(Auth::user()->can("$permission_prefix-create"))
-        <button class="btn btn-primary ml_auto" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
-            Add New</button>
-        @endif
+        <div></div>
+        <div class="d-flex gap-2">
+            @if(Auth::user()->can("$permission_prefix-create"))
+            <button class="btn btn-primary ml_auto" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
+                Add New</button>
+            @endif
+            @can('super admin')
+                <a class="btn btn-danger"
+                    href="{{ url('admin/user/trash') }}">
+                    <i class="mdi mdi-trash"></i> View Trash
+                </a>
+            @endcan
+        </div>
     </div>
     <div class="card-body pt-0">
     <!-- <div class="wmd-view-topscroll">
@@ -33,6 +42,7 @@
                         <th data-field="email" data-filter-control="input" data-sortable="true">Email</th>
                         <th data-field="phone" data-filter-control="input" data-sortable="true">Contact</th>
                         <th data-field="status" data-filter-control="select" data-sortable="false" data-filter-data="var:filterDefaultsGender">Status</th>
+                        <th data-field="department" data-sortable="false">Department</th>
                         <th data-field="roles" data-filter-control="input" data-sortable="false">Role</th>
                         <th class="text-center" data-field="action" data-searchable="false">Action</th>
                     </tr>

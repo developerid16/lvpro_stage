@@ -44,7 +44,10 @@ class FabsController extends Controller
     public function datatable(Request $request)
     {
         $qb = Fabs::query();
-
+        // ✅ Super Admin = all records, Other users = only their own records
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('added_by', Auth::user()->id);
+        }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
             'name',
@@ -130,7 +133,7 @@ class FabsController extends Controller
         }
 
         $post_data = $validator->validated();
-
+        $post_data['added_by'] = Auth::user()->id;
 
         Fabs::create($post_data);
 
@@ -186,16 +189,96 @@ class FabsController extends Controller
     }
 
     /* -----------------------------------------------------
-     * DELETE
+     * DELETE department
      * ----------------------------------------------------- */
     public function destroy($id)
     {
-        Fabs::where('id', $id)->delete();
+        $fabs = Fabs::findOrFail($id);
+        $fabs->delete();
         AdminLogger::log('delete', Fabs::class, $id);
-
         return response()->json([
             'status' => 'success',
             'message' => 'Fabs Deleted Successfully'
+        ]);
+    }
+
+    /* -----------------------------------------------------
+     * TRASH
+     * ----------------------------------------------------- */
+    public function trash(Request $request)
+    {
+        if ($request->ajax()) {
+            $qb = Fabs::onlyTrashed();
+            $result = $this->get_sort_offset_limit_query($request, $qb, [
+                'id',
+                'name',
+                'code',
+                'status',
+                'created_at',
+                'updated_at',
+            ]);
+
+            $rowsQueryBuilder = $result['data'];
+            $startIndex = $result['offset'] ?? 0;
+
+            $final_data = [];
+            $i = 0;
+
+            foreach ($rowsQueryBuilder->get() as $row) {
+
+                $index = $startIndex + $i + 1;
+
+                $final_data[$i] = [
+                    'sr_no'     => $index,
+                    'name'      => $row->name,
+                    'code'      => $row->code,
+                    'status'    => $row->status,
+                    'created_at'=> $row->created_at->format(config('safra.date-format')),
+                    'updated_at'=> $row->updated_at->format(config('safra.date-format')),
+                    'action'    => "<div class='d-flex gap-3'>
+                                        <a href='javascript:void(0)' class='restore_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-restore text-success action-icon font-size-18'></i>
+                                        </a>
+                                        <a href='javascript:void(0)' class='force_delete_btn' data-id='{$row->id}'>
+                                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                                        </a>
+                                    </div>",
+                ];
+
+                $i++;
+            }
+
+            return [
+                'items' => $final_data,
+                'count' => $result['count'] ?? $rowsQueryBuilder->count(),
+            ];
+        }
+        return view($this->view_file_path . "trash")->with($this->layout_data);
+    }
+
+    /* -----------------------------------------------------
+     * RESTORE
+     * ----------------------------------------------------- */
+    public function restore($id)
+    {
+        Fabs::withTrashed()->findOrFail($id)->restore();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Fabs Restored Successfully'
+        ]);
+    }
+
+    /* -----------------------------------------------------
+     * FORCE DELETE
+     * ----------------------------------------------------- */
+    public function forceDelete($id)
+    {
+        Fabs::withTrashed()->findOrFail($id)->forceDelete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Fabs Permanently Deleted'
         ]);
     }
 }
