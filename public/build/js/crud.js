@@ -167,8 +167,10 @@ $(document).ready(function () {
         $("#EditModal").modal('hide').remove();
     
         var id = $(this).data('id');
+        var url = $(this).data('url') ?? (ModuleBaseUrl + id + "/edit");
+
         $.ajax({
-            url: ModuleBaseUrl + id + "/edit",
+            url: url,
             type: 'GET',
             data: '',
             headers: { 'X-CSRF-Token': csrf },
