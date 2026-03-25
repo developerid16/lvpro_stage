@@ -1499,6 +1499,30 @@
 
     });
 
+    $(document).on('input', 'input[name^="locations"][name$="[inventory_qty]"], #inventory_qty', function () {
+
+        let modal = $(this).closest('.modal');
+
+        let mainQty = parseInt(modal.find('#inventory_qty').val()) || 0;
+        let totalLocationQty = 0;
+
+        modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
+            let val = parseInt($(this).val()) || 0;
+            totalLocationQty += val;
+        });
+
+        if (totalLocationQty > mainQty) {
+            modal.find('.club-location-error').text('Location inventory exceeds total inventory');
+
+            // ❌ Optional: reset last changed field
+            $(this).val('');
+
+        } else {
+            modal.find('.club-location-error').text('');
+        }
+
+    });
+
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
