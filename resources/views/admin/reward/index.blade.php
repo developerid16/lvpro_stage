@@ -246,10 +246,7 @@
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                                 <span class="fw-bold"></span> ${loc.name}
                                             </label>
-                                            <input type="checkbox" 
-                                                name="locations[${loc.id}][selected]" 
-                                                value="1" 
-                                                class="form-check-input">
+                                            
                                         </div>
 
                                         <div class="d-flex align-items-center ms-3">
@@ -258,6 +255,7 @@
                                                 class="form-control"
                                                 name="locations[${loc.id}][inventory_qty]"
                                                 placeholder="Qty"
+                                                value="0"
                                                 style="max-width:100px">
                                         </div>
 

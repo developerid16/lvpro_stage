@@ -314,14 +314,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-12">
-                            <div class="mb-3">
-                                <label class="sh_dec">How to use <span class="required-hash"></span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="" data-original="{{ $data->how_to_use ?? '' }}">
-                                    {{ $data->how_to_use ?? '' }}
-                                </textarea>
-                            </div>
-                        </div>
+                       
 
 
                         <div class="col-12 col-md-12">
@@ -329,6 +322,15 @@
                                 <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
                                 <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="" data-original="{{ $data->term_of_use ?? '' }}">
                                     {{ $data->term_of_use ?? '' }}
+                                </textarea>
+                            </div>
+                        </div>
+                        
+                         <div class="col-12 col-md-12">
+                            <div class="mb-3">
+                                <label class="sh_dec">How to use <span class="required-hash"></span></label>
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="" data-original="{{ $data->how_to_use ?? '' }}">
+                                    {{ $data->how_to_use ?? '' }}
                                 </textarea>
                             </div>
                         </div>

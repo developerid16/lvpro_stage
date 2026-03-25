@@ -310,9 +310,7 @@
                                     <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                         <span class="fw-bold"></span> ${loc.name}
                                     </label>
-                                    <input type="checkbox" 
-                                        name="locations[${loc.id}][selected]" 
-                                        value="1" ${isChecked} class="form-check-input">
+                                  
                                 </div>
 
                                 <div class="d-flex align-items-center ms-3">
