@@ -68,6 +68,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\Models\Notification;
 
+use App\Http\View\Composers\NavigationComposer;
 
 
 class AppServiceProvider extends ServiceProvider
