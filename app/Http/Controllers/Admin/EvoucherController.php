@@ -234,7 +234,7 @@ class EvoucherController extends Controller
             $action = "<div class='d-flex gap-3'>";
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
 
-                if ($status == 'pending approval') {
+                if ($row->status === 'pending') {
 
                     $action .= "<a href='javascript:void(0)' 
                                     style='cursor:not-allowed;color:#b6b8c4 !important;'  

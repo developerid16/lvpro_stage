@@ -215,7 +215,7 @@ class RewardController extends Controller
 
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
 
-                if ($status == 'pending approval') {
+                if ($row->status === 'pending') {
 
                     $action .= "<a href='javascript:void(0)' 
                                     class='' 
