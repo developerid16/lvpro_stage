@@ -1509,6 +1509,7 @@
     $(document).on('blur', 'input[type=number]', function () {
         $(this).off('wheel.disableScroll');
     });
+    
 
 </script>
 
