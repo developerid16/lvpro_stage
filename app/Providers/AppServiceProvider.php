@@ -65,7 +65,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
-
+use App\Http\View\Composers\NavigationComposer;
 
 
 class AppServiceProvider extends ServiceProvider
