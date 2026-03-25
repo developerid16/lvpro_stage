@@ -66,9 +66,6 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
 
-// ✅ NEW: Import for NavigationComposer
-use Illuminate\Support\Facades\View;
-use App\Http\View\Composers\NavigationComposer;
 
 
 class AppServiceProvider extends ServiceProvider
