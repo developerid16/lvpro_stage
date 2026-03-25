@@ -310,9 +310,7 @@
                                     <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                         <span class="fw-bold"></span> ${loc.name}
                                     </label>
-                                    <input type="checkbox" 
-                                        name="locations[${loc.id}][selected]" 
-                                        value="1" ${isChecked} class="form-check-input">
+                                  
                                 </div>
 
                                 <div class="d-flex align-items-center ms-3">
@@ -424,7 +422,7 @@
                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Description <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="description" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="description" id="" data-original="{{ $data->description ?? '' }}">
                                     {{ $data->description ?? '' }}
                                 </textarea>
                             </div>
@@ -433,7 +431,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="" data-original="{{ $data->term_of_use ?? '' }}">
                                     {{ $data->term_of_use ?? '' }}
                                 </textarea>
                             </div>
@@ -442,7 +440,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">How to use <span class="required-hash"></span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="" data-original="{{ $data->how_to_use ?? '' }}">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
                             </div>

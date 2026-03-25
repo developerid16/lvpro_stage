@@ -595,5 +595,22 @@ $(document).ready(function () {
             window.location.href = '/login';
         }
     });
-   
+
+    $(document).on('click', '.view', function () {
+
+        let id = $(this).data('id');
+
+        $.ajax({
+            url: ModuleBaseUrl + id,
+            type: 'GET',
+            success: function (res) {
+
+                $('body').append(res.html);
+                $('#ViewModal').modal('show');
+
+            }
+        });
+
+    });
+    
 });

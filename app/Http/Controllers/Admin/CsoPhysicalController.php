@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Tier;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\AppUser;
 use App\Models\Purchase;
 use App\Models\VoucherLog;
 use Illuminate\Support\Facades\Auth;
@@ -143,6 +144,7 @@ class CsoPhysicalController extends Controller
                 1 => 'Physical',
                 default => '-',
             };
+            $user = AppUser::where('session_id', $row->member_id)->first();
 
             $final_data[] = [
                 'sr_no'               => $index,
@@ -154,7 +156,7 @@ class CsoPhysicalController extends Controller
                 'reward_type'          => $rewardType,
                 'status'              => $status,
                 'receipt_datetime'    => optional($row->created_at)->format(config('safra.date-format')),
-                'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('safra.date-format')) : '-',
+                'redeemed_datetime' => $row->redeemed_at ? $row->redeemed_at->format(config('safra.date-format')) . '<br>Issued by: ' . (optional($user)->name ?? '-') : '-',
                 'action'              => $action,
                 'remark'              => $row->remark,
             ];

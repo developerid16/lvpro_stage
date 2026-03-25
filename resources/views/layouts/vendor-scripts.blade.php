@@ -363,6 +363,7 @@
             altInput: true,
             altFormat: 'Y-m-d',
             allowInput: true,
+             minDate: "today"
         });
     });
 

@@ -214,6 +214,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     
     Route::get('/reward/get-locations/{merchant_id}', [RewardController::class, 'getMerchantLocations']);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
+    Route::get('/reward/{id}', [RewardController::class, 'show']);
     Route::get('/reward/get-participating-merchant-locations',[RewardController::class, 'getParticipatingMerchantLocations']);
 
     Route::resource('reward', RewardController::class);
@@ -362,6 +363,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('evoucher/push-member-voucher', [EvoucherController::class, 'pushMemberVoucher'])->name('pushMemberVoucher');
     Route::get('reward/get-dates/{id}', [EvoucherController::class, 'getDates']);
     Route::get('evoucher/datatable', [EvoucherController::class, 'datatable']);
+    Route::get('evoucher/{id}', [EvoucherController::class, 'show']);
     Route::resource('evoucher', EvoucherController::class);
 
     Route::get('birthday-voucher/get-club-locations-with-outlets', [BirthdayEvoucherController::class, 'getClubMerchantOutletStructure']);
