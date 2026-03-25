@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
+use App\Http\Controllers\Admin\DataMigrateController;
 use App\Http\Controllers\Admin\EvoucherController;
 use App\Http\Controllers\Admin\EvoucherStockController;
 use Illuminate\Support\Facades\Auth;
@@ -429,6 +430,16 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('fabs', FabsController::class);
 
     Route::post('/upload-csv', [RewardController::class, 'uploadCsv'])->name('upload.csv');
+    
+    // data-migrate
+    Route::prefix('data-migrate')->name('admin.data-migrate.')->group(function () {
+        Route::get('/', [DataMigrateController::class, 'index']);
+        Route::post('/upload', [DataMigrateController::class, 'upload'])->name('upload');
+
+        Route::get('/orders', [DataMigrateController::class, 'ordersIndex'])->name('ordersIndex');
+        Route::post('/orders-upload', [DataMigrateController::class, 'ordersUpload'])->name('ordersUpload');
+    });
+
+
+
 });
-
-

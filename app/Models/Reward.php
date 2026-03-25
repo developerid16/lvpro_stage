@@ -75,7 +75,8 @@ class Reward extends Model
         'added_by',
         'is_featured',
         'hide_catalogue',
-        'hide_cat_time'
+        'hide_cat_time',
+        'data_migrate_records',
     ];
 
     protected $casts = [
