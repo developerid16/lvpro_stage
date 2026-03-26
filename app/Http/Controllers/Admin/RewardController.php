@@ -430,9 +430,9 @@ class RewardController extends Controller
                     foreach ($request->locations as $locId => $locData) {
 
                         // Store ONLY if checkbox selected
-                        if (!isset($locData['selected'])) {
-                            continue; // skip unselected
-                        }
+                        // if (!isset($locData['selected'])) {
+                        //     continue; // skip unselected
+                        // }
 
                         RewardLocation::create([
                             'reward_id'     => $reward->id,
@@ -462,7 +462,14 @@ class RewardController extends Controller
 
                         foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                            if (!isset($locData['selected'])) {
+                            // if (!isset($locData['selected'])) {
+                            //     continue;
+                            // }
+
+                             $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                            // ❌ skip if 0 or less
+                            if ($qty <= 0) {
                                 continue;
                             }
 
@@ -686,32 +693,33 @@ class RewardController extends Controller
                 if ((int) $request->reward_type === 1) {
 
                     $rules['max_quantity_physical'] = 'required|integer|min:1';
-                    $rules['locations'] = 'required|array|min:1';
 
-                    $hasQty = false;
-
+                    // validate each location qty (optional but numeric)
                     foreach ($request->locations ?? [] as $locId => $locData) {
-
-                        if (!empty($locData['inventory_qty']) && $locData['inventory_qty'] > 0) {
-                            $hasQty = true;
-                        }
-
-                        // validate each field (optional)
                         $rules["locations.$locId.inventory_qty"] = 'nullable|integer|min:0';
                     }
 
                     $validator = Validator::make($request->all(), $rules, $messages);
 
-                    // 🔥 ONLY ADD ERROR IF NONE HAS VALUE
+                    // ✅ check: at least one qty > 0
+                    $hasQty = false;
+
+                    foreach ($request->locations ?? [] as $loc) {
+                        if ((int) ($loc['inventory_qty'] ?? 0) > 0) {
+                            $hasQty = true;
+                            break;
+                        }
+                    }
+
                     if (!$hasQty) {
                         $validator->after(function ($validator) {
-                            $validator->errors()->add('locations', 'At least one location must have inventory quantity greater than 0.');
+                            $validator->errors()->add('locations', 'At least one location qty must be greater than 0.');
                         });
                     }
 
                     if ($validator->fails()) {
                         return response()->json([
-                            'status' => 'error',
+                            'status' => false,
                             'errors' => $validator->errors()
                         ], 422);
                     }
@@ -721,24 +729,24 @@ class RewardController extends Controller
                 /* AFTER VALIDATION CHECK */
                 $validator->after(function ($validator) use ($request) {
 
-                    if ((int) $request->reward_type === 1) {
+                    // if ((int) $request->reward_type === 1) {
 
-                        $hasSelected = false;
+                    //     $hasSelected = false;
 
-                        foreach ($request->locations ?? [] as $locData) {
-                            if (!empty($locData['selected'])) {
-                                $hasSelected = true;
-                                break;
-                            }
-                        }
+                    //     foreach ($request->locations ?? [] as $locData) {
+                    //         if (!empty($locData['selected'])) {
+                    //             $hasSelected = true;
+                    //             break;
+                    //         }
+                    //     }
 
-                        if (!$hasSelected) {
-                            $validator->errors()->add(
-                                'locations',
-                                'Please select at least one location.'
-                            );
-                        }
-                    }
+                    //     if (!$hasSelected) {
+                    //         $validator->errors()->add(
+                    //             'locations',
+                    //             'Please select at least one location.'
+                    //         );
+                    //     }
+                    // }
                 });
 
                 /* FINAL CHECK */
@@ -1013,8 +1021,15 @@ class RewardController extends Controller
                     foreach ($request->locations as $locId => $locData) {
     
                         // Store ONLY if checkbox selected
-                        if (!isset($locData['selected'])) {
-                            continue; // skip unselected
+                        // if (!isset($locData['selected'])) {
+                        //     continue; // skip unselected
+                        // }
+
+                        $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                        // ❌ skip if 0 or less
+                        if ($qty <= 0) {
+                            continue;
                         }
     
                         RewardLocation::create([
@@ -1440,7 +1455,13 @@ class RewardController extends Controller
                     // Insert fresh
                     foreach ($request->locations as $locId => $locData) {
 
-                        if (!isset($locData['selected'])) {
+                        // if (!isset($locData['selected'])) {
+                        //     continue;
+                        // }
+                         $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                        // ❌ skip if 0 or less
+                        if ($qty <= 0) {
                             continue;
                         }
 
@@ -1801,42 +1822,42 @@ class RewardController extends Controller
             | 5) EXTRA CROSS VALIDATION
             |---------------------------------------------------*/
 
-            $validator->after(function ($validator) use ($request, $tiers, $rewardType) {
+                $validator->after(function ($validator) use ($request, $tiers, $rewardType) {
 
-    /* Physical → at least one location qty > 0 */
-    if ($rewardType === 1) {
+                /* Physical → at least one location qty > 0 */
+                if ($rewardType === 1) {
 
-        $hasQty = false;
+                    $hasQty = false;
 
-        foreach ($request->locations ?? [] as $locData) {
+                    foreach ($request->locations ?? [] as $locData) {
 
-            if (!empty($locData['inventory_qty']) && (int)$locData['inventory_qty'] > 0) {
-                $hasQty = true;
-                break;
-            }
-        }
+                        if (!empty($locData['inventory_qty']) && (int)$locData['inventory_qty'] > 0) {
+                            $hasQty = true;
+                            break;
+                        }
+                    }
 
-        if (!$hasQty) {
-            $validator->errors()->add(
-                'locations',
-                'Enter quantity in at least one location.'
-            );
-        }
-    }
+                    if (!$hasQty) {
+                        $validator->errors()->add(
+                            'locations',
+                            'Enter quantity in at least one location.'
+                        );
+                    }
+                }
 
-    /* Tier price must not exceed usual price */
-    foreach ($tiers as $tier) {
+                /* Tier price must not exceed usual price */
+                foreach ($tiers as $tier) {
 
-        $price = $request->input("tier_{$tier->id}");
+                    $price = $request->input("tier_{$tier->id}");
 
-        if ($price !== null && $price > $request->usual_price) {
-            $validator->errors()->add(
-                "tier_{$tier->id}",
-                "{$tier->tier_name} price cannot be greater than Usual Price"
-            );
-        }
-    }
-});
+                    if ($price !== null && $price > $request->usual_price) {
+                        $validator->errors()->add(
+                            "tier_{$tier->id}",
+                            "{$tier->tier_name} price cannot be greater than Usual Price"
+                        );
+                    }
+                }
+            });
 
 
             /* ---------------------------------------------------
@@ -2080,9 +2101,15 @@ class RewardController extends Controller
                         // Insert fresh
                         foreach ($request->locations as $locId => $locData) {
     
-                            if (!isset($locData['selected'])) {
+                            $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                            // ❌ skip if 0 or less
+                            if ($qty <= 0) {
                                 continue;
                             }
+                            // if (!isset($locData['selected'])) {
+                            //     continue;
+                            // }
     
                             RewardLocationUpdate::create([
                                 'reward_id'     => $reward->id,

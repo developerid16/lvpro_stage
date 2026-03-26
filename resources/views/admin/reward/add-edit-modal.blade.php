@@ -318,7 +318,7 @@
                                     <input type="number" min="0"
                                         class="form-control"
                                         name="locations[${loc.id}][inventory_qty]"
-                                        value="${qtyValue}"
+                                        value="${qtyValue || 0}"
                                         placeholder="Qty"
                                         style="max-width:100px">
                                 </div>
