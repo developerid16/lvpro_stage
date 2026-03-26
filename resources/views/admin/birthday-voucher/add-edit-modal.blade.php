@@ -70,9 +70,7 @@
 
         toggleFieldsBasedOnMonth(modal);
        
-        editToggleInventoryFields(modal);
-        editToggleClearingFields(modal);
-            
+       
        
         Object.keys(selectedOutlets).forEach(function (clubId) {
 
@@ -111,8 +109,8 @@
 
          // EDIT MODE
         if ($inventoryInput.val() !== '') {
-            $inventoryDiv.show();
-            $inventoryInput.prop('readonly', true);
+            // $inventoryDiv.show();
+            // $inventoryInput.prop('readonly', true);
         }
 
         // ON FILE CHANGE
@@ -136,7 +134,7 @@
             reader.readAsArrayBuffer(file);
         });
         
-        forceInventoryReadonly(modal);
+        // forceInventoryReadonly(modal);
        
     });
     
@@ -164,33 +162,33 @@
 
     function toggleFieldsBasedOnMonth(modal) {
 
-    let selectedMonth = "{{ $data->month ?? '' }}";
+        let selectedMonth = "{{ $data->month ?? '' }}";
 
-    let today = new Date();
-    let currentMonth = today.getFullYear() + '-' +
-        String(today.getMonth() + 1).padStart(2, '0');
+        let today = new Date();
+        let currentMonth = today.getFullYear() + '-' +
+            String(today.getMonth() + 1).padStart(2, '0');
 
-    if (selectedMonth === currentMonth) {
+        if (selectedMonth === currentMonth) {
 
-        // Disable everything first
-        modal.find('input, textarea, select, input[type="file"]')
-            .prop('disabled', true);
+            // Disable everything first
+            modal.find('input, textarea, select, input[type="file"]')
+                .prop('disabled', true);
 
-        // Enable only inventory_qty where value exists
-        modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
+            // Enable only inventory_qty where value exists
+            modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
 
-            let qty = $(this).val();
+                let qty = $(this).val();
 
-            if (qty && parseInt(qty) > 0) {
-                $(this).prop('disabled', false);
-            }
-        });
+                if (qty && parseInt(qty) > 0) {
+                    $(this).prop('disabled', false);
+                }
+            });
 
-        // Always enable system fields
-        modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]')
-            .prop('disabled', false);
+            // Always enable system fields
+            modal.find('input[name="_token"], input[name="_method"], input[name="parent_type"]')
+                .prop('disabled', false);
+        }
     }
-}
 
     // function toggleFieldsBasedOnMonth(modal) {
 

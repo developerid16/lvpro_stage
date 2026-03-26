@@ -377,29 +377,37 @@
 
 
         
+        // 🔹 LIVE typing → NO BLOCK
     $(document).on('input', 'input[name^="locations"][name$="[inventory_qty]"], #inventory_qty', function () {
 
-        let modal = $(this).closest('.modal');
+    let modal = $(this).closest('.modal');
 
-        let mainQty = parseInt(modal.find('#inventory_qty').val()) || 0;
-        let totalLocationQty = 0;
+    let mainQty = parseInt(modal.find('#inventory_qty').val()) || 0;
+    let totalLocationQty = 0;
 
-        modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
-            let val = parseInt($(this).val()) || 0;
-            totalLocationQty += val;
-        });
-
-        if (totalLocationQty > mainQty) {
-            modal.find('.club-location-error').text('Location inventory exceeds total inventory');
-
-            // ❌ Optional: reset last changed field
-            $(this).val('');
-
-        } else {
-            modal.find('.club-location-error').text('');
-        }
-
+    modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
+        totalLocationQty += parseInt($(this).val()) || 0;
     });
+
+    let submitBtn = modal.find('#submitBtnBV');
+
+    if (totalLocationQty > mainQty) {
+
+        modal.find('.club-location-error')
+            .text('Location inventory exceeds total inventory');
+
+        // ❌ disable button
+        submitBtn.prop('disabled', true);
+
+    } else {
+
+        modal.find('.club-location-error').text('');
+
+        // ✅ enable button
+        submitBtn.prop('disabled', false);
+    }
+
+});
 
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>

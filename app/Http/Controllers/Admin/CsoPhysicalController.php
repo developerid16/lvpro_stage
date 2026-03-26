@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use App\Models\Purchase;
+use App\Models\User;
 use App\Models\VoucherLog;
 use Illuminate\Support\Facades\Auth;
 
@@ -144,7 +145,7 @@ class CsoPhysicalController extends Controller
                 1 => 'Physical',
                 default => '-',
             };
-            $user = AppUser::where('session_id', $row->member_id)->first();
+            $user = User::where('id', $row->added_by)->first();
 
             $final_data[] = [
                 'sr_no'               => $index,
@@ -233,6 +234,7 @@ class CsoPhysicalController extends Controller
             'status'      => 'redeemed',
             'redeemed_at' => now(),
             'file'        => $pdfPath, // make sure column exists
+            'added_by'     => Auth::id(),
         ]);
 
         VoucherLog::create([

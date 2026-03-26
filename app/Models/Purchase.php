@@ -25,7 +25,8 @@ class Purchase extends Model
         'remark',
         'redeemed_at',
         'unique_code',
-        'file'
+        'file',
+        'added_by'
     ];
 
     public $table = 'purchases';
