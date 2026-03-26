@@ -386,6 +386,7 @@ class BirthdayVoucherApprovalController extends Controller
                     'csvFile'               => $update->csvFile,
                     'low_stock_1' => $update->low_stock_1,
                     'low_stock_2' => $update->low_stock_2,
+                    'status' => 'approved',
                 ]);
 
                 $update->update([

@@ -206,8 +206,29 @@ class BirthdayEvoucherController extends Controller
 
             $final_data[$key]['status'] = $status;
             $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            // }
+
             if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+
+                if ($row->status === 'pending') {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;'  
+                                    title='Editable only after approval'>
+                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                                </a>";
+
+                } else {
+
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='edit' 
+                                    data-id='$row->id'
+                                    title='Edit'>
+                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                                </a>";
+                }
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
@@ -1025,21 +1046,21 @@ class BirthdayEvoucherController extends Controller
             /* ===================================================
             | CREATE UPDATE REQUEST
             ===================================================*/
-            foreach ($rewards as $rw) {
+            foreach ($rewards as $reward) {
 
                 $data = [
                     'type' => '2',
 
                     // ✅ KEEP ORIGINAL MONTH
-                    'month' => $rw->month,
-                    'from_month' => $rw->month,
-                    'to_month' => $rw->month,
+                    'month' => $reward->month,
+                    'from_month' => $reward->month,
+                    'to_month' => $reward->month,
 
                     'request_by' => auth()->id(),
 
                     // ✅ apply changes only (not replicate everything blindly)
-                    'voucher_image' => $validated['voucher_image'] ?? $rw->voucher_image,
-                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $rw->voucher_detail_img,
+                    'voucher_image' => $validated['voucher_image'] ?? $reward->voucher_image,
+                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
 
                     'name' => $validated['name'],
                     'description' => $validated['description'],
@@ -1076,12 +1097,14 @@ class BirthdayEvoucherController extends Controller
 
                 RewardUpdateRequest::updateOrCreate(
                     [
-                        'reward_id' => $rw->id,
+                        'reward_id' => $reward->id,
                         'type' => '2',
                         'status' => 'pending',
                     ],
                     $data
                 );
+
+                $reward->update(['status'    => 'pending']);
             
                 /* -----------------------------------
                  | UPDATE PARTICIPATING OUTLETS (UPDATE TABLE)
