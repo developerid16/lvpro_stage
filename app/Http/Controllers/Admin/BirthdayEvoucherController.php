@@ -904,7 +904,8 @@ class BirthdayEvoucherController extends Controller
             }
 
             $validated = $validator->validated();
-                        /* ---------------------------------------------------
+            $applyAll = (int) $request->apply_all;
+            /* ---------------------------------------------------
             * CLUB LOCATION VALIDATION (UPDATE)
             * ---------------------------------------------------*/
 
@@ -1010,113 +1011,144 @@ class BirthdayEvoucherController extends Controller
                 $month = $month[0];
             }
 
+            if ($applyAll) {
+
+                // 👉 get all related records (same voucher group)
+                $rewards = Reward::where('month', '>=', now()->format('Y-m'))
+                    ->get();
+            } else {
+
+                // 👉 only current
+                $rewards = collect([$reward]);
+            }
+
             /* ===================================================
             | CREATE UPDATE REQUEST
             ===================================================*/
-            $data = [
-                'type'           => '2',
-                'month'       => $month,
-                'from_month'  => $month,
-                'to_month'    => $month,
-                'request_by'     => auth()->id(),
-                'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
-                'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
-                'name'           => $validated['name'],
-                'description'    => $validated['description'],
-                'term_of_use'    => $validated['term_of_use'],
-                'how_to_use'     => $validated['how_to_use'],
-                'merchant_id'    => $validated['merchant_id'],
-                'reward_type'    => 0,
-                'expiry_type' => $validated['expiry_type'],
-                'voucher_validity' => $validated['expiry_type'] === 'fixed' ? $validated['voucher_validity'] : null,
-                'validity_month' => $validated['expiry_type'] === 'validity'  ? $validated['validity_month'] : null,
-                'inventory_type'      => 0,
-                'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
-                'voucher_value'      =>(int) ($validated['voucher_value']),
-                'voucher_set'        =>(int) ($validated['voucher_set']),
-                'set_qty'            =>(int) ($validated['set_qty']),
-                'clearing_method'    =>(int) ($validated['clearing_method']),
-                'location_text'  => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
-                'hide_quantity'  => $request->hide_quantity ? 1 : 0,
-                'low_stock_1'    => $validated['low_stock_1'] ?? 0,
-                'low_stock_2'    => $validated['low_stock_2'] ?? 0,
-                'status'         => 'pending',
-            ];
+            foreach ($rewards as $rw) {
 
-            $updateRequest = RewardUpdateRequest::updateOrCreate(
-                [
-                    'reward_id' => $reward->id,
-                    'type'    => '2',
-                    'status'    => 'pending',
-                ],
-                $data
-            );
+                $data = [
+                    'type' => '2',
 
-           /* -----------------------------------
-            | UPDATE PARTICIPATING OUTLETS (UPDATE TABLE)
-            -----------------------------------*/
+                    // ✅ KEEP ORIGINAL MONTH
+                    'month' => $rw->month,
+                    'from_month' => $rw->month,
+                    'to_month' => $rw->month,
 
-            if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
+                    'request_by' => auth()->id(),
 
-                RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
-                foreach ($request->selected_outlets as $clubId => $outletIds) {
+                    // ✅ apply changes only (not replicate everything blindly)
+                    'voucher_image' => $validated['voucher_image'] ?? $rw->voucher_image,
+                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $rw->voucher_detail_img,
 
-                    if (empty($outletIds)) {
-                        continue;
-                    }
+                    'name' => $validated['name'],
+                    'description' => $validated['description'],
+                    'term_of_use' => $validated['term_of_use'],
+                    'how_to_use' => $validated['how_to_use'],
 
-                    foreach ($outletIds as $locId) {
+                    'merchant_id' => $validated['merchant_id'],
 
-                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)->value('participating_merchant_id');
+                    'expiry_type' => $validated['expiry_type'],
+                    'voucher_validity' => $validated['expiry_type'] === 'fixed'
+                        ? $validated['voucher_validity']
+                        : null,
 
-                        if (!$merchantId) {
-                            continue;
-                        }
+                    'validity_month' => $validated['expiry_type'] === 'validity'
+                        ? $validated['validity_month']
+                        : null,
 
-                        RewardParticipatingMerchantLocationUpdate::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId,
-                            'club_location_id' => $clubId,
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
-                       
-                    }
-                }
+                    'voucher_value' => (int)$validated['voucher_value'],
+                    'voucher_set' => (int)$validated['voucher_set'],
+                    'set_qty' => (int)$validated['set_qty'],
+
+                    'clearing_method' => (int)$validated['clearing_method'],
+
+                    'location_text' => $request->location_text,
+                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+
+                    'hide_quantity' => $request->hide_quantity ? 1 : 0,
+
+                    'low_stock_1' => $validated['low_stock_1'] ?? 0,
+                    'low_stock_2' => $validated['low_stock_2'] ?? 0,
+
+                    'status' => 'pending',
+                ];
+
+                RewardUpdateRequest::updateOrCreate(
+                    [
+                        'reward_id' => $rw->id,
+                        'type' => '2',
+                        'status' => 'pending',
+                    ],
+                    $data
+                );
+            
+                /* -----------------------------------
+                 | UPDATE PARTICIPATING OUTLETS (UPDATE TABLE)
+                 -----------------------------------*/
+     
+                 if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
+     
+                     RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+                     foreach ($request->selected_outlets as $clubId => $outletIds) {
+     
+                         if (empty($outletIds)) {
+                             continue;
+                         }
+     
+                         foreach ($outletIds as $locId) {
+     
+                             $merchantId = ParticipatingMerchantLocation::where('id', $locId)->value('participating_merchant_id');
+     
+                             if (!$merchantId) {
+                                 continue;
+                             }
+     
+                             RewardParticipatingMerchantLocationUpdate::create([
+                                 'reward_id'                 => $reward->id,
+                                 'participating_merchant_id' => $merchantId,
+                                 'club_location_id' => $clubId,
+                                 'location_id'               => $locId,
+                                 'is_selected'               => 1,
+                             ]);
+                            
+                         }
+                     }
+                 }
+     
+     
+                 /* -----------------------------------
+                 | UPDATE CLUB INVENTORY (UPDATE TABLE)
+                 -----------------------------------*/
+     
+                 if (!empty($request->locations)) {
+     
+                     foreach ($request->locations as $clubId => $clubData) {
+     
+                         $inventoryQty = isset($clubData['inventory_qty'])
+                             ? (int) $clubData['inventory_qty']
+                             : 0;
+     
+                         if ($inventoryQty <= 0) {
+                             continue;
+                         }
+     
+                         RewardLocationUpdate::updateOrCreate(
+                             [
+                                 'reward_id'   => $reward->id,
+                                 'location_id' => $clubId,
+                             ],
+                             [
+                                 'merchant_id'   => $validated['merchant_id'],
+                                 'is_selected'   => 1,
+                                 'inventory_qty' => $inventoryQty,
+                                 'total_qty'     => $inventoryQty,
+                             ]
+                         );
+                     }
+                 }
             }
 
-
-            /* -----------------------------------
-            | UPDATE CLUB INVENTORY (UPDATE TABLE)
-            -----------------------------------*/
-
-            if (!empty($request->locations)) {
-
-                foreach ($request->locations as $clubId => $clubData) {
-
-                    $inventoryQty = isset($clubData['inventory_qty'])
-                        ? (int) $clubData['inventory_qty']
-                        : 0;
-
-                    if ($inventoryQty <= 0) {
-                        continue;
-                    }
-
-                    RewardLocationUpdate::updateOrCreate(
-                        [
-                            'reward_id'   => $reward->id,
-                            'location_id' => $clubId,
-                        ],
-                        [
-                            'merchant_id'   => $validated['merchant_id'],
-                            'is_selected'   => 1,
-                            'inventory_qty' => $inventoryQty,
-                            'total_qty'     => $inventoryQty,
-                        ]
-                    );
-                }
-            }
 
 
 
@@ -1163,14 +1195,41 @@ class BirthdayEvoucherController extends Controller
             // }
 
         
-            if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_image));
+            $imagePath = public_path('uploads/image/' . $reward->voucher_image);
+
+            if ($reward->voucher_image && file_exists($imagePath)) {
+
+                $exists = Reward::where('voucher_image', $reward->voucher_image)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($imagePath);
+                }
             }
-            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
+           $imagePath = public_path('uploads/image/' . $reward->voucher_image);
+
+            if ($reward->voucher_image && file_exists($imagePath)) {
+
+                $exists = Reward::where('voucher_image', $reward->voucher_image)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($imagePath);
+                }
             }
-            if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
-                unlink(public_path('uploads/csv/' . $reward->csvFile));
+            $csvPath = public_path('uploads/csv/' . $reward->csvFile);
+
+            if ($reward->csvFile && file_exists($csvPath)) {
+
+                $exists = Reward::where('csvFile', $reward->csvFile)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($csvPath);
+                }
             }
            
             RewardUpdateRequest::where('reward_id', $reward->id)->delete();
