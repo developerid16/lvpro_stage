@@ -1068,6 +1068,7 @@ class BirthdayEvoucherController extends Controller
                     'how_to_use' => $validated['how_to_use'],
 
                     'merchant_id' => $validated['merchant_id'],
+                    'inventory_qty' => $validated['inventory_qty'],
 
                     'expiry_type' => $validated['expiry_type'],
                     'voucher_validity' => $validated['expiry_type'] === 'fixed'
