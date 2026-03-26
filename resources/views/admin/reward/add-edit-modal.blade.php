@@ -669,7 +669,7 @@
 
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="inventory_qty">Total no. of vouchers/codes <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                         <input id="inventory_qty" type="number" min="0"  step="1" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                                     </div>
                                 </div>
@@ -688,7 +688,7 @@
 
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="set_qty">Total no. of sets on sale <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                         <input id="set_qty"  step="1" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                                     </div>
                                 </div>

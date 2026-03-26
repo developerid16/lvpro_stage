@@ -601,9 +601,14 @@ class EvoucherController extends Controller
                     'sales_end.after_or_equal'      => 'Redemption end date & time must be on or after Redemption start date & time.',
                     'sales_end.before_or_equal'     => 'Redemption end date & time must be on or before Publish end date & time.',
                     
-                    'set_qty.required' => 'Voucher set quantity is required.',
-                    'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                    'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                    'set_qty.required' => 'Total no. of sets available for issuance is required.',
+                    'set_qty.integer'  => 'Total no. of sets available for issuance must be a valid number.',
+                    'set_qty.min'      => 'Total no. of sets available for issuance must be at least 1.',
+
+                    'voucher_set.required' => 'No. of vouchers/codes per set, per member is required.',
+                    'voucher_set.integer'  => 'No. of vouchers/codes per set, per member must be a valid number.',
+                    'voucher_set.min'      => 'No. of vouchers/codes per set, per member must be at least 1.',
+
                     'term_of_use.required' => 'Voucher T&C is required',
                     'voucher_detail_img.required' => 'Voucher Detail Image is required',
                     'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -617,6 +622,8 @@ class EvoucherController extends Controller
                 --------------------------------------------------- */
                 if ((int) $request->inventory_type === 0) {
                     $rules['inventory_qty'] = 'required|integer|min:1';
+                    $messages['inventory_qty.required'] = 'Total no. of vouchers/codes is required.';
+
                 }
     
                 if ((int) $request->inventory_type === 1) {
@@ -1367,9 +1374,13 @@ class EvoucherController extends Controller
                 'validity_month.min' => 'Validity period must be at least 1 month.',
                 'validity_month.max' => 'Validity period may not be greater than 24 months.',
 
-                'set_qty.required' => 'Voucher set quantity is required.',
-                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                'voucher_set.required' => 'No. of vouchers/codes per set, per member is required.',
+                'voucher_set.integer'  => 'No. of vouchers/codes per set, per member must be a valid number.',
+                'voucher_set.min'      => 'No. of vouchers/codes per set, per member must be at least 1.',
+
+                'set_qty.required' => 'Total no. of sets available for issuance is required.',
+                'set_qty.integer'  => 'Total no. of sets available for issuance must be a valid number.',
+                'set_qty.min'      => 'Total no. of sets available for issuance must be at least 1.',
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -1383,6 +1394,7 @@ class EvoucherController extends Controller
             -------------------------------------------- */
             if ((int) $request->inventory_type === 0) {
                 $rules['inventory_qty'] = 'required|integer|min:1';
+                $messages['inventory_qty.required'] = 'Total no. of vouchers/codes is required.';
             }
 
             if ($request->inventory_type == 1) {

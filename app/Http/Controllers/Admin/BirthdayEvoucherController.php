@@ -446,16 +446,24 @@ class BirthdayEvoucherController extends Controller
             
 
             foreach ($months as $monthValue) {
-                if ($request->hasFile('voucher_image')) {
+               
+                if ($request->hasFile('voucher_image') && $request->file('voucher_image')->isValid()) {
+
                     $file = $request->file('voucher_image');
                     $filename = generateHashFileName($file);
-                    // $filename = time().'_'.$file->getClientOriginalName();
-                    $file->move(public_path('uploads/image'), $filename);
+
+                    $path = public_path('uploads/image');
+
+                    if (!is_dir($path)) {
+                        mkdir($path, 0775, true);
+                    }
+
+                    $file->move($path, $filename);
+
                     $validated['voucher_image'] = $filename;
                 }
 
-
-                if ($request->hasFile('voucher_detail_img')) {
+                if ($request->hasFile('voucher_detail_img') && $request->file('voucher_detail_img')->isValid()) {
 
                     $path = public_path('uploads/image');
 

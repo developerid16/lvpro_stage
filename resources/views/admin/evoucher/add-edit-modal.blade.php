@@ -436,13 +436,13 @@
 
                             <select name="expiry_type" id="expiry_type" class="form-control">
                                 <option value="">Select Expiry Type</option>
-                                <option value="fixed" {{ ($data?->expiry_type ?? '') == 'fixed' ? 'selected' : '' }}>
+                                <option value="fixed" {{ ($data?->expiry_type ?? '') === 'fixed' ? 'selected' : '' }}>
                                     Fixed Expiry Date
                                 </option>
-                                <option value="validity" {{ ($data?->expiry_type ?? '') == 'validity' ? 'selected' : '' }}>
+                                <option value="validity" {{ ($data?->expiry_type ?? '') === 'validity' ? 'selected' : '' }}>
                                     Validity Period (from redemption)
                                 </option>
-                                <option value="no_expiry" {{ ($data?->expiry_type ?? '') == 'no_expiry' ? 'selected' : '' }}>
+                                <option value="no_expiry" {{ ($data?->expiry_type ?? '') === 'no_expiry' ? 'selected' : '' }}>
                                     No Expiry
                                 </option>
                             </select>
@@ -508,7 +508,7 @@
 
                         <div class="col-12 col-md-6 inventory_qty" style="display: none">
                             <div class="mb-3">
-                                <label class="sh_dec" for="inventory_qty">Inventory Qty <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="inventory_qty">Total no. of vouchers/codes <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="inventory_qty" type="number" min="0"  step="1" placeholder="Enter Inventory Qty" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                             </div>
                         </div>
@@ -522,14 +522,14 @@
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="voucher_set">No. of Vouchers per set <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="voucher_set">No. of vouchers/codes per set, per member <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="voucher_set" type="number" min="0"  step="1"  placeholder="Enter Voucher Set" class="sh_dec form-control"   name="voucher_set" value="{{ $data->voucher_set ?? '' }}"> 
                             </div>
                         </div>
 
                         <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                <label class="sh_dec" for="set_qty">Total no. of sets available for issuance <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                 <input id="set_qty" type="number" min="0" readonly  step="1"  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                             </div>
                         </div>

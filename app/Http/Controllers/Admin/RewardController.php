@@ -627,9 +627,9 @@ class RewardController extends Controller
                     'validity_month.min' => 'Validity period must be at least 1 month.',
                     'validity_month.max' => 'Validity period may not be greater than 24 months.',
                        
-                    'set_qty.required' => 'Voucher set quantity is required.',
-                    'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                    'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                    'set_qty.required' => 'Total no. of sets on sale is required.',
+                    'set_qty.integer'  => 'Total no. of sets on sale must be a valid number.',
+                    'set_qty.min'      => 'Total no. of sets on sale must be at least 1.',
                     
                     'term_of_use.required' => 'Voucher T&C is required',
                     'voucher_detail_img.required' => 'Voucher Detail Image is required',
@@ -657,9 +657,9 @@ class RewardController extends Controller
                 if ((int) $request->reward_type == 0) {
                     $rules['voucher_set']         = 'required|numeric|min:1';   
                     $rules['set_qty']         = 'required|numeric|min:1';
-                    $messages['set_qty.required'] = 'Voucher set quantity is required.';
-                    $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
-                    $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
+                    $messages['set_qty.required'] = 'Total no. of sets on sale is required.';
+                    $messages['set_qty.numeric']  = 'Total no. of sets on sale must be a valid number.';
+                    $messages['set_qty.min']      = 'Total no. of sets on sale must be at least 1.';
                 }
                 
                 $validator = Validator::make($request->all(), $rules, $messages);
@@ -774,9 +774,9 @@ class RewardController extends Controller
                         $messages['location_text.required'] = 'Location is required';
 
                     }
-                    if ((int) $request->inventory_type === 0) {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    }
+                    $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
+                    $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
+                    $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
                 }
 
 
@@ -1710,9 +1710,9 @@ class RewardController extends Controller
                 'validity_month.min' => 'Validity period must be at least 1 month.',
                 'validity_month.max' => 'Validity period may not be greater than 24 months.',
                     
-                'set_qty.required' => 'Voucher set quantity is required.',
-                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                'set_qty.required' => 'Total no. of sets on sale is required.',
+                'set_qty.integer'  => 'Total no. of sets on sale must be a valid number.',
+                'set_qty.min'      => 'Total no. of sets on sale must be at least 1.',
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -1769,13 +1769,14 @@ class RewardController extends Controller
                 $rules['inventory_type']       = 'required|in:0,1';
                 $rules['voucher_value']        = 'required|numeric|min:1';
                 $rules['clearing_method']      = 'required|in:0,1,2,3,4';
-                $messages['set_qty.required'] = 'Voucher set quantity is required.';
-                $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
-                $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
+                $messages['set_qty.required'] = 'Total no. of sets on sale is required.';
+                $messages['set_qty.numeric']  = 'Total no. of sets on sale must be a valid number.';
+                $messages['set_qty.min']      = 'Total no. of sets on sale must be at least 1.';
 
                 /* Inventory Type Based */
                 $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
-                $messages['inventory_qty.required_if'] = 'Internal/External is required';
+                $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
+                $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
 
                 /* Clearing Method Based */
                 if ($clearingMethod === 2) {
