@@ -646,6 +646,10 @@ class RewardController extends Controller
     
                 /* ---------------- TIER RULES ---------------- */
     
+                $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
+                $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
+                $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
+
                 foreach ($tiers as $tier) {
                     $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
                     $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
@@ -774,11 +778,8 @@ class RewardController extends Controller
                         $messages['location_text.required'] = 'Location is required';
 
                     }
-                    $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
-                    $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
-                    $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
                 }
-
+              
 
                 foreach ($tiers as $tier) {
                     $price = $request->input("tier_{$tier->id}");
