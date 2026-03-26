@@ -161,7 +161,7 @@
             }
         });
     });
-
+   
     $(document).on('click', '.issue-btn', function () {
 
         let id = $(this).data('id');
@@ -169,7 +169,8 @@
 
         $('#issue_purchase_id').val(id);
         $('#issue_receipt_no').text(receipt);
-        $('#issueForm')[0].reset();
+
+        $('#issueForm').trigger('reset'); // safe
 
         $('#issueModal').modal('show');
     });
