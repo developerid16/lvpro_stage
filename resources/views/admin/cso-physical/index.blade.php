@@ -77,9 +77,9 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
+@endcan
 @include('admin.cso-physical.view')
 @include('admin.cso-physical.issue')
-@endcan
 <!-- end modal -->
 @endsection
 
@@ -161,7 +161,7 @@
             }
         });
     });
-   
+
     $(document).on('click', '.issue-btn', function () {
 
         let id = $(this).data('id');
@@ -169,8 +169,7 @@
 
         $('#issue_purchase_id').val(id);
         $('#issue_receipt_no').text(receipt);
-
-        $('#issueForm').trigger('reset'); // safe
+        $('#issueForm')[0].reset();
 
         $('#issueModal').modal('show');
     });
