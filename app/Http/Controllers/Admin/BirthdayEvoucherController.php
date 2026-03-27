@@ -214,11 +214,17 @@ class BirthdayEvoucherController extends Controller
 
                 if ($row->status === 'pending') {
 
+                    // $action .= "<a href='javascript:void(0)' 
+                    //                 style='cursor:not-allowed;color:#b6b8c4 !important;'  
+                    //                 title='Editable only after approval'>
+                    //                 <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                    //             </a>";
+
                     $action .= "<a href='javascript:void(0)' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;'  
-                                    title='Editable only after approval'>
-                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
-                                </a>";
+                            class='view ms-2' 
+                            data-id='{$row->id}'>
+                            <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                        </a>";
 
                 } else {
 
@@ -230,6 +236,9 @@ class BirthdayEvoucherController extends Controller
                                 </a>";
                 }
             }
+
+            
+        
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
@@ -675,10 +684,80 @@ class BirthdayEvoucherController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        abort(404);
+   public function show(string $id)
+{
+    $reward = Reward::with([
+        'participatingLocations',
+        'rewardLocations',
+        'merchant'
+    ])->findOrFail($id);
+
+    $data['data'] = $reward;
+
+    // -------------------------------
+    // CLUB INVENTORY (location_id = club)
+    // -------------------------------
+    $clubInventory = $reward->rewardLocations
+        ->mapWithKeys(function ($item) {
+            return [
+                $item->location_id => $item->inventory_qty
+            ];
+        });
+
+    // -------------------------------
+    // SELECTED CLUBS
+    // -------------------------------
+    $selectedClubIds = $reward->rewardLocations
+        ->pluck('location_id') // ✅ correct
+        ->unique()
+        ->values();
+
+    $data['club_location'] = ClubLocation::whereIn('id', $selectedClubIds)
+        ->select('id','name')
+        ->get();
+
+    // -------------------------------
+    // MERCHANT MAP
+    // -------------------------------
+    $merchantMap = ParticipatingMerchant::pluck('name','id');
+
+    // -------------------------------
+    // OUTLET MAP
+    // -------------------------------
+    $locationMap = ParticipatingMerchantLocation::pluck('name','id');
+
+    // -------------------------------
+    // GROUP DATA (CLUB → MERCHANT → OUTLETS)
+    // -------------------------------
+    $clubMerchants = [];
+
+    foreach ($reward->participatingLocations as $item) {
+
+        $clubId = $item->club_location_id; // ✅ correct here
+        $merchantId = $item->participating_merchant_id; // ✅ correct column
+
+        $clubMerchants[$clubId][$merchantId]['merchant_name'] =
+            $merchantMap[$merchantId] ?? '';
+
+        $clubMerchants[$clubId][$merchantId]['outlets'][] = [
+            'id' => $item->location_id,
+            'name' => $locationMap[$item->location_id] ?? ''
+        ];
     }
+
+    $data['clubInventory'] = $clubInventory;
+    $data['clubMerchants'] = $clubMerchants;
+
+    // -------------------------------
+    // RENDER
+    // -------------------------------
+    $html = view($this->view_file_path . 'view', $data)->render();
+
+    return response()->json([
+        'status' => 'success',
+        'html' => $html
+    ]);
+}
 
     function normalizeTime($time)
     {

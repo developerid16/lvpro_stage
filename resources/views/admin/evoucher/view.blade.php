@@ -1,199 +1,242 @@
 <div class="modal fade" id="ViewModal" data-bs-backdrop="static">
-<div class="modal-dialog modal-dialog-centered modal-lg">
-<div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
 
-<div class="modal-header">
-    <h5 class="modal-title">View Reward</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
+            <div class="modal-header">
+                <h5 class="modal-title">View Reward</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="max-height:80vh; overflow:auto;">
+                <form>
+                    <div class="row">
 
-<div class="modal-body" style="max-height:80vh; overflow:auto;">
+                    <!-- Push -->
+                    <div class="col-md-6 mb-3">
+                    <label>Push Method</label>
+                    <input type="text" class="form-control"
+                    value="{{ match($data->cso_method){
+                        4=>'All Members',
+                        0=>'CSO Issuance',
+                        1=>'Push Voucher by Member ID',
+                        2=>'Push Voucher by Parameter',
+                        3=>'Push by API SRP',
+                        default=>''
+                    } }}" readonly>
+                    </div>
 
-<form>
+                    <!-- Name -->
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Name</label>
+                    <input type="text" class="form-control" value="{{ $data->name }}" readonly>
+                    </div>
 
-<div class="row">
+                    <!-- Images -->
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Catalogue Image</label><br>
+                    <img src="{{ imageExists('uploads/image/'.$data->voucher_image) }}" width="80">
+                    </div>
 
-<!-- Push -->
-<div class="col-md-6 mb-3">
-<label>Push Method</label>
-<select class="form-control" disabled>
-<option {{ $data->cso_method == 4 ? 'selected' : '' }}>All Members</option>
-<option {{ $data->cso_method == 5 ? 'selected' : '' }}>CSO Issuance</option>
-</select>
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Details Image</label><br>
+                    <img src="{{ imageExists('uploads/image/'.$data->voucher_detail_img) }}" width="80">
+                    </div>
 
-<!-- Name -->
-<div class="col-md-6 mb-3">
-<label>Name</label>
-<input type="text" class="form-control" value="{{ $data->name }}" readonly>
-</div>
+                    <!-- Description -->
+                    <div class="col-md-12 mb-3">
+                    <label>Description</label>
+                    <textarea class="form-control" readonly>{!! strip_tags($data->description) !!}</textarea>
+                    </div>
 
-<!-- Image -->
-<div class="col-md-6 mb-3">
-<label>Voucher Image</label><br>
-<img src="{{ imageExists('uploads/image/'.$data->voucher_image) }}" width="80">
-</div>
+                    <div class="col-md-12 mb-3">
+                    <label>Voucher T&C</label>
+                    <textarea class="form-control" readonly>{!! strip_tags($data->term_of_use) !!}</textarea>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Detail Image</label><br>
-<img src="{{ imageExists('uploads/image/'.$data->voucher_detail_img) }}" width="80">
-</div>
+                    <div class="col-md-12 mb-3">
+                    <label>How to use</label>
+                    <textarea class="form-control" readonly>{!! strip_tags($data->how_to_use) !!}</textarea>
+                    </div>
 
-<!-- Description -->
-<div class="col-md-12 mb-3">
-<label>Description</label>
-<textarea class="form-control" readonly>{!! strip_tags($data->description) !!}</textarea>
-</div>
+                    <!-- Merchant -->
+                    <div class="col-md-6 mb-3">
+                    <label>Merchant</label>
+                    <input type="text" class="form-control" value="{{ $data->merchant->name ?? '' }}" readonly>
+                    </div>
 
-<!-- Merchant -->
-<div class="col-md-6 mb-3">
-<label>Merchant</label>
-<input type="text" class="form-control" value="{{ $data->merchant->name ?? '' }}" readonly>
-</div>
+                    <!-- Voucher Type -->
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Type</label>
+                    <input type="text" class="form-control" value="e-Voucher" readonly>
+                    </div>
 
-<!-- Type -->
-<div class="col-md-6 mb-3">
-<label>Voucher Type</label>
-<select class="form-control reward_type" disabled>
-<option value="0" {{ $data->reward_type==0?'selected':'' }}>Digital</option>
-<option value="1" {{ $data->reward_type==1?'selected':'' }}>Physical</option>
-</select>
-</div>
+                    <!-- Direct Utilization -->
+                    <div class="col-md-6 mb-3">
+                    <label>Direct Utilization</label>
+                    <input type="text" class="form-control" value="{{ $data->direct_utilization ? 'Yes':'No' }}" readonly>
+                    </div>
 
-<!-- Expiry -->
-<div class="col-md-6 mb-3">
-<label>Expiry Type</label>
-<select id="expiry_type" class="form-control" disabled>
-<option value="fixed" {{ $data->expiry_type=='fixed'?'selected':'' }}>Fixed</option>
-<option value="validity" {{ $data->expiry_type=='validity'?'selected':'' }}>Validity</option>
-<option value="no_expiry" {{ $data->expiry_type=='no_expiry'?'selected':'' }}>No Expiry</option>
-</select>
-</div>
+                   <!-- 🔥 DATE & TIME (same as add form) -->
+                    <div class="col-12">
+                        <label><b>Date & Time</b></label>
 
-<div class="col-md-6 mb-3" id="fixed_expiry_div">
-<label>Expiry Date</label>
-<input type="text" class="form-control" value="{{ $data->voucher_validity }}" readonly>
-</div>
+                        <div class="row">
 
-<div class="col-md-6 mb-3" id="validity_period_div">
-<label>Validity Month</label>
-<input type="text" class="form-control" value="{{ $data->validity_month }}" readonly>
-</div>
+                            <!-- Publish Start -->
+                            <div class="col-md-6 mb-3">
+                                <label>Publish Start Date & Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->publish_start_date }} {{ $data->publish_start_time }}" readonly>
+                            </div>
 
-<!-- Dates -->
-<div class="col-md-6 mb-3">
-<label>Publish</label>
-<input type="text" class="form-control"
-value="{{ $data->publish_start_date }} {{ $data->publish_start_time }} → {{ $data->publish_end_date }} {{ $data->publish_end_time }}" readonly>
-</div>
+                            <!-- Publish End -->
+                            <div class="col-md-6 mb-3">
+                                <label>Publish End Date & Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->publish_end_date }} {{ $data->publish_end_time }}" readonly>
+                            </div>
 
-<div class="col-md-6 mb-3">
-<label>Sales</label>
-<input type="text" class="form-control"
-value="{{ $data->sales_start_date }} {{ $data->sales_start_time }} → {{ $data->sales_end_date }} {{ $data->sales_end_time }}" readonly>
-</div>
+                            <!-- Redemption Start -->
+                            <div class="col-md-6 mb-3">
+                                <label>Redemption Start Date & Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->sales_start_date }} {{ $data->sales_start_time }}" readonly>
+                            </div>
 
-<!-- Price -->
-<div class="col-md-6 mb-3">
-<label>Usual Price</label>
-<input type="text" class="form-control" value="{{ $data->usual_price }}" readonly>
-</div>
+                            <!-- Redemption End -->
+                            <div class="col-md-6 mb-3">
+                                <label>Redemption End Date & Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->sales_end_date }} {{ $data->sales_end_time }}" readonly>
+                            </div>
 
-<div class="col-md-6 mb-3">
-<label>Max Qty</label>
-<input type="text" class="form-control" value="{{ $data->max_quantity }}" readonly>
-</div>
+                            <!-- Usage Days -->
+                            <div class="col-md-12 mb-3">
+                                <label>Usage Days</label>
+                               <input type="text" class="form-control"
+                                value="{{ implode(', ', is_array($data->days) ? $data->days : json_decode($data->days ?? '[]', true)) }}" readonly>
+                            </div>
 
-<!-- DIGITAL -->
-<div id="digital" style="{{ $data->reward_type==0?'':'display:none' }}">
+                            <!-- Usage Time -->
+                            <div class="col-md-6 mb-3">
+                                <label>Usage Start Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->start_time }}" readonly>
+                            </div>
 
-<div class="col-md-6 mb-3">
-<label>Inventory Type</label>
-<input type="text" class="form-control"
-value="{{ $data->inventory_type==0?'Internal':'External' }}" readonly>
-</div>
+                            <div class="col-md-6 mb-3">
+                                <label>Usage End Time</label>
+                                <input type="text" class="form-control"
+                                    value="{{ $data->end_time }}" readonly>
+                            </div>
 
-<div class="col-md-6 mb-3">
-<label>Inventory Qty</label>
-<input type="text" class="form-control" value="{{ $data->inventory_qty }}" readonly>
-</div>
+                        </div>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Voucher Value</label>
-<input type="text" class="form-control" value="{{ $data->voucher_value }}" readonly>
-</div>
+                    <!-- Expiry -->
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Expiry Type</label>
+                    <input type="text" class="form-control"
+                    value="{{ ucfirst(str_replace('_',' ',$data->expiry_type)) }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Voucher Set</label>
-<input type="text" class="form-control" value="{{ $data->voucher_set }}" readonly>
-</div>
+                    @if($data->expiry_type == 'fixed')
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Validity Date</label>
+                    <input type="text" class="form-control" value="{{ $data->voucher_validity }}" readonly>
+                    </div>
+                    @endif
 
-<div class="col-md-6 mb-3">
-<label>Set Qty</label>
-<input type="text" class="form-control" value="{{ $data->set_qty }}" readonly>
-</div>
+                    @if($data->expiry_type == 'validity')
+                    <div class="col-md-6 mb-3">
+                    <label>Validity Period</label>
+                    <input type="text" class="form-control" value="{{ $data->validity_month }}" readonly>
+                    </div>
+                    @endif
 
-<div class="col-md-6 mb-3">
-<label>Clearing</label>
-<input type="text" class="form-control"
-value="{{ ['QR','Barcode','Merchant','Link','Code'][$data->clearing_method] ?? '' }}" readonly>
-</div>
+                    <!-- Inventory -->
+                    <div class="col-md-6 mb-3">
+                    <label>Internal/External</label>
+                    <input type="text" class="form-control"
+                    value="{{ $data->inventory_type==0?'Internal':'External' }}" readonly>
+                    </div>
 
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Total no. of vouchers/codes</label>
+                    <input type="text" class="form-control" value="{{ $data->inventory_qty }}" readonly>
+                    </div>
 
-<!-- PHYSICAL -->
-<div id="location_section" style="{{ $data->reward_type==1?'':'display:none' }}">
+                    <!-- Voucher -->
+                    <div class="col-md-6 mb-3">
+                    <label>Voucher Value ($)</label>
+                    <input type="text" class="form-control" value="{{ $data->voucher_value }}" readonly>
+                    </div>
 
-@foreach($savedLocations as $id=>$qty)
-<div class="col-md-6 mb-2">
-<input type="text" class="form-control"
-value="Location {{ $id }} → Qty {{ $qty }}" readonly>
-</div>
-@endforeach
+                    <div class="col-md-6 mb-3">
+                    <label>No. of vouchers/codes per set, per member</label>
+                    <input type="text" class="form-control" value="{{ $data->voucher_set }}" readonly>
+                    </div>
 
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Total no. of sets available for issuance</label>
+                    <input type="text" class="form-control" value="{{ $data->set_qty }}" readonly>
+                    </div>
 
-<!-- SETTINGS -->
-<div class="col-md-6 mb-3">
-<label>Hide Qty</label>
-<input type="text" class="form-control" value="{{ $data->hide_quantity?'Yes':'No' }}" readonly>
-</div>
+                    <!-- Clearing -->
+                    <div class="col-md-6 mb-3">
+                    <label>Clearing Methods</label>
+                    <input type="text" class="form-control"
+                    value="{{ ['QR Code','Barcode','Merchant Code','External Link','External Code'][$data->clearing_method] ?? '' }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Low Stock 1</label>
-<input type="text" class="form-control" value="{{ $data->low_stock_1 }}" readonly>
-</div>
+                  
+                    <!-- Settings -->
+                    <div class="col-md-6 mb-3">
+                    <label>Hide Quantity</label>
+                    <input type="text" class="form-control" value="{{ $data->hide_quantity?'Yes':'No' }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Low Stock 2</label>
-<input type="text" class="form-control" value="{{ $data->low_stock_2 }}" readonly>
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Low Stock Reminder 1</label>
+                    <input type="text" class="form-control" value="{{ $data->low_stock_1 }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Friendly URL</label>
-<input type="text" class="form-control" value="{{ $data->friendly_url }}" readonly>
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Low Stock Reminder 2</label>
+                    <input type="text" class="form-control" value="{{ $data->low_stock_2 }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>AX Code</label>
-<input type="text" class="form-control" value="{{ $data->ax_item_code }}" readonly>
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Friendly URL Name</label>
+                    <input type="text" class="form-control" value="{{ $data->friendly_url }}" readonly>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Suspend Deal</label>
-<input type="text" class="form-control" value="{{ $data->suspend_deal?'Yes':'No' }}" readonly>
-</div>
+                      <!-- Category -->
+                    <div class="col-md-6 mb-3">
+                    <label>Category</label>
+                   <select class="form-control" disabled>
+                    @foreach ($category as $cat)
+                    <option value="{{ $cat->id }}"
+                    {{ $data->category_id == $cat->id ? 'selected' : '' }}>
+                    {{ $cat->name }}
+                    </option>
+                    @endforeach
+                    </select>
+                    </div>
 
-<div class="col-md-6 mb-3">
-<label>Suspend Voucher</label>
-<input type="text" class="form-control" value="{{ $data->suspend_voucher?'Yes':'No' }}" readonly>
-</div>
 
-</div>
+                    <div class="col-md-6 mb-3">
+                    <label>Suspend Deal</label>
+                    <input type="text" class="form-control" value="{{ $data->suspend_deal?'Yes':'No' }}" readonly>
+                    </div>
 
-</form>
+                    <div class="col-md-6 mb-3">
+                    <label>Suspend Voucher</label>
+                    <input type="text" class="form-control" value="{{ $data->suspend_voucher?'Yes':'No' }}" readonly>
+                    </div>
 
-</div>
-</div>
-</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

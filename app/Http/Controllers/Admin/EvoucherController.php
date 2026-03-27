@@ -236,12 +236,17 @@ class EvoucherController extends Controller
 
                 if ($row->status === 'pending') {
 
-                    $action .= "<a href='javascript:void(0)' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;'  
-                                    title='Editable only after approval'>
-                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
-                                </a>";
+                    // $action .= "<a href='javascript:void(0)' 
+                    //                 style='cursor:not-allowed;color:#b6b8c4 !important;'  
+                    //                 title='Editable only after approval'>
+                    //                 <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                    //             </a>";
 
+                     $action .= "<a href='javascript:void(0)' 
+                                class='view ms-2' 
+                                data-id='{$row->id}'>
+                                <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                            </a>";
                 } else {
 
                     $action .= "<a href='javascript:void(0)' 
@@ -253,11 +258,7 @@ class EvoucherController extends Controller
                 }
             }
             if ($row->status === 'pending') {
-                // $action .= "<a href='javascript:void(0)' 
-                //                 class='view ms-2' 
-                //                 data-id='{$row->id}'>
-                //                 <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
-                //             </a>";
+               
             }
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
@@ -927,12 +928,14 @@ class EvoucherController extends Controller
             'rewardLocations',
             'participatingLocations',
             'merchant',
+             'category'
         ])->findOrFail($id);
 
         $reward->voucher_validity = ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
 
         $data = [];
         $data['data'] = $reward;
+        $data['category'] = Category::select('id','name')->get();
 
         // Location text
         $data['location_text'] = null;

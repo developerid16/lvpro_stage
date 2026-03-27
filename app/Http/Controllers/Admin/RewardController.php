@@ -217,12 +217,18 @@ class RewardController extends Controller
 
                 if ($row->status === 'pending') {
 
+                    // $action .= "<a href='javascript:void(0)' 
+                    //                 class='' 
+                    //                 style='cursor:not-allowed;color:#b6b8c4 !important;' 
+                    //                 title='Editable only after approval'>
+                    //                 <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                    //             </a>";
+
                     $action .= "<a href='javascript:void(0)' 
-                                    class='' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
-                                    title='Editable only after approval'>
-                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
-                                </a>";
+                                class='view ms-2' 
+                                data-id='{$row->id}'>
+                                <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
+                            </a>";
 
                 } else {
 
@@ -236,11 +242,7 @@ class RewardController extends Controller
             }
 
             if ($row->status === 'pending') {
-                // $action .= "<a href='javascript:void(0)' 
-                //                 class='view ms-2' 
-                //                 data-id='{$row->id}'>
-                //                 <i class='mdi mdi-eye text-info action-icon font-size-18'></i>
-                //             </a>";
+                
             }
 
             if (Auth::user()->can($this->permission_prefix . '-delete')) {
@@ -1163,38 +1165,65 @@ class RewardController extends Controller
             'rewardLocations',
             'participatingLocations',
             'merchant',
+            'category'
         ])->findOrFail($id);
 
+        // fix date
         $reward->voucher_validity = ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
 
         $data = [];
         $data['data'] = $reward;
 
-        // Location text
+        // ✅ SAME AS EDIT
         $data['location_text'] = null;
         if (!empty($reward->location_text)) {
             $data['location_text'] = CustomLocation::where('id', $reward->location_text)->value('name');
         }
 
-        // Saved locations
+        $data['fabs'] = Fabs::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::orderBy('item_name','ASC')->get();
+
+        $data['merchants'] = Merchant::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['participating_merchants'] = ParticipatingMerchant::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['tiers'] = Tier::where('status','Active')->orderBy('tier_name','ASC')->get();
+
+        $data['category'] = Category::orderBy('name','ASC')->get();
+
+        // ✅ saved locations
         $data['savedLocations'] = $reward->rewardLocations->pluck('inventory_qty','location_id');
 
-        // Participating locations
-        $locationIds = $reward->participatingLocations->pluck('location_id')->unique();
+        $locationIds = $reward->rewardLocations->pluck('location_id')->unique();
 
-        $data['participatingLocations'] = ParticipatingMerchantLocation::whereIn('id', $locationIds)
+        $data['locations'] = ClubLocation::whereIn('id', $locationIds)
             ->select('id','name')
             ->get();
 
-        // Render view modal
+        // ✅ participating locations
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+
+        $data['participatingLocations'] = ParticipatingMerchantLocation::whereIn('id', $locationIds)
+            ->select('id','name')
+            ->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
+
+        // render
         $html = view($this->view_file_path . 'view', $data)->render();
 
         return response()->json([
             'status' => 'success',
-            'html' => $html
+            'html' => $html,
+            'savedLocations' => $data['savedLocations'],
+            'participatingLocations' => $data['participatingLocations']
         ]);
     }
-
     function normalizeTime($time)
     {
         if (!$time) return null;

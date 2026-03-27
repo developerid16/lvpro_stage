@@ -628,7 +628,7 @@ $(document).ready(function () {
         }
     });
 
-    $(document).on('click', '.view', function () {
+   $(document).off('click', '.view').on('click', '.view', function () {
 
         let id = $(this).data('id');
 
@@ -636,13 +636,11 @@ $(document).ready(function () {
             url: ModuleBaseUrl + id,
             type: 'GET',
             success: function (res) {
-
+                $('#ViewModal').remove();
                 $('body').append(res.html);
                 $('#ViewModal').modal('show');
-
             }
         });
 
     });
-    
 });
