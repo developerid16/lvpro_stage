@@ -335,7 +335,17 @@
                                 @can('content-management')
                                     <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
                                 @endcan
-                                
+                                @can(['treats-and-deals-featured'])
+                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-featured')}}">
+                                        Treats And Deals Featured
+                                    </a>
+                                @endcan
+                                @can(['evoucher-featured'])
+                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-featured')}}">
+                                        E-Voucher Featured
+                                    </a>
+                                @endcan
+                            
                             </div>
                         </li>
                     @endcan
@@ -448,17 +458,7 @@
                                 @can(['birthday-voucher-list'])
                                     <a  class="dropdown-item " href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
                                 @endcan
-                                @can(['treats-and-deals-featured'])
-                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-featured')}}">
-                                        Treats And Deals Featured
-                                    </a>
-                                @endcan
-                                @can(['evoucher-featured'])
-                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-featured')}}">
-                                        E-Voucher Featured
-                                    </a>
-                                @endcan
-                            
+                               
 
                             </div>
                         </li>

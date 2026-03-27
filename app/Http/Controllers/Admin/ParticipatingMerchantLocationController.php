@@ -517,7 +517,7 @@ class ParticipatingMerchantLocationController extends Controller
             'Content-Disposition' => 'attachment; filename="sample_participating_merchant.csv"',
         ];
 
-        $columns = ['name', 'code', 'start_date', 'end_date','club_location'];
+        $columns = ['name', 'code', 'start date(yyyy-mm-dd hh:mm)', 'end date(yyyy-mm-dd hh:mm)','club location'];
 
         $callback = function () use ($columns) {
             $file = fopen('php://output', 'w');
@@ -529,8 +529,8 @@ class ParticipatingMerchantLocationController extends Controller
             fputcsv($file, [
                 'Shop 1',
                 'ABC123',
-                '2025-01-01',
-                '2025-12-31',
+                '2025-01-01 00:00',
+                '2025-12-31 23:59',
                 'Main Branch',
             ]);
 
