@@ -2,14 +2,14 @@
 @extends('layouts.master-layouts')
 
 @section('title')
-    Voucher List
+    {{ $title }}
 @endsection
 
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1') Admin @endslot
     @slot('li_1_link') {{ url('/') }} @endslot
-    @slot('title') Voucher List @endslot
+    @slot('title') {{ $title }} @endslot
 @endcomponent
 
 <div class="card">
@@ -67,8 +67,7 @@
 </div>
 
 {{-- ADD / EDIT --}}
-@can("$permission_prefix-create")
-@endcan
+
 @endsection
 
 
@@ -76,34 +75,33 @@
 <script>
     var ModuleBaseUrl = "{{ $module_base_url }}/";
     var RewardBaseUrl = "{{ $reward_base_url }}/";
-    var DataTableUrl = RewardBaseUrl + "datatable";
-
+    var DataTableUrl = "{{ $datatable_url }}";
     function ajaxRequest(params) {
         $.get(DataTableUrl + '?' + $.param(params.data))
             .then(res => params.success(res));
     }
 
     // VIEW
-    $(document).on('click','.view',function () {
-        let id = $(this).data('id');
+    // $(document).on('click','.view',function () {
+    //     let id = $(this).data('id');
 
-        $.get(RewardBaseUrl + id, function (res) {
-            let d = res.data;
+    //     $.get(RewardBaseUrl + id, function (res) {
+    //         let d = res.data;
 
-            $('#v_name').text(d.name);
+    //         $('#v_name').text(d.name);
             
-            $('#v_type').text(
-                d.type == 0 ? 'Treats & Deals' :
-                d.type == 1 ? 'E-Voucher' : 'Birthday Voucher'
-            );
-            $('#v_reward_type').text(d.reward_type == 0 ? 'Digital' : 'Physical');
-            $('#v_description').text(d.description ?? '-');
-            $('#v_created').text(d.created_at);
-            $('#v_updated').text(d.updated_at);
+    //         $('#v_type').text(
+    //             d.type == 0 ? 'Treats & Deals' :
+    //             d.type == 1 ? 'E-Voucher' : 'Birthday Voucher'
+    //         );
+    //         $('#v_reward_type').text(d.reward_type == 0 ? 'Digital' : 'Physical');
+    //         $('#v_description').text(d.description ?? '-');
+    //         $('#v_created').text(d.created_at);
+    //         $('#v_updated').text(d.updated_at);
 
-            $('#ViewModal').modal('show');
-        });
-    });
+    //         $('#ViewModal').modal('show');
+    //     });
+    // });
 
     // SUSPEND
     $(document).on('change','.suspend-switch',function () {

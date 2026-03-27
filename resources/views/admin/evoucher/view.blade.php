@@ -3,7 +3,7 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title">View Reward</h5>
+                <h5 class="modal-title">View E-Voucher: Digital Voucher</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="max-height:80vh; overflow:auto;">

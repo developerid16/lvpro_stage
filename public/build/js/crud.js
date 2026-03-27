@@ -637,12 +637,13 @@ $(document).ready(function () {
         }
     });
 
-   $(document).off('click', '.view').on('click', '.view', function () {
+    $(document).off('click', '.view').on('click', '.view', function () {
 
         let id = $(this).data('id');
+        var url = $(this).data('url') ?? ModuleBaseUrl + id;
 
         $.ajax({
-            url: ModuleBaseUrl + id,
+            url: url,
             type: 'GET',
             success: function (res) {
                 $('#ViewModal').remove();

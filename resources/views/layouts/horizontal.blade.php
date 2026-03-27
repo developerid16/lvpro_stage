@@ -439,9 +439,23 @@
                                         Voucher Logs
                                     </a>
                                 @endcan
-                                @can(['voucher-list'])
-                                    <a class="dropdown-item  " href="{{url('/admin/voucher-list')}}">
-                                        Voucher List
+                                @can(['treats-and-deals-list'])                                   
+                                    <a  class="dropdown-item " href="{{ url('/admin/treats-and-deals-list') }}">Treats & Deals List</a>
+                                @endcan
+                                @can(['evoucher-list'])   
+                                    <a  class="dropdown-item " href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
+                                @endcan
+                                @can(['birthday-voucher-list'])
+                                    <a  class="dropdown-item " href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
+                                @endcan
+                                @can(['treats-and-deals-featured'])
+                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-featured')}}">
+                                        Treats And Deals Featured
+                                    </a>
+                                @endcan
+                                @can(['evoucher-featured'])
+                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-featured')}}">
+                                        E-Voucher Featured
                                     </a>
                                 @endcan
                             
