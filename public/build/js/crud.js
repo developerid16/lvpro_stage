@@ -180,6 +180,9 @@ $(document).ready(function () {
 
                 let modal = $("#EditModal");
 
+                // ✅ ADD THIS LINE
+                modal.find('#edit_frm').attr('action', url);
+
                 selectedOutletMapMerchant = {};
                 selectedOutlets = response.selectedOutlets || {};
 
@@ -298,8 +301,14 @@ $(document).ready(function () {
         var id = $form.data('id');
         var form_data = new FormData($form[0]);
 
+       let actionUrl = $form.attr('action');
+
+        if (actionUrl && actionUrl.endsWith('/edit')) {
+            actionUrl = actionUrl.replace('/edit', '');
+        }
+
         $.ajax({
-            url: ModuleBaseUrl + id,
+            url: actionUrl,
             headers: { 'X-CSRF-Token': csrf },
             type: "POST",
             data: form_data,
