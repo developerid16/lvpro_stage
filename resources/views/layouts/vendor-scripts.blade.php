@@ -1524,7 +1524,6 @@
         $(this).off('wheel.disableScroll');
     });
 
-
 </script>
 
 <script src="{{ URL::asset('/build/js/tableexport.jquery.plugin.js') }}"></script>
