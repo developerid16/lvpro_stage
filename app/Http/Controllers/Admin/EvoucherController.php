@@ -299,43 +299,36 @@ class EvoucherController extends Controller
           
             // $final_data[$key]['action'] = $action . "</div>";
 
-            $activePermissions = session('active_permissions', []);
+            if ($row->status === 'pending') {
+                $activePermissions = session('active_permissions', []);
 
-            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
-            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+                $canaccept = in_array($this->permission_prefix . '-accept', $activePermissions) 
+                    || Auth::user()->hasRole('Super Admin');
 
-            $action = "<div class='d-flex gap-3'>";
+                $canreject = in_array($this->permission_prefix . '-reject', $activePermissions) 
+                    || Auth::user()->hasRole('Super Admin');
 
-            if ($canEdit) {
-                if ($status == 'pending approval') {
+                if ($canaccept) {
                     $action .= "<a href='javascript:void(0)' 
-                                    class='' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
-                                    title='Editable only after approval'>
-                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
-                                </a>";
-                } else {
-                    $action .= "<a href='javascript:void(0)' 
-                                    class='edit' 
-                                    data-id='$row->id'
-                                    title='Edit'>
-                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                                </a>";
+                        class='approve_btn'
+                        data-id='{$row->id}'
+                        title='Approve'>
+                        <i class='mdi mdi-check-circle text-success font-size-18'></i>
+                    </a>";
                 }
-            }
 
-            if ($canDelete) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
-                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                            </a>";
-            }
+                if ($canreject) {
+                    $action .= "<a href='javascript:void(0)' 
+                        class='reject_btn'
+                        data-id='{$row->id}'
+                        title='Reject'>
+                        <i class='mdi mdi-close-circle text-danger font-size-18'></i>
+                    </a>";
+                }
 
-            $action .= "<a target='_blank' href='" . url('admin/evoucher/' . $row->id . '/activity-log') . "' 
-                            class='activity-log text-primary' 
-                            data-id='$row->id'
-                            title='Evoucher Activity Log'>
-                            <i class='mdi mdi-history action-icon font-size-18'></i>
-                        </a>";
+            } else {
+                $action .= "<span class='text-muted'>—</span>";
+            }
 
             $final_data[$key]['action'] = $action . "</div>";
         }

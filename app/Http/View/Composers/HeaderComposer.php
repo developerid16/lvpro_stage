@@ -20,9 +20,13 @@ class HeaderComposer
             $allDepartments = Department::where('status', 'Active')->get();
         } else {
             $deptIds = $user->roles->pluck('department')->filter()->unique();
-            $allDepartments = Department::whereIn('id', $deptIds)
-                                ->where('status', 'Active')
-                                ->get();
+            if ($deptIds->isEmpty()) {
+                $allDepartments = [];
+            } else {
+                $allDepartments = Department::whereIn('id', $deptIds)
+                                    ->where('status', 'Active')
+                                    ->get();
+            }
         }
 
         $selectedDeptId    = session('active_department_id');
@@ -39,6 +43,12 @@ class HeaderComposer
                 ->unique()
                 ->values();
         }
+        // dd([
+        //     'allDepartments'  => $allDepartments,
+        //     'selectedDeptId'  => $selectedDeptId,
+        //     'isSuperAdmin'    => $isSuperAdmin,
+        //     'deptPermissions' => $deptPermissions,
+        // ]);
         $view->with([
             'allDepartments'  => $allDepartments,
             'selectedDeptId'  => $selectedDeptId,
