@@ -14,6 +14,9 @@ class Fabs extends Model
         'name',
         'code',
         'status',
-        'added_by'
+        'added_by',
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
 }

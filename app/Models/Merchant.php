@@ -13,7 +13,10 @@ class Merchant extends Model
     protected $fillable = [
         'name',
         'logo',
-        'status'
+        'status',
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
 }
 

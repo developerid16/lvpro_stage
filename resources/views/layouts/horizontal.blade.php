@@ -44,7 +44,7 @@
         <div class="d-flex align-items-center">
 
             {{-- ✅ DEPARTMENT SWITCHER DROPDOWN (Super Admin ke multi-dept user dikhay) --}}
-            @if(isset($isSuperAdmin) && ($isSuperAdmin || $allDepartments->count() > 1))
+            @if(isset($isSuperAdmin) && ($isSuperAdmin || $allDepartments->count() > 0))
                 <div class="dropdown d-inline-block me-2">
                     <button type="button"
                         class="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1"

@@ -15,6 +15,9 @@ class ClubLocation extends Model
         'status',
         'code',
         'added_by',
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
 
     public function merchant()

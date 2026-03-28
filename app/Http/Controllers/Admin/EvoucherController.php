@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use App\Models\Category;
@@ -47,10 +48,32 @@ class EvoucherController extends Controller
             'module_base_url'   => url('admin/evoucher'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -63,8 +86,22 @@ class EvoucherController extends Controller
         $this->layout_data['type'] = $type;
         $this->layout_data['category'] = Category::orderBy('name', 'ASC')->get();
         $this->layout_data['merchants'] = Merchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
-        $this->layout_data['memberReward'] = Reward::where('cso_method',1)->get();
-        $this->layout_data['parameterReward'] = Reward::where('cso_method',2)->get();
+        // $this->layout_data['memberReward'] = Reward::where('cso_method',1)->get();
+        // $this->layout_data['parameterReward'] = Reward::where('cso_method',2)->get();
+        $memberRewardQuery = Reward::where('cso_method', 1);
+        $parameterRewardQuery = Reward::where('cso_method', 2);
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $memberRewardQuery->where('active_department_id', $this->activeDeptId)
+                            ->where('active_club_location_id', $this->activeLocationId)
+                            ->where('active_role_id', $this->activeRoleId);
+
+            $parameterRewardQuery->where('active_department_id', $this->activeDeptId)
+                                ->where('active_club_location_id', $this->activeLocationId)
+                                ->where('active_role_id', $this->activeRoleId);
+        }
+
+        $this->layout_data['memberReward'] = $memberRewardQuery->get();
+        $this->layout_data['parameterReward'] = $parameterRewardQuery->get();
         $this->layout_data['participating_merchants'] = ParticipatingMerchant::where('status', 'Active')->orderBy('name', 'ASC')->get();
 
         $this->layout_data['master_card_types'] = MasterCardType::get();
@@ -81,9 +118,10 @@ class EvoucherController extends Controller
     public function datatable(Request $request)
     {
         $query = Reward::where('type',  '1');
-        // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
         }
         // if (auth()->user()->role != 1) {
         //     $query->where('added_by', auth()->id());
@@ -234,19 +272,49 @@ class EvoucherController extends Controller
             $final_data[$key]['status'] = $status;
             $final_data[$key]['cso_method'] = $methods[$row->cso_method] ?? '-';
 
+            // $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+
+            //     if ($status == 'pending approval') {
+
+            //         $action .= "<a href='javascript:void(0)' 
+            //                         style='cursor:not-allowed;color:#b6b8c4 !important;'  
+            //                         title='Editable only after approval'>
+            //                         <i class='mdi mdi-pencil action-icon font-size-18'></i>
+            //                     </a>";
+
+            //     } else {
+
+            //         $action .= "<a href='javascript:void(0)' 
+            //                         class='edit' 
+            //                         data-id='$row->id'
+            //                         title='Edit'>
+            //                         <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+            //                     </a>";
+            //     }
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            //     $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+            // }
+          
+            // $final_data[$key]['action'] = $action . "</div>";
+
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
 
+            if ($canEdit) {
                 if ($status == 'pending approval') {
-
                     $action .= "<a href='javascript:void(0)' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;'  
+                                    class='' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
-
                 } else {
-
                     $action .= "<a href='javascript:void(0)' 
                                     class='edit' 
                                     data-id='$row->id'
@@ -255,10 +323,20 @@ class EvoucherController extends Controller
                                 </a>";
                 }
             }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
             }
-          
+
+            $action .= "<a target='_blank' href='" . url('admin/evoucher/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Evoucher Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
+
             $final_data[$key]['action'] = $action . "</div>";
         }
         $data          = [];
@@ -392,6 +470,10 @@ class EvoucherController extends Controller
                     'suspend_deal'       => $request->boolean('suspend_deal'),
                     'suspend_voucher'    => $request->boolean('suspend_voucher'),
                     'is_featured' => $request->boolean('is_featured'),
+
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
 
 
@@ -460,6 +542,15 @@ class EvoucherController extends Controller
                 }
 
                 DB::commit();
+                DepartmentActivityLogger::log(
+                    'create',
+                    'e-Voucher',
+                    $reward->id,
+                    $reward->name,
+                    [],
+                    $reward->toArray(),
+                    "E-Voucher Reward '{$reward->name}' saved as draft."
+                );
                 return response()->json(['status'=>'success','message'=>'Saved as Draft Successfully']);
                 
             }else{
@@ -764,6 +855,10 @@ class EvoucherController extends Controller
                 'suspend_voucher'     => (int) ($validated['suspend_voucher'] ?? 0),
                 'is_featured' => $request->boolean('is_featured'),
                 'is_draft'              => 2,
+
+                'active_department_id' => $this->activeDeptId ?? NULL,
+                'active_club_location_id' => $this->activeLocationId ?? NULL,
+                'active_role_id' => $this->activeRoleId ?? NULL,
             ]);
 
             $updateRequest = RewardUpdateRequest::create([
@@ -823,6 +918,10 @@ class EvoucherController extends Controller
                 'suspend_voucher'      => $request->has('suspend_voucher') ? 1 : 0,
                 'is_featured' => $request->boolean('is_featured'),
                 'is_draft'             => 2,
+
+                'active_department_id' => $this->activeDeptId ?? NULL,
+                'active_club_location_id' => $this->activeLocationId ?? NULL,
+                'active_role_id' => $this->activeRoleId ?? NULL,
             ]);
 
             /* ---------------------------------------------------
@@ -898,6 +997,15 @@ class EvoucherController extends Controller
             }
 
             DB::commit();
+            DepartmentActivityLogger::log(
+                'create',
+                'e-voucher',
+                $reward->id,
+                $reward->name,
+                [],
+                $reward->toArray(),
+                "E-Voucher Reward '{$reward->name}' created and sent for approval."
+            );
             return response()->json(['status'=>'success','message'=>'Reward Created Successfully']);
 
         } catch (\Throwable $e) {
@@ -967,7 +1075,7 @@ class EvoucherController extends Controller
     {
         $isDraft = $request->action === 'draft' ? 1 : 0;
         $reward = Reward::findOrFail(id: $id);
-
+        $oldData = $reward->toArray();
         DB::beginTransaction();
 
         try {
@@ -1108,6 +1216,10 @@ class EvoucherController extends Controller
                     'is_featured' => $request->boolean('is_featured'),
                     'csvFile'             => $reward->csvFile ?? 0,
 
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
+
                 ]);
 
 
@@ -1186,6 +1298,15 @@ class EvoucherController extends Controller
                 * SUCCESS
                 * ---------------------------------------------------*/
                 DB::commit();
+                DepartmentActivityLogger::log(
+                    'update',
+                    'e-voucher',
+                    $reward->id,
+                    $reward->name,
+                    $oldData,
+                    $reward->fresh()->toArray(),
+                    "E-Voucher Reward '{$reward->name}' draft updated."
+                );
                 return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully']);
 
 
@@ -1563,6 +1684,10 @@ class EvoucherController extends Controller
                 'is_featured' => $request->boolean('is_featured'),
                 'csvFile'             => $reward->csvFile ?? 0,
                 'is_draft'             => 0, 
+
+                'active_department_id' => $this->activeDeptId ?? NULL,
+                'active_club_location_id' => $this->activeLocationId ?? NULL,
+                'active_role_id' => $this->activeRoleId ?? NULL,
             ];
 
             $updateRequest = RewardUpdateRequest::updateOrCreate(
@@ -1653,6 +1778,15 @@ class EvoucherController extends Controller
             * SUCCESS
             * ---------------------------------------------------*/
             DB::commit();
+            DepartmentActivityLogger::log(
+                'update',
+                'e-voucher',
+                $reward->id,
+                $reward->name,
+                $oldData,
+                $data,
+                "E-Voucher Reward '{$reward->name}' updated and sent for approval."
+            );
             return response()->json(['status' => 'success', 'message' => 'Reward Updated Successfully']);
 
         } catch (\Throwable $e) {
@@ -1802,7 +1936,11 @@ class EvoucherController extends Controller
                         'reward_id' => $request->reward_id,
                         'member_id' => $memberIds,   // stored comma-separated
                         'file'      => $fileName,
-                        'method' => $request->input('method')
+                        'method' => $request->input('method'),
+
+                        'active_department_id' => $this->activeDeptId ?? NULL,
+                        'active_club_location_id' => $this->activeLocationId ?? NULL,
+                        'active_role_id' => $this->activeRoleId ?? NULL,
                     ]);
 
                     $userId = $user->session_id;
@@ -1937,6 +2075,18 @@ class EvoucherController extends Controller
                     $reward->purchased_qty = (int) $reward->purchased_qty + (int) $qty;
                     $reward->save();
                 }
+                if (empty($existingMembers)) {
+                    $rewardRecord = Reward::where('id', $request->reward_id)->first();
+                    DepartmentActivityLogger::log(
+                        'voucher-pushed-to-wallet',
+                        'e-voucher',
+                        $rewardRecord->id,
+                        $rewardRecord->name,
+                        [],
+                        $rewardRecord->toArray(),
+                        "E-Voucher Reward '{$rewardRecord->name}' Voucher pushed to wallet successfully."
+                    );
+                }
             }else {
 
                 $existingMembers = [];
@@ -1981,8 +2131,22 @@ class EvoucherController extends Controller
                     'reward_id' => $request->reward_id,
                     'member_id' => implode(',', $validMembers),
                     'file'      => $fileName,
-                    'method'    => 'pushCatalogue'
+                    'method'    => 'pushCatalogue',
+
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
+                $rewardRecord = Reward::where('id', $request->reward_id)->first();
+                DepartmentActivityLogger::log(
+                    'voucher-pushed-to-catalogue',
+                    'Reward',
+                    $rewardRecord->id,
+                    $rewardRecord->name,
+                    [],
+                    $rewardRecord->toArray(),
+                    "E-Voucher Reward '{$rewardRecord->name}' Voucher pushed to catalogue."
+                );
 
                 // ✅ Now log success using real push ID
                 foreach ($validMembers as $memberId) {
@@ -1996,6 +2160,19 @@ class EvoucherController extends Controller
                         'status'    => 'success',
                         'message'   => 'Voucher pushed to catalogue'
                     ]);
+                }
+                // ✅ LOG ONLY WHEN SUCCESS
+                if (!empty($validMembers)) {
+                    $rewardRecord = Reward::where('id', $request->reward_id)->first();
+                    DepartmentActivityLogger::log(
+                        'voucher-pushed-to-catalogue',
+                        'Reward',
+                        $rewardRecord->id,
+                        $rewardRecord->name,
+                        [],
+                        $rewardRecord->toArray(),
+                        "E-Voucher Reward '{$rewardRecord->name}' Voucher pushed to catalogue."
+                    );
                 }
             }
 
@@ -2109,8 +2286,7 @@ class EvoucherController extends Controller
         }
 
         
-
-        $pushVoucherMember = PushVoucherMember::create([
+        $postData = [
             'reward_id'        => $request->reward_id,
             'type'             => 1,
             'member_id'        => null,
@@ -2134,7 +2310,12 @@ class EvoucherController extends Controller
             'membership_expiry_to_date'      => $request->membership_expiry_to   ?? null,
             'membership_renewable_from_date' => $request->membership_renewable_from ?? null,
             'membership_renewable_to_date'   => $request->membership_renewable_to   ?? null,
-        ]);
+
+            'active_department_id' => $this->activeDeptId ?? NULL,
+            'active_club_location_id' => $this->activeLocationId ?? NULL,
+            'active_role_id' => $this->activeRoleId ?? NULL,
+        ];
+        $pushVoucherMember = PushVoucherMember::create($postData);
         
         
         $interestGroups = MasterInterestGroup::whereIn( 'id', $pushVoucherMember->interest_group)->get(['interest_group_main_name', 'interest_group_name']);
@@ -2297,8 +2478,16 @@ class EvoucherController extends Controller
         if (!empty($logData)) {
             PushVoucherLog::insert($logData);
         }
-        
-       
+        $rewardRecord = Reward::where('id', $request->reward_id)->first();
+        DepartmentActivityLogger::log(
+            'voucher-pushed-to-parameter',
+            'e-voucher',
+            $rewardRecord->id,
+            $rewardRecord->name,
+            $postData,
+            $rewardRecord->toArray(),
+            "E-Voucher Reward '{$rewardRecord->name}' Voucher Push Voucher By Parameter successfully."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Push voucher saved successfully'
@@ -2524,7 +2713,15 @@ class EvoucherController extends Controller
 
             // ONLY soft delete
             $reward->delete();
-
+            DepartmentActivityLogger::log(
+                'delete',
+                'e-voucher',
+                $reward->id,
+                $reward->name,
+                $reward->toArray(),
+                [],
+                "E-Voucher Reward '{$reward->name}' moved to trash."
+            );
             AdminLogger::log('delete', Reward::class, $id);
 
             DB::commit();
@@ -2549,8 +2746,18 @@ class EvoucherController extends Controller
      * ----------------------------------------------------- */
     public function restore($id)
     {
-        Reward::withTrashed()->findOrFail($id)->restore();
-
+        // Reward::withTrashed()->findOrFail($id)->restore();
+        $reward = Reward::withTrashed()->findOrFail($id);
+        $reward->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'e-voucher',
+            $reward->id,
+            $reward->name,
+            [],
+            [],
+            "E-Voucher Reward '{$reward->name}' restored from trash."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Reward Restored Successfully'
@@ -2585,11 +2792,20 @@ class EvoucherController extends Controller
             RewardUpdateRequest::where('reward_id', $reward->id)->delete();
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
             RewardVoucher::where('reward_id', $reward->id)->delete();
-
+            $rewardName = $reward->name;
+            $rewardData = $reward->toArray();
             $reward->forceDelete();
 
             DB::commit();
-
+            DepartmentActivityLogger::log(
+                'force_delete',
+                'e-vouche',
+                $id,
+                $rewardName,
+                $rewardData,
+                [],
+                "E-Voucher Reward '{$rewardName}' permanently deleted."
+            );
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Reward Permanently Deleted'

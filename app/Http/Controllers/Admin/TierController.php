@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Models\Tier;
 use App\Models\TierInterestGroup;
 use App\Models\TierMemberType;
@@ -26,10 +27,33 @@ class TierController extends Controller
             'module_base_url'   => url('admin/tiers')
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
+
     }
 
     // =====================================================================
@@ -48,7 +72,9 @@ class TierController extends Controller
         $qb = Tier::with(['interestGroups', 'memberTypes']);
         // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $qb->where('added_by', Auth::user()->id);
+            $qb->where('active_department_id', $this->activeDeptId);
+            $qb->where('active_club_location_id', $this->activeLocationId);
+            $qb->where('active_role_id', $this->activeRoleId);
         }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -72,18 +98,49 @@ class TierController extends Controller
             $updatedAt = $row->updated_at->format(config('safra.date-format'));
 
             // Action buttons
+            // $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}' title='Edit'>
+            //                     <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+            //                 </a>";
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            //     $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}' title='Delete'>
+            //                     <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+            //                 </a>";
+            // }
+            // $action .= "</div>";
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canActivityLog = in_array($this->permission_prefix . '-activity-log', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}' title='Edit'>
-                                <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                            </a>";
+
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}' title='Delete'>
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
                                 <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
                             </a>";
             }
-            $action .= "</div>";
+
+            if ($canActivityLog) {
+                $action .= "<a target='_blank' href='" . url('admin/tiers/' . $row->id . '/activity-log') . "' 
+                                class='activity-log text-primary' 
+                                data-id='$row->id'
+                                title='Merchants Activity Log'>
+                                <i class='mdi mdi-history action-icon font-size-18'></i>
+                            </a>";
+            }
 
             // Build IG badges
             $igTags = '';
@@ -238,6 +295,9 @@ class TierController extends Controller
             // $tier = Tier::create($validator->validated());
             $data = $validator->validated();
             $data['added_by'] = Auth::user()->id;
+            $data['active_department_id']      = $this->activeDeptId ?? NULL;
+            $data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+            $data['active_role_id']            = $this->activeRoleId ?? NULL;
             $tier = Tier::create($data);
 
             if ($hasIG) {
@@ -266,6 +326,15 @@ class TierController extends Controller
             }
 
             AdminLogger::log('create', Tier::class, $tier->id);
+            DepartmentActivityLogger::log(
+                'create',
+                'tier',
+                $tier->id,
+                $tier->tier_name,
+                [],
+                $tier->toArray(),
+                "Tier '{$tier->tier_name}' Created Successfully."
+            );
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Tier Created Successfully']);
 
@@ -331,7 +400,27 @@ class TierController extends Controller
         DB::beginTransaction();
         try {
             $tier = Tier::findOrFail($id);
-            $tier->update($validator->validated());
+            $oldData = $tier->toArray();
+            $data = array_merge(
+                $validator->validated(),
+                [
+                    'active_department_id'    => $this->activeDeptId ?? null,
+                    'active_club_location_id' => $this->activeLocationId ?? null,
+                    'active_role_id'          => $this->activeRoleId ?? null,
+                ]
+            );
+
+            $tier->update($data);
+            $tierRecords = Tier::findOrFail($id);
+            DepartmentActivityLogger::log(
+                'update',
+                'tier',
+                $tierRecords->id,
+                $tierRecords->tier_name,
+                $oldData,
+                $tierRecords->fresh()->toArray(),
+                "Tier '{$tierRecords->tier_name}' Updated Successfully."
+            );
 
             // Sync IGs: delete all old, insert new
             TierInterestGroup::where('tier_id', $id)->delete();
@@ -361,7 +450,6 @@ class TierController extends Controller
                     }
                 }
             }
-
             AdminLogger::log('update', Tier::class, $id);
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Tier Updated Successfully']);
@@ -381,8 +469,19 @@ class TierController extends Controller
         try {
             // TierInterestGroup::where('tier_id', $id)->delete();
             // TierMemberType::where('tier_id', $id)->delete();
-            Tier::where('id', $id)->delete();
-
+            // Tier::where('id', $id)->delete();
+            $tier = Tier::find($id);
+            $tier->delete();
+            DepartmentActivityLogger::log(
+                'delete',
+                'tier',
+                $tier->id,
+                $tier->tier_name,
+                $tier->toArray(),
+                [],
+                "Tier '{$tier->tier_name}' moved to trash."
+            );
+            
             AdminLogger::log('delete', Tier::class, $id);
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Tier Deleted Successfully']);
@@ -487,8 +586,18 @@ class TierController extends Controller
      * ----------------------------------------------------- */
     public function restore($id)
     {
-        Tier::withTrashed()->findOrFail($id)->restore();
-
+        // Tier::withTrashed()->findOrFail($id)->restore();
+        $tier = Tier::withTrashed()->findOrFail($id);
+        $tier->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'tier',
+            $tier->id,
+            $tier->tier_name,
+            [],
+            [],
+            "Tier '{$tier->tier_name}' Restored Successfully."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Tier Restored Successfully'
@@ -502,10 +611,46 @@ class TierController extends Controller
     {
         TierInterestGroup::where('tier_id', $id)->delete();
         TierMemberType::where('tier_id', $id)->delete();
-        Tier::withTrashed()->findOrFail($id)->forceDelete();
+        $tier = Tier::withTrashed()->findOrFail($id);
+        $tierName = $tier->tier_name;
+        $tierData = $tier->toArray();
+        $tier->forceDelete();
+        // Tier::withTrashed()->findOrFail($id)->forceDelete();
+        DepartmentActivityLogger::log(
+            'force_delete',
+            'tier',
+            $id,
+            $tierName,
+            $tierData,
+            [],
+            "Tier '{$tierName}' permanently deleted."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Tier Permanently Deleted'
         ]);
+    }
+
+    public function activityLog($record_id)
+    {
+        $logs = DB::table('department_activity_logs')
+            ->where('record_id', $record_id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Summary — created by, last updated by, approved by
+        $createdLog  = $logs->where('action', 'create')->first();
+        $approvedLog = $logs->whereIn('action', ['approve'])->last();
+        $rejectedLog = $logs->whereIn('action', ['reject'])->last();
+        $updatedLogs = $logs->where('action', 'update');
+
+        $this->layout_data['logs']        = $logs;
+        $this->layout_data['record_id']   = $record_id;
+        $this->layout_data['createdLog']  = $createdLog;
+        $this->layout_data['approvedLog'] = $approvedLog;
+        $this->layout_data['rejectedLog'] = $rejectedLog;
+        $this->layout_data['updatedLogs'] = $updatedLogs;
+
+        return view("admin.activity-log")->with($this->layout_data);
     }
 }

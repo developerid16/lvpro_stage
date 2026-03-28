@@ -25,7 +25,7 @@
         <!-- Right side buttons -->
         <div class="d-flex gap-2">
 
-            @can("$permission_prefix-create")
+            @if(hasActivePermission("$permission_prefix-create"))
                 <button class="btn btn-primary"
                         data-bs-toggle="modal"
                         data-bs-target="#AddModal">
@@ -80,7 +80,7 @@
 </div>
 
 <!-- CREATE MODAL -->
-@can("$permission_prefix-create")
+@if(hasActivePermission("$permission_prefix-create"))
     @include('admin.club-location.add-edit-modal')
 @endcan
 

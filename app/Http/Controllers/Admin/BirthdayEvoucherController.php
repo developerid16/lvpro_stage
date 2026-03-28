@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
 use App\Models\Category;
@@ -37,10 +38,32 @@ class BirthdayEvoucherController extends Controller
             'module_base_url'   => url('admin/birthday-voucher'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -66,9 +89,14 @@ class BirthdayEvoucherController extends Controller
     public function datatable(Request $request)
     {
         $query = Reward::where('type',  '2')->orderBy('month','asc');
-        // ✅ Super Admin = all records, Other users = only their own records
+        // // ✅ Super Admin = all records, Other users = only their own records
+        // if (!Auth::user()->hasRole('Super Admin')) {
+        //     $query->where('added_by', Auth::user()->id);
+        // }
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
         }
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
@@ -208,13 +236,52 @@ class BirthdayEvoucherController extends Controller
 
 
             $final_data[$key]['status'] = $status;
+            // $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            //     $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+            // }
+
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+
+            if ($canEdit) {
+                if ($status == 'pending approval') {
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
+                                    title='Editable only after approval'>
+                                    <i class='mdi mdi-pencil action-icon font-size-18'></i>
+                                </a>";
+                } else {
+                    $action .= "<a href='javascript:void(0)' 
+                                    class='edit' 
+                                    data-id='$row->id'
+                                    title='Edit'>
+                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                                </a>";
+                }
             }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
             }
+
+            $action .= "<a target='_blank' href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Reward Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
+
           
             $final_data[$key]['action'] = $action . "</div>";
         }
@@ -418,9 +485,15 @@ class BirthdayEvoucherController extends Controller
 
             $months = $request->month;
 
-            $existingMonths = Reward::whereIn('month', $months)
-                ->pluck('month')
-                ->toArray();
+           $query = Reward::whereIn('month', $months);
+
+            if (!Auth::user()->hasRole('Super Admin')) {
+                $query->where('active_department_id', $this->activeDeptId)
+                    ->where('active_club_location_id', $this->activeLocationId)
+                    ->where('active_role_id', $this->activeRoleId);
+            }
+
+            $existingMonths = $query->pluck('month')->toArray();
 
             if (!empty($existingMonths)) {
                 return response()->json([
@@ -449,34 +522,68 @@ class BirthdayEvoucherController extends Controller
             
 
             foreach ($months as $monthValue) {
-                if ($request->hasFile('voucher_image')) {
+                // if ($request->hasFile('voucher_image')) {
+                //     $file = $request->file('voucher_image');
+                //     $filename = generateHashFileName($file);
+                //     // $filename = time().'_'.$file->getClientOriginalName();
+                //     $file->move(public_path('uploads/image'), $filename);
+                //     $validated['voucher_image'] = $filename;
+                // }
+
+
+                // if ($request->hasFile('voucher_detail_img')) {
+
+                //     $path = public_path('uploads/image');
+
+                //     // Create directory if not exists
+                //     if (!is_dir($path)) {
+                //         mkdir($path, 0775, true);
+                //     }
+
+                //     $file = $request->file('voucher_detail_img');
+                //     $filename = generateHashFileName($file);
+                //     // $filename = time() . '_' . $file->getClientOriginalName();
+                //     $file->move($path, $filename);
+
+                //     $validated['voucher_detail_img'] = $filename;
+                // }
+
+                if ($request->hasFile('voucher_image') && $request->file('voucher_image')->isValid()) {
+ 
                     $file = $request->file('voucher_image');
                     $filename = generateHashFileName($file);
-                    // $filename = time().'_'.$file->getClientOriginalName();
-                    $file->move(public_path('uploads/image'), $filename);
+ 
+                    $path = public_path('uploads/image');
+ 
+                    if (!is_dir($path)) {
+                        mkdir($path, 0775, true);
+                    }
+ 
+                    $file->move($path, $filename);
+ 
                     $validated['voucher_image'] = $filename;
                 }
-
-
-                if ($request->hasFile('voucher_detail_img')) {
-
+ 
+                if ($request->hasFile('voucher_detail_img') && $request->file('voucher_detail_img')->isValid()) {
+ 
                     $path = public_path('uploads/image');
-
+ 
                     // Create directory if not exists
                     if (!is_dir($path)) {
                         mkdir($path, 0775, true);
                     }
-
+ 
                     $file = $request->file('voucher_detail_img');
                     $filename = generateHashFileName($file);
                     // $filename = time() . '_' . $file->getClientOriginalName();
                     $file->move($path, $filename);
-
+ 
                     $validated['voucher_detail_img'] = $filename;
                 }
+ 
+ 
 
-
-                $reward = Reward::create([
+                $postData = [
                     'type'        => '2',
                     'month'       => $monthValue,
                     'from_month'  => $monthValue,
@@ -503,7 +610,13 @@ class BirthdayEvoucherController extends Controller
                     'low_stock_1' => (int) ($validated['low_stock_1'] ?? 0),
                     'low_stock_2' => (int) ($validated['low_stock_2'] ?? 0),
                     'is_draft' => 2,
-                ]);
+
+
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
+                ];
+                $reward = Reward::create($postData);
 
                 $updateRequest = RewardUpdateRequest::create([
                     'type'        => '2',
@@ -632,6 +745,16 @@ class BirthdayEvoucherController extends Controller
                         }
                     }
                 }
+
+                DepartmentActivityLogger::log(
+                    'update',
+                    'Reward',
+                    $reward->id,
+                    $reward->name,
+                    [],
+                    $postData,
+                    "Birthday Voucher Reward '{$reward->name}' Created Successfully And Sent For Approval Successfully."
+                );
             }
 
 
@@ -733,6 +856,7 @@ class BirthdayEvoucherController extends Controller
         try {
 
             $reward = Reward::findOrFail($id);
+            $oldData = $reward->toArray();
             $rewardUpdateRequest = RewardUpdateRequest::where('reward_id', $reward->id)->latest()->first();
             $currentMonth = now()->format('Y-m');
 
@@ -998,7 +1122,13 @@ class BirthdayEvoucherController extends Controller
                 $file->move(public_path('uploads/image'), $filename);
                 $validated['voucher_image'] = $filename;
             }
-
+            if ($request->hasFile('voucher_detail_img')) {
+                $file = $request->file('voucher_detail_img');
+                $filename = generateHashFileName($file);
+                // $filename = time().'_'.$file->getClientOriginalName();
+                $file->move(public_path('uploads/image'), $filename);
+                $validated['voucher_detail_img'] = $filename;
+            }
             $month = $request->month;
 
             if (is_array($month)) {
@@ -1037,6 +1167,10 @@ class BirthdayEvoucherController extends Controller
                 'low_stock_1'    => $validated['low_stock_1'] ?? 0,
                 'low_stock_2'    => $validated['low_stock_2'] ?? 0,
                 'status'         => 'pending',
+
+                'active_department_id' => $this->activeDeptId ?? NULL,
+                'active_club_location_id' => $this->activeLocationId ?? NULL,
+                'active_role_id' => $this->activeRoleId ?? NULL,
             ];
 
             $updateRequest = RewardUpdateRequest::updateOrCreate(
@@ -1116,6 +1250,15 @@ class BirthdayEvoucherController extends Controller
 
 
             DB::commit();
+            DepartmentActivityLogger::log(
+                'update',
+                'Birthday Voucher',
+                $reward->id,
+                $reward->name,
+                $oldData,
+                $data,
+                "Reward '{$reward->name}' draft updated."
+            );
 
             return response()->json([
                 'status' => 'success',
@@ -1414,6 +1557,15 @@ class BirthdayEvoucherController extends Controller
 
             // ONLY soft delete
             $reward->delete();
+            DepartmentActivityLogger::log(
+                'delete',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                $reward->toArray(),
+                [],
+                "Reward '{$reward->name}' moved to trash."
+            );
 
             AdminLogger::log('delete', Reward::class, $id);
 
@@ -1436,8 +1588,18 @@ class BirthdayEvoucherController extends Controller
 
     public function restore($id)
     {
-        Reward::withTrashed()->findOrFail($id)->restore();
-
+        $reward = Reward::withTrashed()->findOrFail($id);
+        $reward->restore();
+        // Reward::withTrashed()->findOrFail($id)->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'Reward',
+            $reward->id,
+            $reward->name,
+            [],
+            [],
+            "Reward '{$reward->name}' restored from trash."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Reward Restored Successfully'
@@ -1470,8 +1632,18 @@ class BirthdayEvoucherController extends Controller
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
             RewardVoucher::where('reward_id', $reward->id)->delete();
 
+             $rewardName = $reward->name;
+            $rewardData = $reward->toArray();
             $reward->forceDelete();
-
+            DepartmentActivityLogger::log(
+                'force_delete',
+                'Reward',
+                $id,
+                $rewardName,
+                $rewardData,
+                [],
+                "Reward '{$rewardName}' permanently deleted."
+            );
             DB::commit();
 
             return response()->json([

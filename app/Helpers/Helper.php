@@ -3,6 +3,7 @@
 use GuzzleHttp\Client;
 use App\Models\SaleBatch;
 use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 // use OneSignal;
 use Carbon\Carbon;
@@ -261,6 +262,23 @@ if (!function_exists('getRedirectUrl')) {
         }
 
         return null;
+    }
+}
+
+if (!function_exists('hasActivePermission')) {
+    function hasActivePermission(string $permission): bool
+    {
+        $user = Auth::user();
+        if (!$user) return false;
+        if ($user->hasRole('Super Admin')) return true;
+
+        $activePermissions = session('active_permissions');
+
+        if ($activePermissions !== null) {
+            return in_array($permission, $activePermissions);
+        }
+
+        return $user->can($permission);
     }
 }
 

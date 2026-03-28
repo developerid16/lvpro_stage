@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
@@ -22,10 +23,32 @@ class DepartmentController extends Controller
             'module_base_url' => url('admin/departments')
         ];
         
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list", ['only' => ['index', 'datatable']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
+
     }
 
     /* -----------------------------------------------------
@@ -34,9 +57,10 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         $query = ClubLocation::orderBy('name', 'ASC');
-        // ✅ Super Admin = all records, Others = only their own
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
         }
         $this->layout_data['club_locations'] = $query->get();
         return view($this->view_file_path . "index")->with($this->layout_data);
@@ -49,9 +73,15 @@ class DepartmentController extends Controller
     public function datatable(Request $request)
     {
         $qb = Department::query();
-        // ✅ Super Admin = all records, Other users = only their own records
+        // if (!Auth::user()->hasRole('Super Admin')) {
+        //     $qb->where('department_by', $deprolecub['department']->id);
+        //     $qb->where('club_location_by', $deprolecub['club_location_id']);
+        //     $qb->where('role_by', $deprolecub['role_id']);
+        // }
         if (!Auth::user()->hasRole('Super Admin')) {
-            $qb->where('added_by', Auth::user()->id);
+            $qb->where('active_department_id', $this->activeDeptId);
+            $qb->where('active_club_location_id', $this->activeLocationId);
+            $qb->where('active_role_id', $this->activeRoleId);
         }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -77,14 +107,34 @@ class DepartmentController extends Controller
                 ? "<span class='badge bg-success'>Active</span>"
                 : "<span class='badge bg-danger'>Inactive</span>";
 
+           $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
 
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary font-size-18'></i></a>";
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
 
-            $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'><i class='mdi mdi-delete text-danger font-size-18'></i></a>";
-            $action .= "</div>";
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
+            }
+
+            $action .= "<a target='_blank' href='" . url('admin/departments/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Departments Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
 
             $final_data[$i] = [
                 'sr_no'      => $index,
@@ -126,7 +176,25 @@ class DepartmentController extends Controller
             'status' => 'required|in:Active,Inactive',
         ]);
         $post_data['added_by'] = Auth::user()->id;
-        Department::create($post_data);
+        $deprolecub = $this->getCurrentDeptData();
+        $post_data['department_by'] = $deprolecub['department']->id ?? null;
+        $post_data['club_location_by'] = $deprolecub['club_location_id'] ?? null;
+        $post_data['role_by'] = $deprolecub['role_id'] ?? null;
+
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
+        // Department::create($post_data);
+        $department = Department::create($post_data);
+        DepartmentActivityLogger::log(
+            'create',
+            'department',
+            $department->id,
+            $department->name,
+            [],
+            $department->toArray(),
+            "Department '{$department->name}' Created Successfully."
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Department Created Successfully']);
     }
@@ -155,7 +223,21 @@ class DepartmentController extends Controller
             'status' => 'required|in:Active,Inactive',
         ]);
 
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
+
+        $oldData = $department->toArray();
         $department->update($post_data);
+        DepartmentActivityLogger::log(
+            'update',
+            'department',
+            $department->id,
+            $department->name,
+            $oldData,
+            $department->fresh()->toArray(),
+            "Department '{$department->name}' Updated Successfully."
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Department Updated Successfully']);
     }
@@ -167,6 +249,15 @@ class DepartmentController extends Controller
     {
         $department = Department::findOrFail($id);
         $department->delete();
+        DepartmentActivityLogger::log(
+            'delete',
+            'department',
+            $department->id,
+            $department->name,
+            $department->toArray(),
+            [],
+            "Department '{$department->name}' moved to trash."
+        );
         AdminLogger::log('delete', Department::class, $id);
         return response()->json([
             'status' => 'success',
@@ -247,8 +338,19 @@ class DepartmentController extends Controller
      * ----------------------------------------------------- */
     public function restore($id)
     {
-        Department::withTrashed()->findOrFail($id)->restore();
- 
+        // Department::withTrashed()->findOrFail($id)->restore();
+
+        $department = Department::withTrashed()->findOrFail($id);
+        $department->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'department',
+            $department->id,
+            $department->name,
+            [],
+            [],
+            "Department '{$department->name}' Restored Successfully."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Department Restored Successfully'
@@ -260,8 +362,20 @@ class DepartmentController extends Controller
      * ----------------------------------------------------- */
     public function forceDelete($id)
     {
-        Department::withTrashed()->findOrFail($id)->forceDelete();
- 
+        // Department::withTrashed()->findOrFail($id)->forceDelete();
+        $department = Department::withTrashed()->findOrFail($id);
+        $departmentName = $department->name;
+        $departmentData = $department->toArray();
+        $department->forceDelete();
+        DepartmentActivityLogger::log(
+            'force_delete',
+            'department',
+            $id,
+            $departmentName,
+            $departmentData,
+            [],
+            "Department '{$departmentName}' permanently deleted."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Department Permanently Deleted'

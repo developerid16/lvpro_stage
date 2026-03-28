@@ -13,7 +13,11 @@ class Department extends Model
         'name',
         'status',
         'club_location_id',
-        'added_by'
+        'added_by',
+
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
     public $table = 'departments';
 

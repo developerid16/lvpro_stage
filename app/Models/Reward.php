@@ -77,6 +77,10 @@ class Reward extends Model
         'hide_catalogue',
         'hide_cat_time',
         'data_migrate_records',
+
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
 
     protected $casts = [

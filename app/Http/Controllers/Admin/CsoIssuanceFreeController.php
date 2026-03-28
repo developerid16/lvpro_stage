@@ -27,8 +27,28 @@ class CsoIssuanceFreeController extends Controller
             'title' => 'CSO Issuance (Free)',
             'module_base_url' => url('admin/cso-issuance-free')
         ]; 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
         
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
   
 
@@ -40,7 +60,11 @@ class CsoIssuanceFreeController extends Controller
     public function datatable(Request $request)
     {
         $query = Reward::where('type',  '1')->where('is_draft', 0)->where('cso_method', 0);
-
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
+        }
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];

@@ -21,7 +21,7 @@ class AppContentController extends Controller
         ];
 
         
-        $this->middleware("permission:$permission_prefix", ['only' => ['index', 'store']]);
+        $this->middleware("active.permission:$permission_prefix", ['only' => ['index', 'store']]);
     }
 
     public function index()

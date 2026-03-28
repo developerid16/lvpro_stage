@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CustomLocation;
@@ -39,10 +40,31 @@ class EvoucherStockController extends Controller
             'module_base_url'   => url('admin/evoucher'),
         ];
 
-        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -66,9 +88,11 @@ class EvoucherStockController extends Controller
     {
         $query = Reward::where('type',  '1');
         
-        if (auth()->user()->role != 1) {
-            $query->where('added_by', auth()->id());
-            }
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
+        }
             
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
@@ -1036,7 +1060,7 @@ class EvoucherStockController extends Controller
         $reward = Reward::findOrFail($request->id);
 
         $updateRequest = RewardUpdateRequest::where('reward_id', $reward->id)->where('status', 'pending')->where('type', '1')->first();
-
+        $oldData = $updateRequest->toArray();
         $baseQty = $updateRequest ? $updateRequest->inventory_qty : $reward->inventory_qty;
 
         // =============================
@@ -1087,6 +1111,15 @@ class EvoucherStockController extends Controller
 
             $updateRequest->inventory_qty = $newQty;
             $updateRequest->save();
+             DepartmentActivityLogger::log(
+                'update',
+                'treats-deals-stock',
+                $updateRequest->id,
+                $updateRequest->name,
+                $oldData,
+                $updateRequest->fresh()->toArray(),
+                "Treats Deals Stock '{$updateRequest->name}' adjustment successfully"
+            );
 
         } else {
 
@@ -1100,6 +1133,15 @@ class EvoucherStockController extends Controller
             $data['inventory_qty'] = $newQty;
 
             RewardUpdateRequest::create($data);
+            DepartmentActivityLogger::log(
+                'create',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                [],
+                $data,
+                "Treats Deals Stock '{$reward->name}' Stock adjustment successfully."
+            );
         }
 
         return response()->json([

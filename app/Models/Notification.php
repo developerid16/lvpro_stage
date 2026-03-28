@@ -20,7 +20,11 @@ class Notification extends Model
         'type',
         'user_id',
         'reward_id',
-        'added_by'
+        'added_by',
+
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
     ];
      public $table = 'notifications';
 }

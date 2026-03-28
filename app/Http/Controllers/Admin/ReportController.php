@@ -30,10 +30,10 @@ class ReportController extends Controller
 
 
 
-        // $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-customer", ['only' => ['customerIndex']]);
-        $this->middleware("permission:$permission_prefix-sales", ['only' => ['sales']]);
-        $this->middleware("permission:$permission_prefix-reward", ['only' => ['userPurchasedRewardReport']]);
+        // $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-customer", ['only' => ['customerIndex']]);
+        $this->middleware("active.permission:$permission_prefix-sales", ['only' => ['sales']]);
+        $this->middleware("active.permission:$permission_prefix-reward", ['only' => ['userPurchasedRewardReport']]);
     }
     //
     public function customerIndex(Request $request)

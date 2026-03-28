@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use SoftDeletes;
-    public function department()
+    public function departments()
     {
-        return $this->belongsTo(Department::class, 'department');
+        return $this->belongsToMany(
+            Department::class,
+            'department_role',
+            'role_id',
+            'department_id'
+        );
     }
 }

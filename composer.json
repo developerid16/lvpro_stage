@@ -42,7 +42,8 @@
         },
         "files": [
             "app/Helpers/Helper.php",
-            "app/Helpers/AdminLogger.php"
+            "app/Helpers/AdminLogger.php",
+            "app/Helpers/DepartmentActivityLogger.php"
         ]
     },
     "autoload-dev": {

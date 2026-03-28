@@ -18,7 +18,7 @@
     @endcomponent
     <div class="card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
-            <div>
+            <!-- <div>
                 @can("push-voucher-by-member-id")
                     <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddMemberVoucher">Push Voucher By Member ID</button>
                 @endcan
@@ -36,6 +36,39 @@
                         <i class="mdi mdi-trash"></i> View Trash
                     </a>
                 @endcan
+            </div> -->
+            <div>
+                @if(hasActivePermission('push-voucher-by-member-id'))
+                    <button class="sh_btn ml_auto btn btn-primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#AddMemberVoucher">
+                        Push Voucher By Member ID
+                    </button>
+                @endif
+
+                @if(hasActivePermission('push-voucher-by-parameter'))
+                    <button class="sh_btn ml_auto btn btn-primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#AddParameterVoucher">
+                        Push Voucher By Parameter
+                    </button>
+                @endif
+            </div>
+
+            <div class="d-flex gap-2">
+                @if(hasActivePermission("$permission_prefix-create"))
+                    <button class="sh_auto btn btn-primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#AddModal">
+                        <i class="mdi mdi-plus"></i> Add New
+                    </button>
+                @endif
+
+                @can('super admin')
+                    <a class="btn btn-danger" href="{{ url('admin/evoucher/trash') }}">
+                        <i class="mdi mdi-trash"></i> View Trash
+                    </a>
+                @endif
             </div>
         </div>
 
@@ -72,7 +105,7 @@
     <!--Push Parameter Voucher-->
   
     <!-- Create -->
-    @can("$permission_prefix-create")
+    @if(hasActivePermission("$permission_prefix-create"))
         @include('admin.evoucher.add-edit-modal')
     @endcan
 

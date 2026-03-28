@@ -21,9 +21,29 @@ class CsoPhysicalController extends Controller
             'title' => 'CSO - Physical Collection',
             'module_base_url' => url('admin/cso-physical')
         ];  
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
-        $this->middleware("permission:$permission_prefix-view", ['only' => ['view']]);
-        $this->middleware("permission:$permission_prefix-issue", ['only' => ['issue']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable']]);
+        $this->middleware("active.permission:$permission_prefix-view", ['only' => ['view']]);
+        $this->middleware("active.permission:$permission_prefix-issue", ['only' => ['issue']]);
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
 
     }
   
@@ -41,6 +61,13 @@ class CsoPhysicalController extends Controller
             })
             ->with('reward')
             ->select('purchases.*');
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->whereHas('reward', function ($q) {
+                $q->where('active_department_id', $this->activeDeptId)
+                ->where('active_club_location_id', $this->activeLocationId)
+                ->where('active_role_id', $this->activeRoleId);
+            });
+        }
 
         // --------------------------------
         // FILTER: Member ID / Receipt No / Redeemed Date

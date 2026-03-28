@@ -17,7 +17,7 @@
         </div>
         {{--<h4 class="card-title mb-0">Role Management</h4>--}}
         <div class="d-flex gap-2">
-            @if(Auth::user()->can("$permission_prefix-create"))
+           @if(hasActivePermission("$permission_prefix-create"))
             <button class="btn btn-primary sh_btn ml_auto" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
                 Add New</button>
             @endif
@@ -48,7 +48,7 @@
 </div>
 
 <!-- Create -->
-@if(Auth::user()->can("$permission_prefix-create"))
+@if(hasActivePermission("$permission_prefix-create"))
 @include('admin.roles.add-edit-modal')
 @endif
 <!-- end modal -->

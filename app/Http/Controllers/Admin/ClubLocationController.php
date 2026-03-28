@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ClubLocation;
@@ -26,10 +27,32 @@ class ClubLocationController extends Controller
 
        
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
+        
     
     }
 
@@ -51,9 +74,10 @@ class ClubLocationController extends Controller
     {
         // $qb = ClubLocation::where('merchant_id', $request->merchant_id);
         $qb = ClubLocation::query();
-        // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $qb->where('added_by', Auth::user()->id);
+            $qb->where('active_department_id', $this->activeDeptId);
+            $qb->where('active_club_location_id', $this->activeLocationId);
+            $qb->where('active_role_id', $this->activeRoleId);
         }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -72,7 +96,34 @@ class ClubLocationController extends Controller
         foreach ($rowsQueryBuilder->get() as $row) {
 
             $index = $startIndex + $i + 1;
+            $activePermissions = session('active_permissions', []);
 
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
+            $action = "<div class='d-flex gap-3'>";
+
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
+            }
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
+            }
+
+            $action .= "<a target='_blank' href='" . url('admin/club-location/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Club Location Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
             $final_data[$i] = [
                 'sr_no'      => $index,
                 'name'       => $row->name,
@@ -81,14 +132,7 @@ class ClubLocationController extends Controller
                 'created_at' =>  $row->created_at->format(config('safra.date-format')),
                 'updated_at' =>  $row->updated_at->format(config('safra.date-format')),
 
-                'action' => "<div class='d-flex gap-3'>" .
-                                "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
-                                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                                </a>
-                                <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
-                                    <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                                </a>" .                               
-                            "</div>",
+                'action' => $action,
             ];
 
             $i++;
@@ -142,7 +186,19 @@ class ClubLocationController extends Controller
         // validated data
         $post_data = $validator->validated();
         $post_data['added_by'] = Auth::user()->id;
-        ClubLocation::create($post_data);
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
+        $clublocation = ClubLocation::create($post_data);
+        DepartmentActivityLogger::log(
+            'create',
+            'club-location',
+            $clublocation->id,
+            $clublocation->name,
+            [],
+            $clublocation->toArray(),
+            "Club Location '{$clublocation->name}' Created Successfully."
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Location Created Successfully']);
     }
@@ -191,7 +247,21 @@ class ClubLocationController extends Controller
 
         // validated data
         $post_data = $validator->validated();
-        ClubLocation::findOrFail($id)->update($post_data);
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
+        $clubLocation = ClubLocation::findOrFail($id);
+        $oldData = $clubLocation->toArray();
+        $clubLocation->update($post_data);
+        DepartmentActivityLogger::log(
+            'update',
+            'club-location',
+            $clubLocation->id,
+            $clubLocation->name,
+            $oldData,
+            $clubLocation->fresh()->toArray(),
+            "Club Location '{$clubLocation->name}' Updated Successfully."
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Location Updated Successfully']);
     }
@@ -203,6 +273,15 @@ class ClubLocationController extends Controller
     {
         $location = ClubLocation::findOrFail($id);
         $location->delete();
+        DepartmentActivityLogger::log(
+            'delete',
+            'club-location',
+            $location->id,
+            $location->name,
+            $location->toArray(),
+            [],
+            "Club Location '{$location->name}' moved to trash."
+        );
         AdminLogger::log('delete', ClubLocation::class, $id);
         return response()->json([
             'status' => 'success',
@@ -272,8 +351,19 @@ class ClubLocationController extends Controller
 
     public function restore($id)
     {
-        ClubLocation::withTrashed()->findOrFail($id)->restore();
+        // ClubLocation::withTrashed()->findOrFail($id)->restore();
 
+        $clublocation = ClubLocation::withTrashed()->findOrFail($id);
+        $clublocation->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'club-location',
+            $clublocation->id,
+            $clublocation->name,
+            [],
+            [],
+            "Club Location '{$clublocation->name}' Restored Successfully."
+        );
         return response()->json([
             'status' => 'success',
             'message' => 'Location Restored Successfully'
@@ -281,8 +371,20 @@ class ClubLocationController extends Controller
     }
     public function forceDelete($id)
     {
-        ClubLocation::withTrashed()->findOrFail($id)->forceDelete();
-
+        // ClubLocation::withTrashed()->findOrFail($id)->forceDelete();
+        $clublocation = ClubLocation::withTrashed()->findOrFail($id);
+        $clublocationName = $clublocation->name;
+        $clublocationData = $clublocation->toArray();
+        $clublocation->forceDelete();
+        DepartmentActivityLogger::log(
+            'force_delete',
+            'clublocation',
+            $id,
+            $clublocationName,
+            $clublocationData,
+            [],
+            "Club Location '{$clublocationName}' permanently deleted."
+        );
         return response()->json([
             'status' => 'success',
             'message' => 'Location Permanently Deleted'

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use DB;
+use Illuminate\Support\Facades\Auth;
 
 class Controller extends BaseController
 {
@@ -103,6 +105,35 @@ class Controller extends BaseController
         return $data = [
             'data' => $query,
             'count' => $count
+        ];
+    }
+
+    protected function getCurrentDeptData(): array
+    {
+        $user      = Auth::user();
+        $userRoles = $user->roles()->get();
+ 
+        // Selected dept from session, ya user no first dept
+        $activeDeptId = session('selected_department_id')
+            ?? $userRoles->pluck('department')->filter()->first();
+ 
+        // Current Department
+        $currentDepartment = $activeDeptId
+            ? Department::find($activeDeptId)
+            : null;
+ 
+        // ✅ Club Location ID — selected dept thi
+        $currentClubLocationId = $currentDepartment?->club_location_id ?? null;
+ 
+        // ✅ Role ID — user na roles ma thi selected dept no role
+        $currentRoleId = $userRoles
+            ->firstWhere('department', $activeDeptId)
+            ?->id ?? null;
+ 
+        return [
+            'department'       => $currentDepartment,       // Department object
+            'club_location_id' => $currentClubLocationId,   // Club Location ID
+            'role_id'          => $currentRoleId,           // Role ID
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\View\Composers\HeaderComposer;
 use App\Models\NotificationUser;
 use App\Observers\ActivityObserver;
 use App\Http\Controllers\Admin\SalesController;
@@ -67,8 +68,6 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\Models\Notification;
-
-use App\Http\View\Composers\NavigationComposer;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -187,7 +186,10 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
-        // ✅ NEW: Department-wise navigation composer
-        View::composer('layouts.horizontal', NavigationComposer::class);
+        View::composer([
+            'layouts.admin',
+            'layouts.horizontal', 
+            '*',
+        ], HeaderComposer::class);
     }
 }

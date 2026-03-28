@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\DepartmentActivityLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ParticipatingLocations;
@@ -28,10 +29,35 @@ class TreatsAndDealsApprovalController extends Controller
             'module_base_url' => url('admin/treats-and-deals-approval')
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+
+            $activeRole = Auth::user()->roles
+                            ->first(function ($role) use ($activeDeptId) {
+                                return (string)$role->department === (string)$activeDeptId;
+                            });
+            $roleIds = Auth::user()->roles
+                ->filter(function ($role) use ($activeDeptId) {
+                    return (string)$role->department === (string)$activeDeptId;
+                })
+                ->pluck('id')
+                ->toArray();
+            // Fallback
+            if (!$activeRole) {
+                $activeRole = Auth::user()->roles->first();
+            }
+            $this->roleIds = $roleIds;
+            $this->activeDeptId    = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId    = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -45,11 +71,11 @@ class TreatsAndDealsApprovalController extends Controller
 
     public function datatable(Request $request)
     {
-      
         $query = RewardUpdateRequest::with('requester')->where('type','0')->orderBy('created_at', 'desc');
-        // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->whereIn('active_role_id', $this->roleIds);
         }
         $filters = json_decode($request->get('filter'), true) ?? [];
 
@@ -552,6 +578,15 @@ class TreatsAndDealsApprovalController extends Controller
             }
 
             DB::commit();
+            DepartmentActivityLogger::log(
+                'approve',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                [],
+                $reward->toArray(),
+                "Treats & Deals Reward '{$reward->name}' Approve."
+            );
             return response()->json([
                 'status' => 'success',
                 'message' => 'Reward updated successfully',
@@ -571,19 +606,41 @@ class TreatsAndDealsApprovalController extends Controller
     }
 
 
-   public function reject($id)
+    public function reject($id)
     {
-        $request = RewardUpdateRequest::findOrFail($id);
+        $rewardRequest = RewardUpdateRequest::findOrFail($id);
 
-        $request->update([
+        // Get actual reward model
+        $reward = Reward::find($rewardRequest->reward_id);
+
+        if (!$reward) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Reward not found.'
+            ], 404);
+        }
+
+        // Update request
+        $rewardRequest->update([
             'status' => 'rejected',
             'note'   => request('note')
         ]);
+
+        // Log activity
+        DepartmentActivityLogger::log(
+            'reject',
+            'Reward',
+            $reward->id,
+            $reward->name,
+            [],
+            $rewardRequest->toArray(),
+            "Treats & Deals Reward '{$reward->name}' rejected. Reason : ".request('note').""
+        );
 
         return response()->json([
             'status'  => true,
             'message' => 'Request rejected successfully.'
         ]);
     }
-   
+
 }

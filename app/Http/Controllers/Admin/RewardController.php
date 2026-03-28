@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\API\GetSRPMerchandiseItemList;
 use App\Models\CartItem;
@@ -44,10 +45,33 @@ class RewardController extends Controller
             'module_base_url'   => url('admin/reward'),
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -69,7 +93,7 @@ class RewardController extends Controller
 
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
-    
+
     public function datatable(Request $request)
     {
         $type  = $request->type === 'campaign-voucher' ? 'campaign-voucher' : 'normal-voucher';
@@ -77,9 +101,10 @@ class RewardController extends Controller
         // if (auth()->user()->role != 1) { // not Super Admin
         //     $query->where('added_by', auth()->id());
         // }
-        // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
         }
 
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
@@ -218,21 +243,22 @@ class RewardController extends Controller
             
             $final_data[$key]['status'] = $status;
 
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
 
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-
+            if ($canEdit) {
                 if ($status == 'pending approval') {
-
                     $action .= "<a href='javascript:void(0)' 
                                     class='' 
                                     style='cursor:not-allowed;color:#b6b8c4 !important;' 
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
-
                 } else {
-
                     $action .= "<a href='javascript:void(0)' 
                                     class='edit' 
                                     data-id='$row->id'
@@ -241,10 +267,20 @@ class RewardController extends Controller
                                 </a>";
                 }
             }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
             }
-          
+
+            $action .= "<a target='_blank' href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Reward Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
+
             $final_data[$key]['action'] = $action . "</div>";
         }
         $data          = [];
@@ -401,7 +437,11 @@ class RewardController extends Controller
 
                     'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
                     'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,  
-                    'is_featured' => $request->boolean('is_featured'),         
+                    'is_featured' => $request->boolean('is_featured'),
+
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
 
 
@@ -513,7 +553,16 @@ class RewardController extends Controller
                 }
 
 
-                 DB::commit();
+                DB::commit();
+                DepartmentActivityLogger::log(
+                    'create',
+                    'Reward',
+                    $reward->id,
+                    $reward->name,
+                    [],
+                    $reward->toArray(),
+                    "Reward '{$reward->name}' saved as draft."
+                );
                 return response()->json(['status'=>'success','message'=>'Saved As Draft Successfully']);
             }else{
 
@@ -822,7 +871,7 @@ class RewardController extends Controller
                 * 7) CREATE REWARD
                 * ---------------------------------------------------*/
                 $maxQty = $request->reward_type == 0  ? $request->max_quantity_digital  : $request->max_quantity_physical;
-    
+                
                 $reward = Reward::create([
                     'type'               => '0',
                     'status'    => 'pending',
@@ -884,7 +933,11 @@ class RewardController extends Controller
                     'suspend_deal'              => $request->filled('suspend_deal') ? 1 : 0,
                     'suspend_voucher'           => $request->filled('suspend_voucher') ? 1 : 0,
                     'is_featured' => $request->boolean('is_featured'),    
-                    'is_draft'             => 2,            
+                    'is_draft'             => 2,
+                    
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
     
                 $updateRequest = RewardUpdateRequest::create([
@@ -953,6 +1006,9 @@ class RewardController extends Controller
                     'location_text'             => $request->filled('location_text') ? $locationTextId : '',
                     'max_order'                 => $request->filled('max_order') ? (int) $request->max_order : 0,
                     'is_draft'             => 2,
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
     
     
@@ -1083,7 +1139,15 @@ class RewardController extends Controller
             * SUCCESS
             * ---------------------------------------------------*/
             DB::commit();
-
+            DepartmentActivityLogger::log(
+                'create',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                [],
+                $reward->toArray(),
+                "Reward '{$reward->name}' created and sent for approval."
+            );
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Reward Created Successfully'
@@ -1170,7 +1234,7 @@ class RewardController extends Controller
         $isDraft = $request->action === 'draft'; 
         $tiers = Tier::where('status', operator: 'Active')->get();
         $reward = Reward::findOrFail($id);
-
+        $oldData = $reward->toArray();
         DB::beginTransaction();
 
         try {
@@ -1334,6 +1398,10 @@ class RewardController extends Controller
                     'suspend_deal'    => $request->has('suspend_deal') ? 1 : 0,
                     'suspend_voucher' => $request->has('suspend_voucher') ? 1 : 0,
                     'is_featured' => $request->has('is_featured') ? 1 : 0,
+
+                    'active_department_id' => $this->activeDeptId ?? NULL,
+                    'active_club_location_id' => $this->activeLocationId ?? NULL,
+                    'active_role_id' => $this->activeRoleId ?? NULL,
                 ]);
 
 
@@ -1483,6 +1551,15 @@ class RewardController extends Controller
                 * SUCCESS
                 * ---------------------------------------------------*/
                 DB::commit();
+                DepartmentActivityLogger::log(
+                    'update',
+                    'Reward',
+                    $reward->id,
+                    $reward->name,
+                    $oldData,
+                    $reward->fresh()->toArray(),
+                    "Reward '{$reward->name}' draft updated."
+                );
 
                 return response()->json([
                     'status'  => 'success',
@@ -1887,15 +1964,8 @@ class RewardController extends Controller
                 $locationTextId = CustomLocation::getOrCreate(
                     $request->location_text ?? ''
                 );
-    
-                // if ((int) $reward->is_draft != 1) {
-                    $updateRequest = RewardUpdateRequest::updateOrCreate(
-                        [
-                            'reward_id' => $reward->id,
-                            'status'    => 'pending',
-                            'type'      => '0',
-                        ],
-                        [
+
+                $data = [
                             'is_draft'             => 0, 
                             'cso_method'          => (int) ($request['cso_method'] ?? 0),
                             'request_by'          => auth()->id(),
@@ -1962,7 +2032,19 @@ class RewardController extends Controller
                             'suspend_deal'        => $request->has('suspend_deal') ? 1 : 0,
                             'suspend_voucher'     => $request->has('suspend_voucher') ? 1 : 0,
                             'is_featured' => $request->boolean('is_featured'),
-                        ]
+
+                            'active_department_id' => $this->activeDeptId ?? NULL,
+                            'active_club_location_id' => $this->activeLocationId ?? NULL,
+                            'active_role_id' => $this->activeRoleId ?? NULL,
+                        ];
+    
+                // if ((int) $reward->is_draft != 1) {
+                    $updateRequest = RewardUpdateRequest::updateOrCreate(
+                        [
+                            'reward_id' => $reward->id,
+                            'status'    => 'pending',
+                            'type'      => '0',
+                        ], $data
                     );
                     $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
     
@@ -2094,6 +2176,15 @@ class RewardController extends Controller
             * SUCCESS
             * ---------------------------------------------------*/
             DB::commit();
+            DepartmentActivityLogger::log(
+                'update',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                $oldData,
+                $data,
+                "Reward '{$reward->name}' updated and sent for approval."
+            );
 
             return response()->json([
                 'status'  => 'success',
@@ -2328,6 +2419,15 @@ class RewardController extends Controller
 
             // ✅ ONLY SOFT DELETE
             $reward->delete();
+            DepartmentActivityLogger::log(
+                'delete',
+                'Reward',
+                $reward->id,
+                $reward->name,
+                $reward->toArray(),
+                [],
+                "Reward '{$reward->name}' moved to trash."
+            );
 
             AdminLogger::log('delete', Reward::class, $id);
 
@@ -2353,7 +2453,15 @@ class RewardController extends Controller
     {
         $reward = Reward::withTrashed()->findOrFail($id);
         $reward->restore();
-
+        DepartmentActivityLogger::log(
+            'restore',
+            'Reward',
+            $reward->id,
+            $reward->name,
+            [],
+            [],
+            "Reward '{$reward->name}' restored from trash."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Reward Restored Successfully'
@@ -2399,11 +2507,21 @@ class RewardController extends Controller
             RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
             RewardLocationUpdate::where('reward_id', $reward->id)->delete();
 
+            $rewardName = $reward->name;
+            $rewardData = $reward->toArray();
             // ✅ FINAL DELETE
             $reward->forceDelete();
 
             AdminLogger::log('force_delete', Reward::class, $id);
-
+            DepartmentActivityLogger::log(
+                'force_delete',
+                'Reward',
+                $id,
+                $rewardName,
+                $rewardData,
+                [],
+                "Reward '{$rewardName}' permanently deleted."
+            );
             DB::commit();
 
             return response()->json([
@@ -2579,4 +2697,16 @@ class RewardController extends Controller
         return view($this->view_file_path . "trash")->with($this->layout_data);
     }
 
+    public function activityLog($record_id)
+    {
+        $department_activity_logs = DB::table('department_activity_logs')
+            ->where('record_id', $record_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $this->layout_data['logs']      = $department_activity_logs;
+        $this->layout_data['record_id'] = $record_id;
+
+        return view($this->view_file_path . "activity-log")->with($this->layout_data);
+    }
 }

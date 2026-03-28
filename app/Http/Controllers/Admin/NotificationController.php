@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Models\NotificationUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -23,11 +24,31 @@ class NotificationController extends Controller
             'module_base_url' => url('admin/notification')
         ];
 
-        
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /* -----------------------------------------------------
@@ -46,7 +67,9 @@ class NotificationController extends Controller
         $qb = Notification::where('type', 'promotions');
         // ✅ Super Admin = all records, Other users = only their own records
         if (!Auth::user()->hasRole('Super Admin')) {
-            $qb->where('added_by', Auth::user()->id);
+            $qb->where('active_department_id', $this->activeDeptId);
+            $qb->where('active_club_location_id', $this->activeLocationId);
+            $qb->where('active_role_id', $this->activeRoleId);
         }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -65,13 +88,30 @@ class NotificationController extends Controller
         foreach ($rowsQueryBuilder->get() as $row) {
             $index = $startIndex + $i + 1;
 
+            $activePermissions = session('active_permissions', []);
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
 
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                // $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary font-size-18'></i></a>";
+            // Delete Button
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' 
+                                class='delete_btn' 
+                                data-id='{$row->id}' 
+                                title='Delete'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
             }
 
-            $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'><i class='mdi mdi-delete text-danger font-size-18'></i></a>";
+            // Activity Log Button
+            $action .= "<a target='_blank' 
+                            href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='{$row->id}' 
+                            title='Reward Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
+
             $action .= "</div>";
 
             $final_data[$i] = [
@@ -142,8 +182,25 @@ class NotificationController extends Controller
         }
 
         $post_data['added_by'] = Auth::user()->id;
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
 
-        Notification::create($post_data);
+        $record = Notification::create($post_data);
+
+        DepartmentActivityLogger::log(
+            'create',
+            'notification',
+            $record->id,
+            $record->name,
+            [],
+            $record->toArray(),
+            "Notification '{$record->name}' created Created Successfully."
+        );
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Reward Created Successfully'
+        ]);
 
         return response()->json(['status' => 'success', 'message' => 'Notification Created Successfully']);
     }
@@ -169,7 +226,7 @@ class NotificationController extends Controller
     {
         $notification = Notification::findOrFail($id);
 
-       
+        $oldData = $notification->toArray();
         $validator = Validator::make($request->all(), [
             'title'      => 'required|string|max:35',
             'short_desc' => 'required|string|max:180',
@@ -209,8 +266,20 @@ class NotificationController extends Controller
           $post_data['img'] = $name;
         }
 
-
+        $post_data['added_by'] = Auth::user()->id;
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
         $notification->update($post_data);
+        DepartmentActivityLogger::log(
+            'update',
+            'notification',
+            $notification->id,
+            $notification->name,
+            $oldData,
+            $notification->fresh()->toArray(),
+            "Notification '{$notification->name}' Updated Successfully."
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Notification Updated Successfully']);
     }
@@ -222,6 +291,15 @@ class NotificationController extends Controller
     {
         $notification = Notification::findOrFail($id);
         $notification->delete();
+        DepartmentActivityLogger::log(
+            'delete',
+            'notification',
+            $notification->id,
+            $notification->title,
+            $notification->toArray(),
+            [],
+            "Notification '{$notification->title}' moved to trash."
+        );
         AdminLogger::log('delete', Notification::class, $id);
         if ($notification->img && file_exists(public_path($notification->img))) {
             unlink(public_path($notification->img));
@@ -295,8 +373,18 @@ class NotificationController extends Controller
 
      public function restore($id)
     {
-        Notification::withTrashed()->findOrFail($id)->restore();
- 
+        // Notification::withTrashed()->findOrFail($id)->restore();
+        $notification = Notification::withTrashed()->findOrFail($id);
+        $notification->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'notification',
+            $notification->id,
+            $notification->title,
+            [],
+            [],
+            "Notification '{$notification->title}' restored from trash."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Notification Restored Successfully'
@@ -308,8 +396,20 @@ class NotificationController extends Controller
      * ----------------------------------------------------- */
     public function forceDelete($id)
     {
-        Notification::withTrashed()->findOrFail($id)->forceDelete();
- 
+        $notification = Notification::withTrashed()->findOrFail($id);
+        // Notification::withTrashed()->findOrFail($id)->forceDelete();
+        $notificationData = $notification->toArray();
+        $notificationName = $notificationData->title;
+        $notification->forceDelete();
+        DepartmentActivityLogger::log(
+            'force_delete',
+            'notification',
+            $id,
+            $notificationName,
+            $notificationData,
+            [],
+            "Notification '{$notificationName}' permanently deleted."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Notification Permanently Deleted'

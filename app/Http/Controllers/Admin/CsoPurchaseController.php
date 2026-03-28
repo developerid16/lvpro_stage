@@ -32,7 +32,7 @@ class CsoPurchaseController extends Controller
             'module_base_url' => url('admin/cso-purchase')
         ];  
         
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index','getMemberDetails','checkout','complete','cancel']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index','getMemberDetails','checkout','complete','cancel']]);
 
     }
   

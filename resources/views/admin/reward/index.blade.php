@@ -22,11 +22,18 @@
             {{-- <h4 class="card-title mb-0">Rewards</h4> --}}
             <div></div>
             <div class="d-flex gap-2">
-                @can("$permission_prefix-create")
+                @if(hasActivePermission("$permission_prefix-create"))
+                    <button class="sh_auto btn btn-primary" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#AddModal">
+                        <i class="mdi mdi-plus"></i> Add New
+                    </button>
+                @endif
+                <!-- @can("$permission_prefix-create")
                     <button class="sh_btn ml_auto btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i
                             class="mdi mdi-plus"></i>
                         Add New</button>
-                @endcan
+                @endcan -->
                 @can('super admin')
                     <a class="btn btn-danger"
                         href="{{ url('admin/reward/trash') }}">
@@ -73,8 +80,8 @@
 
     <!-- Create -->
     @can("$permission_prefix-create")
-        @include('admin.reward.add-edit-modal')
     @endcan
+    @include('admin.reward.add-edit-modal')
     <!-- end modal -->
 @endsection
 

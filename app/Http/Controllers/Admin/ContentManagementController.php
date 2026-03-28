@@ -25,7 +25,7 @@ class ContentManagementController extends Controller
             'module_base_url' => url('admin/content-management')
         ];
 
-        $this->middleware("permission:$permission_prefix", ['only' => ['index', 'update']]);
+        $this->middleware("active.permission:$permission_prefix", ['only' => ['index', 'update']]);
     }
     public function index()
     {

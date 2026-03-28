@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BirthdayVoucherApprovalController;
 use App\Http\Controllers\Admin\CsoPurchaseController;
@@ -186,6 +187,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('roles/trash', [RoleController::class, 'trash'])->name('admin.roles.trash');
     Route::post('roles/{id}/restore', [RoleController::class, 'restore']);
     Route::delete('roles/{id}/force-delete', [RoleController::class, 'forceDelete']);
+    Route::get('roles/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+    
     Route::resource('roles', RoleController::class);
 
 
@@ -231,6 +234,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('reward/trash', [RewardController::class, 'trash'])->name('admin.reward.trash');
     Route::post('reward/{id}/restore', [RewardController::class, 'restore']);
     Route::delete('reward/{id}/force-delete', [RewardController::class, 'forceDelete']);
+    Route::get('reward/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
     Route::resource('reward', RewardController::class);
 
     Route::get('automated-reward', [RewardController::class, 'indexAutomatedReward']);
@@ -297,6 +301,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
         // Milestone save
         Route::post('/milestone/save',  [TierController::class, 'milestoneSave'])->name('milestone.save');
 
+    Route::get('{record_id}/activity-log', [TierController::class, 'activityLog']);
+
+
         Route::get('trash', [TierController::class, 'trash'])->name('admin.tier.trash');
         Route::post('{id}/restore', [TierController::class, 'restore']);
         Route::delete('{id}/force-delete', [TierController::class, 'forceDelete']);
@@ -353,6 +360,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('merchants/trash', [MerchantController::class, 'trash'])->name('admin.merchants.trash');
     Route::post('merchants/{id}/restore', [MerchantController::class, 'restore']);
     Route::delete('merchants/{id}/force-delete', [MerchantController::class, 'forceDelete']);
+    Route::get('merchants/{record_id}/activity-log', [MerchantController::class, 'activityLog']);
     Route::resource('merchants', MerchantController::class);
     
     Route::get('merchant/{merchant}/club-location', [ClubLocationController::class, 'index'])->name('admin.club-location.index');
@@ -361,7 +369,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('club-location/trash', [ClubLocationController::class, 'trash'])->name('admin.club-location.trash');
     Route::post('club-location/{id}/restore', [ClubLocationController::class, 'restore']);
     Route::delete('club-location/{id}/force-delete', [ClubLocationController::class, 'forceDelete']);
-
+    Route::get('club-location/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
     Route::resource('club-location', ClubLocationController::class);
     
     Route::get('participating-merchant/datatable', [ParticipatingMerchantController::class, 'datatable'])->name('admin.participating-merchant.datatable');
@@ -385,6 +393,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('departments/trash', [DepartmentController::class, 'trash'])->name('admin.departments.trash');
     Route::post('departments/{id}/restore', [DepartmentController::class, 'restore']);
     Route::delete('departments/{id}/force-delete', [DepartmentController::class, 'forceDelete']);
+    Route::get('departments/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+
     Route::resource('departments', DepartmentController::class);
     
     Route::get('permissions/datatable', [PermissionController::class, 'datatable'])->name('admin.permission.datatable');
@@ -398,6 +408,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('evoucher/trash', [EvoucherController::class, 'trash'])->name('admin.evoucher.trash');
     Route::post('evoucher/{id}/restore', [EvoucherController::class, 'restore']);
     Route::delete('evoucher/{id}/force-delete', [EvoucherController::class, 'forceDelete']);
+    Route::get('evoucher/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+
     Route::resource('evoucher', EvoucherController::class);
 
     Route::get('birthday-voucher/get-club-locations-with-outlets', [BirthdayEvoucherController::class, 'getClubMerchantOutletStructure']);
@@ -406,6 +418,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('birthday-voucher/trash', [BirthdayEvoucherController::class, 'trash'])->name('admin.birthday-voucher.trash');
     Route::post('birthday-voucher/{id}/restore', [BirthdayEvoucherController::class, 'restore']);
     Route::delete('birthday-voucher/{id}/force-delete', [BirthdayEvoucherController::class, 'forceDelete']);
+    // Route::delete('birthday-voucher/{id}/force-delete', [BirthdayEvoucherController::class, 'forceDelete']);
     Route::resource('birthday-voucher', BirthdayEvoucherController::class);
     
     Route::get('push-voucher/datatable', action: [PushVoucherController::class, 'datatable']);
@@ -472,6 +485,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('fabs/trash', [FabsController::class, 'trash'])->name('admin.fabs.trash');
     Route::post('fabs/{id}/restore', [FabsController::class, 'restore']);
     Route::delete('fabs/{id}/force-delete', [FabsController::class, 'forceDelete']);
+    Route::get('fabs/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+
     Route::resource('fabs', FabsController::class);
 
     Route::post('/upload-csv', [RewardController::class, 'uploadCsv'])->name('upload.csv');

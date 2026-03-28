@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\Request;
@@ -30,10 +31,31 @@ class RoleController extends Controller
             'module_base_url' => url('admin/roles')
         ];
 
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -45,7 +67,14 @@ class RoleController extends Controller
     {
 
         $this->layout_data['permission'] = Permission::where('status','Active')->get();
-        $this->layout_data['department'] = Department::where('status','Active')->get();
+        $qb = Department::where('status', 'Active');
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $qb->where('active_department_id', $this->activeDeptId)
+            ->where('active_club_location_id', $this->activeLocationId)
+            ->where('active_role_id', $this->activeRoleId);
+        }
+
+        $this->layout_data['department'] = $qb->get();
 
 
         return view($this->view_file_path . 'index')->with($this->layout_data);
@@ -55,8 +84,13 @@ class RoleController extends Controller
     {
         $query = Role::query();
         // ✅ Super Admin = all records, Other users = only their own records
+        // if (!Auth::user()->hasRole('Super Admin')) {
+        //     $query->where('added_by', Auth::user()->id);
+        // }
         if (!Auth::user()->hasRole('Super Admin')) {
-            $query->where('added_by', Auth::user()->id);
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
         }
         $query->with(['permissions'])->where('name', '!=', 'super admin');
 
@@ -90,14 +124,44 @@ class RoleController extends Controller
             }
             $final_data[$key]['permissions']  = $permission;
 
+            // $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            // }
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            //     $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+            // }
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
             }
+
+            $action .= "<a target='_blank' href='" . url('admin/roles/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Roles Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
             $final_data[$key]['action'] = $action . "</div>";
+
+            
         }
 
         $data          = [];
@@ -151,16 +215,29 @@ class RoleController extends Controller
                 'errors'  => $validator->errors()
             ], 422);
         }
-
-        $role = Role::create([
+        $post_data = [
             'name'       => $request->name,
             'department' => $request->department,
             'status'     => $request->status,
-            'added_by'   => Auth::user()->id, // ✅ Set added_by to current user
-        ]);
+            'added_by'   => Auth::user()->id,
+        ];
+        $post_data['active_department_id']      = $this->activeDeptId ?? NULL;
+        $post_data['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $post_data['active_role_id']            = $this->activeRoleId ?? NULL;
+        $role = Role::create($post_data);
 
         // ✅ Sync multiple permissions
         $role->syncPermissions($request->permission);
+
+        DepartmentActivityLogger::log(
+            'create',
+            'role',
+            $role->id,
+            $role->name,
+            [],
+            $role->toArray(),
+            "Club Location '{$role->name}' Created Successfully."
+        );
 
         return response()->json([
             'status'  => true,
@@ -220,11 +297,24 @@ class RoleController extends Controller
             ], 422);
         }
         $role = Role::find($id);
+        $oldData = $role->toArray();
         $role->name = $request->input('name');
         $role->department = $request->input('department');
         $role->status = $request->input('status');
+        $role->active_department_id = $this->activeDeptId ?? null;
+        $role->active_club_location_id = $this->activeLocationId ?? null;
+        $role->active_role_id = $this->activeRoleId ?? null;
         $role->save();
         $role->syncPermissions($request->input('permission'));
+        DepartmentActivityLogger::log(
+            'update',
+            'role',
+            $role->id,
+            $role->name,
+            $oldData,
+            $role->fresh()->toArray(),
+            "Role '{$role->name}' Updated Successfully."
+        );
         return response()->json(['status' => 'success', 'message' => 'Role Update Successfully']);
     }
     /**
@@ -236,8 +326,17 @@ class RoleController extends Controller
 
     public function destroy($id)
     {
-        $location = Role::findOrFail($id);
-        $location->delete();
+        $role = Role::findOrFail($id);
+        $role->delete();
+        DepartmentActivityLogger::log(
+            'delete',
+            'club-role',
+            $role->id,
+            $role->name,
+            $role->toArray(),
+            [],
+            "Role '{$role->name}' moved to trash."
+        );
         AdminLogger::log('delete', Role::class, $id);
         return response()->json([
             'status' => 'success',
@@ -304,8 +403,18 @@ class RoleController extends Controller
 
     public function restore($id)
     {
-        Role::withTrashed()->findOrFail($id)->restore();
-
+        // Role::withTrashed()->findOrFail($id)->restore();
+        $role = Role::withTrashed()->findOrFail($id);
+        $role->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'role',
+            $role->id,
+            $role->name,
+            [],
+            [],
+            "Role '{$role->name}' Restored Successfully."
+        );
         return response()->json([
             'status' => 'success',
             'message' => 'Role Restored Successfully'
@@ -313,8 +422,20 @@ class RoleController extends Controller
     }
     public function forceDelete($id)
     {
-        Role::withTrashed()->findOrFail($id)->forceDelete();
-
+        // Role::withTrashed()->findOrFail($id)->forceDelete();
+        $role = Role::withTrashed()->findOrFail($id);
+        $roleName = $role->name;
+        $roleData = $role->toArray();
+        $role->forceDelete();
+        DepartmentActivityLogger::log(
+            'force_delete',
+            'role',
+            $id,
+            $roleName,
+            $roleData,
+            [],
+            "Role '{$roleName}' permanently deleted."
+        );
         return response()->json([
             'status' => 'success',
             'message' => 'Role Permanently Deleted'

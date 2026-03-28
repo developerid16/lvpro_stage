@@ -80,7 +80,10 @@ class RewardUpdateRequest extends Model
         'is_featured',
         'hide_catalogue',
         'hide_cat_time',
-        'note'
+        'note',
+        'active_department_id',
+        'active_club_location_id',
+        'active_role_id'
         
     
     ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Merchant;
@@ -23,11 +24,33 @@ class MerchantController extends Controller
             'module_base_url' => url('admin/merchants')
         ];
 
-        
-        $this->middleware("permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
 
@@ -48,7 +71,9 @@ class MerchantController extends Controller
         $qb = Merchant::query();
         // ✅ Super Admin = all records, Others = only their own
         if (!Auth::user()->hasRole('Super Admin')) {
-            $qb->where('added_by', Auth::user()->id);
+            $qb->where('active_department_id', $this->activeDeptId);
+            $qb->where('active_club_location_id', $this->activeLocationId);
+            $qb->where('active_role_id', $this->activeRoleId);
         }
         $result = $this->get_sort_offset_limit_query($request, $qb, [
             'id',
@@ -74,18 +99,47 @@ class MerchantController extends Controller
             // -------------------------
             // ACTION BUTTONS
             // -------------------------
+            // $action = "<div class='d-flex gap-3'>";
+
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            // }
+           
+            // $action .= "
+            // <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+            //     <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+            // </a>";
+            
+            // $action .= "</div>";
+            
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
 
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
-           
-            $action .= "
-            <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
-                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-            </a>";
-            
-            $action .= "</div>";
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
+            }
+
+            $action .= "<a target='_blank' href='" . url('admin/merchants/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Merchants Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
 
 
             $final_data[$i] = [             
@@ -164,11 +218,23 @@ class MerchantController extends Controller
         // -------------------------
         // Store merchant
         // -------------------------
-        Merchant::create([
+        $merchant = Merchant::create([
             'name'   => $request->name,
             'status' => $request->status,
             'logo'   => $filename,
+            'active_department_id'      => $this->activeDeptId ?? NULL,
+            'active_club_location_id'   => $this->activeLocationId ?? NULL,
+            'active_role_id'            => $this->activeRoleId ?? NULL,
         ]);
+        DepartmentActivityLogger::log(
+            'create',
+            'merchant',
+            $merchant->id,
+            $merchant->name,
+            [],
+            $merchant->toArray(),
+            "Merchant '{$merchant->name}' Created Successfully."
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -195,7 +261,7 @@ class MerchantController extends Controller
     public function update(Request $request, $id)
     {
         $merchant = Merchant::findOrFail($id);
-
+        $oldData = $merchant->toArray();
         $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
             'status' => 'required|in:Active,Inactive',
@@ -222,6 +288,9 @@ class MerchantController extends Controller
         $post_data = [
             'name'   => $request->name,
             'status' => $request->status,
+            'active_department_id'      => $this->activeDeptId ?? NULL,
+            'active_club_location_id'   => $this->activeLocationId ?? NULL,
+            'active_role_id'            => $this->activeRoleId ?? NULL,
         ];
 
         // -------------------------
@@ -253,6 +322,15 @@ class MerchantController extends Controller
         // Update merchant
         // -------------------------
         $merchant->update($post_data);
+        DepartmentActivityLogger::log(
+            'update',
+            'merchant',
+            $merchant->id,
+            $merchant->name,
+            $oldData,
+            $merchant->fresh()->toArray(),
+            "Merchant '{$merchant->name}' Updated Successfully."
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -305,6 +383,15 @@ class MerchantController extends Controller
 
             // Soft delete merchant
             $merchant->delete();
+            DepartmentActivityLogger::log(
+                'delete',
+                'merchant',
+                $merchant->id,
+                $merchant->name,
+                $merchant->toArray(),
+                [],
+                "Merchant '{$merchant->name}' moved to trash."
+            );
 
             AdminLogger::log('delete', Merchant::class, $id);
 
@@ -398,8 +485,18 @@ class MerchantController extends Controller
      * ----------------------------------------------------- */
     public function restore($id)
     {
-        Merchant::withTrashed()->findOrFail($id)->restore();
-
+        // Merchant::withTrashed()->findOrFail($id)->restore();
+        $merchant = Merchant::withTrashed()->findOrFail($id);
+        $merchant->restore();
+        DepartmentActivityLogger::log(
+            'restore',
+            'merchant',
+            $merchant->id,
+            $merchant->name,
+            [],
+            [],
+            "Merchant '{$merchant->name}' Restored Successfully."
+        );
         return response()->json([
             'status'  => 'success',
             'message' => 'Merchant Restored Successfully'
@@ -424,11 +521,20 @@ class MerchantController extends Controller
             }
 
             // 👉 Add future cleanup here if needed
-
+            $merchantName = $merchant->name;
+            $merchantData = $merchant->toArray();
             $merchant->forceDelete();
 
             AdminLogger::log('force_delete', Merchant::class, $id);
-
+            DepartmentActivityLogger::log(
+                'force_delete',
+                'merchant',
+                $id,
+                $merchantName,
+                $merchantData,
+                [],
+                "Merchant '{$merchantName}' permanently deleted."
+            );
             DB::commit();
 
             return response()->json([
@@ -445,5 +551,18 @@ class MerchantController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function activityLog($record_id)
+    {
+        $department_activity_logs = DB::table('department_activity_logs')
+            ->where('record_id', $record_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $this->layout_data['logs']      = $department_activity_logs;
+        $this->layout_data['record_id'] = $record_id;
+
+        return view("admin.activity-log")->with($this->layout_data);
     }
 }
