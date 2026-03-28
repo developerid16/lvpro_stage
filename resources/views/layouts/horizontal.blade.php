@@ -318,194 +318,240 @@
     @endif
 
     {{-- CMS User Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-cms-user" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">CMS User Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-cms-user">
-            @if(hasActivePermission('role-list'))
-                <a class="dropdown-item" href="{{ url('/admin/roles') }}">Roles</a>
-            @endif
-            @if(hasActivePermission('department-list'))
-                <a class="dropdown-item" href="{{ url('/admin/departments') }}">Departments</a>
-            @endif
-            @if(hasActivePermission('cms-user-list'))
-                <a class="dropdown-item" href="{{ url('/admin/user') }}">CMS Users</a>
-            @endif
-            @if(hasActivePermission('app-user-list'))
-                <a class="dropdown-item" href="{{ url('/admin/app-user') }}">App Users</a>
-            @endif
-            @if(hasActivePermission('evoucher-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-approval') }}">eVoucher Approval</a>
-            @endif
-            @if(hasActivePermission('treats-and-deals-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-approval') }}">Treats &amp; Deals Approval</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-approval') }}">Birthday Voucher Approval</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('role-list') ||
+        hasActivePermission('department-list') ||
+        hasActivePermission('cms-user-list') ||
+        hasActivePermission('app-user-list') ||
+        hasActivePermission('evoucher-approval-list') ||
+        hasActivePermission('treats-and-deals-approval-list') ||
+        hasActivePermission('birthday-voucher-approval-list')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                CMS User Management
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('role-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/roles') }}">Roles</a>
+                @endif
+                @if(hasActivePermission('department-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/departments') }}">Departments</a>
+                @endif
+                @if(hasActivePermission('cms-user-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/user') }}">CMS Users</a>
+                @endif
+                @if(hasActivePermission('app-user-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/app-user') }}">App Users</a>
+                @endif
+                @if(hasActivePermission('evoucher-approval-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/evoucher-approval') }}">eVoucher Approval</a>
+                @endif
+                @if(hasActivePermission('treats-and-deals-approval-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-approval') }}">Treats & Deals Approval</a>
+                @endif
+                @if(hasActivePermission('birthday-voucher-approval-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-approval') }}">Birthday Voucher Approval</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
     {{-- Content Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-content-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Content Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-content-management">
-            @if(hasActivePermission('dashboard-popup-list'))
-                <a class="dropdown-item" href="{{ url('/admin/dashboardpopup') }}">Dashboard Popup</a>
-            @endif
-            @if(hasActivePermission('banner-list'))
-                <a class="dropdown-item" href="{{ url('/admin/banner') }}">Banner</a>
-            @endif
-            @if(hasActivePermission('notification-list'))
-                <a class="dropdown-item" href="{{ url('/admin/notification') }}">Notification</a>
-            @endif
-            @if(hasActivePermission('app-content'))
-                <a class="dropdown-item" href="{{ url('/admin/app-content') }}">T&amp;C / FAQ</a>
-            @endif
-            @if(hasActivePermission('treats-deals-featured-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-deals-featured') }}">Treats And Deals Featured</a>
-            @endif
-            @if(hasActivePermission('evoucher-featured-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-featured') }}">E-Voucher Featured</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('dashboard-popup-list') ||
+        hasActivePermission('banner-list') ||
+        hasActivePermission('notification-list') ||
+        hasActivePermission('app-content') ||
+        hasActivePermission('treats-deals-featured-list') ||
+        hasActivePermission('evoucher-featured-list')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                Content Management
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('dashboard-popup-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/dashboardpopup') }}">Dashboard Popup</a>
+                @endif
+                @if(hasActivePermission('banner-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/banner') }}">Banner</a>
+                @endif
+                @if(hasActivePermission('notification-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/notification') }}">Notification</a>
+                @endif
+                @if(hasActivePermission('app-content'))
+                    <a class="dropdown-item" href="{{ url('/admin/app-content') }}">T&C / FAQ</a>
+                @endif
+                @if(hasActivePermission('treats-deals-featured-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/treats-deals-featured') }}">Treats And Deals Featured</a>
+                @endif
+                @if(hasActivePermission('evoucher-featured-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/evoucher-featured') }}">E-Voucher Featured</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
     {{-- Rewards Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-rewards-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Rewards Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-rewards-management">
-            @if(hasActivePermission('reward-category'))
-                <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
-            @endif
-            @if(hasActivePermission('t&d-reward-list'))
-                <a class="dropdown-item" href="{{ url('admin/reward') }}">Treats &amp; Deals</a>
-            @endif
-            @if(hasActivePermission('evoucher-list'))
-                <a class="dropdown-item" href="{{ url('admin/evoucher') }}">eVoucher</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-list'))
-                <a class="dropdown-item" href="{{ url('admin/birthday-voucher') }}">Birthday Voucher</a>
-            @endif
-            @if(hasActivePermission('push-voucher-log'))
-                <a class="dropdown-item" href="{{ url('admin/push-voucher') }}">Push Voucher Log</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('reward-category') ||
+        hasActivePermission('t&d-reward-list') ||
+        hasActivePermission('evoucher-list') ||
+        hasActivePermission('birthday-voucher-list') ||
+        hasActivePermission('push-voucher-log')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                Rewards Management
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('reward-category'))
+                    <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
+                @endif
+                @if(hasActivePermission('t&d-reward-list'))
+                    <a class="dropdown-item" href="{{ url('admin/reward') }}">Treats & Deals</a>
+                @endif
+                @if(hasActivePermission('evoucher-list'))
+                    <a class="dropdown-item" href="{{ url('admin/evoucher') }}">eVoucher</a>
+                @endif
+                @if(hasActivePermission('birthday-voucher-list'))
+                    <a class="dropdown-item" href="{{ url('admin/birthday-voucher') }}">Birthday Voucher</a>
+                @endif
+                @if(hasActivePermission('push-voucher-log'))
+                    <a class="dropdown-item" href="{{ url('admin/push-voucher') }}">Push Voucher Log</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
     {{-- CSO --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-cso" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">CSO</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-cso">
-            {{-- CSO Purchase is intentionally hidden (commented out by dev) --}}
-            @if(hasActivePermission('cso-physical-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-physical') }}">CSO Physical Collection</a>
-            @endif
-            @if(hasActivePermission('cso-issuance-paid-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-issuance-paid') }}">CSO Issuance (Paid)</a>
-            @endif
-            @if(hasActivePermission('cso-issuance-free-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-issuance-free') }}">CSO Issuance (Free)</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('cso-physical-list') ||
+        hasActivePermission('cso-issuance-paid-list') ||
+        hasActivePermission('cso-issuance-free-list')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                CSO
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('cso-physical-list'))
+                    <a class="dropdown-item" href="{{ url('admin/cso-physical') }}">CSO Physical Collection</a>
+                @endif
+                @if(hasActivePermission('cso-issuance-paid-list'))
+                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-paid') }}">CSO Issuance (Paid)</a>
+                @endif
+                @if(hasActivePermission('cso-issuance-free-list'))
+                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-free') }}">CSO Issuance (Free)</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
     {{-- Merchant Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-merchant-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Merchant Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-merchant-management">
-            @if(hasActivePermission('merchant-list'))
-                <a class="dropdown-item" href="{{ url('admin/merchants') }}">Merchant</a>
-            @endif
-            @if(hasActivePermission('fabs-list'))
-                <a class="dropdown-item" href="{{ url('admin/fabs') }}">Fabs</a>
-            @endif
-            @if(hasActivePermission('club-location-list'))
-                <a class="dropdown-item" href="{{ url('admin/club-location') }}">Club Location</a>
-            @endif
-            @if(hasActivePermission('participating-merchant-list'))
-                <a class="dropdown-item" href="{{ url('admin/participating-merchant') }}">Participating Merchant</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('merchant-list') ||
+        hasActivePermission('fabs-list') ||
+        hasActivePermission('club-location-list') ||
+        hasActivePermission('participating-merchant-list')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                Merchant Management
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('merchant-list'))
+                    <a class="dropdown-item" href="{{ url('admin/merchants') }}">Merchant</a>
+                @endif
+                @if(hasActivePermission('fabs-list'))
+                    <a class="dropdown-item" href="{{ url('admin/fabs') }}">Fabs</a>
+                @endif
+                @if(hasActivePermission('club-location-list'))
+                    <a class="dropdown-item" href="{{ url('admin/club-location') }}">Club Location</a>
+                @endif
+                @if(hasActivePermission('participating-merchant-list'))
+                    <a class="dropdown-item" href="{{ url('admin/participating-merchant') }}">Participating Merchant</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
-    {{-- Tier Management --}}
+    {{-- Tier --}}
     @if(hasActivePermission('tier-list'))
         <li class="nav-item">
             <a class="nav-link" href="{{ url('/admin/tiers') }}">
                 <i class="bx bx-customize me-2"></i>
-                <span>Tier Management</span>
+                Tier Management
             </a>
         </li>
     @endif
 
     {{-- Others --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-others" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Others</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-others">
-            @if(hasActivePermission('transaction-history'))
-                <a class="dropdown-item" href="{{ url('/admin/transaction-history') }}">Transaction History</a>
-            @endif
-            @if(hasActivePermission('voucher-logs'))
-                <a class="dropdown-item" href="{{ url('/admin/voucherlogs') }}">Voucher Logs</a>
-            @endif
-            @if(hasActivePermission('treats-and-deals-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-list') }}">Treats &amp; Deals List</a>
-            @endif
-            @if(hasActivePermission('evoucher-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-list'))
-                <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
-            @endif
-        </div>
-    </li>
+    @if(
+        hasActivePermission('transaction-history') ||
+        hasActivePermission('voucher-logs') ||
+        hasActivePermission('treats-and-deals-list') ||
+        hasActivePermission('evoucher-list') ||
+        hasActivePermission('birthday-voucher-list')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                Others
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('transaction-history'))
+                    <a class="dropdown-item" href="{{ url('/admin/transaction-history') }}">Transaction History</a>
+                @endif
+                @if(hasActivePermission('voucher-logs'))
+                    <a class="dropdown-item" href="{{ url('/admin/voucherlogs') }}">Voucher Logs</a>
+                @endif
+                @if(hasActivePermission('treats-and-deals-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-list') }}">Treats & Deals List</a>
+                @endif
+                @if(hasActivePermission('evoucher-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
+                @endif
+                @if(hasActivePermission('birthday-voucher-list'))
+                    <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
-    {{-- Stock Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-stock-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Stock Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-stock-management">
-            @if(hasActivePermission('t&d-reward-stock'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-deals-stock') }}">Treats &amp; Deals Stock</a>
-            @endif
-            @if(hasActivePermission('evoucher-stock'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-stock') }}">E-Voucher Stock</a>
-            @endif
-        </div>
-    </li>
+    {{-- Stock --}}
+    @if(
+        hasActivePermission('t&d-reward-stock') ||
+        hasActivePermission('evoucher-stock')
+    )
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle arrow-down" href="#" data-bs-toggle="dropdown">
+                <i class="bx bx-customize me-2"></i>
+                Stock Management
+            </a>
+            <div class="dropdown-menu">
+                @if(hasActivePermission('t&d-reward-stock'))
+                    <a class="dropdown-item" href="{{ url('/admin/treats-deals-stock') }}">Treats & Deals Stock</a>
+                @endif
+                @if(hasActivePermission('evoucher-stock'))
+                    <a class="dropdown-item" href="{{ url('/admin/evoucher-stock') }}">E-Voucher Stock</a>
+                @endif
+            </div>
+        </li>
+    @endif
 
 </ul>
             </div>
         </nav>
     </div>
 </div>
+
 
 <!--  Change-Password example -->
 <div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
