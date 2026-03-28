@@ -281,10 +281,10 @@ class BirthdayEvoucherController extends Controller
                 $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
 
-            $action .= "<a target='_blank' href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+            $action .= "<a target='_blank' href='" . url('admin/birthday-voucher/' . $row->id . '/activity-log') . "' 
                             class='activity-log text-primary' 
                             data-id='$row->id'
-                            title='Reward Activity Log'>
+                            title='birthday voucher Activity Log'>
                             <i class='mdi mdi-history action-icon font-size-18'></i>
                         </a>";
 

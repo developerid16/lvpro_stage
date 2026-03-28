@@ -31,14 +31,14 @@ class CheckActiveDepartmentPermission
         $this->syncDepartmentPermissions($user);
 
         $activePermissions = session('active_permissions');
+        // dd($activePermissions);
         if ($activePermissions !== null) {
             $requiredPermissions = explode('|', $permission);
-
             $hasPermission = collect($requiredPermissions)->some(function ($perm) use ($activePermissions) {
                 return in_array(trim($perm), $activePermissions);
             });
             if (!$hasPermission) {
-                abort(403, 'This permission is not allowed in the selected department.');
+                abort(403, 'This permission is not allowed in the selected department....');
             }
         } else {
             if (!$user->can($permission)) {

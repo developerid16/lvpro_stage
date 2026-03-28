@@ -105,7 +105,7 @@ class NotificationController extends Controller
 
             // Activity Log Button
             $action .= "<a target='_blank' 
-                            href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+                            href='" . url('admin/notification/' . $row->id . '/activity-log') . "' 
                             class='activity-log text-primary' 
                             data-id='{$row->id}' 
                             title='Reward Activity Log'>

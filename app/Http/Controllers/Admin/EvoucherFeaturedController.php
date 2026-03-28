@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CustomLocation;
@@ -38,10 +39,35 @@ class EvoucherFeaturedController extends Controller
             'module_base_url'   => url('admin/evoucher-featured'),
         ];
 
-        $this->middleware("permission:$permission_prefix|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
-        $this->middleware("permission:$permission_prefix-create", ['only' => ['create', 'store']]);
-        $this->middleware("permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
-        $this->middleware("permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-list|$permission_prefix-create|$permission_prefix-edit|$permission_prefix-delete", ['only' => ['index', 'datatable', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
+        $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
+        $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+
+            $activeRole = Auth::user()->roles
+                            ->first(function ($role) use ($activeDeptId) {
+                                return (string)$role->department === (string)$activeDeptId;
+                            });
+            $roleIds = Auth::user()->roles
+                ->filter(function ($role) use ($activeDeptId) {
+                    return (string)$role->department === (string)$activeDeptId;
+                })
+                ->pluck('id')
+                ->toArray();
+            // Fallback
+            if (!$activeRole) {
+                $activeRole = Auth::user()->roles->first();
+            }
+            $this->roleIds = $roleIds;
+            $this->activeDeptId    = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId    = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -65,10 +91,11 @@ class EvoucherFeaturedController extends Controller
     {
         $query = Reward::where('type',  '1');
         
-        if (auth()->user()->role != 1) {
-            $query->where('added_by', auth()->id());
-            }
-            
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
+        }
         $query = $this->get_sort_offset_limit_query($request, $query, ['code', 'name', 'no_of_keys', 'quantity', 'status', 'total_redeemed']);
 
         $final_data = [];
@@ -123,6 +150,11 @@ class EvoucherFeaturedController extends Controller
 
             $final_data[$key]['created_at'] = $row->created_at->format(config('safra.date-format'));
 
+            $activePermissions = session('active_permissions', []);
+
+            $hide_catalogue   = in_array($this->permission_prefix . '-hide-from-catalogue-voucher',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $is_featured = in_array($this->permission_prefix . '-is-featured-voucher', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
             // if (Auth::user()->can($this->permission_prefix . '-edit')) {
                 // $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
@@ -149,7 +181,7 @@ class EvoucherFeaturedController extends Controller
             // }
 
             $final_data[$key]['hide_catalogue'] = '-';
-            if (Auth::user()->can('hide-from-catalogue-voucher')) {
+            if ($hide_catalogue) {
                 $final_data[$key]['hide_catalogue'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input hide-catalogue-switch" type="checkbox" data-id="'.$row->id.'" '.($row->hide_catalogue ? 'checked' : '').'>
@@ -158,7 +190,7 @@ class EvoucherFeaturedController extends Controller
 
             $final_data[$key]['is_featured'] = '-';
 
-            if (Auth::user()->can('is-featured-voucher')) {
+            if ($is_featured) {
                 $final_data[$key]['is_featured'] = '
                     <div class="form-check form-switch m-0 text-center">
                         <input class="form-check-input featured-toggle-switch" type="checkbox"  data-id="'.$row->id.'" '.($row->is_featured ? 'checked' : '').'>
@@ -222,11 +254,20 @@ class EvoucherFeaturedController extends Controller
         ]);
 
         $reward = Reward::findOrFail($request->id);
-
+        $oldData = $reward->toArray();
         $reward->update([
             'hide_catalogue' => $request->status,
             'hide_cat_time'  => now()
         ]);
+        DepartmentActivityLogger::log(
+            'update',
+            'evoucher-featured',
+            $reward->id,
+            $reward->name,
+            $oldData,
+            $reward->fresh()->toArray(),
+            "evoucher featured '{$reward->name}' Updated Successfully."
+        );
 
 
         return response()->json([
@@ -240,10 +281,19 @@ class EvoucherFeaturedController extends Controller
     public function toggleFeatured(Request $request)
     {
         $reward = Reward::findOrFail($request->id);
-
+        $oldData = $reward->toArray();
         $reward->update([
             'is_featured' => $request->is_featured
         ]);
+        DepartmentActivityLogger::log(
+            'update',
+            'evoucher-featured',
+            $reward->id,
+            $reward->name,
+            $oldData,
+            $reward->fresh()->toArray(),
+            "evoucher featured '{$reward->name}' Updated Successfully."
+        );
 
         return response()->json(['status' => true]);
     }

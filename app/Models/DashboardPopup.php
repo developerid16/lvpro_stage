@@ -10,7 +10,13 @@ class DashboardPopup extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = [  'button', 'name',
-     'start_date', 'end_date', 'frequency','order', 'desktop_image',  'mobile_image','url'];
+     'start_date', 'end_date', 'frequency','order', 'desktop_image',  'mobile_image','url',
+
+    'added_by',
+    'active_department_id',
+    'active_club_location_id',
+    'active_role_id'
+     ];
     // public function getImageAttribute($value)
     // {
     //     if ($value) {

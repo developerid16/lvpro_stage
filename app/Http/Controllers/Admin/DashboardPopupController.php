@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Helpers\AdminLogger;
+use App\Helpers\DepartmentActivityLogger;
 use App\Models\DashboardPopup;
 
 use Illuminate\Http\Request;
@@ -27,6 +28,30 @@ class DashboardPopupController extends Controller
         $this->middleware("active.permission:$permission_prefix-create", ['only' => ['create', 'store']]);
         $this->middleware("active.permission:$permission_prefix-edit", ['only' => ['edit', 'update']]);
         $this->middleware("active.permission:$permission_prefix-delete", ['only' => ['destroy']]);
+        $this->middleware("active.permission:$permission_prefix-reorder", ['only' => ['reorder']]);
+        $this->middleware("active.permission:$permission_prefix-activity-log", ['only' => ['activityLog']]);
+
+
+        $this->middleware(function ($request, $next) {
+            $activeDeptId = session('active_department_id');
+            $user = Auth::user();
+
+            $activeRoles = $user->roles->filter(function ($role) use ($activeDeptId) {
+                return (string)$role->department === (string)$activeDeptId;
+            });
+
+            if ($activeRoles->isEmpty()) {
+                $activeRoles = $user->roles;
+            }
+
+            $activeRole = $activeRoles->first();
+
+            $this->activeDeptId     = $activeDeptId;
+            $this->activeLocationId = session('active_club_location_id');
+            $this->activeRoleId     = $activeRole?->id;
+
+            return $next($request);
+        });
     }
 
     /**
@@ -42,7 +67,13 @@ class DashboardPopupController extends Controller
     {
         // Always order by display_order DESC (higher first)
         $query = DashboardPopup::query()
-            ->orderBy('order', 'desc'); // or display_order if column name is that
+            ->orderBy('order', 'desc');
+
+        if (!Auth::user()->hasRole('Super Admin')) {
+            $query->where('active_department_id', $this->activeDeptId);
+            $query->where('active_club_location_id', $this->activeLocationId);
+            $query->where('active_role_id', $this->activeRoleId);
+        }
 
         $result = $this->get_sort_offset_limit_query(
             $request,
@@ -86,22 +117,56 @@ class DashboardPopupController extends Controller
             $final_data[$i]['mobile_image'] = imagePreviewHtml("uploads/image/{$row->mobile_image}");
 
             // ---------------- ACTIONS ----------------
+            // $action = "<div class='d-flex gap-3'>";
+            // $action .= "<span class='text-muted drag-indicator' title='Drag to reorder'>
+            //     <i class='mdi mdi-drag'></i>
+            // </span>";
+
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
+            //                     <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+            //                 </a>";
+            // }
+
+            // if (Auth::user()->can($this->permission_prefix . '-delete')) {
+            //     $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+            //                     <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+            //                 </a>";
+            // }
+
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
+
             $action .= "<span class='text-muted drag-indicator' title='Drag to reorder'>
                 <i class='mdi mdi-drag'></i>
             </span>";
-
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'>
-                                <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
-                            </a>";
+            
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
+            
 
-            if (Auth::user()->can($this->permission_prefix . '-delete')) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
                                 <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
                             </a>";
             }
+
+            $action .= "<a target='_blank' href='" . url('admin/dashboardpopup/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='dashboard popup Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
 
             $final_data[$i]['action'] = $action . "</div>";
 
@@ -167,8 +232,20 @@ class DashboardPopupController extends Controller
         }
         // Map popup_type → frequency
         $validated['frequency'] = $validated['popup_type'];
-
-        DashboardPopup::create($validated);
+        $validated['active_department_id']      = $this->activeDeptId ?? NULL;
+        $validated['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $validated['active_role_id']            = $this->activeRoleId ?? NULL;
+        $validated['added_by'] = Auth::user()->id;
+        $dashboardPopup = DashboardPopup::create($validated);
+        DepartmentActivityLogger::log(
+            'create',
+            'dashboardpopup',
+            $dashboardPopup->id,
+            $dashboardPopup->name,
+            [],
+            $dashboardPopup->toArray(),
+            "Dashboard Popup '{$dashboardPopup->name}' Created Successfully."
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -225,7 +302,7 @@ class DashboardPopupController extends Controller
         $validated = $validator->validated();
 
         $popup = DashboardPopup::findOrFail($id);
-
+        $oldData = $popup->toArray();
         // Replace image if new uploaded
          if ($request->hasFile('desktop_image')) {
 
@@ -253,8 +330,19 @@ class DashboardPopupController extends Controller
         }
 
         $validated['frequency'] = $validated['popup_type'];
-
+        $validated['active_department_id']      = $this->activeDeptId ?? NULL;
+        $validated['active_club_location_id']   = $this->activeLocationId ?? NULL;
+        $validated['active_role_id']            = $this->activeRoleId ?? NULL;
         $popup->update($validated);
+        DepartmentActivityLogger::log(
+            'update',
+            'dashboardpopup',
+            $popup->id,
+            $popup->name,
+            $oldData,
+            $popup->fresh()->toArray(),
+            "Dashboard Popup '{$popup->name}' Updated Successfully."
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -277,36 +365,62 @@ class DashboardPopupController extends Controller
         if ($popup->mobile_image && file_exists(public_path('uploads/image/' . $popup->mobile_image))) {
             unlink(public_path('uploads/image/' . $popup->mobile_image));
         }
-
+        DepartmentActivityLogger::log(
+            'delete',
+            'dashboardpopup',
+            $popup->id,
+            $popup->name,
+            $popup->toArray(),
+            [],
+            "Dashboard Popup '{$popup->name}' Delete Successfully."
+        );
         AdminLogger::log('delete', DashboardPopup::class, $id);
         $popup->delete();
         return response()->json(['status' => 'success', 'message' => 'Popup Delete Successfully']);
     }
 
-     public function reorder(Request $request)
+    public function reorder(Request $request)
     {
         $request->validate([
             'order' => 'required|array',
             'order.*.id' => 'required|exists:dashboard_popups,id',
         ]);
 
-        
-        // Get current max display_order
         $maxOrder = DashboardPopup::max('order');
-
-        // Start assigning from max → downward
         $currentOrder = $maxOrder;
 
         foreach ($request->order as $row) {
 
-            DashboardPopup::where('id', $row['id'])
-                ->update(['order' => $currentOrder]);
+            $popup = DashboardPopup::find($row['id']);
 
-            $currentOrder--; // decrement for DESC order
+            if ($popup) {
+
+                $oldValues = $popup->toArray();
+
+                $popup->update([
+                    'order' => $currentOrder
+                ]);
+
+                $newValues = $popup->fresh()->toArray();
+
+                // ✅ Correct logging
+                DepartmentActivityLogger::log(
+                    'reorder',
+                    'dashboardpopup',
+                    $popup->id,
+                    $popup->name,
+                    $oldValues,
+                    $newValues,
+                    "Dashboard Popup '{$popup->name}' reordered to position {$currentOrder}."
+                );
+
+                $currentOrder--;
+            }
         }
 
         return response()->json(['status' => 'success']);
     }
+
 
 
 }

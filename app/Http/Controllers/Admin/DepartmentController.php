@@ -107,7 +107,7 @@ class DepartmentController extends Controller
                 ? "<span class='badge bg-success'>Active</span>"
                 : "<span class='badge bg-danger'>Inactive</span>";
 
-           $activePermissions = session('active_permissions', []);
+            $activePermissions = session('active_permissions', []);
 
             $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
             $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
@@ -188,7 +188,7 @@ class DepartmentController extends Controller
         $department = Department::create($post_data);
         DepartmentActivityLogger::log(
             'create',
-            'department',
+            'departments',
             $department->id,
             $department->name,
             [],
@@ -231,7 +231,7 @@ class DepartmentController extends Controller
         $department->update($post_data);
         DepartmentActivityLogger::log(
             'update',
-            'department',
+            'departments',
             $department->id,
             $department->name,
             $oldData,
@@ -251,7 +251,7 @@ class DepartmentController extends Controller
         $department->delete();
         DepartmentActivityLogger::log(
             'delete',
-            'department',
+            'departments',
             $department->id,
             $department->name,
             $department->toArray(),
@@ -344,7 +344,7 @@ class DepartmentController extends Controller
         $department->restore();
         DepartmentActivityLogger::log(
             'restore',
-            'department',
+            'departments',
             $department->id,
             $department->name,
             [],
@@ -369,7 +369,7 @@ class DepartmentController extends Controller
         $department->forceDelete();
         DepartmentActivityLogger::log(
             'force_delete',
-            'department',
+            'departments',
             $id,
             $departmentName,
             $departmentData,

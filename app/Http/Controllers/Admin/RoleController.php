@@ -231,7 +231,7 @@ class RoleController extends Controller
 
         DepartmentActivityLogger::log(
             'create',
-            'role',
+            'roles',
             $role->id,
             $role->name,
             [],
@@ -308,7 +308,7 @@ class RoleController extends Controller
         $role->syncPermissions($request->input('permission'));
         DepartmentActivityLogger::log(
             'update',
-            'role',
+            'roles',
             $role->id,
             $role->name,
             $oldData,
@@ -330,7 +330,7 @@ class RoleController extends Controller
         $role->delete();
         DepartmentActivityLogger::log(
             'delete',
-            'club-role',
+            'roles',
             $role->id,
             $role->name,
             $role->toArray(),
@@ -408,7 +408,7 @@ class RoleController extends Controller
         $role->restore();
         DepartmentActivityLogger::log(
             'restore',
-            'role',
+            'roles',
             $role->id,
             $role->name,
             [],
@@ -429,7 +429,7 @@ class RoleController extends Controller
         $role->forceDelete();
         DepartmentActivityLogger::log(
             'force_delete',
-            'role',
+            'roles',
             $id,
             $roleName,
             $roleData,

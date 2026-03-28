@@ -14,10 +14,23 @@
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
         {{--<h4 class="card-title mb-0">Slider </h4>--}}
-        @can("$permission_prefix-create")
-        <button class="ml_auto sh_btn btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
-            Add New</button>
-        @endcan
+        
+        <div>
+            
+         </div>
+        <div class="d-flex gap-2">
+            @if(hasActivePermission("$permission_prefix-create"))
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#AddModal"><i class="mdi mdi-plus"></i>
+                Add New</button>
+            @endcan
+
+            <!-- @can('super admin')
+                <a class="btn btn-danger"
+                    href="{{ url('admin/departments/trash') }}">
+                    <i class="mdi mdi-trash"></i> View Trash
+                </a>
+            @endcan -->
+        </div>
     </div>
 
     <div class="card-body pt-0">
@@ -40,7 +53,7 @@
 </div>
 
 <!-- Create -->
-@can("$permission_prefix-create")
+@if(hasActivePermission("$permission_prefix-create"))
 @include('admin.dashboardpopup.add-edit-modal')
 @endcan
 <!-- end modal -->

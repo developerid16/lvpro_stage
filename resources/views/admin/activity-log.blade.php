@@ -29,7 +29,6 @@
                             <th>DEPARTMENT</th>
                             <th>ROLE</th>
                             <th>IP ADDRESS</th>
-                            <th>REWARD CREATED AT</th>
                             <th>LOG CREATED AT</th>
                             <!-- <th>DETAILS</th> -->
                         </tr>
@@ -95,15 +94,7 @@
                                 {{-- IP --}}
                                 <td>{{ $log->ip_address ?? '-' }}</td>
 
-                                {{-- Reward Created At --}}
-                                <td>
-                                    @if($rewardCreatedAt)
-                                        {{ \Carbon\Carbon::parse($rewardCreatedAt)->format(config('safra.date-format')) }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-
+                               
                                 {{-- Log Created At --}}
                                 <td>
                                     {{ \Carbon\Carbon::parse($log->created_at)->format(config('safra.date-format')) }}

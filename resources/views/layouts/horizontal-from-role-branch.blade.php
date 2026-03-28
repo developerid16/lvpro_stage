@@ -3,7 +3,6 @@
         <div class="d-flex">
             <!-- LOGO -->
            <div class="navbar-brand-box main_logo d-flex align-items-center justify-content-between gap-4">
-
                 <div>
                     <a href="javascript:void(0)" class="logo logo-dark">
                         <span class="logo-sm">
@@ -13,7 +12,6 @@
                             <img src="{{ URL::asset('/build/images/logo-dark.png') }}" alt="" height="50">
                         </span>
                     </a>
-
                     <a href="javascript:void(0)" class="logo logo-light">
                         <span class="logo-sm">
                             <img src="{{ URL::asset('/build/images/logo-light-small.png') }}" alt="" height="50">
@@ -23,7 +21,6 @@
                         </span>
                     </a>
                 </div>
-
                 <div class="d-flex align-items-center powered-by-box">
                     <h6 class="text-primary mb-0 me-2">Powered by</h6>
                     <img src="{{ URL::asset('/build/images/trex-logo.png') }}?q={{ time() }}" 
@@ -31,7 +28,6 @@
                         style="max-width:100px" 
                         class="auth-trex-logo-dark">
                 </div>
-
             </div>
 
             <button type="button" class="btn btn-sm px-3 font-size-16 d-lg-none header-item waves-effect waves-light"
@@ -43,9 +39,6 @@
             <div class="app-search d-none d-lg-flex" style=" align-items: center;">
                 <h3 class="mb-0 logo_txt">Rewards Management System</h3>
             </div>
-
-            
-
         </div>
 
         <div class="d-flex align-items-center">
@@ -305,211 +298,273 @@
     <div class="container-fluid">
         <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
             <div class="collapse navbar-collapse" id="topnav-menu-content">
-               <ul class="navbar-nav">
+                <ul class="navbar-nav">
 
-    {{-- Dashboard --}}
-    @if(hasActivePermission('dashboard'))
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url('/') }}">
-                <i class="fa-solid fa-gauge-simple me-2"></i>
-                <span key="t-dashboards">Dashboard</span>
-            </a>
-        </li>
-    @endif
+                    {{-- Dashboard --}}
+                    @if($deptPermissions->contains('dashboard'))
+                        <a class="nav-link" href="{{ url('/') }}">
+                            <i class="fa-solid fa-gauge-simple me-2"></i>
+                            <span key="t-dashboards">Dashboard</span>
+                        </a>
+                    @endif
 
-    {{-- CMS User Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-cms-user" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">CMS User Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-cms-user">
-            @if(hasActivePermission('role-list'))
-                <a class="dropdown-item" href="{{ url('/admin/roles') }}">Roles</a>
-            @endif
-            @if(hasActivePermission('department-list'))
-                <a class="dropdown-item" href="{{ url('/admin/departments') }}">Departments</a>
-            @endif
-            @if(hasActivePermission('cms-user-list'))
-                <a class="dropdown-item" href="{{ url('/admin/user') }}">CMS Users</a>
-            @endif
-            @if(hasActivePermission('app-user-list'))
-                <a class="dropdown-item" href="{{ url('/admin/app-user') }}">App Users</a>
-            @endif
-            @if(hasActivePermission('evoucher-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-approval') }}">eVoucher Approval</a>
-            @endif
-            @if(hasActivePermission('treats-and-deals-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-approval') }}">Treats &amp; Deals Approval</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-approval-list'))
-                <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-approval') }}">Birthday Voucher Approval</a>
-            @endif
-        </div>
-    </li>
+                    {{-- CMS User Management --}}
+                    @if(
+                        $deptPermissions->contains('department-list') ||
+                        $deptPermissions->contains('role-list') ||
+                        $deptPermissions->contains('cms-user-list') ||
+                        $deptPermissions->contains('app-user-list') ||
+                        $deptPermissions->contains('reward-update-request-list') ||
+                        $deptPermissions->contains('evoucher-approval-list') ||
+                        $deptPermissions->contains('treats-and-deals-approval-list') ||
+                        $deptPermissions->contains('birthday-voucher-approval-list')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">CMS User Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                <!-- @if($deptPermissions->contains('department-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/departments') }}">Departments</a>
+                                @endif
+                                @if($deptPermissions->contains('role-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/roles') }}">Roles</a>
+                                @endif
+                                @if($deptPermissions->contains('cms-user-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/user') }}">CMS Users</a>
+                                @endif
+                                @if($deptPermissions->contains('app-user-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/app-user') }}">App Users</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/evoucher-approval') }}">eVoucher Approval</a>
+                                @endif
+                                @if($deptPermissions->contains('treats-and-deals-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-approval') }}">Treats & Deals Approval</a>
+                                @endif
+                                @if($deptPermissions->contains('birthday-voucher-approval-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-approval') }}">Birthday Voucher Approval</a>
+                                @endif -->
 
-    {{-- Content Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-content-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Content Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-content-management">
-            @if(hasActivePermission('dashboard-popup-list'))
-                <a class="dropdown-item" href="{{ url('/admin/dashboardpopup') }}">Dashboard Popup</a>
-            @endif
-            @if(hasActivePermission('banner-list'))
-                <a class="dropdown-item" href="{{ url('/admin/banner') }}">Banner</a>
-            @endif
-            @if(hasActivePermission('notification-list'))
-                <a class="dropdown-item" href="{{ url('/admin/notification') }}">Notification</a>
-            @endif
-            @if(hasActivePermission('app-content'))
-                <a class="dropdown-item" href="{{ url('/admin/app-content') }}">T&amp;C / FAQ</a>
-            @endif
-            @if(hasActivePermission('treats-deals-featured-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-deals-featured') }}">Treats And Deals Featured</a>
-            @endif
-            @if(hasActivePermission('evoucher-featured-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-featured') }}">E-Voucher Featured</a>
-            @endif
-        </div>
-    </li>
+                                @if($deptPermissions->contains('dashboard-popup'))
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/dashboardpopup')}}">Dashboard Popup</a>
+                                @endif
+                                @if($deptPermissions->contains('banner-list'))
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/banner')}}">Banner</a>
+                                @endif
+                                @if($deptPermissions->contains('notification-list'))
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/notification')}}">Notification</a>
+                                @endif
+                                @if($deptPermissions->contains('content-management'))
+                                    <a class="dropdown-item" key="t-buttons" href="{{url('/admin/app-content')}}">T&C / FAQ</a>
+                                @endif
+                                @if($deptPermissions->contains(['treats-and-deals-featured']))
+                                    <a class="dropdown-item  " href="{{url('/admin/treats-deals-featured')}}">
+                                        Treats And Deals Featured
+                                    </a>
+                                @endif
+                                @if($deptPermissions->contains(['evoucher-featured']))
+                                    <a class="dropdown-item  " href="{{url('/admin/evoucher-featured')}}">
+                                        E-Voucher Featured
+                                    </a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
 
-    {{-- Rewards Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-rewards-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Rewards Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-rewards-management">
-            @if(hasActivePermission('reward-category'))
-                <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
-            @endif
-            @if(hasActivePermission('t&d-reward-list'))
-                <a class="dropdown-item" href="{{ url('admin/reward') }}">Treats &amp; Deals</a>
-            @endif
-            @if(hasActivePermission('evoucher-list'))
-                <a class="dropdown-item" href="{{ url('admin/evoucher') }}">eVoucher</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-list'))
-                <a class="dropdown-item" href="{{ url('admin/birthday-voucher') }}">Birthday Voucher</a>
-            @endif
-            @if(hasActivePermission('push-voucher-log'))
-                <a class="dropdown-item" href="{{ url('admin/push-voucher') }}">Push Voucher Log</a>
-            @endif
-        </div>
-    </li>
+                    {{-- Content Management --}}
+                    @if(
+                        $deptPermissions->contains('dashboard-popup') ||
+                        $deptPermissions->contains('banner-list') ||
+                        $deptPermissions->contains('notification-list') ||
+                        $deptPermissions->contains('content-management')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Content Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('dashboard-popup'))
+                                    <a class="dropdown-item" href="{{ url('/admin/dashboardpopup') }}">Dashboard Popup</a>
+                                @endif
+                                @if($deptPermissions->contains('banner-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/banner') }}">Banner</a>
+                                @endif
+                                @if($deptPermissions->contains('notification-list'))
+                                    <a class="dropdown-item" href="{{ url('/admin/notification') }}">Notification</a>
+                                @endif
+                                @if($deptPermissions->contains('content-management'))
+                                    <a class="dropdown-item" href="{{ url('/admin/app-content') }}">T&C / FAQ</a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
 
-    {{-- CSO --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-cso" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">CSO</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-cso">
-            {{-- CSO Purchase is intentionally hidden (commented out by dev) --}}
-            @if(hasActivePermission('cso-physical-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-physical') }}">CSO Physical Collection</a>
-            @endif
-            @if(hasActivePermission('cso-issuance-paid-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-issuance-paid') }}">CSO Issuance (Paid)</a>
-            @endif
-            @if(hasActivePermission('cso-issuance-free-list'))
-                <a class="dropdown-item" href="{{ url('admin/cso-issuance-free') }}">CSO Issuance (Free)</a>
-            @endif
-        </div>
-    </li>
+                    {{-- Rewards Management --}}
+                    @if(
+                        $deptPermissions->contains('t&d-reward-list') ||
+                        $deptPermissions->contains('reward-category') ||
+                        $deptPermissions->contains('evoucher-list') ||
+                        $deptPermissions->contains('birthday-voucher-list') ||
+                        $deptPermissions->contains('push-voucher-log')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Rewards Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('reward-category'))
+                                    <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
+                                @endif
+                                @if($deptPermissions->contains('t&d-reward-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/reward') }}">Treats & Deals</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/evoucher') }}">eVoucher</a>
+                                @endif
+                                @if($deptPermissions->contains('birthday-voucher-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/birthday-voucher') }}">Birthday Voucher</a>
+                                @endif
+                                @if($deptPermissions->contains('push-voucher-log'))
+                                    <a class="dropdown-item" href="{{ url('admin/push-voucher') }}">Push Voucher Log</a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
 
-    {{-- Merchant Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-merchant-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Merchant Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-merchant-management">
-            @if(hasActivePermission('merchant-list'))
-                <a class="dropdown-item" href="{{ url('admin/merchants') }}">Merchant</a>
-            @endif
-            @if(hasActivePermission('fabs-list'))
-                <a class="dropdown-item" href="{{ url('admin/fabs') }}">Fabs</a>
-            @endif
-            @if(hasActivePermission('club-location-list'))
-                <a class="dropdown-item" href="{{ url('admin/club-location') }}">Club Location</a>
-            @endif
-            @if(hasActivePermission('participating-merchant-list'))
-                <a class="dropdown-item" href="{{ url('admin/participating-merchant') }}">Participating Merchant</a>
-            @endif
-        </div>
-    </li>
+                    {{-- CSO --}}
+                    @if(
+                        $deptPermissions->contains('cso-issuance-paid-list') ||
+                        $deptPermissions->contains('cso-issuance-free-list') ||
+                        $deptPermissions->contains('cso-physical-list')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">CSO</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('cso-physical-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-physical') }}">CSO Physical Collection</a>
+                                @endif
+                                @if($deptPermissions->contains('cso-issuance-paid-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-paid') }}">CSO issuance (Paid)</a>
+                                @endif
+                                @if($deptPermissions->contains('cso-issuance-free-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/cso-issuance-free') }}">CSO issuance (Free)</a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
 
-    {{-- Tier Management --}}
-    @if(hasActivePermission('tier-list'))
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url('/admin/tiers') }}">
-                <i class="bx bx-customize me-2"></i>
-                <span>Tier Management</span>
-            </a>
-        </li>
-    @endif
+                    {{-- Merchant Management --}}
+                    @if(
+                        $deptPermissions->contains('merchant-list') ||
+                        $deptPermissions->contains('participating-merchant-list') ||
+                        $deptPermissions->contains('fabs-list') ||
+                        $deptPermissions->contains('club-location-list')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Merchant Management</span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('merchant-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/merchants') }}">Merchant</a>
+                                @endif
+                                @if($deptPermissions->contains('fabs-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/fabs') }}">Fabs</a>
+                                @endif
+                                @if($deptPermissions->contains('club-location-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/club-location') }}">Club Location</a>
+                                @endif
+                                @if($deptPermissions->contains('participating-merchant-list'))
+                                    <a class="dropdown-item" href="{{ url('admin/participating-merchant') }}">Participating Merchant</a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
 
-    {{-- Others --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-others" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Others</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-others">
-            @if(hasActivePermission('transaction-history'))
-                <a class="dropdown-item" href="{{ url('/admin/transaction-history') }}">Transaction History</a>
-            @endif
-            @if(hasActivePermission('voucher-logs'))
-                <a class="dropdown-item" href="{{ url('/admin/voucherlogs') }}">Voucher Logs</a>
-            @endif
-            @if(hasActivePermission('treats-and-deals-list'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-list') }}">Treats &amp; Deals List</a>
-            @endif
-            @if(hasActivePermission('evoucher-list'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
-            @endif
-            @if(hasActivePermission('birthday-voucher-list'))
-                <a class="dropdown-item" href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
-            @endif
-        </div>
-    </li>
+                    {{-- Tier Management --}}
+                    @if($deptPermissions->contains('tier-list'))
+                        <a class="nav-link" href="{{ url('/admin/tiers') }}">Tier Management</a>
+                    @endif
 
-    {{-- Stock Management --}}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle arrow-down" href="#" id="topnav-stock-management" role="button"
-            data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bx bx-customize me-2"></i>
-            <span key="t-apps">Stock Management</span>
-        </a>
-        <div class="dropdown-menu" aria-labelledby="topnav-stock-management">
-            @if(hasActivePermission('t&d-reward-stock'))
-                <a class="dropdown-item" href="{{ url('/admin/treats-deals-stock') }}">Treats &amp; Deals Stock</a>
-            @endif
-            @if(hasActivePermission('evoucher-stock'))
-                <a class="dropdown-item" href="{{ url('/admin/evoucher-stock') }}">E-Voucher Stock</a>
-            @endif
-        </div>
-    </li>
+                    {{-- Others --}}
+                    <!-- @if(
+                        $deptPermissions->contains('cms-setting') ||
+                        $deptPermissions->contains('transaction-history') ||
+                        $deptPermissions->contains('voucher-logs') ||
+                        $deptPermissions->contains('voucher-list')
+                    )
+                    @endif -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
+                            <i class="bx bx-customize me-2"></i>
+                            <span key="t-apps" class="">Others</span>
+                            <div class="arrow-down"></div>
+                        </a>
 
-</ul>
+                        <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
+                        
+                            @if($deptPermissions->contains('transaction-history'))
+                                <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
+                                    Transaction History
+                                </a>
+                            @endif
+                            @if($deptPermissions->contains('voucher-logs'))
+                                <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
+                                    Voucher Logs
+                                </a>
+                            @endif
+                            @if($deptPermissions->contains('treats-and-deals-list'))
+                                <a  class="dropdown-item " href="{{ url('/admin/treats-and-deals-list') }}">Treats & Deals List</a>
+                            @endif
+                            @if($deptPermissions->contains('evoucher-list'))
+                                <a  class="dropdown-item " href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
+                            @endif
+                            @if($deptPermissions->contains('birthday-voucher-list'))
+                                <a  class="dropdown-item " href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
+                            @endif
+                           
+
+                        </div>
+                    </li>
+
+                    {{-- Stock Management --}}
+                    @if(
+                        $deptPermissions->contains('evoucher-stock') ||
+                        $deptPermissions->contains('t&d-reward-stock')
+                    )
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle arrow-none" href="#" id="topnav-pages" role="button">
+                                <i class="bx bx-customize me-2"></i>
+                                <span key="t-apps" class="">Stock Management</span>
+                                <div class="arrow-down"></div>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">
+                                @if($deptPermissions->contains('t&d-reward-stock'))
+                                    <a class="dropdown-item" href="{{ url('/admin/treats-deals-stock') }}">Treats & Deals Stock</a>
+                                @endif
+                                @if($deptPermissions->contains('evoucher-stock'))
+                                    <a class="dropdown-item" href="{{ url('/admin/evoucher-stock') }}">E-Voucher Stock</a>
+                                @endif
+                            </div>
+                        </li>
+                    @endif
+
+                </ul>
             </div>
         </nav>
     </div>
 </div>
 
-<!--  Change-Password example -->
-<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-    aria-hidden="true">
+<!--  Change-Password Modal -->
+<div class="modal fade change-password" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -523,33 +578,31 @@
                     <div class="mb-3">
                         <label for="current_password">Current Password</label>
                         <input id="current-password" type="password"
-                            class="form-control @error('current_password') is-invalid @enderror" name="current_password"
-                            autocomplete="current_password" placeholder="Enter Current Password"
-                            value="{{ old('current_password') }}">
+                            class="form-control @error('current_password') is-invalid @enderror"
+                            name="current_password" autocomplete="current_password"
+                            placeholder="Enter Current Password" value="{{ old('current_password') }}">
                         <div class="text-danger" id="current_passwordError" data-ajax-feedback="current_password"></div>
                     </div>
-
                     <div class="mb-3">
                         <label for="newpassword">New Password</label>
                         <input id="password" type="password"
-                            class="form-control @error('password') is-invalid @enderror" name="password"
-                            autocomplete="new_password" placeholder="Enter New Password">
+                            class="form-control @error('password') is-invalid @enderror"
+                            name="password" autocomplete="new_password" placeholder="Enter New Password">
                         <div class="text-danger" id="passwordError" data-ajax-feedback="password"></div>
                     </div>
-
                     <div class="mb-3">
                         <label for="userpassword">Confirm Password</label>
-                        <input id="password-confirm" type="password" class="form-control" name="password_confirmation"
-                            autocomplete="new_password" placeholder="Enter New Confirm password">
+                        <input id="password-confirm" type="password" class="form-control"
+                            name="password_confirmation" autocomplete="new_password"
+                            placeholder="Enter New Confirm password">
                         <div class="text-danger" id="password_confirmError" data-ajax-feedback="password-confirm"></div>
                     </div>
-
                     <div class="mt-3 d-grid">
                         <button class="btn btn-primary waves-effect waves-light UpdatePassword"
                             data-id="{{ Auth::user()->id }}" type="submit">Update Password</button>
                     </div>
                 </form>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        </div>
+    </div>
+</div>

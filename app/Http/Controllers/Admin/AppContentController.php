@@ -12,7 +12,7 @@ class AppContentController extends Controller
     function __construct()
     {
         $this->view_file_path = "admin.content-management.";
-        $permission_prefix = $this->permission_prefix = 'content-management';
+        $permission_prefix = $this->permission_prefix = 'app-content';
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
@@ -20,7 +20,6 @@ class AppContentController extends Controller
             'module_base_url' => url('admin/content-management')
         ];
 
-        
         $this->middleware("active.permission:$permission_prefix", ['only' => ['index', 'store']]);
     }
 

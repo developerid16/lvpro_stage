@@ -34,7 +34,7 @@ class TreatsDealsStockController extends Controller
     {
 
         $this->view_file_path = "admin.treats-deals-stock.";
-        $permission_prefix    = $this->permission_prefix    = 't&d-reward-stock';
+        $permission_prefix    = $this->permission_prefix    = 'treats-deals-featured';
         $this->layout_data    = [
             'permission_prefix' => $permission_prefix,
             'title'             => 'Treats & Deals Management Listing',

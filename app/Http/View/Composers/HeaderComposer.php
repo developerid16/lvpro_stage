@@ -27,7 +27,6 @@ class HeaderComposer
 
         $selectedDeptId    = session('active_department_id');
         $activePermissions = session('active_permissions');
-
         if ($isSuperAdmin) {
             $deptPermissions = Permission::where('status', 'Active')->pluck('name');
 
@@ -40,7 +39,6 @@ class HeaderComposer
                 ->unique()
                 ->values();
         }
-
         $view->with([
             'allDepartments'  => $allDepartments,
             'selectedDeptId'  => $selectedDeptId,

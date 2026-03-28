@@ -258,9 +258,14 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
 
     Route::post('dashboardpopup/reorder', [DashboardPopupController::class, 'reorder']);
     Route::get('dashboardpopup/datatable', [DashboardPopupController::class, 'datatable']);
+    Route::get('dashboardpopup/trash', [DashboardPopupController::class, 'trash'])->name('admin.dashboardpopup.trash');
+    Route::post('dashboardpopup/{id}/restore', [DashboardPopupController::class, 'restore']);
+    Route::delete('dashboardpopup/{id}/force-delete', [DashboardPopupController::class, 'forceDelete']);
+    Route::get('dashboardpopup/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
     Route::resource('dashboardpopup', DashboardPopupController::class);
     
     Route::get('banner/datatable', [BannerController::class, 'datatable']);
+    Route::get('banner/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
     Route::resource('banner', BannerController::class);
    
     Route::post('announcements/reorder', [AnnouncementController::class, 'reorder']);
@@ -424,6 +429,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('birthday-voucher/trash', [BirthdayEvoucherController::class, 'trash'])->name('admin.birthday-voucher.trash');
     Route::post('birthday-voucher/{id}/restore', [BirthdayEvoucherController::class, 'restore']);
     Route::delete('birthday-voucher/{id}/force-delete', [BirthdayEvoucherController::class, 'forceDelete']);
+    Route::get('birthday-voucher/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+
     // Route::delete('birthday-voucher/{id}/force-delete', [BirthdayEvoucherController::class, 'forceDelete']);
     Route::resource('birthday-voucher', BirthdayEvoucherController::class);
     
@@ -454,6 +461,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('notification/trash', [NotificationController::class, 'trash'])->name('admin.notification.trash');
     Route::post('notification/{id}/restore', [NotificationController::class, 'restore']);
     Route::delete('notification/{id}/force-delete', [NotificationController::class, 'forceDelete']);
+    Route::get('notification/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
     Route::resource('notification', NotificationController::class);
 
     Route::get('home-banner/datatable', [HomeBannerController::class, 'datatable'])->name('home-banner.datatable');
@@ -463,6 +471,8 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::get('voucher-list/{id}', [VoucherListController::class,'show']);
     Route::delete('voucher-list/{id}', [VoucherListController::class,'destroy']);
     Route::post('voucher-list/suspend', [VoucherListController::class,'toggleSuspend'])->name('voucher.suspend');
+    Route::get('voucher-list/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
+    
     Route::resource('voucher-list', VoucherListController::class);
 
     Route::get('/treats-and-deals-list', [VoucherListController::class, 'treatsList']);

@@ -274,10 +274,10 @@ class RewardController extends Controller
                             </a>";
             }
 
-            $action .= "<a target='_blank' href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
+            $action .= "<a target='_blank' href='" . url('admin/dashboardpopup/' . $row->id . '/activity-log') . "' 
                             class='activity-log text-primary' 
                             data-id='$row->id'
-                            title='Reward Activity Log'>
+                            title='Dashboard Popup Activity Log'>
                             <i class='mdi mdi-history action-icon font-size-18'></i>
                         </a>";
 
