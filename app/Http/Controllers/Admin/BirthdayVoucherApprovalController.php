@@ -174,25 +174,35 @@ class BirthdayVoucherApprovalController extends Controller
             </a>";
 
             if ($row->status === 'pending') {
+                $activePermissions = session('active_permissions', []);
 
-                $action .= "<a href='javascript:void(0)' 
-                    class='approve_btn'
-                    data-id='{$row->id}'
-                    title='Approve'>
-                    <i class='mdi mdi-check-circle text-success font-size-18'></i>
-                </a>";
+                $canaccept = in_array($this->permission_prefix . '-accept', $activePermissions) 
+                    || Auth::user()->hasRole('Super Admin');
 
-                $action .= "<a href='javascript:void(0)' 
-                    class='reject_btn'
-                    data-id='{$row->id}'
-                    title='Reject'>
-                    <i class='mdi mdi-close-circle text-danger font-size-18'></i>
-                </a>";
-                
-                } else {
-                    $action .= "<span class='text-muted'>—</span>";
+                $canreject = in_array($this->permission_prefix . '-reject', $activePermissions) 
+                    || Auth::user()->hasRole('Super Admin');
+
+                if ($canaccept) {
+                    $action .= "<a href='javascript:void(0)' 
+                        class='approve_btn'
+                        data-id='{$row->id}'
+                        title='Approve'>
+                        <i class='mdi mdi-check-circle text-success font-size-18'></i>
+                    </a>";
                 }
-              
+
+                if ($canreject) {
+                    $action .= "<a href='javascript:void(0)' 
+                        class='reject_btn'
+                        data-id='{$row->id}'
+                        title='Reject'>
+                        <i class='mdi mdi-close-circle text-danger font-size-18'></i>
+                    </a>";
+                }
+
+            } else {
+                $action .= "<span class='text-muted'>—</span>";
+            }
 
             $final_data[$i]['action'] = $action . "</div>";
 

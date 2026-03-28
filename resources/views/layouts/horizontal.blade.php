@@ -49,9 +49,7 @@
         </div>
 
         <div class="d-flex align-items-center">
-
-            {{-- ✅ DEPARTMENT SWITCHER DROPDOWN (Super Admin ke multi-dept user dikhay) --}}
-            @if(isset($isSuperAdmin) && ($isSuperAdmin || $allDepartments->count() > 0))
+            @if(isset($isSuperAdmin) && ($isSuperAdmin || !empty($allDepartments) && $allDepartments->count() > 0))
                 <div class="dropdown d-inline-block me-2">
                     <button type="button"
                         class="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1"
@@ -321,8 +319,6 @@
     @if(
         hasActivePermission('role-list') ||
         hasActivePermission('department-list') ||
-        hasActivePermission('cms-user-list') ||
-        hasActivePermission('app-user-list') ||
         hasActivePermission('evoucher-approval-list') ||
         hasActivePermission('treats-and-deals-approval-list') ||
         hasActivePermission('birthday-voucher-approval-list')
@@ -397,7 +393,7 @@
 
     {{-- Rewards Management --}}
     @if(
-        hasActivePermission('reward-category') ||
+        hasActivePermission('category-list') ||
         hasActivePermission('t&d-reward-list') ||
         hasActivePermission('evoucher-list') ||
         hasActivePermission('birthday-voucher-list') ||
@@ -409,7 +405,7 @@
                 Rewards Management
             </a>
             <div class="dropdown-menu">
-                @if(hasActivePermission('reward-category'))
+                @if(hasActivePermission('category-list'))
                     <a class="dropdown-item" href="{{ url('admin/category') }}">Reward Category</a>
                 @endif
                 @if(hasActivePermission('t&d-reward-list'))
@@ -497,7 +493,7 @@
         hasActivePermission('transaction-history') ||
         hasActivePermission('voucher-logs') ||
         hasActivePermission('treats-and-deals-list') ||
-        hasActivePermission('evoucher-list') ||
+        hasActivePermission('Eevoucher-list') ||
         hasActivePermission('birthday-voucher-list')
     )
         <li class="nav-item dropdown">
@@ -515,7 +511,7 @@
                 @if(hasActivePermission('treats-and-deals-list'))
                     <a class="dropdown-item" href="{{ url('/admin/treats-and-deals-list') }}">Treats & Deals List</a>
                 @endif
-                @if(hasActivePermission('evoucher-list'))
+                @if(hasActivePermission('Eevoucher-list'))
                     <a class="dropdown-item" href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
                 @endif
                 @if(hasActivePermission('birthday-voucher-list'))

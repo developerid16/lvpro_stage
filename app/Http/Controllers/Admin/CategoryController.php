@@ -14,7 +14,7 @@ class CategoryController extends Controller
     function __construct()
     {
         $this->view_file_path = "admin.category.";
-        $permission_prefix = $this->permission_prefix = 'reward-category';
+        $permission_prefix = $this->permission_prefix = 'category';
 
         $this->layout_data = [
             'permission_prefix' => $permission_prefix,
@@ -71,20 +71,39 @@ class CategoryController extends Controller
             // -------------------------
             // ACTION BUTTONS
             // -------------------------
+            $activePermissions = session('active_permissions', []);
+
+            $canEdit   = in_array($this->permission_prefix . '-edit',   $activePermissions) || Auth::user()->hasRole('Super Admin');
+            $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
+
             $action = "<div class='d-flex gap-3'>";
 
-            if (Auth::user()->can($this->permission_prefix . '-edit')) {
-                $action .= "<a href='javascript:void(0)' class='edit' data-id='{$row->id}'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            if ($canEdit) {
+                $action .= "<a href='javascript:void(0)' 
+                    class='edit' 
+                    data-id='$row->id'
+                    title='Edit'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
             }
+
+            if ($canDelete) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
+                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
+                            </a>";
+            }
+
+            $action .= "<a target='_blank' href='" . url('admin/club-location/' . $row->id . '/activity-log') . "' 
+                            class='activity-log text-primary' 
+                            data-id='$row->id'
+                            title='Club Location Activity Log'>
+                            <i class='mdi mdi-history action-icon font-size-18'></i>
+                        </a>";
+            
+            
             $action .= "<a href='javascript:void(0)' class='view_rewards' data-id='{$row->id}'>
                 <i class='mdi mdi-gift text-info action-icon font-size-18'></i>
             </a>";
-            $action .= "
-             <a href='javascript:void(0)' class='delete_btn' data-id='{$row->id}'>
-                            <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                        </a>";
-            
-
 
             $action .= "</div>";
 

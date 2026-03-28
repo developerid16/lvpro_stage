@@ -14,193 +14,194 @@
         display: none !important;
     }
 </style>
+@if(hasActivePermission('dashboard'))
+    <div class="d-flex justify-content-end mb-3">
+        <select id="rewardTypeFilter" class="form-control w-auto">
+            <option value="">All</option>
+            <option value="0">Treats &amp; Deals</option>
+            <option value="1">E-Voucher</option>
+        </select>
+    </div>
 
-<div class="d-flex justify-content-end mb-3">
-    <select id="rewardTypeFilter" class="form-control w-auto">
-        <option value="">All</option>
-        <option value="0">Treats &amp; Deals</option>
-        <option value="1">E-Voucher</option>
-    </select>
-</div>
+    <div class="row">
 
-<div class="row">
+        <div id="evoucherSection" class="row">
 
-    <div id="evoucherSection" class="row">
-
-        <!-- Voucher Issuance Trend -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Voucher Issuance Trend</h4>
-                    <select id="trendType" class="form-control w-auto">
-                        <option value="week" selected>Week</option>
-                        <option value="month">Month</option>
-                        <option value="year">Year</option>
-                    </select>
-                </div>
-                <div class="card-body">
-                    <div id="voucherIssuanceChart"></div>
+            <!-- Voucher Issuance Trend -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Voucher Issuance Trend</h4>
+                        <select id="trendType" class="form-control w-auto">
+                            <option value="week" selected>Week</option>
+                            <option value="month">Month</option>
+                            <option value="year">Year</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="voucherIssuanceChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Voucher Redeem Trend -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Voucher Redeem Trend</h4>
-                </div>
-                <div class="card-body">
-                    <div id="voucherRedeemChart"></div>
+            <!-- Voucher Redeem Trend -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Voucher Redeem Trend</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="voucherRedeemChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Redemption by Outlet -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><h4 class="mb-0">Redemption by Outlet</h4></div>
-                <div class="card-body">
-                    <div id="outletPerformanceChart"></div>
+            <!-- Redemption by Outlet -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header"><h4 class="mb-0">Redemption by Outlet</h4></div>
+                    <div class="card-body">
+                        <div id="outletPerformanceChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Campaign Performance Comparison -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Campaign Performance Comparison</h4>
-                    <select id="rewardArr" name="rewardArr[]" class="form-control w-25 select2" multiple>
-                        @foreach ($rewards as $key => $reward)
-                            <option value="{{ $reward->campaign }}" @if($key < 7) selected @endif>{{ $reward->campaign }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="card-body">
-                    <div id="campaignChart"></div>
+            <!-- Campaign Performance Comparison -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Campaign Performance Comparison</h4>
+                        <select id="rewardArr" name="rewardArr[]" class="form-control w-25 select2" multiple>
+                            @foreach ($rewards as $key => $reward)
+                                <option value="{{ $reward->campaign }}" @if($key < 7) selected @endif>{{ $reward->campaign }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="campaignChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Voucher Redemption Rate Trend -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
-                    <select id="rateTrendType" class="form-control w-auto">
-                        <option value="week" selected>Week</option>
-                        <option value="month">Month</option>
-                    </select>
-                </div>
-                <div class="card-body">
-                    <div id="redemptionRateTrendChart"></div>
+            <!-- Voucher Redemption Rate Trend -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Voucher Redemption Rate Trend</h4>
+                        <select id="rateTrendType" class="form-control w-auto">
+                            <option value="week" selected>Week</option>
+                            <option value="month">Month</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="redemptionRateTrendChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Voucher Issuance Method Distribution -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Voucher Issuance Method Distribution</h4>
-                </div>
-                <div class="card-body">
-                    <div id="issuanceMethodChart"></div>
+            <!-- Voucher Issuance Method Distribution -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Voucher Issuance Method Distribution</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="issuanceMethodChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div><!-- /#evoucherSection -->
+        </div><!-- /#evoucherSection -->
 
-    <div id="treatsDealsSection" class="row">
+        <div id="treatsDealsSection" class="row">
 
-        <!-- Category Performance Summary -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Category Performance Summary</h4>
-                </div>
-                <div class="card-body">
-                    <div id="categoryPerformanceChart"></div>
+            <!-- Category Performance Summary -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Category Performance Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="categoryPerformanceChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Monthly Transactions Trend -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Monthly Transactions Trend</h4>
-                </div>
-                <div class="card-body">
-                    <div id="monthlyTransactionsChart"></div>
+            <!-- Monthly Transactions Trend -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Monthly Transactions Trend</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="monthlyTransactionsChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Monthly Spending Trend -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Monthly Spending Trend</h4>
-                </div>
-                <div class="card-body">
-                    <div id="topDealsChart"></div>
+            <!-- Monthly Spending Trend -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Monthly Spending Trend</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="topDealsChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Monthly Unique Member Participation -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Monthly Unique Member Participation</h4>
-                    <select id="participationType" class="form-control w-auto">
-                        <option value="month">Month</option>
-                        <option value="week" selected>Week</option>
-                        <option value="year">Year</option>
-                    </select>
-                </div>
-                <div class="card-body">
-                    <div id="memberChart"></div>
+            <!-- Monthly Unique Member Participation -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Monthly Unique Member Participation</h4>
+                        <select id="participationType" class="form-control w-auto">
+                            <option value="month">Month</option>
+                            <option value="week" selected>Week</option>
+                            <option value="year">Year</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="memberChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Purchase Frequency Distribution -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Purchase Frequency Distribution</h4>
-                </div>
-                <div class="card-body">
-                    <div id="purchaseFrequencyChart"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Demographic Purchase Profiling -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Demographic Purchase Profiling</h4>
-                    <select id="demographicType" class="form-control" style="width:200px">
-                        <option value="age">Age Distribution</option>
-                        <option value="gender">Gender Distribution</option>
-                        <option value="region">Region Distribution</option>
-                        <option value="marital">Marital Status</option>
-                    </select>
-                </div>
-                <div class="card-body">
-                    <div id="demographicChart"></div>
+            <!-- Purchase Frequency Distribution -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Purchase Frequency Distribution</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="purchaseFrequencyChart"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div><!-- /#treatsDealsSection -->
+            <!-- Demographic Purchase Profiling -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Demographic Purchase Profiling</h4>
+                        <select id="demographicType" class="form-control" style="width:200px">
+                            <option value="age">Age Distribution</option>
+                            <option value="gender">Gender Distribution</option>
+                            <option value="region">Region Distribution</option>
+                            <option value="marital">Marital Status</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <div id="demographicChart"></div>
+                    </div>
+                </div>
+            </div>
 
-</div><!-- /.row -->
+        </div><!-- /#treatsDealsSection -->
+
+    </div><!-- /.row -->
+@endif
 
 @endsection
 
