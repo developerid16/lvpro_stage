@@ -180,6 +180,9 @@ $(document).ready(function () {
 
                 let modal = $("#EditModal");
 
+                // ✅ ADD THIS LINE
+                modal.find('#edit_frm').attr('action', url);
+
                 selectedOutletMapMerchant = {};
                 selectedOutlets = response.selectedOutlets || {};
 
@@ -298,8 +301,14 @@ $(document).ready(function () {
         var id = $form.data('id');
         var form_data = new FormData($form[0]);
 
+       let actionUrl = $form.attr('action');
+
+        if (actionUrl && actionUrl.endsWith('/edit')) {
+            actionUrl = actionUrl.replace('/edit', '');
+        }
+
         $.ajax({
-            url: ModuleBaseUrl + id,
+            url: actionUrl,
             headers: { 'X-CSRF-Token': csrf },
             type: "POST",
             data: form_data,
@@ -440,8 +449,40 @@ $(document).ready(function () {
             tinymce.triggerSave();
 
             // ✅ If EDIT → submit directly
+            // if (formId === "edit_frm") {
+            //     $(formSelector).submit();
+            //     return;
+            // }
+
+            // ✅ If EDIT → ask apply all months
             if (formId === "edit_frm") {
-                $(formSelector).submit();
+
+                Swal.fire({
+                    title: 'Apply changes to all months?',
+                    text: 'Do you want to apply changes across other months?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, apply all',
+                    cancelButtonText: 'No, only this month',
+                    reverseButtons: true
+                }).then(result => {
+
+                    // 🔥 Add flag in form
+                    let applyAll = result.isConfirmed ? 1 : 0;
+
+                    // remove old if exists
+                    $(formSelector).find('input[name="apply_all"]').remove();
+
+                    // add hidden input
+                    $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', 'apply_all')
+                        .val(applyAll)
+                        .appendTo(formSelector);
+
+                    $(formSelector).submit();
+                });
+
                 return;
             }
 
@@ -595,5 +636,21 @@ $(document).ready(function () {
             window.location.href = '/login';
         }
     });
-   
+
+    $(document).off('click', '.view').on('click', '.view', function () {
+
+        let id = $(this).data('id');
+        var url = $(this).data('url') ?? ModuleBaseUrl + id;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function (res) {
+                $('#ViewModal').remove();
+                $('body').append(res.html);
+                $('#ViewModal').modal('show');
+            }
+        });
+
+    });
 });

@@ -468,9 +468,9 @@ class RewardController extends Controller
                     foreach ($request->locations as $locId => $locData) {
 
                         // Store ONLY if checkbox selected
-                        if (!isset($locData['selected'])) {
-                            continue; // skip unselected
-                        }
+                        // if (!isset($locData['selected'])) {
+                        //     continue; // skip unselected
+                        // }
 
                         RewardLocation::create([
                             'reward_id'     => $reward->id,
@@ -500,7 +500,14 @@ class RewardController extends Controller
 
                         foreach ($request->participating_merchant_locations as $locId => $locData) {
 
-                            if (!isset($locData['selected'])) {
+                            // if (!isset($locData['selected'])) {
+                            //     continue;
+                            // }
+
+                             $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                            // ❌ skip if 0 or less
+                            if ($qty <= 0) {
                                 continue;
                             }
 
@@ -667,9 +674,9 @@ class RewardController extends Controller
                     'validity_month.min' => 'Validity period must be at least 1 month.',
                     'validity_month.max' => 'Validity period may not be greater than 24 months.',
                        
-                    'set_qty.required' => 'Voucher set quantity is required.',
-                    'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                    'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                    'set_qty.required' => 'Total no. of sets on sale is required.',
+                    'set_qty.integer'  => 'Total no. of sets on sale must be a valid number.',
+                    'set_qty.min'      => 'Total no. of sets on sale must be at least 1.',
                     
                     'term_of_use.required' => 'Voucher T&C is required',
                     'voucher_detail_img.required' => 'Voucher Detail Image is required',
@@ -686,6 +693,10 @@ class RewardController extends Controller
     
                 /* ---------------- TIER RULES ---------------- */
     
+                $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
+                $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
+                $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
+
                 foreach ($tiers as $tier) {
                     $rules["tier_{$tier->id}"] = 'nullable|numeric|min:0';
                     $messages["tier_{$tier->id}.nullable"] = "{$tier->tier_name} price is required";
@@ -697,9 +708,9 @@ class RewardController extends Controller
                 if ((int) $request->reward_type == 0) {
                     $rules['voucher_set']         = 'required|numeric|min:1';   
                     $rules['set_qty']         = 'required|numeric|min:1';
-                    $messages['set_qty.required'] = 'Voucher set quantity is required.';
-                    $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
-                    $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
+                    $messages['set_qty.required'] = 'Total no. of sets on sale is required.';
+                    $messages['set_qty.numeric']  = 'Total no. of sets on sale must be a valid number.';
+                    $messages['set_qty.min']      = 'Total no. of sets on sale must be at least 1.';
                 }
                 
                 $validator = Validator::make($request->all(), $rules, $messages);
@@ -707,51 +718,86 @@ class RewardController extends Controller
                 /* ---------------- LOCATION VALIDATION ---------------- */
 
 
+                // if ((int) $request->reward_type === 1) {
+
+                //     $rules['max_quantity_physical'] = 'required|integer|min:1';
+                //     $rules['locations'] = 'required|array|min:1';
+
+                //     $hasSelected = false;
+
+                //     foreach ($request->locations ?? [] as $locId => $locData) {
+
+                //         if (!empty($locData['selected'])) {
+
+                //             $hasSelected = true;
+
+                //             $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
+
+                //             $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
+                //             $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
+                //             $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
+                //         }
+                //     }
+                // }
+
+               
                 if ((int) $request->reward_type === 1) {
 
                     $rules['max_quantity_physical'] = 'required|integer|min:1';
-                    $rules['locations'] = 'required|array|min:1';
 
-                    $hasSelected = false;
-
+                    // validate each location qty (optional but numeric)
                     foreach ($request->locations ?? [] as $locId => $locData) {
+                        $rules["locations.$locId.inventory_qty"] = 'nullable|integer|min:0';
+                    }
 
-                        if (!empty($locData['selected'])) {
+                    $validator = Validator::make($request->all(), $rules, $messages);
 
-                            $hasSelected = true;
+                    // ✅ check: at least one qty > 0
+                    $hasQty = false;
 
-                            $rules["locations.$locId.inventory_qty"] = 'required|integer|min:1';
-
-                            $messages["locations.$locId.inventory_qty.required"] = 'This location inventory quantity is required.';
-                            $messages["locations.$locId.inventory_qty.integer"]  = 'This location inventory quantity must be a number.';
-                            $messages["locations.$locId.inventory_qty.min"]      = 'This location inventory quantity must be at least 1.';
+                    foreach ($request->locations ?? [] as $loc) {
+                        if ((int) ($loc['inventory_qty'] ?? 0) > 0) {
+                            $hasQty = true;
+                            break;
                         }
                     }
-                }
 
+                    if (!$hasQty) {
+                        $validator->after(function ($validator) {
+                            $validator->errors()->add('locations', 'At least one location qty must be greater than 0.');
+                        });
+                    }
+
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'status' => false,
+                            'errors' => $validator->errors()
+                        ], 422);
+                    }
+                }
                 $validator = Validator::make($request->all(), $rules, $messages);
 
                 /* AFTER VALIDATION CHECK */
                 $validator->after(function ($validator) use ($request) {
 
-                    if ((int) $request->reward_type === 1) {
+                    // if ((int) $request->reward_type === 1) {
 
-                        $hasSelected = false;
+                    //     $hasSelected = false;
 
-                        foreach ($request->locations ?? [] as $locData) {
-                            if (!empty($locData['selected'])) {
-                                $hasSelected = true;
-                                break;
-                            }
-                        }
+                    //     foreach ($request->locations ?? [] as $locData) {
+                    //         if (!empty($locData['selected'])) {
+                    //             $hasSelected = true;
+                    //             break;
+                    //         }
+                    //     }
 
-                        if (!$hasSelected) {
-                            $validator->errors()->add(
-                                'locations',
-                                'Please select at least one location.'
-                            );
-                        }
-                    }
+                    //     if (!$hasSelected) {
+                    //         $validator->errors()->add(
+                    //             'locations',
+                    //             'Please select at least one location.'
+                    //         );
+                    //     }
+                    // }
                 });
 
                 /* FINAL CHECK */
@@ -779,11 +825,8 @@ class RewardController extends Controller
                         $messages['location_text.required'] = 'Location is required';
 
                     }
-                    if ((int) $request->inventory_type === 0) {
-                        $rules['inventory_qty'] = 'required|integer|min:1';
-                    }
                 }
-
+              
 
                 foreach ($tiers as $tier) {
                     $price = $request->input("tier_{$tier->id}");
@@ -1033,8 +1076,15 @@ class RewardController extends Controller
                     foreach ($request->locations as $locId => $locData) {
     
                         // Store ONLY if checkbox selected
-                        if (!isset($locData['selected'])) {
-                            continue; // skip unselected
+                        // if (!isset($locData['selected'])) {
+                        //     continue; // skip unselected
+                        // }
+
+                        $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                        // ❌ skip if 0 or less
+                        if ($qty <= 0) {
+                            continue;
                         }
     
                         RewardLocation::create([
@@ -1170,9 +1220,70 @@ class RewardController extends Controller
      */
     public function show(string $id)
     {
-        abort(404);
-    }
+        $reward = Reward::with([
+            'tierRates',
+            'rewardLocations',
+            'participatingLocations',
+            'merchant',
+            'category'
+        ])->findOrFail($id);
 
+        // fix date
+        $reward->voucher_validity = ($reward->voucher_validity == '0000-00-00') ? '' : $reward->voucher_validity;
+
+        $data = [];
+        $data['data'] = $reward;
+
+        // ✅ SAME AS EDIT
+        $data['location_text'] = null;
+        if (!empty($reward->location_text)) {
+            $data['location_text'] = CustomLocation::where('id', $reward->location_text)->value('name');
+        }
+
+        $data['fabs'] = Fabs::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['getSRPMerchandiseItemList'] = GetSRPMerchandiseItemList::orderBy('item_name','ASC')->get();
+
+        $data['merchants'] = Merchant::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['participating_merchants'] = ParticipatingMerchant::where('status','Active')->orderBy('name','ASC')->get();
+
+        $data['tiers'] = Tier::where('status','Active')->orderBy('tier_name','ASC')->get();
+
+        $data['category'] = Category::orderBy('name','ASC')->get();
+
+        // ✅ saved locations
+        $data['savedLocations'] = $reward->rewardLocations->pluck('inventory_qty','location_id');
+
+        $locationIds = $reward->rewardLocations->pluck('location_id')->unique();
+
+        $data['locations'] = ClubLocation::whereIn('id', $locationIds)
+            ->select('id','name')
+            ->get();
+
+        // ✅ participating locations
+        $locationIds = $reward->participatingLocations->pluck('location_id')->unique()->values();
+
+        $data['participatingLocations'] = ParticipatingMerchantLocation::whereIn('id', $locationIds)
+            ->select('id','name')
+            ->get()
+            ->map(function ($loc) {
+                return [
+                    'id'   => $loc->id,
+                    'name' => $loc->name,
+                ];
+            });
+
+        // render
+        $html = view($this->view_file_path . 'view', $data)->render();
+
+        return response()->json([
+            'status' => 'success',
+            'html' => $html,
+            'savedLocations' => $data['savedLocations'],
+            'participatingLocations' => $data['participatingLocations']
+        ]);
+    }
     function normalizeTime($time)
     {
         if (!$time) return null;
@@ -1438,7 +1549,13 @@ class RewardController extends Controller
                     // Insert fresh
                     foreach ($request->locations as $locId => $locData) {
 
-                        if (!isset($locData['selected'])) {
+                        // if (!isset($locData['selected'])) {
+                        //     continue;
+                        // }
+                         $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                        // ❌ skip if 0 or less
+                        if ($qty <= 0) {
                             continue;
                         }
 
@@ -1696,9 +1813,9 @@ class RewardController extends Controller
                 'validity_month.min' => 'Validity period must be at least 1 month.',
                 'validity_month.max' => 'Validity period may not be greater than 24 months.',
                     
-                'set_qty.required' => 'Voucher set quantity is required.',
-                'set_qty.integer'  => 'Voucher set quantity must be a valid number.',
-                'set_qty.min'      => 'Voucher set quantity must be at least 1.',
+                'set_qty.required' => 'Total no. of sets on sale is required.',
+                'set_qty.integer'  => 'Total no. of sets on sale must be a valid number.',
+                'set_qty.min'      => 'Total no. of sets on sale must be at least 1.',
                 'term_of_use.required' => 'Voucher T&C is required',
                 'voucher_detail_img.required' => 'Voucher Detail Image is required',
                 'voucher_detail_img.image'    => 'Voucher Detail Image must be an image file',
@@ -1755,13 +1872,14 @@ class RewardController extends Controller
                 $rules['inventory_type']       = 'required|in:0,1';
                 $rules['voucher_value']        = 'required|numeric|min:1';
                 $rules['clearing_method']      = 'required|in:0,1,2,3,4';
-                $messages['set_qty.required'] = 'Voucher set quantity is required.';
-                $messages['set_qty.numeric']  = 'Voucher set quantity must be a valid number.';
-                $messages['set_qty.min']      = 'Voucher set quantity must be at least 1.';
+                $messages['set_qty.required'] = 'Total no. of sets on sale is required.';
+                $messages['set_qty.numeric']  = 'Total no. of sets on sale must be a valid number.';
+                $messages['set_qty.min']      = 'Total no. of sets on sale must be at least 1.';
 
                 /* Inventory Type Based */
                 $rules['inventory_qty'] = 'required_if:inventory_type,0|integer|min:1';
-                $messages['inventory_qty.required_if'] = 'Internal/External is required';
+                $messages['inventory_qty.required_if'] = 'Total no. of vouchers/codes is required';
+                $messages['inventory_qty.integer'] = 'Total no. of vouchers/codes must be a number.';
 
                 /* Clearing Method Based */
                 if ($clearingMethod === 2) {
@@ -1808,31 +1926,34 @@ class RewardController extends Controller
             | 5) EXTRA CROSS VALIDATION
             |---------------------------------------------------*/
 
-            $validator->after(function ($validator) use ($request, $tiers, $rewardType) {
+                $validator->after(function ($validator) use ($request, $tiers, $rewardType) {
 
-                /* Physical must select at least one location */
+                /* Physical → at least one location qty > 0 */
                 if ($rewardType === 1) {
 
-                    $hasSelected = false;
+                    $hasQty = false;
 
                     foreach ($request->locations ?? [] as $locData) {
-                        if (!empty($locData['selected'])) {
-                            $hasSelected = true;
+
+                        if (!empty($locData['inventory_qty']) && (int)$locData['inventory_qty'] > 0) {
+                            $hasQty = true;
                             break;
                         }
                     }
 
-                    if (!$hasSelected) {
+                    if (!$hasQty) {
                         $validator->errors()->add(
                             'locations',
-                            'Please select at least one location.'
+                            'Enter quantity in at least one location.'
                         );
                     }
                 }
 
                 /* Tier price must not exceed usual price */
                 foreach ($tiers as $tier) {
+
                     $price = $request->input("tier_{$tier->id}");
+
                     if ($price !== null && $price > $request->usual_price) {
                         $validator->errors()->add(
                             "tier_{$tier->id}",
@@ -2046,7 +2167,7 @@ class RewardController extends Controller
                             'type'      => '0',
                         ], $data
                     );
-                    $reward->update(['is_draft' => 0]); // mark main reward as non-draft (it will be updated after approval)
+                    $reward->update(['is_draft' => 0, 'status'    => 'pending']); // mark main reward as non-draft (it will be updated after approval)
     
     
                     if ($request->reward_type == 0 && $request->clearing_method == 2 && !empty($request->participating_merchant_locations) ) {
@@ -2089,9 +2210,15 @@ class RewardController extends Controller
                         // Insert fresh
                         foreach ($request->locations as $locId => $locData) {
     
-                            if (!isset($locData['selected'])) {
+                            $qty = (int) ($locData['inventory_qty'] ?? 0);
+
+                            // ❌ skip if 0 or less
+                            if ($qty <= 0) {
                                 continue;
                             }
+                            // if (!isset($locData['selected'])) {
+                            //     continue;
+                            // }
     
                             RewardLocationUpdate::create([
                                 'reward_id'     => $reward->id,

@@ -77,9 +77,9 @@
 
 <!-- Create -->
 @can("$permission_prefix-create")
+@endcan
 @include('admin.cso-physical.view')
 @include('admin.cso-physical.issue')
-@endcan
 <!-- end modal -->
 @endsection
 

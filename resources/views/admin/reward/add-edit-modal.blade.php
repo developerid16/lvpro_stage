@@ -310,9 +310,7 @@
                                     <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                         <span class="fw-bold"></span> ${loc.name}
                                     </label>
-                                    <input type="checkbox" 
-                                        name="locations[${loc.id}][selected]" 
-                                        value="1" ${isChecked} class="form-check-input">
+                                  
                                 </div>
 
                                 <div class="d-flex align-items-center ms-3">
@@ -320,7 +318,7 @@
                                     <input type="number" min="0"
                                         class="form-control"
                                         name="locations[${loc.id}][inventory_qty]"
-                                        value="${qtyValue}"
+                                        value="${qtyValue || 0}"
                                         placeholder="Qty"
                                         style="max-width:100px">
                                 </div>
@@ -424,7 +422,7 @@
                        <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Description <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="description" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="description" id="" data-original="{{ $data->description ?? '' }}">
                                     {{ $data->description ?? '' }}
                                 </textarea>
                             </div>
@@ -433,7 +431,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">Voucher T&C <span class="required-hash">*</span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="term_of_use" id="" data-original="{{ $data->term_of_use ?? '' }}">
                                     {{ $data->term_of_use ?? '' }}
                                 </textarea>
                             </div>
@@ -442,7 +440,7 @@
                         <div class="col-12 col-md-12">
                             <div class="mb-3">
                                 <label class="sh_dec">How to use <span class="required-hash"></span></label>
-                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="">
+                                <textarea class="sh_dec form-control wysiwyg" name="how_to_use" id="" data-original="{{ $data->how_to_use ?? '' }}">
                                     {{ $data->how_to_use ?? '' }}
                                 </textarea>
                             </div>
@@ -671,7 +669,7 @@
 
                                 <div class="col-12 col-md-6 inventory_qty" style="display: none">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="inventory_qty">Inventory Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="inventory_qty">Total no. of vouchers/codes <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                         <input id="inventory_qty" type="number" min="0"  step="1" placeholder="Enter Inventory Quantity" class="sh_dec form-control"   name="inventory_qty" value="{{ $data->inventory_qty ?? '' }}"> 
                                     </div>
                                 </div>
@@ -690,7 +688,7 @@
 
                                 <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label class="sh_dec" for="set_qty">Voucher Set Quantity <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
+                                        <label class="sh_dec" for="set_qty">Total no. of sets on sale <span class="fs-10">(Max 6 digits)</span><span class="required-hash">*</span></label>    
                                         <input id="set_qty"  step="1" type="number" min="0" readonly  placeholder="Voucher Set Quantity" class="sh_dec form-control readonly"   name="set_qty" value="{{ $data->set_qty ?? '' }}"> 
                                     </div>
                                 </div>

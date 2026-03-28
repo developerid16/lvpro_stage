@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 class ParticipatingMerchantLocationController extends Controller
 {
     function __construct()
@@ -360,5 +362,181 @@ class ParticipatingMerchantLocationController extends Controller
         AdminLogger::log('delete', ParticipatingMerchantLocation::class, $id);
 
         return response()->json(['status' => 'success', 'message' => 'Participating Merchant Location Deleted Successfully']);
+    }
+
+
+    public function uploadFile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|mimes:csv,txt,xlsx|max:2048',
+            'participating_merchant_id' => 'required|exists:participating_merchants,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $merchantId = $request->participating_merchant_id;
+
+        // Read file
+        $rows = Excel::toArray([], $request->file('file'))[0];
+
+        if (empty($rows)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'File is empty'
+            ]);
+        }
+
+        unset($rows[0]); // remove header
+
+        $errors = [];
+        $insertData = [];
+
+        DB::beginTransaction();
+
+        try {
+
+            foreach ($rows as $index => $row) {
+
+                $rowNumber = $index + 2;
+
+                $name  = $row[0] ?? null;
+                $code  = $row[1] ?? null;
+                $start = $row[2] ?? null;
+                $end   = $row[3] ?? null;
+                $clubLocationName = $row[4] ?? null;
+
+                // ✅ Basic validation
+                if (!$name || !$code || !$start || !$end) {
+                    $errors[] = "Row {$rowNumber}: Missing required fields";
+                    continue;
+                }
+
+                // ✅ Check duplicate in DB (same merchant)
+                $exists = ParticipatingMerchantLocation::where('code', $code)
+                    ->where('participating_merchant_id', $merchantId)
+                    ->exists();
+
+                if ($exists) {
+                    $errors[] = "Row {$rowNumber}: Code '{$code}' already exists";
+                    continue;
+                }
+
+                // ✅ Optional: check duplicate inside file
+                if (collect($insertData)->where('code', $code)->count()) {
+                    $errors[] = "Row {$rowNumber}: Duplicate code in file '{$code}'";
+                    continue;
+                }
+                $clubLocationId = null;
+
+                if (!empty($clubLocationName)) {
+
+                    $clubLocation = \App\Models\ClubLocation::where('name', $clubLocationName)->first();
+
+                    if (!$clubLocation) {
+                        $errors[] = "Row {$rowNumber}: Club location '{$clubLocationName}' not found";
+                        continue;
+                    }
+
+                    $clubLocationId = $clubLocation->id;
+                }
+
+                // ✅ Generate QR
+                $qrName = 'qr_' . Str::random(8) . '.png';
+                $encryptedCode = ParticipatingMerchantLocation::encryptCode($code);
+
+                $path = public_path('uploads/qrcode');
+
+                if (!File::exists($path)) {
+                    File::makeDirectory($path, 0755, true);
+                }
+
+                $qrCode = QrCode::create($encryptedCode)
+                    ->setSize(300)
+                    ->setMargin(10);
+
+                $writer = new PngWriter();
+                $result = $writer->write($qrCode);
+
+                $result->saveToFile($path . '/' . $qrName);
+
+                // ✅ Prepare data
+                $insertData[] = [
+                    'name' => $name,
+                    'code' => $code,
+                    'start_date' => $start,
+                    'end_date' => $end,
+                    'participating_merchant_id' => $merchantId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'qrcode' => $qrName,
+                    'club_location_id' => $clubLocationId,
+
+                ];
+            }
+
+            // ❌ If any error → rollback
+            if (!empty($errors)) {
+                DB::rollBack();
+                return response()->json([
+                    'status' => 'error',
+                    'errors' => [
+                        'file' => $errors
+                    ]
+                ], 422);
+            }
+
+            // ✅ Insert
+            ParticipatingMerchantLocation::insert($insertData);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'File uploaded & data stored successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function downloadSample()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="sample_participating_merchant.csv"',
+        ];
+
+        $columns = ['name', 'code', 'start date(yyyy-mm-dd hh:mm)', 'end date(yyyy-mm-dd hh:mm)','club location'];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($file, $columns);
+
+            // Sample data
+            fputcsv($file, [
+                'Shop 1',
+                'ABC123',
+                '2025-01-01 00:00',
+                '2025-12-31 23:59',
+                'Main Branch',
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

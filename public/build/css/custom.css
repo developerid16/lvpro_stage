@@ -631,3 +631,8 @@ th[data-css="wrap-text"] .th-inner {
     white-space: normal !important;
     /* word-break: break-word; */
 }
+
+
+/* .tox.tox-tinymce-aux .tox-toolbar__overflow {
+    margin-left: 0 !important;
+} */

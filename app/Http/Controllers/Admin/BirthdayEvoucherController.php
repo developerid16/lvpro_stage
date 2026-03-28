@@ -250,16 +250,22 @@ class BirthdayEvoucherController extends Controller
             $canDelete = in_array($this->permission_prefix . '-delete', $activePermissions) || Auth::user()->hasRole('Super Admin');
 
             $action = "<div class='d-flex gap-3'>";
+            // if (Auth::user()->can($this->permission_prefix . '-edit')) {
+            //     $action .= "<a href='javascript:void(0)' class='edit' data-id='$row->id'><i class='mdi mdi-pencil text-primary action-icon font-size-18'></i></a>";
+            // }
 
-            if ($canEdit) {
-                if ($status == 'pending approval') {
+            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+
+                if ($row->status === 'pending') {
+
                     $action .= "<a href='javascript:void(0)' 
-                                    class='' 
-                                    style='cursor:not-allowed;color:#b6b8c4 !important;' 
+                                    style='cursor:not-allowed;color:#b6b8c4 !important;'  
                                     title='Editable only after approval'>
                                     <i class='mdi mdi-pencil action-icon font-size-18'></i>
                                 </a>";
+
                 } else {
+
                     $action .= "<a href='javascript:void(0)' 
                                     class='edit' 
                                     data-id='$row->id'
@@ -269,10 +275,10 @@ class BirthdayEvoucherController extends Controller
                 }
             }
 
-            if ($canDelete) {
-                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'>
-                                <i class='mdi mdi-delete text-danger action-icon font-size-18'></i>
-                            </a>";
+            
+        
+            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+                $action .= "<a href='javascript:void(0)' class='delete_btn' data-id='$row->id'><i class='mdi mdi-delete text-danger action-icon font-size-18'></i></a>";
             }
 
             $action .= "<a target='_blank' href='" . url('admin/reward/' . $row->id . '/activity-log') . "' 
@@ -772,10 +778,80 @@ class BirthdayEvoucherController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        abort(404);
+   public function show(string $id)
+{
+    $reward = Reward::with([
+        'participatingLocations',
+        'rewardLocations',
+        'merchant'
+    ])->findOrFail($id);
+
+    $data['data'] = $reward;
+
+    // -------------------------------
+    // CLUB INVENTORY (location_id = club)
+    // -------------------------------
+    $clubInventory = $reward->rewardLocations
+        ->mapWithKeys(function ($item) {
+            return [
+                $item->location_id => $item->inventory_qty
+            ];
+        });
+
+    // -------------------------------
+    // SELECTED CLUBS
+    // -------------------------------
+    $selectedClubIds = $reward->rewardLocations
+        ->pluck('location_id') // ✅ correct
+        ->unique()
+        ->values();
+
+    $data['club_location'] = ClubLocation::whereIn('id', $selectedClubIds)
+        ->select('id','name')
+        ->get();
+
+    // -------------------------------
+    // MERCHANT MAP
+    // -------------------------------
+    $merchantMap = ParticipatingMerchant::pluck('name','id');
+
+    // -------------------------------
+    // OUTLET MAP
+    // -------------------------------
+    $locationMap = ParticipatingMerchantLocation::pluck('name','id');
+
+    // -------------------------------
+    // GROUP DATA (CLUB → MERCHANT → OUTLETS)
+    // -------------------------------
+    $clubMerchants = [];
+
+    foreach ($reward->participatingLocations as $item) {
+
+        $clubId = $item->club_location_id; // ✅ correct here
+        $merchantId = $item->participating_merchant_id; // ✅ correct column
+
+        $clubMerchants[$clubId][$merchantId]['merchant_name'] =
+            $merchantMap[$merchantId] ?? '';
+
+        $clubMerchants[$clubId][$merchantId]['outlets'][] = [
+            'id' => $item->location_id,
+            'name' => $locationMap[$item->location_id] ?? ''
+        ];
     }
+
+    $data['clubInventory'] = $clubInventory;
+    $data['clubMerchants'] = $clubMerchants;
+
+    // -------------------------------
+    // RENDER
+    // -------------------------------
+    $html = view($this->view_file_path . 'view', $data)->render();
+
+    return response()->json([
+        'status' => 'success',
+        'html' => $html
+    ]);
+}
 
     function normalizeTime($time)
     {
@@ -1023,7 +1099,8 @@ class BirthdayEvoucherController extends Controller
             }
 
             $validated = $validator->validated();
-                        /* ---------------------------------------------------
+            $applyAll = (int) $request->apply_all;
+            /* ---------------------------------------------------
             * CLUB LOCATION VALIDATION (UPDATE)
             * ---------------------------------------------------*/
 
@@ -1135,117 +1212,147 @@ class BirthdayEvoucherController extends Controller
                 $month = $month[0];
             }
 
+            if ($applyAll) {
+
+                // 👉 get all related records (same voucher group)
+                $rewards = Reward::where('month', '>=', now()->format('Y-m'))
+                    ->get();
+            } else {
+
+                // 👉 only current
+                $rewards = collect([$reward]);
+            }
+
             /* ===================================================
             | CREATE UPDATE REQUEST
             ===================================================*/
-            $data = [
-                'type'           => '2',
-                'month'       => $month,
-                'from_month'  => $month,
-                'to_month'    => $month,
-                'request_by'     => auth()->id(),
-                'voucher_image'      => $validated['voucher_image'] ?? $reward->voucher_image,
-                'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
-                'name'           => $validated['name'],
-                'description'    => $validated['description'],
-                'term_of_use'    => $validated['term_of_use'],
-                'how_to_use'     => $validated['how_to_use'],
-                'merchant_id'    => $validated['merchant_id'],
-                'reward_type'    => 0,
-                'expiry_type' => $validated['expiry_type'],
-                'voucher_validity' => $validated['expiry_type'] === 'fixed' ? $validated['voucher_validity'] : null,
-                'validity_month' => $validated['expiry_type'] === 'validity'  ? $validated['validity_month'] : null,
-                'inventory_type'      => 0,
-                'inventory_qty'      => (int) ($request['inventory_qty'] ?? null),
-                'voucher_value'      =>(int) ($validated['voucher_value']),
-                'voucher_set'        =>(int) ($validated['voucher_set']),
-                'set_qty'            =>(int) ($validated['set_qty']),
-                'clearing_method'    =>(int) ($validated['clearing_method']),
-                'location_text'  => $request->location_text,
-                'participating_merchant_id' => $request->participating_merchant_id ?? 0,
-                'hide_quantity'  => $request->hide_quantity ? 1 : 0,
-                'low_stock_1'    => $validated['low_stock_1'] ?? 0,
-                'low_stock_2'    => $validated['low_stock_2'] ?? 0,
-                'status'         => 'pending',
+            foreach ($rewards as $reward) {
 
-                'active_department_id' => $this->activeDeptId ?? NULL,
-                'active_club_location_id' => $this->activeLocationId ?? NULL,
-                'active_role_id' => $this->activeRoleId ?? NULL,
-            ];
+                $data = [
+                    'type' => '2',
 
-            $updateRequest = RewardUpdateRequest::updateOrCreate(
-                [
-                    'reward_id' => $reward->id,
-                    'type'    => '2',
-                    'status'    => 'pending',
-                ],
-                $data
-            );
+                    // ✅ KEEP ORIGINAL MONTH
+                    'month' => $reward->month,
+                    'from_month' => $reward->month,
+                    'to_month' => $reward->month,
 
-           /* -----------------------------------
-            | UPDATE PARTICIPATING OUTLETS (UPDATE TABLE)
-            -----------------------------------*/
+                    'request_by' => auth()->id(),
 
-            if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
+                    // ✅ apply changes only (not replicate everything blindly)
+                    'voucher_image' => $validated['voucher_image'] ?? $reward->voucher_image,
+                    'voucher_detail_img' => $validated['voucher_detail_img'] ?? $reward->voucher_detail_img,
 
-                RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
-                foreach ($request->selected_outlets as $clubId => $outletIds) {
+                    'name' => $validated['name'],
+                    'description' => $validated['description'],
+                    'term_of_use' => $validated['term_of_use'],
+                    'how_to_use' => $validated['how_to_use'],
 
-                    if (empty($outletIds)) {
-                        continue;
+                    'merchant_id' => $validated['merchant_id'],
+                    'inventory_qty' => $validated['inventory_qty'],
+
+                    'expiry_type' => $validated['expiry_type'],
+                    'voucher_validity' => $validated['expiry_type'] === 'fixed'
+                        ? $validated['voucher_validity']
+                        : null,
+
+                    'validity_month' => $validated['expiry_type'] === 'validity'
+                        ? $validated['validity_month']
+                        : null,
+
+                    'voucher_value' => (int)$validated['voucher_value'],
+                    'voucher_set' => (int)$validated['voucher_set'],
+                    'set_qty' => (int)$validated['set_qty'],
+
+                    'clearing_method' => (int)$validated['clearing_method'],
+
+                    'location_text' => $request->location_text,
+                    'participating_merchant_id' => $request->participating_merchant_id ?? 0,
+
+                    'hide_quantity' => $request->hide_quantity ? 1 : 0,
+
+                    'low_stock_1' => $validated['low_stock_1'] ?? 0,
+                    'low_stock_2' => $validated['low_stock_2'] ?? 0,
+
+                    'status' => 'pending',
+                ];
+
+                RewardUpdateRequest::updateOrCreate(
+                    [
+                        'reward_id' => $reward->id,
+                        'type' => '2',
+                        'status' => 'pending',
+                    ],
+                    $data
+                );
+
+                $reward->update(['status'    => 'pending']);
+
+                /* -----------------------------------
+                    | UPDATE PARTICIPATING OUTLETS (UPDATE TABLE)
+                    -----------------------------------*/
+
+                    if ($request->clearing_method == 2 && !empty($request->selected_outlets)) {
+
+                        RewardParticipatingMerchantLocationUpdate::where('reward_id', $reward->id)->delete();
+                        foreach ($request->selected_outlets as $clubId => $outletIds) {
+
+                            if (empty($outletIds)) {
+                                continue;
+                            }
+
+                            foreach ($outletIds as $locId) {
+
+                                $merchantId = ParticipatingMerchantLocation::where('id', $locId)->value('participating_merchant_id');
+
+                                if (!$merchantId) {
+                                    continue;
+                                }
+
+                                RewardParticipatingMerchantLocationUpdate::create([
+                                    'reward_id'                 => $reward->id,
+                                    'participating_merchant_id' => $merchantId,
+                                    'club_location_id' => $clubId,
+                                    'location_id'               => $locId,
+                                    'is_selected'               => 1,
+                                ]);
+
+                            }
+                        }
                     }
-
-                    foreach ($outletIds as $locId) {
-
-                        $merchantId = ParticipatingMerchantLocation::where('id', $locId)->value('participating_merchant_id');
-
-                        if (!$merchantId) {
+     
+     
+                /* -----------------------------------
+                | UPDATE CLUB INVENTORY (UPDATE TABLE)
+                -----------------------------------*/
+    
+                if (!empty($request->locations)) {
+    
+                    foreach ($request->locations as $clubId => $clubData) {
+    
+                        $inventoryQty = isset($clubData['inventory_qty'])
+                            ? (int) $clubData['inventory_qty']
+                            : 0;
+    
+                        if ($inventoryQty <= 0) {
                             continue;
                         }
 
-                        RewardParticipatingMerchantLocationUpdate::create([
-                            'reward_id'                 => $reward->id,
-                            'participating_merchant_id' => $merchantId,
-                            'club_location_id' => $clubId,
-                            'location_id'               => $locId,
-                            'is_selected'               => 1,
-                        ]);
-                       
+                        RewardLocationUpdate::updateOrCreate(
+                            [
+                                'reward_id'   => $reward->id,
+                                'location_id' => $clubId,
+                            ],
+                            [
+                                'merchant_id'   => $validated['merchant_id'],
+                                'is_selected'   => 1,
+                                'inventory_qty' => $inventoryQty,
+                                'total_qty'     => $inventoryQty,
+                            ]
+                        );
                     }
                 }
-            }
+        }
 
-
-            /* -----------------------------------
-            | UPDATE CLUB INVENTORY (UPDATE TABLE)
-            -----------------------------------*/
-
-            if (!empty($request->locations)) {
-
-                foreach ($request->locations as $clubId => $clubData) {
-
-                    $inventoryQty = isset($clubData['inventory_qty'])
-                        ? (int) $clubData['inventory_qty']
-                        : 0;
-
-                    if ($inventoryQty <= 0) {
-                        continue;
-                    }
-
-                    RewardLocationUpdate::updateOrCreate(
-                        [
-                            'reward_id'   => $reward->id,
-                            'location_id' => $clubId,
-                        ],
-                        [
-                            'merchant_id'   => $validated['merchant_id'],
-                            'is_selected'   => 1,
-                            'inventory_qty' => $inventoryQty,
-                            'total_qty'     => $inventoryQty,
-                        ]
-                    );
-                }
-            }
 
 
 
@@ -1614,16 +1721,53 @@ class BirthdayEvoucherController extends Controller
             $reward = Reward::withTrashed()->findOrFail($id);
 
             // Delete files
-            if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_image));
-            }
+            // if ($reward->voucher_image && file_exists(public_path('uploads/image/' . $reward->voucher_image))) {
+            //     unlink(public_path('uploads/image/' . $reward->voucher_image));
+            // }
 
-            if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
-                unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
-            }
+            // if ($reward->voucher_detail_img && file_exists(public_path('uploads/image/' . $reward->voucher_detail_img))) {
+            //     unlink(public_path('uploads/image/' . $reward->voucher_detail_img));
+            // }
 
-            if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
-                unlink(public_path('uploads/csv/' . $reward->csvFile));
+            // if ($reward->csvFile && file_exists(public_path('uploads/csv/' . $reward->csvFile))) {
+            //     unlink(public_path('uploads/csv/' . $reward->csvFile));
+            // }
+
+            $imagePath = public_path('uploads/image/' . $reward->voucher_image);
+
+            if ($reward->voucher_image && file_exists($imagePath)) {
+
+                $exists = Reward::where('voucher_image', $reward->voucher_image)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($imagePath);
+                }
+            }
+           $imagePath = public_path('uploads/image/' . $reward->voucher_image);
+
+            if ($reward->voucher_image && file_exists($imagePath)) {
+
+                $exists = Reward::where('voucher_image', $reward->voucher_image)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($imagePath);
+                }
+            }
+            $csvPath = public_path('uploads/csv/' . $reward->csvFile);
+
+            if ($reward->csvFile && file_exists($csvPath)) {
+
+                $exists = Reward::where('csvFile', $reward->csvFile)
+                    ->where('id', '!=', $reward->id)
+                    ->exists();
+
+                if (!$exists) {
+                    unlink($csvPath);
+                }
             }
 
             // Delete related records
@@ -1632,7 +1776,7 @@ class BirthdayEvoucherController extends Controller
             ParticipatingLocations::where('reward_id', $reward->id)->delete();
             RewardVoucher::where('reward_id', $reward->id)->delete();
 
-             $rewardName = $reward->name;
+            $rewardName = $reward->name;
             $rewardData = $reward->toArray();
             $reward->forceDelete();
             DepartmentActivityLogger::log(

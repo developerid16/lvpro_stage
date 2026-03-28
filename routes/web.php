@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\CsoIssuancePaidController;
 use App\Http\Controllers\Admin\CsoPhysicalController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\EvoucherApprovalController;
+use App\Http\Controllers\Admin\EvoucherFeaturedController;
 use App\Http\Controllers\Admin\FabsController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\MerchantController;
@@ -44,6 +45,7 @@ use App\Http\Controllers\Admin\PushVoucherController;
 use App\Http\Controllers\Admin\TransactionHistoryController;
 use App\Http\Controllers\Admin\TreatsDealsStockController;
 use App\Http\Controllers\Admin\TreatsAndDealsApprovalController;
+use App\Http\Controllers\Admin\TreatsDealsFeaturedController;
 use App\Http\Controllers\Admin\UserRightsRequestController;
 use App\Http\Controllers\Admin\VoucherListController;
 use App\Http\Controllers\Auth\LoginController;
@@ -227,8 +229,10 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::resource('locations', LocationController::class);
 
     
+    
     Route::get('/reward/get-locations/{merchant_id}', [RewardController::class, 'getMerchantLocations']);
     Route::get('reward/datatable', [RewardController::class, 'datatable']);
+    Route::get('/reward/{id}', [RewardController::class, 'show']);
     Route::get('/reward/get-participating-merchant-locations',[RewardController::class, 'getParticipatingMerchantLocations']);
 
     Route::get('reward/trash', [RewardController::class, 'trash'])->name('admin.reward.trash');
@@ -380,8 +384,9 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     
     Route::get('participating-merchant/{merchant}/location', [ParticipatingMerchantLocationController::class, 'index'])->name('admin.location.index');
     Route::get('participating-merchant/{merchant}/location/create',[ParticipatingMerchantLocationController::class, 'create'])->name('admin.location.create');
-    Route::get(
-        'participating-merchant-location/datatable', [ParticipatingMerchantLocationController::class, 'datatable'] )->name('participating-merchant-location.datatable');
+    Route::post('participating-merchant-location/upload-file', [ParticipatingMerchantLocationController::class, 'uploadFile']);
+    Route::get('participating-merchant-location/download-sample', [ParticipatingMerchantLocationController::class, 'downloadSample']);
+    Route::get('participating-merchant-location/datatable', [ParticipatingMerchantLocationController::class, 'datatable'] )->name('participating-merchant-location.datatable');
     Route::resource('participating-merchant-location', ParticipatingMerchantLocationController::class);
 
 
@@ -410,6 +415,7 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::delete('evoucher/{id}/force-delete', [EvoucherController::class, 'forceDelete']);
     Route::get('evoucher/{record_id}/activity-log', [ActivityLogController::class, 'activityLog']);
 
+    Route::get('evoucher/{id}', [EvoucherController::class, 'show']);
     Route::resource('evoucher', EvoucherController::class);
 
     Route::get('birthday-voucher/get-club-locations-with-outlets', [BirthdayEvoucherController::class, 'getClubMerchantOutletStructure']);
@@ -459,24 +465,38 @@ Route::prefix('/admin')->name('admin.')->middleware(['web', 'auth', 'OTPVerify']
     Route::post('voucher-list/suspend', [VoucherListController::class,'toggleSuspend'])->name('voucher.suspend');
     Route::resource('voucher-list', VoucherListController::class);
 
+    Route::get('/treats-and-deals-list', [VoucherListController::class, 'treatsList']);
+    Route::get('/evoucher-list', [VoucherListController::class, 'evoucherList']);
+    Route::get('/birthday-voucher-list', [VoucherListController::class, 'birthdayList']);
+    // Datatable
+    Route::get('/treats-and-deals-datatable', [VoucherListController::class, 'datatableTreats']);
+    Route::get('/evoucher-datatable', [VoucherListController::class, 'datatableEvoucher']);
+    Route::get('/birthday-voucher-datatable', [VoucherListController::class, 'datatableBirthday']);
+
     Route::get('transaction-history/{receipt_no}/vouchers',  [TransactionHistoryController::class, 'voucherDetail'])->name('admin.transaction-history.vouchers');
     Route::get('transaction-history/datatable', [TransactionHistoryController::class, 'datatable'])->name('transaction-history.datatable');
     Route::resource('transaction-history', TransactionHistoryController::class);
 
     Route::get('evoucher-stock/datatable', [EvoucherStockController::class, 'datatable']);
     Route::post('evoucher-stock/adjustment', [EvoucherStockController::class, 'stockAdjustment'])->name('evoucher-stock.adjustment');
-    Route::post('evoucher-stock/toggle-featured', [EvoucherStockController::class, 'toggleswalFeatured'])->name('evoucher-stock.toggle-featured');
-    Route::post('evoucher-stock/hide-catalogue', [EvoucherStockController::class,'toggleHideCatalogue'])->name('evoucher-stock.hide');
     Route::resource('evoucher-stock', EvoucherStockController::class);
 
     Route::get('treats-deals-stock/datatable', [TreatsDealsStockController::class, 'datatable']);
     Route::get('treats-deals-stock/get-location-stock/{id}',  [TreatsDealsStockController::class, 'getLocationStock'])->name('admin.get.location.stock');
     Route::post('treats-deals-stock/adjustment', [TreatsDealsStockController::class, 'stockAdjustment'])->name('treats-deals-stock.adjustment');
-    Route::post('treats-deals-stock/hide-catalogue', [TreatsDealsStockController::class,'toggleHideCatalogue'])->name('treats-deals-stock.hide');
-    Route::post('treats-deals-stock/toggle-featured', [TreatsDealsStockController::class, 'toggleFeatured'])->name('treats-deals-stock.toggle-featured');
 
     Route::post('treats-deals-stock/location-stock-adjustment', [TreatsDealsStockController::class, 'locationStockAdjustment'])->name('treats-deals-stock.location.adjustment');
     Route::resource('treats-deals-stock', TreatsDealsStockController::class);
+    
+    Route::post('treats-deals-featured/hide-catalogue', [TreatsDealsFeaturedController::class,'toggleHideCatalogue'])->name('treats-deals-featured.hide');
+    Route::post('treats-deals-featured/toggle-featured', [TreatsDealsFeaturedController::class, 'toggleFeatured'])->name('treats-deals-featured.toggle-featured');
+    Route::get('treats-deals-featured/datatable', [TreatsDealsFeaturedController::class, 'datatable'])->name('treats-deals-featured.datatable');
+    Route::resource('treats-deals-featured', TreatsDealsFeaturedController::class);
+
+    Route::post('evoucher-featured/hide-catalogue', [EvoucherFeaturedController::class,'toggleHideCatalogue'])->name('evoucher-featured.hide');
+    Route::post('evoucher-featured/toggle-featured', [EvoucherFeaturedController::class, 'toggleFeatured'])->name('evoucher-featured.toggle-featured');
+    Route::get('evoucher-featured/datatable', [EvoucherFeaturedController::class, 'datatable'])->name('evoucher-featured.datatable');
+    Route::resource('evoucher-featured', EvoucherFeaturedController::class);
 
     Route::get('app-content', [AppContentController::class, 'index']);
     Route::post('app-content', [AppContentController::class, 'store']);

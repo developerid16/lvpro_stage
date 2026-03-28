@@ -17,7 +17,6 @@ class VoucherListController extends Controller
 
        $this->layout_data = [
             'permission_prefix' => $permission_prefix,
-            'title'             => 'Voucher List',
             'reward_base_url'   => url('admin/voucher-list'),
             'module_base_url'   => url('admin/reward'),
         ];
@@ -50,11 +49,157 @@ class VoucherListController extends Controller
     }
 
 
+    public function treatsList()
+    {
+        return view($this->view_file_path . "index", [
+            'title' => 'Treats & Deals List',
+            'datatable_url' => url('admin/treats-and-deals-datatable')
+            
+        ])->with($this->layout_data);
+    }
+
+    public function evoucherList()
+    {
+        return view($this->view_file_path . "index", [
+            'title' => 'E-Voucher List',
+            'datatable_url' => url('admin/evoucher-datatable')
+        ])->with($this->layout_data);
+    }
+
+    public function birthdayList()
+    {
+        return view($this->view_file_path . "index", [
+            'title' => 'Birthday Voucher List',
+            'datatable_url' => url('admin/birthday-voucher-datatable')
+        ])->with($this->layout_data);
+    }
+
+    public function datatableTreats(Request $request)
+    {
+        return $this->commonDatatable($request, '0');
+    }
+
+    public function datatableEvoucher(Request $request)
+    {
+        return $this->commonDatatable($request, '1');
+    }
+
+    public function datatableBirthday(Request $request)
+    {
+        return $this->commonDatatable($request, '2');
+    }
+
+    
+    public function commonDatatable($request, $type)
+    {
+        $query = Reward::where('is_draft', 0)
+            ->where('type', $type); // ✅ FIX
+
+        $query = $this->get_sort_offset_limit_query($request, $query, ['name','status']);
+
+        $final_data = [];
+
+        foreach ($query['data']->get() as $key => $row) {
+
+            // ✅ INIT ACTION (VERY IMPORTANT)
+            $action = '<div class="d-flex justify-content-center align-items-center gap-2">';
+
+            $viewUrl = match ($row->type) {
+                '0' => url('admin/reward/' . $row->id),
+                '1' => url('admin/evoucher/' . $row->id),
+                '2' => url('admin/birthday-voucher/' . $row->id),
+                default => '#'
+            };
+            // VIEW
+            $action .= '
+            <button type="button"
+                class="btn btn-link p-0 view"
+                data-id="'.$row->id.'"
+                data-url="'.$viewUrl.'"
+                title="View">
+                <i class="mdi mdi-eye text-info action-icon font-size-18"></i>
+            </button>';
+
+            // EDIT
+            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+
+                $url = match ($row->type) {
+                    '0' => url('admin/reward/' . $row->id . '/edit'),
+                    '1' => url('admin/evoucher/' . $row->id . '/edit'),
+                    '2' => url('admin/birthday-voucher/' . $row->id . '/edit'),
+                    default => '#'
+                };
+
+                $action .= "<a href='javascript:void(0)' class='edit' data-url='$url' data-id='$row->id'>
+                    <i class='mdi mdi-pencil text-primary action-icon font-size-18'></i>
+                </a>";
+            }
+
+            // SUSPEND
+            if (Auth::user()->can($this->permission_prefix . '-edit')) {
+                $action .= '
+                <div class="form-check form-switch m-0">
+                    <input class="form-check-input suspend-switch"
+                        type="checkbox"
+                        data-id="'.$row->id.'"
+                        '.($row->suspend_voucher ? 'checked' : '').'>
+                </div>';
+            }
+
+            // DELETE
+            if (Auth::user()->can($this->permission_prefix . '-delete')) {
+                $action .= '
+                <button type="button"
+                    class="btn btn-link p-0 delete_btn"
+                    data-id="'.$row->id.'">
+                    <i class="mdi mdi-delete text-danger action-icon font-size-18"></i>
+                </button>';
+            }
+
+            $action .= '</div>';
+
+            $final_data[] = [
+                'sr_no' => $key + 1,
+                'name' => $row->name,
+
+                // ✅ FIX TYPE LABEL
+                'type' => match ((int)$row->type) {
+                    0 => 'Treats & Deals',
+                    1 => 'E-Voucher',
+                    2 => 'Birthday Voucher',
+                    default => '-',
+                },
+
+                'reward_type' => $row->reward_type == 0 ? 'Digital' : 'Physical',
+
+                'created_at' => $row->created_at->format(config('safra.date-format')),
+                'updated_at' => $row->updated_at->format(config('safra.date-format')),
+
+                // ✅ USE BUILT ACTION
+                'action' => $action
+            ];
+        }
+
+        return [
+            'items' => $final_data,
+            'count' => $query['count'] ?? 0,
+        ];
+    }
     /* -----------------------------------------------------
      * LIST PAGE
      * ----------------------------------------------------- */
-    public function index(Request $request)
+    public function index(Request $request, $type)
     {
+        $titles = [
+            0 => 'Treats & Deals List',
+            1 => 'E-Voucher List',
+            2 => 'Birthday Voucher List'
+        ];
+
+        $this->layout_data['title'] = $titles[$type] ?? 'Voucher List';
+        $this->layout_data['type'] = $type;
+        $this->layout_data['datatable_url'] = url("admin/voucher-datatable/$type");
+
         return view($this->view_file_path . "index")->with($this->layout_data);
     }
 
@@ -62,7 +207,7 @@ class VoucherListController extends Controller
     /* -----------------------------------------------------
      * DATATABLE AJAX
      * ----------------------------------------------------- */
-    public function datatable(Request $request)
+    public function datatable(Request $request, $type)
     {
         $query = Reward::where('is_draft',0);
         if (!Auth::user()->hasRole('Super Admin')) {
@@ -70,10 +215,12 @@ class VoucherListController extends Controller
             $query->where('active_club_location_id', $this->activeLocationId);
             $query->where('active_role_id', $this->activeRoleId);
         }
+        $query = Reward::where('is_draft', 0)->where('type', $type);
+        $query = Reward::where('is_draft',0)->where('type', $type);
         $query = $this->get_sort_offset_limit_query($request, $query, ['name','status']);
 
         $final_data = [];
-       foreach ($query['data']->get() as $key => $row) {
+        foreach ($query['data']->get() as $key => $row) {
         $action = '<div class="d-flex justify-content-center align-items-center gap-2">';
 
         // VIEW (always)
@@ -87,7 +234,7 @@ class VoucherListController extends Controller
 
         // EDIT
         if (Auth::user()->can($this->permission_prefix . '-edit')) {
-           
+
         $url = $row->type == 0 
             ? url('admin/reward/' . $row->id . '/edit') 
             : ($row->type == 1 

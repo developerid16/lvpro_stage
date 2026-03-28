@@ -231,7 +231,7 @@ class FabsController extends Controller
         
         $validator = Validator::make($request->all(), [
             'name'   => 'required|string|max:255',
-            'code'   => 'required|string|max:255|unique:fabs,code',
+            'code' => 'required|string|max:255|unique:fabs,code,' . $id,
             'status' => 'required|in:Active,Inactive',
         ]);
 

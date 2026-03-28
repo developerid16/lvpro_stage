@@ -221,6 +221,10 @@ class Reward extends Model
     {
         return $this->belongsTo(Merchant::class, 'merchant_id');
     }
+     public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 
    
 

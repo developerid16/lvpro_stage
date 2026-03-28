@@ -262,10 +262,7 @@
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                                 <span class="fw-bold"></span> ${loc.name}
                                             </label>
-                                            <input type="checkbox" 
-                                                name="locations[${loc.id}][selected]" 
-                                                value="1" 
-                                                class="form-check-input">
+                                            
                                         </div>
 
                                         <div class="d-flex align-items-center ms-3">
@@ -274,6 +271,7 @@
                                                 class="form-control"
                                                 name="locations[${loc.id}][inventory_qty]"
                                                 placeholder="Qty"
+                                                value="0"
                                                 style="max-width:100px">
                                         </div>
 
@@ -380,6 +378,22 @@
 
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            if (typeof tinymce !== 'undefined') {
+                tinymce.editors.forEach(function (editor) {
+
+                    let textarea = $('#' + editor.id);
+
+                    if ($('.modal.show').attr('id') === 'EditModal') {
+                        // ✅ restore original
+                        let original = textarea.data('original') || '';
+                        editor.setContent(original);
+                    } else {
+                        // ✅ add mode → clear
+                        editor.setContent('');
+                    }
+                });
+            }
         }
 
         function calculateVoucherSet() {

@@ -361,12 +361,62 @@
             // OPTIONAL: hide error messages
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
             form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            if (typeof tinymce !== 'undefined') {
+                tinymce.editors.forEach(function (editor) {
+
+                    let textarea = $('#' + editor.id);
+
+                    if ($('.modal.show').attr('id') === 'EditModal') {
+                        // ✅ restore original
+                        let original = textarea.data('original') || '';
+                        editor.setContent(original);
+                    } else {
+                        // ✅ add mode → clear
+                        editor.setContent('');
+                    }
+                });
+            }
         }
 
         $(document).on('change','#expiry_type',function(){
             let modal = $(this).closest('.modal');
             handleExpiryType(modal);
         });
+
+
+        
+        // 🔹 LIVE typing → NO BLOCK
+    $(document).on('input', 'input[name^="locations"][name$="[inventory_qty]"], #inventory_qty', function () {
+
+        let modal = $(this).closest('.modal');
+
+        let mainQty = parseInt(modal.find('#inventory_qty').val()) || 0;
+        let totalLocationQty = 0;
+
+        modal.find('input[name^="locations"][name$="[inventory_qty]"]').each(function () {
+            totalLocationQty += parseInt($(this).val()) || 0;
+        });
+
+        let submitBtn = modal.find('#submitBtnBV');
+
+        if (totalLocationQty > mainQty) {
+
+            modal.find('.club-location-error')
+                .text('Location inventory exceeds total inventory');
+
+            // ❌ disable button
+            submitBtn.prop('disabled', true);
+
+        } else {
+
+            modal.find('.club-location-error').text('');
+
+            // ✅ enable button
+            submitBtn.prop('disabled', false);
+        }
+
+    });
 
     </script>
     <script src="{{ URL::asset('build/js/crud.js') }}"></script>

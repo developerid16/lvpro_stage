@@ -494,6 +494,37 @@
                                 @if($deptPermissions->contains('voucher-list'))
                                     <a class="dropdown-item" href="{{ url('/admin/voucher-list') }}">Voucher List</a>
                                 @endif
+                            <div class="dropdown-menu" aria-labelledby="topnav-pages">                         
+                            
+                                @can(['cms-setting'])
+                                    {{-- <a class="dropdown-item  " href="{{url('/admin/cms-setting')}}">
+                                        CMS Setting
+                                    </a> --}}
+                                @endcan
+                               @if($deptPermissions->contains('transaction-history'))
+                                    <a class="dropdown-item  " href="{{url('/admin/transaction-history')}}">
+                                        Transaction History
+                                    </a>
+                                @endcan
+                                @if($deptPermissions->contains('voucher-logs'))
+                                    <a class="dropdown-item  " href="{{url('/admin/voucherlogs')}}">
+                                        Voucher Logs
+                                    </a>
+                                @endcan
+                                <!-- @can(['treats-and-deals-list'])-->
+                                @if($deptPermissions->contains('treats-and-deals-list'))
+                                    <a  class="dropdown-item " href="{{ url('/admin/treats-and-deals-list') }}">Treats & Deals List</a>
+                                @endcan
+                                <!-- @can(['evoucher-list']) -->
+                                @if($deptPermissions->contains('evoucher-list'))
+                                    <a  class="dropdown-item " href="{{ url('/admin/evoucher-list') }}">E-Voucher List</a>
+                                @endcan
+                                <!-- @can(['birthday-voucher-list']) -->
+                                @if($deptPermissions->contains('birthday-voucher-list'))
+                                    <a  class="dropdown-item " href="{{ url('/admin/birthday-voucher-list') }}">Birthday Voucher List</a>
+                                @endcan
+                               
+
                             </div>
                         </li>
                     @endif

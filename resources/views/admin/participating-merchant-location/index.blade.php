@@ -14,6 +14,9 @@
 <div class="card">
     <div class="card-header bg-white d-flex justify-content-between align-items-center border-bottom mb-3">
 
+        <button class="sh_btn btn btn-primary add_btn" data-bs-toggle="modal" data-bs-target="#UploadFileModal">
+            <i class="mdi mdi-upload"></i> Upload File
+        </button>
         @can("$permission_prefix-create")
         <button class="sh_btn ml_auto btn btn-primary add_btn" 
             data-url="{{ url('admin/participating-merchant/'.$participating_merchant_id.'/location/create') }}">
@@ -53,6 +56,48 @@
                 </thead>
 
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="UploadFileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form id="uploadForm" enctype="multipart/form-data">
+                @csrf
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-1">
+                        <label>Upload File</label>
+                        <input type="file" name="file" class="form-control" required>
+                        <span class="text-danger validation-error" data-field="file"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                            Allowed: CSV, XLSX (Max: 2MB)
+                        </small>
+
+                        <a href="{{ url('admin/participating-merchant-location/download-sample') }}" 
+                        class="btn btn-sm btn-outline-primary">
+                            <i class="mdi mdi-download"></i> Download Sample
+                        </a>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+
+            </form>
+
         </div>
     </div>
 </div>
@@ -107,6 +152,63 @@
             }
         });
 
+    });
+
+    $(document).on('show.bs.modal', '#UploadFileModal', function () {
+
+        // ✅ Reset form
+        $('#uploadForm')[0].reset();
+
+        // ✅ Clear file input (important)
+        $('#uploadForm input[type="file"]').val('');
+
+        // ✅ Clear validation errors
+        $('.validation-error').html('');
+
+    });
+
+    $(document).on('submit', '#uploadForm', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        formData.append('participating_merchant_id', participating_merchant_id);
+
+
+        $.ajax({
+            url: "{{ url('admin/participating-merchant-location/upload-file') }}",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.status === 'success') {
+
+                    // ✅ Reset form
+                    $('#uploadForm')[0].reset();
+
+                    // ✅ Clear validation messages
+                    $('.validation-error').html('');
+
+                    // ✅ Close modal
+                    $('#UploadFileModal').modal('hide');
+
+                    // ✅ Refresh table
+                    refresh_datatable("#bstable");
+
+                    // ✅ Show success message
+                    show_message('success', res.message);
+                }
+            },
+            error: function (xhr) {
+                let errors = xhr.responseJSON.errors;
+
+                $('.validation-error').text('');
+
+                $.each(errors, function (key, value) {
+                    $('[data-field="' + key + '"]').text(value[0]);
+                });
+            }
+        });
     });
 
 </script>
