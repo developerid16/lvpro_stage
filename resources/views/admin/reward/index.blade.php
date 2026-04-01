@@ -23,8 +23,8 @@
             <div></div>
             <div class="d-flex gap-2">
                 @if(hasActivePermission("$permission_prefix-create"))
-                    <button class="sh_auto btn btn-primary" 
-                        data-bs-toggle="modal" 
+                    <button class="sh_auto btn btn-primary"
+                        data-bs-toggle="modal"
                         data-bs-target="#AddModal">
                         <i class="mdi mdi-plus"></i> Add New
                     </button>
@@ -44,6 +44,9 @@
         </div>
 
         <div class="card-body pt-0">
+            <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+                <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+            </div>
             <div class="table-responsive">
                 <table class="sh_table table table-bordered" id="bstable" data-toggle="table"
                     data-page-list="[100, 500, 1000, 2000, All]" data-search-time-out="1200" data-page-size="100"
@@ -54,7 +57,7 @@
                         <tr>
                             <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
-                          
+
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                             <th data-field="reward_type" data-filter-control="input" data-sortable="true" data-escape="true">Reward Type</th>
                             <th data-field="amount" data-sortable="true">Amount</th>
@@ -117,12 +120,12 @@
                 inventoryInput.readOnly = true;
 
                 $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
-                $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
+                $('#uploadedFile').removeClass('d-none').addClass('d-flex');
             };
 
             reader.readAsArrayBuffer(file);
         });
-        
+
         $(document).on('click', '#removeCsvFile', function () {
             $('#csvFile').val('');
             $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
@@ -143,8 +146,8 @@
                 $('.fixed-table-body .fixed-table-loading').removeClass('open');
                 params.success(res)
             })
-        }  
-       
+        }
+
         // Show live preview on file select
         function imagePreview(inputSelector, previewSelector) {
             $(document).on("change", inputSelector, function () {
@@ -183,17 +186,17 @@
                 $("#digital").hide(); // show physical fields
                 $("#participating_merchant_location").hide(); // also show location section
                 $('#collection_reminder_title').html('Send Collection Reminder <span class="required-hash"></span>');
-                
+
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
 
                 let merchantId = $('#merchant_id').val();
                 loadLocations(merchantId);
                 if(merchantId){
                 }
-                
+
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
-                $("#participating_merchant_location").show(); 
+                $("#participating_merchant_location").show();
                  $(".where_use").hide();
                 $(".max_qty").hide(); // also show location section
                 $(".max_order").show(); // also show location section// also show location section
@@ -215,7 +218,7 @@
             }
 
 
-        });     
+        });
 
         $('#merchant_id').on('change', function () {
             let merchantId = $(this).val();
@@ -262,7 +265,7 @@
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                                 <span class="fw-bold"></span> ${loc.name}
                                             </label>
-                                            
+
                                         </div>
 
                                         <div class="d-flex align-items-center ms-3">
@@ -311,7 +314,7 @@
             let modal = $(this).closest(".modal");
             toggleInventoryFields(modal);
         });
-        
+
         $(document).on("change", ".clearing_method", function () {
             let modal = $(this).closest(".modal");
             toggleClearingFields(modal);
@@ -329,7 +332,7 @@
                 modal.find("#participating_merchant_location").empty();
                 modal.find("#participating_section").hide();
             }
-        });    
+        });
 
         $('#AddModal').on('show.bs.modal', function () {
              $('.validation-error').hide();
@@ -402,7 +405,7 @@
             let voucherValue = parseFloat($('#voucher_value').val());
             // console.log(usualPrice,'usual_price');
             // console.log(voucherValue,'voucher_value');
-            
+
 
             // Guard clauses
             if (isNaN(usualPrice) || isNaN(voucherValue) || voucherValue <= 0) {
@@ -432,8 +435,8 @@
                 'input[name="sales_start"]',
                 'input[name="sales_end"]'
             );
-        }       
-        
+        }
+
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $(".validation-error").text('');
             initEditor();
@@ -446,7 +449,7 @@
             initFlatpickrDate();
 
         });
-      
+
         // when inventory changes
         $(document).on('input', '#inventory_qty', calculateSetQty);
 
@@ -457,7 +460,7 @@
 
         function calculateSetQty() {
             let inventoryQty = parseFloat($('#inventory_qty').val());
-            
+
             let voucherSet   = parseFloat($('#voucher_set').val());
             // console.log(inventoryQty,'inventory_qty');
             // console.log(voucherSet,'voucher_set');
@@ -472,6 +475,35 @@
             let modal = $(this).closest('.modal');
             handleExpiryType(modal);
         });
-    </script>    
 
+        $(document).ready(function() {
+            function initTopScrollbar() {
+                var $scroller = $('.fixed-table-body').length ? $('.fixed-table-body') : $('.table-responsive');
+                var $table = $('#bstable');
+                var $topScrollbar = $('.top-scrollbar');
+                var $dummy = $('.top-scrollbar-dummy');
+
+                if ($scroller.length && $table.length) {
+                    $dummy.width($table.outerWidth());
+
+                    $topScrollbar.off('scroll').on('scroll', function() {
+                        $scroller.scrollLeft($topScrollbar.scrollLeft());
+                    });
+
+                    $scroller.off('scroll').on('scroll', function() {
+                        $topScrollbar.scrollLeft($scroller.scrollLeft());
+                    });
+                }
+            }
+
+            $('#bstable').on('post-body.bs.table', function() {
+                setTimeout(initTopScrollbar, 200);
+            });
+            $(window).resize(function() {
+                setTimeout(initTopScrollbar, 200);
+            });
+
+            setTimeout(initTopScrollbar, 500);
+        });
+    </script>
 @endsection
