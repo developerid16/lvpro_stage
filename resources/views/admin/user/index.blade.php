@@ -24,6 +24,9 @@
         <div class="scroll-div1">
         </div>
     </div> -->
+        <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+            <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+        </div>
         <div class="table-responsive">
             <table class="sh_table table table-bordered" id="bstable" data-toggle="table" data-page-list="[100, 500, 1000, 2000, All]" data-page-size="100" data-ajax="ajaxRequest" data-side-pagination="server" data-pagination="true" data-search="false" data-total-field="count" data-data-field="items" data-show-columns="false" data-show-toggle="false" data-show-export="false" data-filter-control="true" data-show-columns-toggle-all="false">
                 <thead>

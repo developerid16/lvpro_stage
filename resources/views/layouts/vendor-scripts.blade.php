@@ -14,8 +14,8 @@
             withCredentials: true   // 🔥 forces Firefox to send cookies
         }
     });
-    let selectedOutletMap = {};    
-    let selectedOutletMapMerchant = {};    
+    let selectedOutletMap = {};
+    let selectedOutletMapMerchant = {};
 
     var BaseURL = "{{url('')}}" + '/';
     var BaseURLImageAsset = "{{ asset('images')}}" + '/';
@@ -42,11 +42,11 @@
                 $('#current_passwordError').text('');
                 $('#passwordError').text('');
                 $('#password_confirmError').text('');
-                if(response.isSuccess == false){ 
+                if(response.isSuccess == false){
                     $('#current_passwordError').text(response.Message);
                 }else if(response.isSuccess == true){
-                    setTimeout(function () {   
-                        window.location.href = "{{ route('root') }}"; 
+                    setTimeout(function () {
+                        window.location.href = "{{ route('root') }}";
                     }, 1000);
                 }
             },
@@ -57,10 +57,10 @@
             }
         });
     });
-   
-    
+
+
     function bindStartEndFlatpickr(startSelector, endSelector) {
-        
+
         const startEl = document.querySelector(startSelector);
         const endEl   = document.querySelector(endSelector);
         if (startEl._flatpickr) return;
@@ -137,7 +137,7 @@
         });
     }
 
-    
+
     function normalizeDateTime(val) {
         if (!val) return val;
 
@@ -347,7 +347,7 @@
             endPicker.set("minDate", startEl.value);
         }
     }
-   
+
     function loadParticipatingMerchantLocations(modal, merchantIds) {
         if (!merchantIds || merchantIds.length === 0) {
             modal.find("#participating_merchant_location").empty();
@@ -416,7 +416,7 @@
             }
         });
     }
-    
+
 
     function showNoOutlets(modal) {
 
@@ -456,7 +456,7 @@
         Object.keys(selectedOutletMapMerchant).forEach(function (id) {
 
             let name = selectedOutletMapMerchant[id];
-           
+
         });
 
         modal.find("#participating_section").show();
@@ -483,7 +483,7 @@
         wrapper.show();
     }
 
-    
+
     $(document).on("change", ".outlet-checkbox", function () {
 
         const modal = $(this).closest(".modal");
@@ -542,7 +542,7 @@
                 .val("0")
                 .trigger('change');
         }
-        
+
     }
 
     function editToggleClearingFields(modal) {
@@ -601,11 +601,11 @@
         modal.find('#inventory_qty').prop('readonly', false);
 
         let clearing = modal.find('#clearing_method');
-        clearing.find('option[value="3"], option[value="4"]').show();        
+        clearing.find('option[value="3"], option[value="4"]').show();
         if (type === "1") {
             fileField.show();
             qtyField.show();
-            
+
         } else if (type === "0") {
             modal.find('#inventory_qty').prop('readonly', false);
             qtyField.show();
@@ -620,7 +620,7 @@
             qtyField.hide();
         }
     }
-    
+
     function toggleInventoryFields(modal) {
         let type = modal.find('.inventory_type').val();
 
@@ -629,8 +629,8 @@
         modal.find('#inventory_qty').prop('readonly', false);
 
         let clearing = modal.find('#clearing_method');
-        clearing.find('option[value="3"], option[value="4"]').show();        
-        
+        clearing.find('option[value="3"], option[value="4"]').show();
+
         if (type === "1") {
             fileField.show();
             qtyField.hide();
@@ -661,12 +661,12 @@
             qtyInput.prop('readonly', true);  // excel-controlled
         }
     }
-  
+
     // Show preview when selecting a new image
     document.getElementById('voucher_image').addEventListener('change', function (e) {
         const file = e.target.files[0];
         const preview = document.getElementById('voucher_image_preview');
-        
+
         const clearBtn = document.getElementById('clear_voucher_image');
 
         if (file) {
@@ -675,7 +675,7 @@
             clearBtn.style.display = 'inline-block';
         }
     });
-   
+
     // Clear image
     document.getElementById('clear_voucher_image').addEventListener('click', function () {
         const input = document.getElementById('voucher_image');
@@ -691,7 +691,7 @@
     document.getElementById('voucher_detail_img').addEventListener('change', function (e) {
         const file = e.target.files[0];
         const preview = document.getElementById('voucher_detail_img_preview');
-        
+
         const clearBtn = document.getElementById('clear_voucher_detail_img');
 
         if (file) {
@@ -700,7 +700,7 @@
             clearBtn.style.display = 'inline-block';
         }
     });
-   
+
     // Clear image
     document.getElementById('clear_voucher_detail_img').addEventListener('click', function () {
         const input = document.getElementById('voucher_detail_img');
@@ -723,13 +723,13 @@
         }
     }
 
- 
+
     function initTinyMCE(context = document) {
         if (typeof tinymce === 'undefined') return;
-    
+
         // remove existing editors (important for edit modal)
         tinymce.remove(context.querySelectorAll('textarea.wysiwyg'));
-    
+
         tinymce.init({
             selector: "textarea.wysiwyg",
             height: 200,
@@ -739,36 +739,36 @@
             convert_urls: true,
             forced_root_block: false,
             entity_encoding: 'raw',
-    
+
             setup: function (editor) {
                 editor.on('keydown', function (e) {
                     const text = editor.getContent({ format: 'text' });
-    
+
                     if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
                         e.preventDefault();
                     }
                 });
             },
-    
+
             images_upload_url: '{{ url("admin/image-upload-editor") }}',
             images_upload_base_path: "{{ asset('images') }}/",
-    
+
             plugins: [
                 "advlist autolink link image lists charmap preview hr anchor",
                 "searchreplace wordcount visualblocks code fullscreen",
                 "table emoticons"
             ],
-    
+
             toolbar:
                 "undo redo | styleselect | bold italic | " +
                 "alignleft aligncenter alignright alignjustify | " +
                 "bullist numlist outdent indent | link image | code"
         });
-    }    
-    
+    }
+
     function initEditor() {
         if (typeof tinymce === 'undefined') return;
-                
+
         tinymce.init({
             selector: "textarea.wysiwyg",
             height: 200,
@@ -778,26 +778,26 @@
             convert_urls: true,
             forced_root_block: false,
             entity_encoding: 'raw',
-    
+
             setup: function (editor) {
                 editor.on('keydown', function (e) {
                     const text = editor.getContent({ format: 'text' });
-    
+
                     if (text.length >= 180 && e.keyCode !== 8 && e.keyCode !== 46) {
                         e.preventDefault();
                     }
                 });
             },
-    
+
             images_upload_url: '{{ url("admin/image-upload-editor") }}',
             images_upload_base_path: "{{ asset('images') }}/",
-    
+
             plugins: [
                 "advlist autolink link image lists charmap print preview hr anchor pagebreak",
                 "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media",
                 "save table directionality emoticons template textcolor"
             ],
-    
+
             toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons ",
             style_formats: [{
                     title: 'Bold text',
@@ -837,11 +837,11 @@
                 }
             ]
         });
-    
-    
+
+
     }
 
-   
+
 
     $(document).on('change', '.merchant-dropdown', function () {
 
@@ -962,7 +962,7 @@
         let summary = clubContainer.find(".selected-locations-summary");
 
         summary.empty();
-        
+
         if (!selectedOutletMap[clubId] ||
             Object.keys(selectedOutletMap[clubId]).length === 0) {
 
@@ -973,7 +973,7 @@
         let html = Object.values(selectedOutletMap[clubId])
             .map(name => `<div>• ${name}</div>`)
             .join("");
-            
+
 
         summary.html(html);
         wrapper.show();
@@ -987,7 +987,7 @@
         outlets.forEach(function (loc) {
             selectedOutletMap[clubId][loc.id] = loc.name;
         });
-        
+
         updateSelectedLocationsSummaryBirthDayVoucher(modal, clubId);
         syncHiddenSelectedLocationsBday(modal, clubId);
     }
@@ -1057,4 +1057,66 @@
 <script src="{{ URL::asset('build/js/custom.js')}}"></script>
 <script src="{{ URL::asset('build/js/crud.js') }}"></script>
 <script src="{{ URL::asset('/build/libs/flatpicker/flatpickr.js') }}"></script>
+<script>
+(function () {
+  function closeOpenFlatpickrs() {
+    document.querySelectorAll('input.flatpickr-input').forEach(function (el) {
+      if (el._flatpickr && el._flatpickr.isOpen) {
+        el._flatpickr.close();
+      }
+    });
+  }
+
+  function onModalMove(e) {
+    var t = e.target;
+    if (t && t.closest && t.closest('.modal.show')) {
+      closeOpenFlatpickrs();
+    }
+  }
+
+  // scroll doesn't bubble reliably -> use capture
+  document.addEventListener('scroll', onModalMove, true);
+  document.addEventListener('wheel', onModalMove, { capture: true, passive: true });
+  document.addEventListener('touchmove', onModalMove, { capture: true, passive: true });
+})();
+
+
+$(document).ready(function() {
+    function initTopScrollbars() {
+        $('.top-scrollbar').each(function() {
+            var $topScrollbar = $(this);
+            var $container = $topScrollbar.next('.table-responsive');
+            if ($container.length === 0) return;
+
+            var $scroller = $container.find('.fixed-table-body').length ? $container.find('.fixed-table-body') : $container;
+            var $table = $container.find('table.table');
+            var $dummy = $topScrollbar.find('.top-scrollbar-dummy');
+
+            if ($scroller.length && $table.length) {
+                // Remove specific width assignment loop since width might shrink, just sync offsetWidth or scrollWidth
+                // Actually outerWidth of table is correct
+                $dummy.width($table.outerWidth());
+
+                $topScrollbar.off('scroll').on('scroll', function() {
+                    $scroller.scrollLeft($topScrollbar.scrollLeft());
+                });
+
+                $scroller.off('scroll').on('scroll', function() {
+                    $topScrollbar.scrollLeft($scroller.scrollLeft());
+                });
+            }
+        });
+    }
+
+    $(document).on('post-body.bs.table', function() {
+        setTimeout(initTopScrollbars, 200);
+    });
+    $(window).resize(function() {
+        setTimeout(initTopScrollbars, 200);
+    });
+
+    setTimeout(initTopScrollbars, 500);
+});
+</script>
+
 @yield('script-bottom')

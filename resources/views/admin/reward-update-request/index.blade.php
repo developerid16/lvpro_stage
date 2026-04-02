@@ -15,6 +15,9 @@
     </div>
 
     <div class="card-body pt-0">
+        <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+            <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+        </div>
         <div class="table-responsive">
             <table class="sh_table table table-bordered" id="bstable" data-id-field="id" data-toggle="table" data-ajax="ajaxRequest" data-side-pagination="server" data-pagination="false" data-search="false" data-total-field="count" data-data-field="items" data-page-size="100" data-page-list="[100, 500, 1000, 2000, All]" data-filter-control="true">
                 <thead>

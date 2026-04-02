@@ -38,7 +38,7 @@
                         <tr>
                             <th data-field="sr_no" data-filter-control="input" data-sortable="false" data-width="75"
                                 data-width-unit="px" data-searchable="false">Sr. No.</th>
-                          
+
                             <th data-field="name" data-filter-control="input" data-sortable="true" data-escape="true">Name</th>
                             <th data-field="reward_type" data-filter-control="input" data-sortable="true" data-escape="true">Reward Type</th>
                             <th data-field="amount" data-sortable="true">Amount</th>
@@ -100,12 +100,12 @@
                 inventoryInput.readOnly = true;
 
                 $('#uploadedFileLink').text(file.name).attr('href', 'javascript:void(0)');
-                $('#uploadedFile').removeClass('d-none').addClass('d-flex');            
+                $('#uploadedFile').removeClass('d-none').addClass('d-flex');
             };
 
             reader.readAsArrayBuffer(file);
         });
-        
+
         $(document).on('click', '#removeCsvFile', function () {
             $('#csvFile').val('');
             $('#uploadedFileLink').text('').attr('href', 'javascript:void(0)');
@@ -126,8 +126,8 @@
                 $('.fixed-table-body .fixed-table-loading').removeClass('open');
                 params.success(res)
             })
-        }  
-       
+        }
+
         // Show live preview on file select
         function imagePreview(inputSelector, previewSelector) {
             $(document).on("change", inputSelector, function () {
@@ -166,17 +166,17 @@
                 $("#digital").hide(); // show physical fields
                 $("#participating_merchant_location").hide(); // also show location section
                 $('#collection_reminder_title').html('Send Collection Reminder <span class="required-hash">*</span>');
-                
+
                 $('#collection_reminder_label').contents().last()[0].textContent = ' Collection Reminder';
 
                  let merchantId = $('#merchant_id').val();
                 if(merchantId){
                     loadLocations(merchantId);
                 }
-                
+
             }else if (type == "0") {
                 $("#digital").show(); // show physical fields
-                $("#participating_merchant_location").show(); 
+                $("#participating_merchant_location").show();
                  $(".where_use").hide();
                 $(".max_qty").hide(); // also show location section
                 $(".max_order").show(); // also show location section// also show location section
@@ -198,7 +198,7 @@
             }
 
 
-        });     
+        });
 
         $('#merchant_id').on('change', function () {
             let merchantId = $(this).val();
@@ -244,9 +244,9 @@
                                             <label class="mb-0 me-2 font-12" style="margin-top: 4px;">
                                                 <span class="fw-bold"></span> ${loc.name}
                                             </label>
-                                            <input type="checkbox" 
-                                                name="locations[${loc.id}][selected]" 
-                                                value="1" 
+                                            <input type="checkbox"
+                                                name="locations[${loc.id}][selected]"
+                                                value="1"
                                                 class="form-check-input">
                                         </div>
 
@@ -295,7 +295,7 @@
             let modal = $(this).closest(".modal");
             toggleInventoryFields(modal);
         });
-        
+
         $(document).on("change", ".clearing_method", function () {
             let modal = $(this).closest(".modal");
             toggleClearingFields(modal);
@@ -313,7 +313,7 @@
                 modal.find("#participating_merchant_location").empty();
                 modal.find("#participating_section").hide();
             }
-        });    
+        });
 
         function resetFormById() {
             const modal = $('#AddModal');
@@ -326,7 +326,7 @@
             $(".file").hide();
             $(".inventory_qty").hide();
             $("#location_section").hide();
-          
+
 
             window.selectedOutletMapMerchant = {};               // clear JS memory
             modal.find("#selected_locations_summary").empty();
@@ -343,7 +343,7 @@
                 file.value = '';
             });
 
-        
+
 
             // OPTIONAL: hide error messages
             form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
@@ -382,8 +382,8 @@
                 'input[name="sales_start"]',
                 'input[name="sales_end"]'
             );
-        }       
-        
+        }
+
         $(document).on('shown.bs.modal', '#AddModal', function () {
             $(".validation-error").text('');
             initEditor();
@@ -394,7 +394,7 @@
             initFlatpickrDate();
 
         });
-      
+
         // when inventory changes
         $(document).on('input', '#inventory_qty', calculateSetQty);
 
@@ -412,5 +412,10 @@
                 $('#set_qty').val('');
             }
         }
-    </script>     
+
+        $(document).on('change','#expiry_type',function(){
+            let modal = $(this).closest('.modal');
+            handleExpiryType(modal);
+        });
+    </script>
 @endsection

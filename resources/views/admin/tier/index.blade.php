@@ -18,6 +18,9 @@
         @endcan
     </div>
     <div class="card-body pt-0">
+        <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+            <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered" id="bstable" data-toggle="table"
                 data-page-list="[100, 500, 1000, 2000, All]"

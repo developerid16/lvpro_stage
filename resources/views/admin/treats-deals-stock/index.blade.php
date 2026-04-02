@@ -23,6 +23,9 @@
         </div>
 
         <div class="card-body pt-0">
+            <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+                <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+            </div>
             <div class="table-responsive">
                 <table class="sh_table table table-bordered" id="bstable" data-toggle="table"
                     data-page-list="[100, 500, 1000, 2000, All]" data-search-time-out="1200" data-page-size="100"
@@ -70,6 +73,9 @@
                         <div class="mb-4">
                             <h6 class="fw-semibold mb-3">Stock Details</h6>
 
+                            <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+                                <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table align-middle mb-0" style="border: 1px solid #9fa8b6;">
                                     <tbody>
@@ -136,6 +142,9 @@
 
                     <input type="hidden" id="location_adjust_reward_id">
 
+                    <div class="top-scrollbar" style="overflow-x: auto; overflow-y: hidden; margin-bottom: 5px;">
+                        <div class="top-scrollbar-dummy" style="height: 1px;"></div>
+                    </div>
                     <div class="table-responsive">
                         <div class="mb-3 p-2 rounded">
                             <strong>Name: </strong>
